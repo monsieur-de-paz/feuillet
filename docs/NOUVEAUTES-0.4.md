@@ -1,5 +1,7 @@
 # Feuillet 0.4 — un accueil à composer et des bases plus simples à utiliser
 
+Ce guide décrit les nouveautés 0.4. Les options supplémentaires de navigation, héritage et accent sont dans [le guide 0.4.1](NOUVEAUTES-0.4.1.md).
+
 ## Un accueil visiteur entièrement éditable
 
 Dans la barre latérale, **Accueil visiteur** permet de créer une page d’accueil ou d’utiliser une page existante. **Modifier l’accueil** ouvre cette page dans l’éditeur habituel. Son titre, son sous-titre (description), ses sections, images, boutons, liens et galeries sont tous éditables.

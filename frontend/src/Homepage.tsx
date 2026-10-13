@@ -104,7 +104,7 @@ export function HomepageControls({
         )}
         <p className="muted">
           {value.published
-            ? "Les visiteurs voient la dernière version publiée. Publie à nouveau après modification."
+            ? "Les visiteurs voient la version publiée. La publication automatique des pages déjà publiques s’applique aussi à cet accueil ; en mode brouillon, publie après modification."
             : "Prépare cette page, puis clique sur Publier pour la rendre visible aux visiteurs."}{" "}
           Les liens vers tes autres pages ne modifient pas leur publication.
         </p>

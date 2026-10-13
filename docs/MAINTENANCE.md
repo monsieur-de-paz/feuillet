@@ -131,3 +131,11 @@ Tester une modification de page publique et sa lecture dans un autre onglet, le 
 Les catalogues et fontes possèdent leurs licences et empreintes dans [ICONES-0.4.md](ICONES-0.4.md). La police Apple n’est pas redistribuée. Le PDF continue à utiliser sa police d’export propre ; la fidélité des émojis colorés n’est pas garantie.
 
 Les contrôles du frontend se reproduisent avec `node tests/frontend.mjs` à la racine, après `npm ci` dans `frontend/`. Le relevé de livraison, les résultats par moteur et les limites de validation sont dans [TESTS.md](TESTS.md).
+
+## Vérifications après mise à jour 0.4.1
+
+Tester le bouton près de la recherche, le raccourci configuré dans un texte en cours, le défaut de couleur sous clair/sombre/OLED, les étiquettes d’état et le bouton Utilisations. La route d’inventaire doit refuser une requête anonyme. L’héritage des sous-pages est désactivé par défaut : son activation publie les branches existantes ; évaluer ce choix dans les réglages du carnet. Faire ses tests d’activation sur une copie de contenus fictifs. Les réponses de formulaires demeurent privées. Les CSS et scripts fixes portent le numéro de version dans leur URL afin d’éviter une ancienne interface après mise à jour.
+
+Commande de régression supplémentaire : `python3 tests/workspace.py`, et `--mysql` pour le serveur jetable local. Aucun paquet npm ni extension PHP supplémentaire.
+
+Contrôler aussi les accents sombres dans l’éditeur et le lecteur. `tests/frontend/theme-colors.ts` vérifie 24 couleurs dans les trois modes, le contraste des premiers plans/survols et la parité exacte PHP/JavaScript ; ce groupe nécessite PHP CLI. Le verrouillage 0.4.1 n’introduit aucune dépendance nouvelle. Son SHA-256 est `1af67495f0100a813eccbd3d7dbc02e12a284465472c8e4e27a360d4f9d15cc9`.

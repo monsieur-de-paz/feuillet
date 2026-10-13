@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__."/theme-colors.php";
 require_once __DIR__."/customization.php";
 if(is_file(__DIR__."/databases.php"))require_once __DIR__."/databases.php";
 
@@ -39,8 +40,9 @@ function page_appearance(array $page): array { return array_replace(global_appea
 function appearance_css(array $appearance): string {
     $a=validate_appearance($appearance);$font=match($a['font']){'serif'=>'Georgia,serif','mono'=>'monospace','quicksand'=>'Quicksand,system-ui,sans-serif','fraunces'=>'Fraunces,Georgia,serif',default=>'system-ui,sans-serif'};
     $dark=$a['mode']!=='light';$surface=$a['mode']==='oled'?'#000000':($dark?'#17191D':$a['background']);
-    $variables='--surface:'.$surface.';--surface-muted:'.($dark?'#202329':'#F7F8F4').';--ink:'.$a['text'].';--muted:'.($dark?'#AFB3BD':'#818778').';--line:'.($dark?'#373A42':'#E4E6DF').';--accent:'.$a['accent'].';--green:'.$a['accent'].';color-scheme:'.($dark?'dark':'light').';';
-    return $variables.'--page-background:' .$a['background'].';--page-text:'.$a['text'].';--page-accent:'.$a['accent'].';background:'.$a['background'].';color:'.$a['text'].';font-family:'.$font.';';
+    $accent=adaptive_accent($a['accent'],$a['mode'],$a['background']);
+    $variables='--accent-base:'.$a['accent'].';--accent-contrast:'.accent_foreground($accent).';--accent-hover:'.accent_hover($accent).';--surface-soft:'.($a['mode']==='oled'?'#121212':($dark?'#2A2E35':'#EEF0EB')).';--surface:'.$surface.';--surface-muted:'.($a['mode']==='oled'?'#080808':($dark?'#202329':'#F7F8F4')).';--ink:'.$a['text'].';--muted:'.($dark?'#AFB3BD':'#818778').';--line:'.($dark?'#373A42':'#E4E6DF').';--accent:'.$accent.';--green:'.$accent.';color-scheme:'.($dark?'dark':'light').';';
+    return $variables.'--page-background:' .$a['background'].';--page-text:'.$a['text'].';--page-accent:'.$accent.';background:'.$a['background'].';color:'.$a['text'].';font-family:'.$font.';';
 }
 function check_space(?string $id): void { if($id&&!query('SELECT id FROM spaces WHERE id=?',[$id])->fetch())fail('Espace introuvable.'); }
 function list_spaces(bool $public=false): array {

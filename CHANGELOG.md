@@ -1,5 +1,9 @@
 # Historique des versions
 
+## 0.4.1 — 13 octobre 2026
+
+Navigation masquable par bouton ou raccourci configurable ; texte par défaut adapté aux thèmes ; variantes automatiques de l’accent pour sombre/OLED et contraste des boutons ; paramètre d’héritage public des sous-pages existantes et futures ; couleurs des choix d’état ; inventaire administrateur des utilisations de fichiers, y compris brouillons, publications et historique. URL des ressources versionnées pour les mises à jour. [Guide détaillé](docs/NOUVEAUTES-0.4.1.md).
+
 ## 0.4.0 — 13 octobre 2026
 
 Accueil éditable, couvertures cliquables, vues liées et durcissement de la sécurité. Publication automatique des pages publiques, lecteur actualisé sans rechargement, galeries communes, présentations de blocs, icônes du carnet et de pages, émojis complets et thème personnel clair/sombre/OLED. Voir [Nouveautés 0.4](docs/NOUVEAUTES-0.4.md).

@@ -5,7 +5,7 @@ function h(mixed $s): string { return htmlspecialchars(is_scalar($s)?(string)$s:
 function render_document(array $node,string $pageId='',bool $public=true): string {
     $t=$node['type']??'';$a=$node['attrs']??[];$children='';foreach($node['content']??[] as $child)$children.=render_document($child,$pageId,$public);
     if($t==='text'){
-        $v=h($node['text']??'');foreach($node['marks']??[] as $m){$v=match($m['type']??''){'bold'=>'<strong>'.$v.'</strong>','italic'=>'<em>'.$v.'</em>','underline'=>'<u>'.$v.'</u>','strike'=>'<s>'.$v.'</s>','code'=>'<code>'.$v.'</code>','highlight'=>'<mark'.(css_color($m['attrs']['color']??'')?' style="background-color:'.h(css_color($m['attrs']['color'])).'"':'').'>'.$v.'</mark>','textStyle'=>css_color($m['attrs']['color']??'')?'<span style="color:'.h(css_color($m['attrs']['color'])).'">'.$v.'</span>':$v,'subscript'=>'<sub>'.$v.'</sub>','superscript'=>'<sup>'.$v.'</sup>','link'=>safe_url($m['attrs']['href']??'')?'<a href="'.h(safe_url($m['attrs']['href'])).'" target="_blank" rel="noopener noreferrer">'.$v.'</a>':$v,default=>$v};}return $v;
+        $v=h($node['text']??'');foreach($node['marks']??[] as $m){$v=match($m['type']??''){'bold'=>'<strong>'.$v.'</strong>','italic'=>'<em>'.$v.'</em>','underline'=>'<u>'.$v.'</u>','strike'=>'<s>'.$v.'</s>','code'=>'<code>'.$v.'</code>','highlight'=>'<mark'.(css_color($m['attrs']['color']??'')?' style="background-color:'.h(css_color($m['attrs']['color'])).'"':'').'>'.$v.'</mark>','textStyle'=>strtolower($m['attrs']['color']??'')!=='#37352f'&&css_color($m['attrs']['color']??'')?'<span style="color:'.h(css_color($m['attrs']['color'])).'">'.$v.'</span>':$v,'subscript'=>'<sub>'.$v.'</sub>','superscript'=>'<sup>'.$v.'</sup>','link'=>safe_url($m['attrs']['href']??'')?'<a href="'.h(safe_url($m['attrs']['href'])).'" target="_blank" rel="noopener noreferrer">'.$v.'</a>':$v,default=>$v};}return $v;
     }
     if($t==='doc')return $children;
     if($t==='paragraph')return '<p>'.($children?:'<br>').'</p>';
@@ -83,6 +83,7 @@ function render_database_view(string $id,bool $public,array $config=[]): string 
     foreach($properties as $property)$head.='<th scope="col">'.h($property['name']).'</th>';
     foreach(array_slice($rows,0,500) as $row){$cells='';foreach($properties as $property){$value=$row['derived'][$property['id']]??$row['values'][$property['id']]??null;
         if($property['type']==='files'){$text='';foreach(is_array($value)?$value:[] as $fileId){$file=$files[$fileId]??null;if(!$file)continue;$text.='<a class="database-file" href="media.php?id='.rawurlencode($fileId).'&download=1">'.h($file['name']).'</a>';}}
+        elseif(in_array($property['type'],['select','multiselect'],true))$text=render_status_tags($property,$value);
         elseif($property['type']==='relation')$text=h(database_view_text(database_view_value($row,$property,$bundle)));
         elseif($property['type']==='checkbox')$text=!empty($value)?'<span aria-label="Oui">✓</span>':'<span aria-label="Non">—</span>';
         elseif(is_array($value))$text=h(implode(', ',array_map(fn($v)=>is_scalar($v)?(string)$v:encoded($v),$value)));
@@ -95,7 +96,7 @@ function render_database_view(string $id,bool $public,array $config=[]): string 
     if(!$body)$body='<tr><td colspan="'.count($properties).'">Aucune ligne disponible.</td></tr>';
     $more=count($rows)>500?'<p class="muted">Les 500 premières lignes sont affichées dans cette vue de lecture.</p>':'';
     if(($config['layout']??'table')==='gallery'){
-        $cards='';foreach(array_slice($rows,0,500) as $row){$fields='';foreach($properties as $property){$value=database_view_value($row,$property,$bundle);$fields.='<div><strong>'.h($property['name']).'</strong><p>'.h($value===null||$value===''||$value===[]?'—':database_view_text($value)).'</p></div>';}$cards.='<article class="database-gallery-card">'.$fields.'</article>';}
+        $cards='';foreach(array_slice($rows,0,500) as $row){$fields='';foreach($properties as $property){$value=database_view_value($row,$property,$bundle);$fields.='<div><strong>'.h($property['name']).'</strong><p>'.(in_array($property['type'],['select','multiselect'],true)?render_status_tags($property,$value):h($value===null||$value===''||$value===[]?'—':database_view_text($value))).'</p></div>';}$cards.='<article class="database-gallery-card">'.$fields.'</article>';}
         return '<section class="embedded-database">'.$title.'<div class="database-reader-gallery">'.($cards?:'<p>Aucune ligne disponible.</p>').'</div>'.$more.'</section>';
     }
     if(($config['layout']??'table')==='chart'){
@@ -155,4 +156,10 @@ function render_gallery(array $attrs,string $pageId,bool $public): string {
 
 function render_reader_theme_toggle(): string {
     return '<div class="feuillet-theme-toggle"><button type="button" class="theme-main-button" data-theme-main aria-label="Activer le mode sombre"><span data-theme-symbol aria-hidden="true">☾</span></button><details class="theme-options"><summary aria-label="Choisir le thème">⌄</summary><div><button type="button" data-theme-value="light">Clair</button><button type="button" data-theme-value="dark">Sombre</button><button type="button" data-theme-value="oled">Noir OLED</button><button type="button" data-theme-value="inherit">Thème du carnet</button></div></details></div>';
+}
+
+function render_status_tags(array $property,mixed $value): string {
+    $values=is_array($value)?$value:($value===null||$value===''?[]:[(string)$value]);$html='';
+    foreach($values as $label){$color=$property['config']['option_colors'][$label]??null;$style=is_string($color)&&preg_match('/^#[0-9a-fA-F]{6}$/D',$color)?' style="--tag-color:'.h($color).'"':'';$html.='<span class="database-status-tag"'.$style.'>'.h($label).'</span>';}
+    return $html?:'—';
 }

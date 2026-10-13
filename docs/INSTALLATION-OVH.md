@@ -101,3 +101,7 @@ Pour une mise à jour de 0.3 vers 0.4, conserver `config.php` et `storage/`, sau
 ## Clé privée de première installation
 
 Sur un hébergement neuf, ouvrir `setup.php` crée `storage/installation-key.txt`, en dehors de la racine web. Lire son contenu par FTP/SFTP et le coller dans **Clé d’installation**, avec les autres paramètres. Le site n’affiche jamais cette clé. L’installateur ne crée aucun compte ni base sans elle ; elle est supprimée quand la configuration est enregistrée. Si sa création échoue, vérifier les droits du propriétaire sur `storage/`. Cette étape ne concerne pas la mise à jour d’un carnet déjà installé.
+
+## Réglages de navigation et publication (0.4.1)
+
+Dans **Réglages & sauvegardes → Mon carnet**, personnaliser le raccourci de navigation. Pour rendre publiques automatiquement les sous-pages existantes et futures d’un parent public, activer l’option dédiée puis enregistrer. Cette option est désactivée par défaut ; sa désactivation laisse publiques les pages déjà publiées. Le bouton **Utilisations** de la bibliothèque aide à vérifier les références et l’accessibilité d’un fichier avant de partager son lien. [Guide 0.4.1](NOUVEAUTES-0.4.1.md).

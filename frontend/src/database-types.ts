@@ -29,6 +29,7 @@ export type Property = {
   type: PropertyType;
   config: {
     options?: string[];
+    option_colors?: Record<string, string>;
     target_db_id?: string;
     expression?: string;
     relation_property_id?: string;

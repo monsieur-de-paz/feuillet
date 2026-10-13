@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.4.0';
+const FEUILLET_VERSION = '0.4.1';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -138,6 +138,7 @@ function normalize_doc(mixed $doc): array {
                 if(!is_array($m)||!in_array($m['type']??'', ['bold','italic','underline','strike','code','highlight','link','textStyle','subscript','superscript'],true)) continue;
                 if(($m['type']??'')==='link') $m['attrs']=['href'=>safe_url($m['attrs']['href']??'')];
                 if(in_array($m['type']??'',['textStyle','highlight'],true))$m['attrs']=['color'=>css_color($m['attrs']['color']??'')];
+                if(($m['type']??'')==='textStyle'&&in_array(strtolower($m['attrs']['color']??''),['','#37352f'],true))continue;
                 $out['marks'][]=$m;
             }
         }
@@ -249,6 +250,7 @@ function save_page(array $input): array {
     try{
         if($existing){$q=query('UPDATE pages SET parent_id=?,title=?,icon=?,cover_id=?,kind=?,description=?,tags=?,source_url=?,source_name=?,content=?,updated_at=?,space_id=?,icon_id=?,appearance=?,category_id=?,cover_position=?,version=version+1 WHERE id=? AND version=?',array_merge($args,[$id,$existing['version']]));if($q->rowCount()!==1)fail('Conflit de modification.',409,'conflict');}
         else { $slug=substr(trim(preg_replace('/[^a-z0-9]+/','-',mb_strtolower(iconv('UTF-8','ASCII//TRANSLIT//IGNORE',$title)?:$title)),'-'),0,120)?:'page';$slug.='-'.substr($id,0,8);query('INSERT INTO pages (parent_id,title,icon,cover_id,kind,description,tags,source_url,source_name,content,updated_at,space_id,icon_id,appearance,category_id,cover_position,id,slug,visibility,sort_order,version,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',array_merge($args,[$id,$slug,'private',(int)($input['sort_order']??0),1,now()]));}
+        if($parent)publish_inherited_children($parent);
         if($existing)auto_publish_page($id);
         $p=row_page(query('SELECT * FROM pages WHERE id=?',[$id])->fetch());revision_save($p);$pdo->commit();return $p;
     } catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}

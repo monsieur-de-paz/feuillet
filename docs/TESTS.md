@@ -195,3 +195,38 @@ Le build principal produit environ 947 Ko JS / 292 Ko gzip et 107 Ko CSS / 20 Ko
 Validation locale sur PHP 8.5.11 et MySQL : aucun déploiement ni contrôle de performances sur le mutualisé OVH, PHP 8.3/8.4, MariaDB ou Apache réel. Ces vérifications restent nécessaires lors de l’installation.
 
 L’archive installable 0.4 a été extraite dans un nouveau dossier, puis les 20 scénarios généraux hors réseau ont été rejoués avec succès sur cette distribution, y compris l’installation par clé privée. Aucun fichier de configuration, mot de passe, session, base locale ou média personnel n’est distribué.
+
+
+## Version 0.4.1 — 13 octobre 2026
+
+| Suite HTTP | SQLite | MySQL local |
+|---|---|---|
+| `smoke.py` | 20 réussis, 1 réseau ignoré | 20 réussis, 1 réseau ignoré |
+| `customization.py` | 9 réussis | 9 réussis |
+| `databases.py` | 12 réussis | 12 réussis |
+| `homepage.py` | 6 réussis | 6 réussis |
+| `security.py` | 13 réussis | 13 réussis |
+| `autopublish.py` | 6 réussis | 6 réussis |
+| `reader.py` | 5 réussis | 5 réussis |
+| `workspace.py` | 12 réussis | 12 réussis |
+
+Soit **84 scénarios par pilote : 83 réussis et un scénario réseau ignoré**. Les contrôles réseau réels de 0.4 restent datés dans leur section ; le chemin d’import Commons n’a pas changé en 0.4.1. Les installations restent jetables et les données réelles du carnet ne sont jamais réutilisées par les suites.
+
+La nouvelle suite couvre raccourcis validés, héritage existant/nouveau/imbriqué, déplacements, restauration, révocation du parent, maintien des brouillons déjà publics, couleur par défaut, couleurs des états et sauvegarde, inventaire public/privé/historique, médias de bases et de formulaires, cartes indirectes de galerie et source d’accent préservée. Les requêtes anonymes sur l’inventaire sont refusées.
+
+`node tests/frontend.mjs` réussit les **42 contrôles** des vues, présentations, documents et raccourcis de navigation, ainsi qu’un groupe de contraste sur **24 accents** en clair/sombre/OLED, texte des boutons et survols. Le groupe d’accent compare les résultats exacts avec PHP CLI. Compilation TypeScript/Vite, Prettier et syntaxe PHP réussies. L’avertissement Vite sur la taille du bundle reste présent ; l’interface principale représente environ 955 Ko JS / 295 Ko gzip.
+
+Parcours observés dans le navigateur intégré :
+
+- Masquage par le bouton près de la recherche, panneau principal revenant à x=0, réaffichage depuis l’en-tête ; raccourci initial L puis configuration B testée et remise à L.
+- Sélection d’un paragraphe, application du rouge puis **Texte défaut** : retrait du style fixe, texte conservé ; couleur `rgb(243,244,246)` sur fonds sombre et OLED dans l’éditeur et le lecteur.
+- Couleur d’état enregistrée avec le sélecteur, retrouvée en `--tag-color:#d44c47` dans les deux vues.
+- Pour la source d’accent `#475569`, variante sombre `#92A1B5` et variante OLED `#7386A1`, identiques dans l’administration et le lecteur. Texte du logo noir sur son accent clair, fond OLED pur.
+- Inventaire du fichier fictif : page publique, note privée et historiques affichés ; aucun titre de cours réel n’a été utilisé dans les assertions.
+- À 390 et 320 px, ouverture et fermeture du tiroir par les boutons, puis bibliothèque et inventaire : `scrollWidth === innerWidth`, panneau restant dans l’écran.
+
+Captures : [utilisations](feuillet-v041-usages.jpg), [accent OLED](feuillet-v041-oled.jpg), [bibliothèque mobile](feuillet-v041-mobile.jpg). Le thème personnel et le raccourci ont été remis à leur réglage initial après les essais. Les réglages globaux de l’utilisateur n’ont pas été remplacés par une palette de test.
+
+Les limites sur OVH, PHP 8.3/8.4, MariaDB, Apache réel et les performances demeurent celles de la section 0.4.
+
+La distribution 0.4.1 a également été extraite dans un nouveau dossier : les 12 scénarios `workspace.py` passent depuis cette archive. Les audits npm complets et de production du verrouillage 0.4.1 indiquent chacun zéro vulnérabilité connue au moment du contrôle. Cela ne garantit pas l’absence de toute faille dans le logiciel ou l’hébergement.

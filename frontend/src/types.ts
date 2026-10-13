@@ -167,6 +167,8 @@ export type Notebook = {
   subtitle: string;
   max_upload: number;
   auto_publish?: boolean;
+  auto_publish_children?: boolean;
+  sidebar_shortcut?: string;
   icon?: string;
   icon_id?: string | null;
 };
@@ -175,6 +177,14 @@ export type Notebook = {
 export function editableDocument(doc: Doc): Doc {
   const clean = (node: Doc): Doc => ({
     ...node,
+    ...(node.marks
+      ? {
+          marks: node.marks.filter(
+            (mark) =>
+              mark.type !== "textStyle" || !isThemeTextColor(mark.attrs?.color),
+          ),
+        }
+      : {}),
     ...(node.content
       ? {
           content: node.content
@@ -188,4 +198,10 @@ export function editableDocument(doc: Doc): Doc {
       : {}),
   });
   return clean(doc);
+}
+
+export function isThemeTextColor(value: unknown): boolean {
+  return (
+    !value || (typeof value === "string" && value.toLowerCase() === "#37352f")
+  );
 }

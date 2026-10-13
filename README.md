@@ -4,7 +4,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.4.0-2563eb" alt="Version 0.4.0">
+  <img src="https://img.shields.io/badge/version-0.4.1-2563eb" alt="Version 0.4.1">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour rédiger, organiser et partager ses ressources.** Inspiré de l’édition par blocs, il permet de préparer des cours, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
@@ -49,7 +49,7 @@ SQLite est aussi disponible avec `pdo_sqlite` pour une installation locale ou un
 
 ### 2. Télécharger et transférer le logiciel
 
-Télécharger **`Feuillet-0.4.0.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
+Télécharger **`Feuillet-0.4.1.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
 
 Le ZIP de GitHub, accessible par **Code → Download ZIP**, convient également : renommer le dossier extrait `feuillet` si nécessaire. Il contient lui aussi l’interface compilée.
 
@@ -92,11 +92,19 @@ La configuration est créée automatiquement. Il n’y a aucun compte ou mot de 
 
 ### 5. Composer l’accueil et essayer avant de partager
 
-Ouvrir **Accueil visiteur** dans la barre latérale, créer une page d’accueil ou en choisir une, puis modifier son contenu avec l’éditeur. Dans une galerie, choisir les pages et leur ordre. Publier l’accueil pour qu’il apparaisse à `index.php?read=1`. Les brouillons et pages privées ne sont jamais affichés automatiquement. [Guide de la version 0.4](docs/NOUVEAUTES-0.4.md).
+Ouvrir **Accueil visiteur** dans la barre latérale, créer une page d’accueil ou en choisir une, puis modifier son contenu avec l’éditeur. Dans une galerie, choisir les pages et leur ordre. Publier l’accueil pour qu’il apparaisse à `index.php?read=1`. Les visiteurs ne reçoivent que du contenu publié. Le réglage d’héritage des sous-pages décrit plus bas peut aussi publier les enfants de cet accueil. [Guide de la version 0.4](docs/NOUVEAUTES-0.4.md).
 
 Créer une page, y déposer un petit PDF, puis cliquer sur **Publier**. Dans une fenêtre privée du navigateur, vérifier la lecture et le téléchargement. Repasser la page en privé et vérifier l’accès au lien du fichier. Un média réutilisé dans une autre page publique reste accessible.
 
 La version a été testée localement sur SQLite et MySQL. La configuration exacte du serveur de chaque hébergeur, ses limites PHP et ses performances doivent être vérifiées à l’installation ; le compte OVH de production n’a pas servi aux essais.
+
+## Navigation, texte et bibliothèque
+
+Le bouton près de **Rechercher…** masque la barre latérale ; un bouton dans l’en-tête la réaffiche. Le raccourci initial est **Ctrl/Cmd + Maj + L**. Dans **Réglages & sauvegardes → Mon carnet**, choisir une autre touche ou désactiver ce raccourci. Le masquage est mémorisé dans le navigateur.
+
+L’accent général possède des variantes automatiques pour les thèmes sombre et OLED, également appliquées dans la vue publique. Dans les outils de couleur, **Texte par défaut** suit le thème clair, sombre ou OLED. Les couleurs choisies explicitement restent fixes. Pour une propriété **État / Choix unique** ou **Choix multiples**, ouvrir le menu de colonne puis **Modifier la propriété** pour attribuer une couleur à chaque choix.
+
+Dans **Bibliothèque**, le bouton **Utilisations** de chaque fichier liste ses pages, bases, galeries et anciennes versions, avec leur état public ou privé. Il distingue le brouillon et le fichier réellement publié. Cet inventaire est réservé à l’administrateur. [Guide 0.4.1](docs/NOUVEAUTES-0.4.1.md).
 
 ## Les premières commandes
 
@@ -115,7 +123,7 @@ Le bouton **Ajouter** propose les mêmes insertions sur mobile. Sélectionner du
 
 ## Comprendre ce qui est public
 
-Les nouvelles pages sont **privées**. **Publier** partage cette page et toutes ses sous-pages actuelles. Ensuite, par défaut, chaque enregistrement actualise automatiquement une page déjà publique, y compris les médias et la couverture. Les sous-pages créées ensuite restent privées jusqu’à leur première publication. **Rendre privée** retire aussi les sous-pages.
+Les nouvelles pages racines sont **privées**. **Publier** partage cette page et toutes ses sous-pages actuelles. Ensuite, par défaut, chaque enregistrement actualise automatiquement une page déjà publique, y compris les médias et la couverture. Le réglage **Publier automatiquement les sous-pages des pages publiques** rend publiques toutes leurs sous-pages existantes et futures, y compris lors d’un déplacement sous un parent public. Il est désactivé par défaut pour conserver les choix de visibilité existants. Une fois activé, l’accès public est hérité du parent ; désactiver ce réglage ou rendre le parent privé permet de préparer des sous-pages privées. **Rendre privée** retire aussi les sous-pages.
 
 Décocher **Mettre à jour automatiquement les pages déjà publiques** dans les réglages retrouve le mode brouillon et sa publication manuelle. Les visiteurs déjà présents suivent les changements toutes les 15 secondes lorsque leur onglet est visible. Un exercice commencé ou un média en lecture est préservé. [Fonctionnement détaillé](docs/PUBLICATION-ET-THEMES-0.4.md).
 

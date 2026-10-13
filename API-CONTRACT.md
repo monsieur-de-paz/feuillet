@@ -108,3 +108,13 @@ Pour les champs, limites et exemples de formules : [BASES-ET-FORMULAIRES.md](doc
 - `GET page&id=...&published=1` force le snapshot publié, même pour un administrateur.
 - `GET reader-state.php?page=...&token=...` force également la visibilité publique. Le champ `page` vide suit l’accueil sélectionné. Une réponse inchangée contient uniquement `{token}` ; une modification ajoute `html`, `breadcrumbs`, `title`, `appearance`, `mode` et `unavailable`. Ce jeton est une empreinte de contenu, pas un secret d’authentification.
 - Un lien transformé utilise les types existants `buttonLink`, `bookmark` ou un paragraphe avec marque `link`. `fileBlock.mode` choisit téléchargement ou lecteur compatible, sans changer `fileId`.
+
+## Ajouts 0.4.1
+
+`GET file_usage&id=UUID` exige l’administrateur et renvoie `{file_id,public,usages,truncated}`. Chaque usage contient `kind`, titre, visibilité, emplacements et éventuellement ID, drapeaux `draft`, `published`, `deleted`, `from_form`. Les kinds sont `page`, `database`, `revision`, `notebook`, `pending`. Les références indirectes sont explicites ; 200 usages maximum. Une requête anonyme reçoit 401 avant de pouvoir connaître l’existence du fichier.
+
+Les réglages `notebook.sidebar_shortcut` (`Mod+Shift+L` par défaut, `Mod+Shift+[A-Z0-9]` ou chaîne vide) et `notebook.auto_publish_children` (booléen, false par défaut) sont validés côté serveur. L’activation de l’héritage publie les descendants privés des parents publics actifs dans la transaction des réglages. Créations, sauvegardes et déplacements sous ces parents suivent l’héritage. Une privatisation individuelle sous parent public reçoit 400 lorsque l’héritage est actif ; la privatisation du parent reste possible.
+
+Pour `select` et `multiselect`, `config.option_colors` associe les libellés connus à une couleur `#RRGGBB`. Les clés hors catalogue sont retirées ; une couleur malformée est refusée. Le champ est exporté, validé à l’import et transmis à la vue publique comme métadonnée de présentation. Les marques `textStyle` vides ou égales à l’ancien défaut `#37352F` ne sont plus conservées ; les autres mises en forme demeurent intactes.
+
+La propriété `appearance.accent` reste la couleur source, y compris lorsque `mode` est `dark` ou `oled`. Les variantes sont calculées au rendu, sans réécrire les réglages ni modifier le format des exports. Le premier rendu PHP et le thème personnel du lecteur produisent les mêmes variables CSS.

@@ -16,6 +16,7 @@ import {
   fileUrl,
   sizeLabel,
 } from "./types";
+import { adaptiveAccent, accentForeground, accentHover } from "./theme-colors";
 export const accentColors = [
   "#38795d",
   "#2563eb",
@@ -45,19 +46,24 @@ export function themeStyle(a: Appearance): CSSProperties {
   const mode = a.mode || "light";
   const dark = mode !== "light";
   const surface = mode === "oled" ? "#000000" : dark ? "#17191d" : "#ffffff";
+  const accent = adaptiveAccent(a.accent, mode, a.background);
   return {
     "--ui-font": fonts[a.font] || fonts.sans,
     "--surface": surface,
     "--surface-muted":
       mode === "oled" ? "#080808" : dark ? "#202329" : "#f7f8f4",
-    "--surface-soft": dark ? "#2a2e35" : "#eef0eb",
+    "--surface-soft":
+      mode === "oled" ? "#121212" : dark ? "#2a2e35" : "#eef0eb",
     "--ink": a.text,
     "--muted": dark ? "#afb3bd" : "#818778",
     "--line": dark ? "#373a42" : "#e4e6df",
-    "--green": a.accent,
-    "--accent": a.accent,
-    "--accent-soft": `color-mix(in srgb, ${a.accent} ${dark ? "22" : "11"}%, ${surface})`,
-    "--accent-contrast": "#ffffff",
+    "--green": accent,
+    "--accent": accent,
+    "--accent-base": a.accent,
+    "--page-accent": accent,
+    "--accent-hover": accentHover(accent),
+    "--accent-soft": `color-mix(in srgb, ${accent} ${dark ? "22" : "11"}%, ${surface})`,
+    "--accent-contrast": accentForeground(accent),
     "--shadow": dark ? "0 14px 50px #0009" : "0 14px 50px #0002",
     colorScheme: dark ? "dark" : "light",
   } as CSSProperties;
@@ -97,6 +103,32 @@ export function ThemeControls({
           <option value="oled">Noir OLED</option>
         </select>
       </label>
+      <div
+        className="accent-variants"
+        aria-label="Variantes automatiques de l’accent"
+      >
+        {(["light", "dark", "oled"] as const).map((mode) => {
+          const accent = adaptiveAccent(
+            value.accent,
+            mode,
+            mode === "light"
+              ? "#FFFFFF"
+              : mode === "dark"
+                ? "#17191D"
+                : "#000000",
+          );
+          return (
+            <span key={mode}>
+              <i style={{ background: accent }} />
+              {mode === "light" ? "Clair" : mode === "dark" ? "Sombre" : "OLED"}
+            </span>
+          );
+        })}
+      </div>
+      <p className="muted">
+        L’accent choisi garde sa couleur en clair. Ses variantes sombre et OLED
+        sont calculées automatiquement pour rester lisibles.
+      </p>
       <div
         className="theme-palette"
         role="group"
@@ -325,9 +357,53 @@ export function NotebookControls({
         Mettre à jour automatiquement les pages déjà publiques
       </label>
       <p className="muted">
-        Les pages privées restent privées. Désactive cette option pour préparer
-        un brouillon avant de le publier manuellement.
+        Cette option synchronise les pages déjà publiques. Désactive-la pour
+        préparer un brouillon avant de le publier manuellement.
       </p>
+      <label className="notebook-auto-publish">
+        <input
+          type="checkbox"
+          checked={!!draft.auto_publish_children}
+          onChange={(e) =>
+            setDraft({ ...draft, auto_publish_children: e.target.checked })
+          }
+        />
+        Publier automatiquement les sous-pages des pages publiques
+      </label>
+      <p className="muted">
+        L’activation publie toutes leurs sous-pages existantes et futures. Une
+        sous-page hérite alors de l’accès public de son parent. Les racines
+        privées et les réponses aux formulaires restent privées.
+      </p>
+      <label>
+        Raccourci pour masquer ou afficher la navigation
+        <span className="shortcut-settings">
+          Ctrl/Cmd + Maj +
+          <select
+            aria-label="Touche du raccourci de navigation"
+            value={
+              draft.sidebar_shortcut === ""
+                ? ""
+                : (draft.sidebar_shortcut || "Mod+Shift+L").split("+").at(-1)
+            }
+            onChange={(e) =>
+              setDraft({
+                ...draft,
+                sidebar_shortcut: e.target.value
+                  ? "Mod+Shift+" + e.target.value
+                  : "",
+              })
+            }
+          >
+            <option value="">Désactivé</option>
+            {"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split("").map((key) => (
+              <option key={key} value={key}>
+                {key}
+              </option>
+            ))}
+          </select>
+        </span>
+      </label>
       <label>
         Taille maximale d’un fichier (Mo)
         <input

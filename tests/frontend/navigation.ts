@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {navigationShortcutMatches as matches} from '../../frontend/src/navigation';
+const event={key:'L',code:'KeyL',ctrlKey:true,metaKey:false,shiftKey:true,altKey:false,repeat:false,isComposing:false};
+assert.equal(matches('Mod+Shift+L',event),true);
+assert.equal(matches('Mod+Shift+L',{...event,ctrlKey:false,metaKey:true}),true);
+assert.equal(matches('Mod+Shift+1',{...event,key:'!',code:'Digit1'}),true);
+assert.equal(matches('Mod+Shift+L',{...event,shiftKey:false}),false);
+assert.equal(matches('Mod+Shift+L',{...event,repeat:true}),false);
+assert.equal(matches('Mod+Shift+L',{...event,isComposing:true}),false);
+assert.equal(matches('Mod+Shift+L',{...event,altKey:true}),false);
+assert.equal(matches('',event),false);
+console.log('8/8 navigation shortcut cases passed');

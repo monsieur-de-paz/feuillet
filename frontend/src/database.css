@@ -1890,3 +1890,38 @@
     min-width: 0;
   }
 }
+
+.database-cell-tags .database-status-tag {
+  --tag-color: var(--muted);
+  background: color-mix(in srgb, var(--tag-color) 22%, var(--surface));
+  color: var(--ink);
+  border-left: 3px solid var(--tag-color);
+}
+.status-color-options {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+}
+.status-color-options legend {
+  font-size: 12px;
+}
+.status-color-options > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+.status-color-options > div > span {
+  flex: 1;
+}
+.status-color-options input[type="color"] {
+  width: 40px;
+  height: 30px;
+  padding: 2px;
+}
+.status-color-options .database-status-tag {
+  padding: 4px 8px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--tag-color) 22%, var(--surface));
+  border-left: 3px solid var(--tag-color);
+}

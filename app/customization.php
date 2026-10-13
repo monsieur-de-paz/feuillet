@@ -39,13 +39,15 @@ function categories_mutate(string $action,array $input): array {
 function notebook_settings(): array {
     $old=cfg()['name']??'Feuillet.';
     $title=in_array($old,['Le carnet de Sandro','Mon carnet','Mon carnet de cours'],true)?'Feuillet.':$old;
-    $defaults=['title'=>$title,'subtitle'=>'Mon carnet pédagogique','icon'=>'f.','icon_id'=>null,'auto_publish'=>true,'max_upload'=>(int)(cfg()['max_upload']??104857600)];
+    $defaults=['title'=>$title,'subtitle'=>'Mon carnet pédagogique','icon'=>'f.','icon_id'=>null,'auto_publish'=>true,'auto_publish_children'=>false,'sidebar_shortcut'=>'Mod+Shift+L','max_upload'=>(int)(cfg()['max_upload']??104857600)];
     $raw=query("SELECT value FROM app_settings WHERE name='notebook'")->fetchColumn();
     return array_replace($defaults,$raw?json_decode($raw,true):[]);
 }
 function notebook_validate(array $input): array {
     $out=notebook_settings();
     if(array_key_exists('auto_publish',$input)){if(!is_bool($input['auto_publish']))fail('Le réglage de publication doit être un booléen.');$out['auto_publish']=$input['auto_publish'];}
+    if(array_key_exists('auto_publish_children',$input)){if(!is_bool($input['auto_publish_children']))fail('Le réglage des sous-pages doit être un booléen.');$out['auto_publish_children']=$input['auto_publish_children'];}
+    if(array_key_exists('sidebar_shortcut',$input)){if(!is_string($input['sidebar_shortcut'])||($input['sidebar_shortcut']!==''&&!preg_match('/^Mod\+Shift\+[A-Z0-9]$/D',$input['sidebar_shortcut'])))fail('Raccourci de navigation invalide.');$out['sidebar_shortcut']=$input['sidebar_shortcut'];}
     if(array_key_exists('icon',$input))$out['icon']=validate_icon($input['icon']);
     if(array_key_exists('icon_id',$input)){
         $id=$input['icon_id'];if($id!==null&&(!is_string($id)||!preg_match('/^[a-f0-9-]{36}$/D',$id)))fail('Icône de carnet invalide.');
@@ -95,3 +97,19 @@ function publish_tree(array $page): array {
 }
 
 require_once __DIR__.'/homepage.php';
+
+/** Inside a transaction. Do not overwrite unpublished drafts of already public children. */
+function publish_inherited_children(?string $parentId=null): int {
+    if(!notebook_settings()['auto_publish_children'])return 0;
+    $rows=page_rows();$byId=array_column($rows,null,'id');$children=[];$queue=[];$count=0;
+    foreach($rows as $row){if($row['parent_id'])$children[$row['parent_id']][]=$row['id'];if(!$row['deleted_at']&&$row['visibility']==='public'&&$row['published']&&ancestors_active($row,$rows)&&($parentId===null||$row['id']===$parentId))$queue[]=$row['id'];}
+    $locking=db()->getAttribute(PDO::ATTR_DRIVER_NAME)==='mysql'?' FOR UPDATE':'';
+    $seen=[];for($i=0;$i<count($queue);$i++){ $parent=$queue[$i];if(isset($seen[$parent]))continue;$seen[$parent]=true;$currentParent=query('SELECT * FROM pages WHERE id=?'.$locking,[$parent])->fetch();if(!$currentParent||$currentParent['deleted_at']||$currentParent['visibility']!=='public'||!$currentParent['published'])continue;
+        foreach($children[$parent]??[] as $id){$row=query('SELECT * FROM pages WHERE id=?'.$locking,[$id])->fetch();if(!$row||$row['deleted_at'])continue;
+            if($row['visibility']!=='public'||!$row['published']){ $snapshot=row_page($row);$snapshot['visibility']='public';$snapshot['published_at']=now();$snapshot['has_unpublished_changes']=false;
+                query("UPDATE pages SET visibility='public',published=?,published_at=? WHERE id=?",[encoded($snapshot),$snapshot['published_at'],$id]);$count++;}
+            $queue[]=$id;
+        }
+    }return $count;
+}
+require_once __DIR__.'/media-usage.php';

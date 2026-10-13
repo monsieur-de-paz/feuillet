@@ -70,12 +70,12 @@ import {
   FormEmbed,
   transformSelectedLink,
 } from "./nodes";
-import { type Doc, safeLink, fileUrl } from "./types";
+import { type Doc, safeLink, fileUrl, isThemeTextColor } from "./types";
 import { useApp } from "./context";
 import "./editor-v2.css";
 
 const textColors = [
-  { label: "Défaut", value: "#37352F" },
+  { label: "Défaut", value: "inherit" },
   { label: "Gris", value: "#787774" },
   { label: "Marron", value: "#9F6B53" },
   { label: "Orange", value: "#D9730D" },
@@ -105,7 +105,9 @@ const TextStyle = Mark.create({
         default: null,
         parseHTML: (element) => element.style.color,
         renderHTML: (attributes) =>
-          attributes.color ? { style: `color:${attributes.color}` } : {},
+          !isThemeTextColor(attributes.color)
+            ? { style: `color:${attributes.color}` }
+            : {},
       },
     };
   },
@@ -1015,7 +1017,9 @@ export default function CourseEditor({
                 aria-label={`Texte ${color.label.toLowerCase()}`}
                 style={{ color: color.value }}
                 aria-pressed={
-                  editor?.getAttributes("textStyle").color === color.value
+                  color.label === "Défaut"
+                    ? isThemeTextColor(editor?.getAttributes("textStyle").color)
+                    : editor?.getAttributes("textStyle").color === color.value
                 }
                 onClick={() => {
                   if (color.label === "Défaut")

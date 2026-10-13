@@ -89,3 +89,7 @@ Les limites de document, de ZIP et de calcul bornent plusieurs allocations, mais
 Un document JSON comportant un nœud texte vide est accepté par certains anciens imports mais refusé par ProseMirror. Lors du test de démonstration, cela faisait ouvrir un éditeur vide, avec risque de remplacer le document à la saisie suivante. Le serveur retire les seuls nœuds texte vides et refuse les textes de type invalide ; le frontend applique également ce nettoyage à l’ouverture des anciens documents, sans supprimer leurs paragraphes ni leur contenu valide. Un contrôle supplémentaire couvre ce cas (13 tests de sécurité au total).
 
 Les symboles Lucide sont recoupés avec le manifeste local, et le lecteur périodique force les règles publiques même si un administrateur est connecté. Ses tests couvrent le brouillon non publié, la révocation, les mises à jour des cartes et bases et l’absence de changement lié à une réponse privée.
+
+## Ajouts vérifiés en 0.4.1
+
+L’inventaire `file_usage` exige l’administrateur avant de chercher le fichier ou ses titres privés. L’héritage des sous-pages est désactivé par défaut ; son activation publie explicitement les descendants des parents publics, sans publier de racines privées ni de réponses de formulaire. Les branches supprimées sont ignorées, et les brouillons déjà publiés ne sont pas remplacés. Les couleurs de choix sont limitées à `#RRGGBB`, échappées au rendu ; les variantes d’accent ne traitent que des couleurs validées. La nouvelle suite `tests/workspace.py` couvre ces frontières et les comportements de restauration.

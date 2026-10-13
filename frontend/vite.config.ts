@@ -5,7 +5,7 @@ export default defineConfig(({ mode }) => {
     base: "./",
     server: {
       proxy: {
-        "^/(api\\.php|media\\.php|pdf-viewer\\.(php|js|css)|favicon\\.svg|index\\.php|setup\\.php|reading\\.js|reader\\.css|reader-state\\.php|emoji-font\\.css|theme\\.js|theme-toggle\\.css|gallery\\.css|fonts/|icons\\.(svg|json)|vendor/|assets/)":
+        "^/(api\\.php|media\\.php|pdf-viewer\\.(php|js|css)|favicon\\.svg|index\\.php|setup\\.php|reading\\.js|reader\\.css|reader-state\\.php|emoji-font\\.css|theme\\.js|theme-colors\\.js|theme-toggle\\.css|gallery\\.css|fonts/|icons\\.(svg|json)|vendor/|assets/)":
           {
             target: env.FEUILLET_PHP_URL || "http://127.0.0.1:8080",
             changeOrigin: false,

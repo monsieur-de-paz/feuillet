@@ -54,13 +54,14 @@ function api_dispatch(string $action): never {
     if($action==='homepage')json_out(homepage_mutate(json_in()));
     if(in_array($action,['save_category','delete_category','restore_category'],true))json_out(categories_mutate($action,json_in()));
     if(in_array($action,['spaces','save_space','delete_space'],true))json_out(spaces_mutate(json_in(),$action==='delete_space'));
-    if($action==='settings'){$in=json_in();$values=[];if(array_key_exists('appearance',$in))$values['appearance']=validate_appearance($in['appearance']);if(array_key_exists('notebook',$in))$values['notebook']=notebook_validate($in['notebook']);$pdo=db();$pdo->beginTransaction();try{foreach($values as $name=>$value){query('DELETE FROM app_settings WHERE name=?',[$name]);query('INSERT INTO app_settings (name,value) VALUES (?,?)',[$name,encoded($value)]);}$pdo->commit();}catch(Throwable $e){$pdo->rollBack();throw $e;}json_out(['appearance'=>global_appearance(),'notebook'=>notebook_settings(),'server_upload_limit'=>server_upload_limit()]);}
+    if($action==='settings'){$in=json_in();$values=[];if(array_key_exists('appearance',$in))$values['appearance']=validate_appearance($in['appearance']);if(array_key_exists('notebook',$in))$values['notebook']=notebook_validate($in['notebook']);$pdo=db();$pdo->beginTransaction();try{foreach($values as $name=>$value){query('DELETE FROM app_settings WHERE name=?',[$name]);query('INSERT INTO app_settings (name,value) VALUES (?,?)',[$name,encoded($value)]);}if(isset($values['notebook'])&&$values['notebook']['auto_publish_children'])publish_inherited_children();$pdo->commit();}catch(Throwable $e){$pdo->rollBack();throw $e;}json_out(['appearance'=>global_appearance(),'notebook'=>notebook_settings(),'server_upload_limit'=>server_upload_limit()]);}
     if($action==='rename_file')json_out(rename_file(json_in()));
     if($action==='image_search'){$images=image_search(str_limit($_GET['q']??'',120));json_out(['images'=>$images,'results'=>$images]);}
     if($action==='image_import')json_out(['file'=>image_import(json_in())]);
     if($action==='import_markdown')json_out(['page'=>import_markdown()]);
     if($action==='export_markdown')export_markdown(get_page(str_limit($_GET['id']??'',190)));
     if($action==='health')json_out(['php'=>PHP_VERSION,'driver'=>db()->getAttribute(PDO::ATTR_DRIVER_NAME),'upload_limit'=>upload_limit(),'configured_upload_limit'=>notebook_settings()['max_upload'],'server_upload_limit'=>server_upload_limit(),'storage_writable'=>is_writable(storage()),'version'=>FEUILLET_VERSION]);
+    if($action==='file_usage')json_out(media_usage(str_limit($_GET['id']??'',36)));
     if($action==='files')json_out(['files'=>array_map('file_info',query('SELECT * FROM files ORDER BY created_at DESC')->fetchAll())]);
     if($action==='upload'){if(empty($_FILES['file']))fail('Aucun fichier reçu. La limite d’envoi a peut-être été dépassée.',413);json_out(['file'=>receive_file($_FILES['file'])]);}
     if($action==='history'){
@@ -74,7 +75,7 @@ function api_dispatch(string $action): never {
     if($action==='restore'){
         $row=query('SELECT * FROM pages WHERE id=?',[$id])->fetch();if(!$row)fail('Page introuvable.',404);
         if($row['parent_id']){$parent=query('SELECT deleted_at FROM pages WHERE id=?',[$row['parent_id']])->fetch();if(!$parent||$parent['deleted_at'])query('UPDATE pages SET parent_id=NULL WHERE id=?',[$id]);}
-        $pdo=db();$pdo->beginTransaction();try{foreach(descendants($id) as $child)query("UPDATE pages SET deleted_at=NULL,visibility='private',published=NULL,published_at=NULL,version=version+1,updated_at=? WHERE id=?",[now(),$child]);$pdo->commit();}catch(Throwable $e){$pdo->rollBack();throw $e;}
+        $pdo=db();$pdo->beginTransaction();try{foreach(descendants($id) as $child)query("UPDATE pages SET deleted_at=NULL,visibility='private',published=NULL,published_at=NULL,version=version+1,updated_at=? WHERE id=?",[now(),$child]);if($row['parent_id'])publish_inherited_children($row['parent_id']);$pdo->commit();}catch(Throwable $e){$pdo->rollBack();throw $e;}
         json_out(['page'=>get_page($id)]);
     }
     $p=get_page($id);
@@ -86,13 +87,14 @@ function api_dispatch(string $action): never {
     if((int)($in['version']??-1)!==$p['version'])fail('Cette page a été modifiée ailleurs. Recharge-la.',409,'conflict');
     if($action==='publish')json_out(publish_tree($p));
     if($action==='visibility'){
+        if(notebook_settings()['auto_publish_children']&&$p['parent_id']){$parentRow=query('SELECT visibility,published FROM pages WHERE id=?',[$p['parent_id']])->fetch();if($parentRow&&$parentRow['visibility']==='public'&&$parentRow['published'])fail('Désactive la publication automatique des sous-pages, ou rends leur page parente privée.');}
         if(($in['visibility']??'')!=='private')fail('Utilise Publier pour rendre une page publique.');
         $pdo=db();$pdo->beginTransaction();try{foreach(descendants($id) as $child)query("UPDATE pages SET visibility='private',published=NULL,published_at=NULL WHERE id=?",[$child]);$pdo->commit();}catch(Throwable $e){$pdo->rollBack();throw $e;}json_out(['page'=>get_page($id),'pages'=>list_pages()['pages']]);
     }
     if($action==='move'){
         $parent=!empty($in['parent_id'])?str_limit($in['parent_id'],36):null;check_parent($parent,$id);
         $space=array_key_exists('space_id',$in)?($in['space_id']?:null):($parent?query('SELECT space_id FROM pages WHERE id=?',[$parent])->fetchColumn():$p['space_id']);check_space($space);
-        $category=$space!==($p['space_id']??null)?category_for_kind($space,$p['kind']):($p['category_id']??null);$pdo=db();$pdo->beginTransaction();try{$q=query('UPDATE pages SET parent_id=?,sort_order=?,space_id=?,category_id=?,version=version+1,updated_at=? WHERE id=? AND version=?',[$parent,(int)($in['sort_order']??0),$space,$category,now(),$id,$p['version']]);if($q->rowCount()!==1)fail('Conflit de modification.',409,'conflict');foreach(descendants($id) as $child)if($child!==$id){$row=query('SELECT * FROM pages WHERE id=?',[$child])->fetch();$category=($row['space_id']?:null)!==$space?category_for_kind($space,$row['kind']):($row['category_id']??null);query('UPDATE pages SET space_id=?,category_id=?,version=version+1,updated_at=? WHERE id=?',[$space,$category,now(),$child]);auto_publish_page($child);}auto_publish_page($id);$pdo->commit();}catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}json_out(['page'=>get_page($id),'pages'=>list_pages()['pages']]);
+        $category=$space!==($p['space_id']??null)?category_for_kind($space,$p['kind']):($p['category_id']??null);$pdo=db();$pdo->beginTransaction();try{$q=query('UPDATE pages SET parent_id=?,sort_order=?,space_id=?,category_id=?,version=version+1,updated_at=? WHERE id=? AND version=?',[$parent,(int)($in['sort_order']??0),$space,$category,now(),$id,$p['version']]);if($q->rowCount()!==1)fail('Conflit de modification.',409,'conflict');foreach(descendants($id) as $child)if($child!==$id){$row=query('SELECT * FROM pages WHERE id=?',[$child])->fetch();$category=($row['space_id']?:null)!==$space?category_for_kind($space,$row['kind']):($row['category_id']??null);query('UPDATE pages SET space_id=?,category_id=?,version=version+1,updated_at=? WHERE id=?',[$space,$category,now(),$child]);auto_publish_page($child);}if($parent)publish_inherited_children($parent);auto_publish_page($id);$pdo->commit();}catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}json_out(['page'=>get_page($id),'pages'=>list_pages()['pages']]);
     }
     if($action==='restore_revision'){
         $r=query('SELECT snapshot FROM revisions WHERE id=? AND page_id=?',[str_limit($in['revision_id']??'',36),$id])->fetch();if(!$r)fail('Version introuvable.',404);

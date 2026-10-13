@@ -5,6 +5,8 @@ import {
   type ReactNode,
   type CSSProperties,
 } from "react";
+import { navigationShortcutMatches } from "./navigation";
+import { MediaUsage } from "./MediaUsage";
 import type { Editor } from "@tiptap/core";
 import {
   Home,
@@ -42,6 +44,7 @@ import {
   RefreshCw,
   Cloud,
   PanelLeftClose,
+  PanelLeftOpen,
   Move,
   File,
   Music,
@@ -319,6 +322,18 @@ export default function App() {
   >("saved");
   const [saveError, setSaveError] = useState("");
   const [sidebar, setSidebar] = useState(false);
+  const [sidebarHidden, setSidebarHidden] = useState(() => {
+    try {
+      return localStorage.getItem("feuillet.sidebar-hidden") === "true";
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem("feuillet.sidebar-hidden", String(sidebarHidden));
+    } catch {}
+  }, [sidebarHidden]);
   const [mobile, setMobile] = useState(
     () => window.matchMedia("(max-width: 760px)").matches,
   );
@@ -328,6 +343,13 @@ export default function App() {
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
   }, []);
+  function toggleNavigation() {
+    if (mobile) setSidebar((v) => !v);
+    else if (focus) {
+      setFocus(false);
+      setSidebarHidden(false);
+    } else setSidebarHidden((v) => !v);
+  }
   const [collapsed, setCollapsed] = useState<string[]>([]);
   const [favorites, setFavorites] = useState<string[]>(readFavorites);
   const [search, setSearch] = useState("");
@@ -375,6 +397,19 @@ export default function App() {
   const savePromise = useRef<Promise<boolean> | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const admin = !!session?.authenticated;
+  useEffect(() => {
+    if (!admin) return;
+    const shortcut = (event: KeyboardEvent) => {
+      const binding = notebook.sidebar_shortcut ?? "Mod+Shift+L";
+      if (navigationShortcutMatches(binding, event)) {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleNavigation();
+      }
+    };
+    document.addEventListener("keydown", shortcut, true);
+    return () => document.removeEventListener("keydown", shortcut, true);
+  }, [admin, notebook.sidebar_shortcut, mobile, focus]);
   const adminRef = useRef(admin);
   adminRef.current = admin;
   function notify(message: string) {
@@ -692,8 +727,23 @@ export default function App() {
     showModal("databases");
   }
   async function saveNotebook(value: Notebook) {
+    if (!(await save()))
+      throw new Error("Enregistre la page avant de modifier ces réglages.");
     const result = await api("settings", { notebook: value });
     setNotebook(result.notebook);
+    const updatedPages = await loadList();
+    const current = draftRef.current;
+    const metadata = updatedPages.find((p) => p.id === current?.id);
+    if (current && metadata && current.version === metadata.version) {
+      const next = {
+        ...current,
+        visibility: metadata.visibility,
+        has_unpublished_changes:
+          dirtyRef.current || metadata.has_unpublished_changes,
+      };
+      draftRef.current = next;
+      setDraft(next);
+    }
     setServerLimit(result.server_upload_limit);
     setHealth((previous: any) =>
       previous
@@ -1478,14 +1528,21 @@ export default function App() {
     ...themeStyle(effectiveAppearance),
     "--page-background": effectiveAppearance.background,
     "--page-text": effectiveAppearance.text,
-    "--page-accent": effectiveAppearance.accent,
+
     "--ink": effectiveAppearance.text,
-    "--green": effectiveAppearance.accent,
   } as CSSProperties;
   const editAppearance =
     appearanceScope === "page"
       ? { ...appearance, ...draft?.appearance }
       : appearance;
+  const inheritsPublic = !!(
+    notebook.auto_publish_children &&
+    draft?.parent_id &&
+    pages.some(
+      (p) =>
+        String(p.id) === String(draft.parent_id) && p.visibility === "public",
+    )
+  );
   const hasPage = !!draft;
   if (loading)
     return (
@@ -1525,7 +1582,7 @@ export default function App() {
       <div
         style={themeStyle(displayAppearance)}
         data-theme={displayAppearance.mode || "light"}
-        className={`app-shell ${focus ? "focus-mode" : ""} ${sidebar ? "sidebar-open" : ""} ${admin ? "admin-mode" : "public-mode"}`}
+        className={`app-shell ${focus ? "focus-mode" : ""} ${sidebarHidden ? "sidebar-collapsed" : ""} ${sidebar ? "sidebar-open" : ""} ${admin ? "admin-mode" : "public-mode"}`}
       >
         {sidebar && (
           <button
@@ -1537,7 +1594,7 @@ export default function App() {
         <aside
           className="sidebar"
           aria-label="Navigation des pages"
-          inert={mobile && !sidebar}
+          inert={mobile ? !sidebar : sidebarHidden || focus}
         >
           <div className="workspace-heading">
             <button
@@ -1579,6 +1636,17 @@ export default function App() {
             </button>
           </div>
           <div className="sidebar-search">
+            {admin && (
+              <button
+                className="sidebar-toggle"
+                type="button"
+                aria-label="Masquer la navigation"
+                title={`Masquer la navigation (${notebook.sidebar_shortcut ? "Ctrl/Cmd + Maj + " + notebook.sidebar_shortcut.split("+").at(-1) : "bouton uniquement"})`}
+                onClick={toggleNavigation}
+              >
+                <PanelLeftClose size={17} />
+              </button>
+            )}
             <Search size={16} />
             <input
               aria-label="Rechercher une page"
@@ -1826,6 +1894,16 @@ export default function App() {
           )}
           <header className="topbar">
             <nav className="breadcrumbs" aria-label="Fil d’Ariane">
+              {admin && (sidebarHidden || focus) && !mobile && (
+                <button
+                  className="icon-button"
+                  aria-label="Afficher la navigation"
+                  title="Afficher la navigation"
+                  onClick={toggleNavigation}
+                >
+                  <PanelLeftOpen size={19} />
+                </button>
+              )}
               <button
                 className="mobile-menu icon-button"
                 aria-label="Ouvrir la navigation"
@@ -2027,7 +2105,15 @@ export default function App() {
                               <LinkIcon />
                               Copier le lien public
                             </button>
-                            <button onClick={() => void unpublish()}>
+                            <button
+                              disabled={inheritsPublic}
+                              title={
+                                inheritsPublic
+                                  ? "Cette page hérite de l’accès public de son parent."
+                                  : undefined
+                              }
+                              onClick={() => void unpublish()}
+                            >
                               <Lock />
                               Rendre privée
                             </button>
@@ -2705,9 +2791,11 @@ export default function App() {
               </details>
             )}
             <p className="muted">
-              Les sous-pages ajoutées plus tard restent des brouillons privés
-              jusqu’à la prochaine publication. Rendre cette page privée retire
-              aussi ses sous-pages de la consultation publique.
+              {notebook.auto_publish_children
+                ? "Les futures sous-pages héritent automatiquement de l’accès public de leur parent."
+                : "Les sous-pages ajoutées plus tard restent privées jusqu’à leur publication."}{" "}
+              Rendre cette page privée retire aussi ses sous-pages de la
+              consultation publique.
             </p>
             {draft.visibility === "public" && (
               <a
@@ -2719,11 +2807,18 @@ export default function App() {
                 <ExternalLink size={15} /> Ouvrir la version publiée
               </a>
             )}
+            {inheritsPublic && (
+              <p className="muted">
+                Cette page hérite de l’accès public de son parent. Pour la
+                rendre privée, désactive l’héritage dans les réglages ou rends
+                son parent privé.
+              </p>
+            )}
             <div className="modal-actions">
               {draft.visibility === "public" && (
                 <button
                   className="small-button"
-                  disabled={busy}
+                  disabled={busy || inheritsPublic}
                   onClick={() => void unpublish()}
                 >
                   <Lock size={14} /> Rendre privée
@@ -2973,6 +3068,16 @@ export default function App() {
                             {sizeLabel(file.size)} · {file.mime}
                           </small>
                         </div>
+                        <MediaUsage
+                          id={file.id}
+                          name={file.name}
+                          onOpenPage={async (id) => {
+                            if (await save()) {
+                              setModal(null);
+                              void openPage(id);
+                            }
+                          }}
+                        />
                         <button
                           className="icon-button"
                           title={`Renommer ${file.name}`}
@@ -3009,7 +3114,7 @@ export default function App() {
             </div>
             <p className="library-note">
               <ShieldCheck size={14} /> Les fichiers sont accessibles aux élèves
-              seulement lorsqu’ils sont utilisés dans une page publiée.
+              via une page ou une base publiée, ou comme icône du carnet.
             </p>
           </div>
         </Modal>
@@ -3343,8 +3448,8 @@ export default function App() {
               <p className="empty-list">La corbeille est vide.</p>
             )}
             <p className="muted">
-              Une page restaurée est privée : tu choisis quand la publier à
-              nouveau.
+              Une page restaurée sous un parent public suit l’héritage lorsqu’il
+              est activé. Les autres pages restaurées restent privées.
             </p>
           </div>
         </Modal>

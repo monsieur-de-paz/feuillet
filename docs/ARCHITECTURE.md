@@ -113,3 +113,11 @@ Les imports ZIP créent des copies privées et remappent les références ; ils 
 `IconPicker.tsx` charge paresseusement les catalogues Unicode/CLDR et Lucide. `public/icons.svg` est un sprite fixe de primitives autorisées ; la validation serveur recoupe le nom de dessin avec `icons.json`. La police Noto couleur locale est déclarée une seule fois dans `emoji-font.css`, avec priorité à la police Apple installée. Les fichiers de licence accompagnent la distribution.
 
 L’installation neuve nécessite la clé privée de `storage/installation-key.txt`, lue par FTP. Elle est contrôlée avant connexion SQL et supprimée après écriture atomique de la configuration. Ce fichier n’est pas distribué.
+
+## Compléments 0.4.1
+
+`publish_inherited_children()` parcourt en largeur les branches des parents publics, dans la transaction appelante, avec verrouillage des lignes sur MySQL. Il ne remplace pas les snapshots déjà publiés et ignore les branches supprimées. Le réglage est désactivé par défaut ; les APIs de création, déplacement, restauration, sauvegarde et paramétrage utilisent le même mécanisme. La garde de privatisation exprime l’héritage du parent.
+
+`app/media-usage.php` et `MediaUsage.tsx` fournissent l’inventaire chargé uniquement à la demande par l’administrateur. Ils rapprochent documents, snapshots, galeries, champs fichiers et révisions. La route ne sert jamais aux visiteurs et n’affecte pas `media.php`. `option_colors` appartient au JSON des propriétés : aucune table supplémentaire. La navigation repliée est locale ; son raccourci appartient au réglage du carnet. La normalisation des marques de texte adapte aussi les anciens défauts aux thèmes.
+
+Les couleurs dérivées appartiennent au rendu, jamais aux données stockées. `theme-colors.ts` calcule luminance, contraste, variante HSL et premier plan des boutons. Le build l’embarque dans React et génère `public/theme-colors.js` pour le lecteur. `app/theme-colors.php` fournit le calcul équivalent au premier rendu PHP ; les tests comparent les résultats exacts des deux versions. `--accent-base` conserve la source, tandis que `--accent`, `--green`, `--page-accent`, `--accent-contrast` et `--accent-hover` portent les valeurs dérivées. Le thème personnel recalcule ces variables depuis la source lors de chaque changement et actualisation du lecteur.

@@ -599,7 +599,19 @@ function Cell({
     return (
       <div className="database-cell-tags">
         {(Array.isArray(value) ? value : [String(value)]).map((item) => (
-          <span key={item}>{item}</span>
+          <span
+            key={item}
+            className="database-status-tag"
+            style={
+              property.config.option_colors?.[item]
+                ? ({
+                    "--tag-color": property.config.option_colors[item],
+                  } as React.CSSProperties)
+                : undefined
+            }
+          >
+            {item}
+          </span>
         ))}
       </div>
     );
@@ -2115,6 +2127,9 @@ function PropertyEditor({
   const [options, setOptions] = useState(
     (property?.config.options || []).join("\n"),
   );
+  const [optionColors, setOptionColors] = useState<Record<string, string>>(
+    property?.config.option_colors || {},
+  );
   const [targetDb, setTargetDb] = useState(property?.config.target_db_id || "");
   const [expression, setExpression] = useState(
     property?.config.expression || "",
@@ -2179,6 +2194,12 @@ function PropertyEditor({
             .filter(Boolean),
         ),
       ];
+    if (config.options)
+      config.option_colors = Object.fromEntries(
+        config.options
+          .filter((label) => optionColors[label])
+          .map((label) => [label, optionColors[label]]),
+      );
     if (type === "relation") config.target_db_id = targetDb;
     if (type === "formula") config.expression = expression;
     if (type === "rollup")
@@ -2313,6 +2334,60 @@ function PropertyEditor({
               onChange={(event) => change(setOptions, event.target.value)}
             />
           </label>
+        )}
+        {["select", "multiselect"].includes(type) && (
+          <fieldset className="status-color-options">
+            <legend>Couleurs des états et des choix</legend>
+            {[
+              ...new Set(
+                options
+                  .split(/\n/)
+                  .map((s) => s.trim())
+                  .filter(Boolean),
+              ),
+            ].map((label) => (
+              <div key={label}>
+                <span
+                  className="database-status-tag"
+                  style={
+                    {
+                      "--tag-color": optionColors[label] || "#818778",
+                    } as React.CSSProperties
+                  }
+                >
+                  {label}
+                </span>
+                <input
+                  type="color"
+                  aria-label={`Couleur de ${label}`}
+                  value={optionColors[label] || "#818778"}
+                  onInput={(e) =>
+                    change(setOptionColors, {
+                      ...optionColors,
+                      [label]: e.currentTarget.value,
+                    })
+                  }
+                  onChange={(e) =>
+                    change(setOptionColors, {
+                      ...optionColors,
+                      [label]: e.target.value,
+                    })
+                  }
+                />
+                <button
+                  type="button"
+                  className="small-button"
+                  onClick={() => {
+                    const next = { ...optionColors };
+                    delete next[label];
+                    change(setOptionColors, next);
+                  }}
+                >
+                  Par défaut
+                </button>
+              </div>
+            ))}
+          </fieldset>
         )}
         {type === "relation" && (
           <label>

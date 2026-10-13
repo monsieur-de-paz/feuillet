@@ -2,11 +2,11 @@
 
 ## Écrire une fois, afficher les changements aux visiteurs
 
-Une nouvelle page reste privée. **Publier** rend publics cette page et ses sous-pages actuelles. Ensuite, par défaut, chaque enregistrement d’une page déjà publique actualise aussi sa version publique : texte, ajout de bloc, média, icône, cadrage de couverture et disposition de galerie. Il n’est plus nécessaire de cliquer sur **Mettre à jour** après chaque modification.
+Une nouvelle page reste privée, sauf sous un parent public lorsque l’héritage des sous-pages est activé en 0.4.1. **Publier** rend publics cette page et ses sous-pages actuelles. Ensuite, par défaut, chaque enregistrement d’une page déjà publique actualise aussi sa version publique : texte, ajout de bloc, média, icône, cadrage de couverture et disposition de galerie. Il n’est plus nécessaire de cliquer sur **Mettre à jour** après chaque modification.
 
 L’éditeur enregistre après environ 900 ms sans nouvelle modification ; le cadrage peut aussi être enregistré avec **Terminer**. Il n’est pas possible d’afficher un changement qui n’a pas encore été envoyé au serveur, notamment hors connexion. L’état **Enregistré** confirme l’enregistrement ; un conflit ou une erreur reste visible et ne remplace pas une version plus récente.
 
-Dans **Réglages & sauvegardes → Mon carnet**, décocher **Mettre à jour automatiquement les pages déjà publiques** permet de retrouver le mode brouillon : les nouvelles modifications restent privées jusqu’à une publication manuelle. Réactiver cette option synchronise les prochains enregistrements ; cela ne publie pas de nouvelles pages privées ni toutes les anciennes modifications sans action de rédaction. Les sous-pages créées après la publication restent privées jusqu’à leur première publication.
+Dans **Réglages & sauvegardes → Mon carnet**, décocher **Mettre à jour automatiquement les pages déjà publiques** permet de retrouver le mode brouillon : les nouvelles modifications restent privées jusqu’à une publication manuelle. Réactiver cette option synchronise les prochains enregistrements ; cela ne publie pas de nouvelles pages privées ni toutes les anciennes modifications sans action de rédaction. Les sous-pages créées après la publication restent privées jusqu’à leur première publication lorsque le réglage d’héritage est désactivé. En 0.4.1, son activation publie les enfants existants et futurs : [guide](NOUVEAUTES-0.4.1.md).
 
 La mise en privé retire aussi les sous-pages et leurs documents, sauf lorsqu’un média est encore utilisé dans une autre ressource publique ou comme icône publique du carnet. Les réponses de formulaires restent privées.
 
@@ -33,3 +33,5 @@ Ce choix est conservé dans le navigateur et ne modifie pas les couleurs choisie
 ## Références et limites
 
 Les preuves REA et leur périmètre sont dans [Publication — référence Notion](REA-PUBLICATION-0.4.md). Elles portent sur la documentation officielle observée dans un navigateur isolé, sans accès à l’éditeur privé Notion. Feuillet utilise son propre serveur PHP, ses règles de visibilité et un contrôle périodique de lecture ; ce ne sont pas les protocoles internes de Notion.
+
+Depuis 0.4.1, les accents ont des variantes automatiques pour sombre/OLED, calculées à partir de la couleur source enregistrée. Elles s’appliquent aussi lors du changement de thème personnel.
