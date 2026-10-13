@@ -23,3 +23,25 @@ body[style] .gallery-card,body[style] .bookmark,body[style] table th,body[style]
 .reader-breadcrumbs [aria-current=page]{max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:4px 0;color:var(--muted,#71776f)}
 .breadcrumb-separator{color:var(--muted,#71776f)}
 @media(max-width:700px){.reader-breadcrumbs li{font-size:12px}.reader-breadcrumbs a{max-width:170px}.reader-breadcrumbs [aria-current=page]{max-width:200px}}
+
+/* Same Feuillet badge in the reader and the editor. */
+.brand-symbol{display:inline-flex;align-items:center;justify-content:center;background:var(--accent,#3d6559);border-radius:9px;flex-shrink:0;width:36px;height:36px;color:white;font-family:Georgia,serif;font-size:28px;font-weight:bold;line-height:1;padding-bottom:3px;letter-spacing:-2px}
+.reader-brand,.reader-breadcrumbs li:first-child a{display:inline-flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;max-width:none}
+
+.database-reader-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:16px}.database-gallery-card{border:1px solid var(--border,#dcded6);border-radius:12px;padding:18px;background:var(--surface,#fff)}.database-gallery-card p{margin:0 0 10px}.database-reader-bar{display:grid;grid-template-columns:minmax(90px,1fr) 2fr auto;gap:12px;align-items:center;margin:14px 0}.database-reader-bar div{height:18px;background:var(--surface-muted,#eee);border-radius:8px;overflow:hidden}.database-reader-bar i{display:block;height:100%;background:var(--accent,#3d6559);border-radius:8px}
+.reader-header .brand-symbol{color:#fff}.reader-header .reader-brand>span:last-child,.reader-breadcrumbs li:first-child a>span:last-child{color:var(--page-text,#37352f)}
+body[style] .gallery-card,body[style] .bookmark,body[style] table th,body[style] .embedded-form,body[style] .resource-button{background:var(--surface,#fff);border-color:var(--line,#e4e6df)}
+body[style] pre,body[style] code{background:var(--surface-muted,#f7f8f4)}
+body[style] .reader-header,body[style] td,body[style] th,body[style] .embedded-database{border-color:var(--line,#e4e6df)}
+body[style] .muted,body[style] .page-description,body[style] .gallery-card p{color:var(--muted,#818778)}
+.reader-update-notice{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:12px;max-width:calc(100% - 32px);padding:12px 16px;border:1px solid var(--line,#e4e6df);border-radius:12px;background:var(--surface,#fff);color:var(--ink,#37352f);box-shadow:0 10px 40px #0002;z-index:50;font-size:13px}.reader-update-notice button{white-space:nowrap;background:var(--surface-muted,#f7f8f4);color:inherit;border-color:var(--line,#e4e6df)}
+@media(max-width:760px){.reader-update-notice{bottom:78px;width:calc(100% - 24px);flex-direction:column;gap:8px}}
+.reader-page{max-width:760px;padding-left:32px;padding-right:32px}
+@media(min-width:1450px){.reader-page{max-width:850px;padding-left:44px;padding-right:44px}}
+@media(max-width:1050px){.reader-page{padding-left:30px;padding-right:30px}}
+@media(max-width:760px){.reader-page{max-width:700px;padding-left:24px;padding-right:24px}}
+
+.feuillet-icon{display:inline-flex;align-items:center;justify-content:center;line-height:1;vertical-align:-.12em;flex-shrink:0}.feuillet-emoji{font-family:"Apple Color Emoji","Feuillet Noto Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}.feuillet-web-icon{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.reader-brand-icon{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:36px;height:36px;font-size:30px}.reader-brand-icon .page-icon-image{width:36px!important;height:36px!important}.page-emoji>.feuillet-icon{font-size:62px}.gallery-placeholder .feuillet-web-icon{width:1em;height:1em}
+@media print{.feuillet-theme-toggle,.reader-update-notice{display:none!important}}
+
+.page-cover>img{border-radius:0}

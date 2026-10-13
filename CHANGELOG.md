@@ -1,5 +1,9 @@
 # Historique des versions
 
+## 0.4.0 — 13 octobre 2026
+
+Accueil éditable, couvertures cliquables, vues liées et durcissement de la sécurité. Publication automatique des pages publiques, lecteur actualisé sans rechargement, galeries communes, présentations de blocs, icônes du carnet et de pages, émojis complets et thème personnel clair/sombre/OLED. Voir [Nouveautés 0.4](docs/NOUVEAUTES-0.4.md).
+
 ## 0.3.0 — 2026-10-13
 
 - Bases de données persistantes : champs typés, relations, formules, agrégations et vues tableau/galerie/graphique.

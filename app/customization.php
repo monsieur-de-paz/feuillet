@@ -39,12 +39,18 @@ function categories_mutate(string $action,array $input): array {
 function notebook_settings(): array {
     $old=cfg()['name']??'Feuillet.';
     $title=in_array($old,['Le carnet de Sandro','Mon carnet','Mon carnet de cours'],true)?'Feuillet.':$old;
-    $defaults=['title'=>$title,'subtitle'=>'Mon carnet pédagogique','max_upload'=>(int)(cfg()['max_upload']??104857600)];
+    $defaults=['title'=>$title,'subtitle'=>'Mon carnet pédagogique','icon'=>'f.','icon_id'=>null,'auto_publish'=>true,'max_upload'=>(int)(cfg()['max_upload']??104857600)];
     $raw=query("SELECT value FROM app_settings WHERE name='notebook'")->fetchColumn();
     return array_replace($defaults,$raw?json_decode($raw,true):[]);
 }
 function notebook_validate(array $input): array {
     $out=notebook_settings();
+    if(array_key_exists('auto_publish',$input)){if(!is_bool($input['auto_publish']))fail('Le réglage de publication doit être un booléen.');$out['auto_publish']=$input['auto_publish'];}
+    if(array_key_exists('icon',$input))$out['icon']=validate_icon($input['icon']);
+    if(array_key_exists('icon_id',$input)){
+        $id=$input['icon_id'];if($id!==null&&(!is_string($id)||!preg_match('/^[a-f0-9-]{36}$/D',$id)))fail('Icône de carnet invalide.');
+        if($id){$f=query('SELECT mime FROM files WHERE id=?',[$id])->fetch();if(!$f||!str_starts_with($f['mime'],'image/'))fail('L’icône du carnet doit être une image.');}$out['icon_id']=$id;
+    }
     foreach(['title'=>80,'subtitle'=>120] as $key=>$length)if(array_key_exists($key,$input)){
         if(!is_string($input[$key]))fail('Texte de carnet invalide.');$out[$key]=str_limit($input[$key],$length);
         if($key==='title'&&!$out[$key])fail('Donne un titre à ton carnet.');
@@ -55,6 +61,23 @@ function notebook_validate(array $input): array {
     }
     return $out;
 }
+function validate_icon(mixed $value): string {
+    if(!is_string($value)||!mb_check_encoding($value,'UTF-8')||mb_strlen($value)>64)fail('Icône invalide.');
+    if(str_starts_with($value,'lucide:')){
+        if(!preg_match('/^lucide:([a-z0-9-]{1,50})(?::#[a-fA-F0-9]{6})?$/D',$value,$match))fail('Nom d’icône invalide.');
+        static $names=null;if($names===null){$manifest=json_decode(file_get_contents(FEUILLET_ROOT.'/public/icons.json'),true);$names=$manifest['names']??[];}
+        if(!in_array($match[1],$names,true))fail('Cette icône ne fait pas partie du catalogue.');
+    }
+    return $value;
+}
+/** Called inside the same transaction as a draft save. It never changes visibility. */
+function auto_publish_page(string $id): void {
+    if(!notebook_settings()['auto_publish'])return;
+    $row=query('SELECT * FROM pages WHERE id=?',[$id])->fetch();
+    if(!$row||$row['visibility']!=='public'||$row['deleted_at']||!$row['published'])return;
+    $snapshot=row_page($row);$snapshot['published_at']=now();$snapshot['has_unpublished_changes']=false;
+    query('UPDATE pages SET published=?,published_at=? WHERE id=?',[encoded($snapshot),$snapshot['published_at'],$id]);
+}
 function server_upload_limit(): int { $a=ini_bytes(ini_get('upload_max_filesize'));$b=ini_bytes(ini_get('post_max_size'));return min($a?:PHP_INT_MAX,$b?:PHP_INT_MAX); }
 function cover_position(mixed $value): array {
     if(!is_array($value))return ['x'=>50,'y'=>50];return ['x'=>max(0,min(100,(float)($value['x']??50))),'y'=>max(0,min(100,(float)($value['y']??50)))];
@@ -62,7 +85,7 @@ function cover_position(mixed $value): array {
 function publish_tree(array $page): array {
     $ids=descendants($page['id']);$pdo=db();$pdo->beginTransaction();$count=0;
     try{
-        foreach($ids as $id){$row=query('SELECT * FROM pages WHERE id=?',[$id])->fetch();if(!$row||$row['deleted_at']||!ancestors_active($row,page_rows()))continue;
+        foreach($ids as $id){$row=query('SELECT * FROM pages WHERE id=?'.($pdo->getAttribute(PDO::ATTR_DRIVER_NAME)==='mysql'?' FOR UPDATE':''),[$id])->fetch();if(!$row||$row['deleted_at']||!ancestors_active($row,page_rows()))continue;
             if($id===$page['id']&&(int)$row['version']!==$page['version'])fail('Conflit de modification.',409,'conflict');
             $snapshot=row_page($row);$snapshot['visibility']='public';$snapshot['published_at']=now();$snapshot['has_unpublished_changes']=false;
             query("UPDATE pages SET visibility='public',published=?,published_at=? WHERE id=?",[encoded($snapshot),$snapshot['published_at'],$id]);$count++;
@@ -70,3 +93,5 @@ function publish_tree(array $page): array {
     }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}
     return ['page'=>get_page($page['id']),'pages'=>list_pages()['pages'],'published_count'=>$count];
 }
+
+require_once __DIR__.'/homepage.php';

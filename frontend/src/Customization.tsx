@@ -277,6 +277,7 @@ export function NotebookControls({
   onSave: (v: Notebook) => Promise<void>;
 }) {
   const [draft, setDraft] = useState(value);
+  useEffect(() => setDraft(value), [value]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   return (
@@ -313,6 +314,20 @@ export function NotebookControls({
           onChange={(e) => setDraft({ ...draft, subtitle: e.target.value })}
         />
       </label>
+      <label className="notebook-auto-publish">
+        <input
+          type="checkbox"
+          checked={draft.auto_publish !== false}
+          onChange={(e) =>
+            setDraft({ ...draft, auto_publish: e.target.checked })
+          }
+        />
+        Mettre à jour automatiquement les pages déjà publiques
+      </label>
+      <p className="muted">
+        Les pages privées restent privées. Désactive cette option pour préparer
+        un brouillon avant de le publier manuellement.
+      </p>
       <label>
         Taille maximale d’un fichier (Mo)
         <input

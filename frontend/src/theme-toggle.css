@@ -1,0 +1,101 @@
+.feuillet-theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  position: relative;
+  flex-shrink: 0;
+  color: var(--ink, #37352f);
+}
+.feuillet-theme-toggle .theme-main-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.feuillet-theme-toggle .theme-main-button:hover {
+  background: var(--surface-muted, #f7f8f4);
+}
+.feuillet-theme-toggle .theme-options {
+  position: relative;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+.feuillet-theme-toggle .theme-options > summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 8px 3px;
+  list-style: none;
+}
+.feuillet-theme-toggle .theme-options > summary::-webkit-details-marker {
+  display: none;
+}
+.feuillet-theme-toggle .theme-options > div {
+  position: absolute;
+  z-index: 1500;
+  right: 0;
+  top: 36px;
+  min-width: 180px;
+  padding: 6px;
+  background: var(--surface, #fff);
+  border: 1px solid var(--line, #e4e6df);
+  border-radius: 9px;
+  box-shadow: var(--shadow, 0 10px 40px #0002);
+}
+.feuillet-theme-toggle .theme-options button {
+  display: block;
+  text-align: left;
+  width: 100%;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ink, #37352f);
+  font-size: 13px;
+  padding: 9px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.feuillet-theme-toggle .theme-options button:hover,
+.feuillet-theme-toggle .theme-options button[aria-pressed="true"] {
+  background: var(--surface-muted, #f7f8f4);
+}
+.mobile-theme-control {
+  display: none;
+}
+@media (max-width: 760px) {
+  .desktop-theme-control {
+    display: none;
+  }
+  .mobile-theme-control,
+  .reader-header > .feuillet-theme-toggle {
+    display: flex;
+    position: fixed;
+    right: 14px;
+    bottom: 14px;
+    z-index: 200;
+    background: var(--surface, #fff);
+    border: 1px solid var(--line, #e4e6df);
+    border-radius: 24px;
+    box-shadow: var(--shadow, 0 6px 30px #0002);
+    padding: 5px;
+  }
+  .mobile-theme-control .theme-options > div,
+  .reader-header > .feuillet-theme-toggle .theme-options > div {
+    top: auto;
+    bottom: 44px;
+  }
+  .mobile-theme-control .theme-main-button,
+  .reader-header > .feuillet-theme-toggle .theme-main-button {
+    width: 38px;
+    height: 38px;
+  }
+}

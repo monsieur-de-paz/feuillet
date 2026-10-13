@@ -1,0 +1,31 @@
+{
+  "rea_version": "6.4.0",
+  "date": "2026-10-13",
+  "operation": "capture_browser_scenario",
+  "evidence_id": "ev_469f8f80dc1a64f58c2381c78a37602ac8d8fc14b37bb2dcc7c085451b45ae10",
+  "target_url": "https://www.notion.com/help/public-pages-and-web-publishing",
+  "scenario_sha256": "6a8186657230d0425a6b97357a9532e55c14fce78792e6f8111e0d1d0825c921",
+  "browser": {
+    "mode": "launch",
+    "process_ownership": "provider-owned",
+    "cleanup": "terminated-owned-process",
+    "product": "Chromium",
+    "version": "155.0.8059.39"
+  },
+  "actions": [
+    {
+      "step_id": "scenario_start",
+      "action": "goto_start",
+      "status": "completed"
+    },
+    {
+      "step_id": "settle-publication-help",
+      "action": "wait_for_timeout",
+      "status": "completed"
+    }
+  ],
+  "screenshot_sha256": "8b6506a1bed7f8324a5351a061cc09fbcd3d8bc164ebf73682d2a43077bb2504",
+  "accessibility_sha256": "293ed67bada9e64745e5e2790450b6977f6bce00f091a5e142fd2f8c9999c3b6",
+  "scope": "Public documentation only; no account or editing interaction; no request/response bodies.",
+  "assertion": "Documentation contains the published-site automatic-update statement."
+}

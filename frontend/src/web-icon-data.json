@@ -1,0 +1,6801 @@
+[
+  {
+    "slug": "a-arrow-down",
+    "name": "AArrowDown",
+    "label": "a arrow down",
+    "aliases": []
+  },
+  {
+    "slug": "a-arrow-up",
+    "name": "AArrowUp",
+    "label": "a arrow up",
+    "aliases": []
+  },
+  {
+    "slug": "a-large-small",
+    "name": "ALargeSmall",
+    "label": "a large small",
+    "aliases": []
+  },
+  {
+    "slug": "accessibility",
+    "name": "Accessibility",
+    "label": "accessibility",
+    "aliases": []
+  },
+  {
+    "slug": "activity",
+    "name": "Activity",
+    "label": "activity",
+    "aliases": []
+  },
+  { "slug": "air-vent", "name": "AirVent", "label": "air vent", "aliases": [] },
+  { "slug": "airplay", "name": "Airplay", "label": "airplay", "aliases": [] },
+  {
+    "slug": "alarm-clock",
+    "name": "AlarmClock",
+    "label": "alarm clock",
+    "aliases": []
+  },
+  {
+    "slug": "alarm-clock-check",
+    "name": "AlarmClockCheck",
+    "label": "alarm clock check",
+    "aliases": ["alarm-check"]
+  },
+  {
+    "slug": "alarm-clock-minus",
+    "name": "AlarmClockMinus",
+    "label": "alarm clock minus",
+    "aliases": ["alarm-minus"]
+  },
+  {
+    "slug": "alarm-clock-off",
+    "name": "AlarmClockOff",
+    "label": "alarm clock off",
+    "aliases": []
+  },
+  {
+    "slug": "alarm-clock-plus",
+    "name": "AlarmClockPlus",
+    "label": "alarm clock plus",
+    "aliases": ["alarm-plus"]
+  },
+  {
+    "slug": "alarm-smoke",
+    "name": "AlarmSmoke",
+    "label": "alarm smoke",
+    "aliases": []
+  },
+  { "slug": "album", "name": "Album", "label": "album", "aliases": [] },
+  {
+    "slug": "align-center",
+    "name": "AlignCenter",
+    "label": "align center",
+    "aliases": []
+  },
+  {
+    "slug": "align-center-horizontal",
+    "name": "AlignCenterHorizontal",
+    "label": "align center horizontal",
+    "aliases": []
+  },
+  {
+    "slug": "align-center-vertical",
+    "name": "AlignCenterVertical",
+    "label": "align center vertical",
+    "aliases": []
+  },
+  {
+    "slug": "align-end-horizontal",
+    "name": "AlignEndHorizontal",
+    "label": "align end horizontal",
+    "aliases": []
+  },
+  {
+    "slug": "align-end-vertical",
+    "name": "AlignEndVertical",
+    "label": "align end vertical",
+    "aliases": []
+  },
+  {
+    "slug": "align-horizontal-distribute-center",
+    "name": "AlignHorizontalDistributeCenter",
+    "label": "align horizontal distribute center",
+    "aliases": []
+  },
+  {
+    "slug": "align-horizontal-distribute-end",
+    "name": "AlignHorizontalDistributeEnd",
+    "label": "align horizontal distribute end",
+    "aliases": []
+  },
+  {
+    "slug": "align-horizontal-distribute-start",
+    "name": "AlignHorizontalDistributeStart",
+    "label": "align horizontal distribute start",
+    "aliases": []
+  },
+  {
+    "slug": "align-horizontal-justify-center",
+    "name": "AlignHorizontalJustifyCenter",
+    "label": "align horizontal justify center",
+    "aliases": []
+  },
+  {
+    "slug": "align-horizontal-justify-end",
+    "name": "AlignHorizontalJustifyEnd",
+    "label": "align horizontal justify end",
+    "aliases": []
+  },
+  {
+    "slug": "align-horizontal-justify-start",
+    "name": "AlignHorizontalJustifyStart",
+    "label": "align horizontal justify start",
+    "aliases": []
+  },
+  {
+    "slug": "align-horizontal-space-around",
+    "name": "AlignHorizontalSpaceAround",
+    "label": "align horizontal space around",
+    "aliases": []
+  },
+  {
+    "slug": "align-horizontal-space-between",
+    "name": "AlignHorizontalSpaceBetween",
+    "label": "align horizontal space between",
+    "aliases": []
+  },
+  {
+    "slug": "align-justify",
+    "name": "AlignJustify",
+    "label": "align justify",
+    "aliases": []
+  },
+  {
+    "slug": "align-left",
+    "name": "AlignLeft",
+    "label": "align left",
+    "aliases": []
+  },
+  {
+    "slug": "align-right",
+    "name": "AlignRight",
+    "label": "align right",
+    "aliases": []
+  },
+  {
+    "slug": "align-start-horizontal",
+    "name": "AlignStartHorizontal",
+    "label": "align start horizontal",
+    "aliases": []
+  },
+  {
+    "slug": "align-start-vertical",
+    "name": "AlignStartVertical",
+    "label": "align start vertical",
+    "aliases": []
+  },
+  {
+    "slug": "align-vertical-distribute-center",
+    "name": "AlignVerticalDistributeCenter",
+    "label": "align vertical distribute center",
+    "aliases": []
+  },
+  {
+    "slug": "align-vertical-distribute-end",
+    "name": "AlignVerticalDistributeEnd",
+    "label": "align vertical distribute end",
+    "aliases": []
+  },
+  {
+    "slug": "align-vertical-distribute-start",
+    "name": "AlignVerticalDistributeStart",
+    "label": "align vertical distribute start",
+    "aliases": []
+  },
+  {
+    "slug": "align-vertical-justify-center",
+    "name": "AlignVerticalJustifyCenter",
+    "label": "align vertical justify center",
+    "aliases": []
+  },
+  {
+    "slug": "align-vertical-justify-end",
+    "name": "AlignVerticalJustifyEnd",
+    "label": "align vertical justify end",
+    "aliases": []
+  },
+  {
+    "slug": "align-vertical-justify-start",
+    "name": "AlignVerticalJustifyStart",
+    "label": "align vertical justify start",
+    "aliases": []
+  },
+  {
+    "slug": "align-vertical-space-around",
+    "name": "AlignVerticalSpaceAround",
+    "label": "align vertical space around",
+    "aliases": []
+  },
+  {
+    "slug": "align-vertical-space-between",
+    "name": "AlignVerticalSpaceBetween",
+    "label": "align vertical space between",
+    "aliases": []
+  },
+  {
+    "slug": "ambulance",
+    "name": "Ambulance",
+    "label": "ambulance",
+    "aliases": []
+  },
+  {
+    "slug": "ampersand",
+    "name": "Ampersand",
+    "label": "ampersand",
+    "aliases": []
+  },
+  {
+    "slug": "ampersands",
+    "name": "Ampersands",
+    "label": "ampersands",
+    "aliases": []
+  },
+  { "slug": "amphora", "name": "Amphora", "label": "amphora", "aliases": [] },
+  { "slug": "anchor", "name": "Anchor", "label": "anchor", "aliases": [] },
+  { "slug": "angry", "name": "Angry", "label": "angry", "aliases": [] },
+  { "slug": "annoyed", "name": "Annoyed", "label": "annoyed", "aliases": [] },
+  { "slug": "antenna", "name": "Antenna", "label": "antenna", "aliases": [] },
+  { "slug": "anvil", "name": "Anvil", "label": "anvil", "aliases": [] },
+  {
+    "slug": "aperture",
+    "name": "Aperture",
+    "label": "aperture",
+    "aliases": []
+  },
+  {
+    "slug": "app-window",
+    "name": "AppWindow",
+    "label": "app window",
+    "aliases": []
+  },
+  {
+    "slug": "app-window-mac",
+    "name": "AppWindowMac",
+    "label": "app window mac",
+    "aliases": []
+  },
+  { "slug": "apple", "name": "Apple", "label": "apple", "aliases": [] },
+  { "slug": "archive", "name": "Archive", "label": "archive", "aliases": [] },
+  {
+    "slug": "archive-restore",
+    "name": "ArchiveRestore",
+    "label": "archive restore",
+    "aliases": []
+  },
+  {
+    "slug": "archive-x",
+    "name": "ArchiveX",
+    "label": "archive x",
+    "aliases": []
+  },
+  {
+    "slug": "armchair",
+    "name": "Armchair",
+    "label": "armchair",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-big-down",
+    "name": "ArrowBigDown",
+    "label": "arrow big down",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-big-down-dash",
+    "name": "ArrowBigDownDash",
+    "label": "arrow big down dash",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-big-left",
+    "name": "ArrowBigLeft",
+    "label": "arrow big left",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-big-left-dash",
+    "name": "ArrowBigLeftDash",
+    "label": "arrow big left dash",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-big-right",
+    "name": "ArrowBigRight",
+    "label": "arrow big right",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-big-right-dash",
+    "name": "ArrowBigRightDash",
+    "label": "arrow big right dash",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-big-up",
+    "name": "ArrowBigUp",
+    "label": "arrow big up",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-big-up-dash",
+    "name": "ArrowBigUpDash",
+    "label": "arrow big up dash",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-down",
+    "name": "ArrowDown",
+    "label": "arrow down",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-down-az",
+    "name": "ArrowDownAZ",
+    "label": "arrow down az",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-down-from-line",
+    "name": "ArrowDownFromLine",
+    "label": "arrow down from line",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-down-left",
+    "name": "ArrowDownLeft",
+    "label": "arrow down left",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-down-narrow-wide",
+    "name": "ArrowDownNarrowWide",
+    "label": "arrow down narrow wide",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-down-right",
+    "name": "ArrowDownRight",
+    "label": "arrow down right",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-down-to-dot",
+    "name": "ArrowDownToDot",
+    "label": "arrow down to dot",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-down-to-line",
+    "name": "ArrowDownToLine",
+    "label": "arrow down to line",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-down-up",
+    "name": "ArrowDownUp",
+    "label": "arrow down up",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-down-wide-narrow",
+    "name": "ArrowDownWideNarrow",
+    "label": "arrow down wide narrow",
+    "aliases": ["sort-desc"]
+  },
+  {
+    "slug": "arrow-down-za",
+    "name": "ArrowDownZA",
+    "label": "arrow down za",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-down01",
+    "name": "ArrowDown01",
+    "label": "arrow down01",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-down10",
+    "name": "ArrowDown10",
+    "label": "arrow down10",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-left",
+    "name": "ArrowLeft",
+    "label": "arrow left",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-left-from-line",
+    "name": "ArrowLeftFromLine",
+    "label": "arrow left from line",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-left-right",
+    "name": "ArrowLeftRight",
+    "label": "arrow left right",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-left-to-line",
+    "name": "ArrowLeftToLine",
+    "label": "arrow left to line",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-right",
+    "name": "ArrowRight",
+    "label": "arrow right",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-right-from-line",
+    "name": "ArrowRightFromLine",
+    "label": "arrow right from line",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-right-left",
+    "name": "ArrowRightLeft",
+    "label": "arrow right left",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-right-to-line",
+    "name": "ArrowRightToLine",
+    "label": "arrow right to line",
+    "aliases": []
+  },
+  { "slug": "arrow-up", "name": "ArrowUp", "label": "arrow up", "aliases": [] },
+  {
+    "slug": "arrow-up-az",
+    "name": "ArrowUpAZ",
+    "label": "arrow up az",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-up-down",
+    "name": "ArrowUpDown",
+    "label": "arrow up down",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-up-from-dot",
+    "name": "ArrowUpFromDot",
+    "label": "arrow up from dot",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-up-from-line",
+    "name": "ArrowUpFromLine",
+    "label": "arrow up from line",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-up-left",
+    "name": "ArrowUpLeft",
+    "label": "arrow up left",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-up-narrow-wide",
+    "name": "ArrowUpNarrowWide",
+    "label": "arrow up narrow wide",
+    "aliases": ["sort-asc"]
+  },
+  {
+    "slug": "arrow-up-right",
+    "name": "ArrowUpRight",
+    "label": "arrow up right",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-up-to-line",
+    "name": "ArrowUpToLine",
+    "label": "arrow up to line",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-up-wide-narrow",
+    "name": "ArrowUpWideNarrow",
+    "label": "arrow up wide narrow",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-up-za",
+    "name": "ArrowUpZA",
+    "label": "arrow up za",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-up01",
+    "name": "ArrowUp01",
+    "label": "arrow up01",
+    "aliases": []
+  },
+  {
+    "slug": "arrow-up10",
+    "name": "ArrowUp10",
+    "label": "arrow up10",
+    "aliases": []
+  },
+  {
+    "slug": "arrows-up-from-line",
+    "name": "ArrowsUpFromLine",
+    "label": "arrows up from line",
+    "aliases": []
+  },
+  {
+    "slug": "asterisk",
+    "name": "Asterisk",
+    "label": "asterisk",
+    "aliases": []
+  },
+  { "slug": "at-sign", "name": "AtSign", "label": "at sign", "aliases": [] },
+  { "slug": "atom", "name": "Atom", "label": "atom", "aliases": [] },
+  {
+    "slug": "audio-lines",
+    "name": "AudioLines",
+    "label": "audio lines",
+    "aliases": []
+  },
+  {
+    "slug": "audio-waveform",
+    "name": "AudioWaveform",
+    "label": "audio waveform",
+    "aliases": []
+  },
+  { "slug": "award", "name": "Award", "label": "award", "aliases": [] },
+  { "slug": "axe", "name": "Axe", "label": "axe", "aliases": [] },
+  { "slug": "axis3d", "name": "Axis3d", "label": "axis3d", "aliases": [] },
+  { "slug": "baby", "name": "Baby", "label": "baby", "aliases": [] },
+  {
+    "slug": "backpack",
+    "name": "Backpack",
+    "label": "backpack",
+    "aliases": []
+  },
+  { "slug": "badge", "name": "Badge", "label": "badge", "aliases": [] },
+  {
+    "slug": "badge-alert",
+    "name": "BadgeAlert",
+    "label": "badge alert",
+    "aliases": []
+  },
+  {
+    "slug": "badge-cent",
+    "name": "BadgeCent",
+    "label": "badge cent",
+    "aliases": []
+  },
+  {
+    "slug": "badge-check",
+    "name": "BadgeCheck",
+    "label": "badge check",
+    "aliases": ["verified"]
+  },
+  {
+    "slug": "badge-dollar-sign",
+    "name": "BadgeDollarSign",
+    "label": "badge dollar sign",
+    "aliases": []
+  },
+  {
+    "slug": "badge-euro",
+    "name": "BadgeEuro",
+    "label": "badge euro",
+    "aliases": []
+  },
+  {
+    "slug": "badge-help",
+    "name": "BadgeHelp",
+    "label": "badge help",
+    "aliases": []
+  },
+  {
+    "slug": "badge-indian-rupee",
+    "name": "BadgeIndianRupee",
+    "label": "badge indian rupee",
+    "aliases": []
+  },
+  {
+    "slug": "badge-info",
+    "name": "BadgeInfo",
+    "label": "badge info",
+    "aliases": []
+  },
+  {
+    "slug": "badge-japanese-yen",
+    "name": "BadgeJapaneseYen",
+    "label": "badge japanese yen",
+    "aliases": []
+  },
+  {
+    "slug": "badge-minus",
+    "name": "BadgeMinus",
+    "label": "badge minus",
+    "aliases": []
+  },
+  {
+    "slug": "badge-percent",
+    "name": "BadgePercent",
+    "label": "badge percent",
+    "aliases": []
+  },
+  {
+    "slug": "badge-plus",
+    "name": "BadgePlus",
+    "label": "badge plus",
+    "aliases": []
+  },
+  {
+    "slug": "badge-pound-sterling",
+    "name": "BadgePoundSterling",
+    "label": "badge pound sterling",
+    "aliases": []
+  },
+  {
+    "slug": "badge-russian-ruble",
+    "name": "BadgeRussianRuble",
+    "label": "badge russian ruble",
+    "aliases": []
+  },
+  {
+    "slug": "badge-swiss-franc",
+    "name": "BadgeSwissFranc",
+    "label": "badge swiss franc",
+    "aliases": []
+  },
+  { "slug": "badge-x", "name": "BadgeX", "label": "badge x", "aliases": [] },
+  {
+    "slug": "baggage-claim",
+    "name": "BaggageClaim",
+    "label": "baggage claim",
+    "aliases": []
+  },
+  { "slug": "ban", "name": "Ban", "label": "ban", "aliases": [] },
+  { "slug": "banana", "name": "Banana", "label": "banana", "aliases": [] },
+  { "slug": "bandage", "name": "Bandage", "label": "bandage", "aliases": [] },
+  {
+    "slug": "banknote",
+    "name": "Banknote",
+    "label": "banknote",
+    "aliases": []
+  },
+  { "slug": "barcode", "name": "Barcode", "label": "barcode", "aliases": [] },
+  {
+    "slug": "baseline",
+    "name": "Baseline",
+    "label": "baseline",
+    "aliases": []
+  },
+  { "slug": "bath", "name": "Bath", "label": "bath", "aliases": [] },
+  { "slug": "battery", "name": "Battery", "label": "battery", "aliases": [] },
+  {
+    "slug": "battery-charging",
+    "name": "BatteryCharging",
+    "label": "battery charging",
+    "aliases": []
+  },
+  {
+    "slug": "battery-full",
+    "name": "BatteryFull",
+    "label": "battery full",
+    "aliases": []
+  },
+  {
+    "slug": "battery-low",
+    "name": "BatteryLow",
+    "label": "battery low",
+    "aliases": []
+  },
+  {
+    "slug": "battery-medium",
+    "name": "BatteryMedium",
+    "label": "battery medium",
+    "aliases": []
+  },
+  {
+    "slug": "battery-warning",
+    "name": "BatteryWarning",
+    "label": "battery warning",
+    "aliases": []
+  },
+  { "slug": "beaker", "name": "Beaker", "label": "beaker", "aliases": [] },
+  { "slug": "bean", "name": "Bean", "label": "bean", "aliases": [] },
+  { "slug": "bean-off", "name": "BeanOff", "label": "bean off", "aliases": [] },
+  { "slug": "bed", "name": "Bed", "label": "bed", "aliases": [] },
+  {
+    "slug": "bed-double",
+    "name": "BedDouble",
+    "label": "bed double",
+    "aliases": []
+  },
+  {
+    "slug": "bed-single",
+    "name": "BedSingle",
+    "label": "bed single",
+    "aliases": []
+  },
+  { "slug": "beef", "name": "Beef", "label": "beef", "aliases": [] },
+  { "slug": "beer", "name": "Beer", "label": "beer", "aliases": [] },
+  { "slug": "beer-off", "name": "BeerOff", "label": "beer off", "aliases": [] },
+  { "slug": "bell", "name": "Bell", "label": "bell", "aliases": [] },
+  { "slug": "bell-dot", "name": "BellDot", "label": "bell dot", "aliases": [] },
+  {
+    "slug": "bell-electric",
+    "name": "BellElectric",
+    "label": "bell electric",
+    "aliases": []
+  },
+  {
+    "slug": "bell-minus",
+    "name": "BellMinus",
+    "label": "bell minus",
+    "aliases": []
+  },
+  { "slug": "bell-off", "name": "BellOff", "label": "bell off", "aliases": [] },
+  {
+    "slug": "bell-plus",
+    "name": "BellPlus",
+    "label": "bell plus",
+    "aliases": []
+  },
+  {
+    "slug": "bell-ring",
+    "name": "BellRing",
+    "label": "bell ring",
+    "aliases": []
+  },
+  {
+    "slug": "between-horizontal-end",
+    "name": "BetweenHorizontalEnd",
+    "label": "between horizontal end",
+    "aliases": ["between-horizonal-end"]
+  },
+  {
+    "slug": "between-horizontal-start",
+    "name": "BetweenHorizontalStart",
+    "label": "between horizontal start",
+    "aliases": ["between-horizonal-start"]
+  },
+  {
+    "slug": "between-vertical-end",
+    "name": "BetweenVerticalEnd",
+    "label": "between vertical end",
+    "aliases": []
+  },
+  {
+    "slug": "between-vertical-start",
+    "name": "BetweenVerticalStart",
+    "label": "between vertical start",
+    "aliases": []
+  },
+  {
+    "slug": "biceps-flexed",
+    "name": "BicepsFlexed",
+    "label": "biceps flexed",
+    "aliases": []
+  },
+  { "slug": "bike", "name": "Bike", "label": "bike", "aliases": [] },
+  { "slug": "binary", "name": "Binary", "label": "binary", "aliases": [] },
+  {
+    "slug": "binoculars",
+    "name": "Binoculars",
+    "label": "binoculars",
+    "aliases": []
+  },
+  {
+    "slug": "biohazard",
+    "name": "Biohazard",
+    "label": "biohazard",
+    "aliases": []
+  },
+  { "slug": "bird", "name": "Bird", "label": "bird", "aliases": [] },
+  { "slug": "bitcoin", "name": "Bitcoin", "label": "bitcoin", "aliases": [] },
+  { "slug": "blend", "name": "Blend", "label": "blend", "aliases": [] },
+  { "slug": "blinds", "name": "Blinds", "label": "blinds", "aliases": [] },
+  { "slug": "blocks", "name": "Blocks", "label": "blocks", "aliases": [] },
+  {
+    "slug": "bluetooth",
+    "name": "Bluetooth",
+    "label": "bluetooth",
+    "aliases": []
+  },
+  {
+    "slug": "bluetooth-connected",
+    "name": "BluetoothConnected",
+    "label": "bluetooth connected",
+    "aliases": []
+  },
+  {
+    "slug": "bluetooth-off",
+    "name": "BluetoothOff",
+    "label": "bluetooth off",
+    "aliases": []
+  },
+  {
+    "slug": "bluetooth-searching",
+    "name": "BluetoothSearching",
+    "label": "bluetooth searching",
+    "aliases": []
+  },
+  { "slug": "bold", "name": "Bold", "label": "bold", "aliases": [] },
+  { "slug": "bolt", "name": "Bolt", "label": "bolt", "aliases": [] },
+  { "slug": "bomb", "name": "Bomb", "label": "bomb", "aliases": [] },
+  { "slug": "bone", "name": "Bone", "label": "bone", "aliases": [] },
+  { "slug": "book", "name": "Book", "label": "book", "aliases": [] },
+  { "slug": "book-a", "name": "BookA", "label": "book a", "aliases": [] },
+  {
+    "slug": "book-audio",
+    "name": "BookAudio",
+    "label": "book audio",
+    "aliases": []
+  },
+  {
+    "slug": "book-check",
+    "name": "BookCheck",
+    "label": "book check",
+    "aliases": []
+  },
+  {
+    "slug": "book-copy",
+    "name": "BookCopy",
+    "label": "book copy",
+    "aliases": []
+  },
+  {
+    "slug": "book-dashed",
+    "name": "BookDashed",
+    "label": "book dashed",
+    "aliases": ["book-template"]
+  },
+  {
+    "slug": "book-down",
+    "name": "BookDown",
+    "label": "book down",
+    "aliases": []
+  },
+  {
+    "slug": "book-headphones",
+    "name": "BookHeadphones",
+    "label": "book headphones",
+    "aliases": []
+  },
+  {
+    "slug": "book-heart",
+    "name": "BookHeart",
+    "label": "book heart",
+    "aliases": []
+  },
+  {
+    "slug": "book-image",
+    "name": "BookImage",
+    "label": "book image",
+    "aliases": []
+  },
+  { "slug": "book-key", "name": "BookKey", "label": "book key", "aliases": [] },
+  {
+    "slug": "book-lock",
+    "name": "BookLock",
+    "label": "book lock",
+    "aliases": []
+  },
+  {
+    "slug": "book-marked",
+    "name": "BookMarked",
+    "label": "book marked",
+    "aliases": []
+  },
+  {
+    "slug": "book-minus",
+    "name": "BookMinus",
+    "label": "book minus",
+    "aliases": []
+  },
+  {
+    "slug": "book-open",
+    "name": "BookOpen",
+    "label": "book open",
+    "aliases": []
+  },
+  {
+    "slug": "book-open-check",
+    "name": "BookOpenCheck",
+    "label": "book open check",
+    "aliases": []
+  },
+  {
+    "slug": "book-open-text",
+    "name": "BookOpenText",
+    "label": "book open text",
+    "aliases": []
+  },
+  {
+    "slug": "book-plus",
+    "name": "BookPlus",
+    "label": "book plus",
+    "aliases": []
+  },
+  {
+    "slug": "book-text",
+    "name": "BookText",
+    "label": "book text",
+    "aliases": []
+  },
+  {
+    "slug": "book-type",
+    "name": "BookType",
+    "label": "book type",
+    "aliases": []
+  },
+  { "slug": "book-up", "name": "BookUp", "label": "book up", "aliases": [] },
+  { "slug": "book-up2", "name": "BookUp2", "label": "book up2", "aliases": [] },
+  {
+    "slug": "book-user",
+    "name": "BookUser",
+    "label": "book user",
+    "aliases": []
+  },
+  { "slug": "book-x", "name": "BookX", "label": "book x", "aliases": [] },
+  {
+    "slug": "bookmark",
+    "name": "Bookmark",
+    "label": "bookmark",
+    "aliases": []
+  },
+  {
+    "slug": "bookmark-check",
+    "name": "BookmarkCheck",
+    "label": "bookmark check",
+    "aliases": []
+  },
+  {
+    "slug": "bookmark-minus",
+    "name": "BookmarkMinus",
+    "label": "bookmark minus",
+    "aliases": []
+  },
+  {
+    "slug": "bookmark-plus",
+    "name": "BookmarkPlus",
+    "label": "bookmark plus",
+    "aliases": []
+  },
+  {
+    "slug": "bookmark-x",
+    "name": "BookmarkX",
+    "label": "bookmark x",
+    "aliases": []
+  },
+  { "slug": "boom-box", "name": "BoomBox", "label": "boom box", "aliases": [] },
+  { "slug": "bot", "name": "Bot", "label": "bot", "aliases": [] },
+  {
+    "slug": "bot-message-square",
+    "name": "BotMessageSquare",
+    "label": "bot message square",
+    "aliases": []
+  },
+  { "slug": "bot-off", "name": "BotOff", "label": "bot off", "aliases": [] },
+  { "slug": "box", "name": "Box", "label": "box", "aliases": [] },
+  { "slug": "boxes", "name": "Boxes", "label": "boxes", "aliases": [] },
+  {
+    "slug": "braces",
+    "name": "Braces",
+    "label": "braces",
+    "aliases": ["curly-braces"]
+  },
+  {
+    "slug": "brackets",
+    "name": "Brackets",
+    "label": "brackets",
+    "aliases": []
+  },
+  { "slug": "brain", "name": "Brain", "label": "brain", "aliases": [] },
+  {
+    "slug": "brain-circuit",
+    "name": "BrainCircuit",
+    "label": "brain circuit",
+    "aliases": []
+  },
+  {
+    "slug": "brain-cog",
+    "name": "BrainCog",
+    "label": "brain cog",
+    "aliases": []
+  },
+  {
+    "slug": "brick-wall",
+    "name": "BrickWall",
+    "label": "brick wall",
+    "aliases": []
+  },
+  {
+    "slug": "briefcase",
+    "name": "Briefcase",
+    "label": "briefcase",
+    "aliases": []
+  },
+  {
+    "slug": "briefcase-business",
+    "name": "BriefcaseBusiness",
+    "label": "briefcase business",
+    "aliases": []
+  },
+  {
+    "slug": "briefcase-conveyor-belt",
+    "name": "BriefcaseConveyorBelt",
+    "label": "briefcase conveyor belt",
+    "aliases": []
+  },
+  {
+    "slug": "briefcase-medical",
+    "name": "BriefcaseMedical",
+    "label": "briefcase medical",
+    "aliases": []
+  },
+  {
+    "slug": "bring-to-front",
+    "name": "BringToFront",
+    "label": "bring to front",
+    "aliases": []
+  },
+  { "slug": "brush", "name": "Brush", "label": "brush", "aliases": [] },
+  { "slug": "bug", "name": "Bug", "label": "bug", "aliases": [] },
+  { "slug": "bug-off", "name": "BugOff", "label": "bug off", "aliases": [] },
+  { "slug": "bug-play", "name": "BugPlay", "label": "bug play", "aliases": [] },
+  {
+    "slug": "building",
+    "name": "Building",
+    "label": "building",
+    "aliases": []
+  },
+  {
+    "slug": "building2",
+    "name": "Building2",
+    "label": "building2",
+    "aliases": []
+  },
+  { "slug": "bus", "name": "Bus", "label": "bus", "aliases": [] },
+  {
+    "slug": "bus-front",
+    "name": "BusFront",
+    "label": "bus front",
+    "aliases": []
+  },
+  { "slug": "cable", "name": "Cable", "label": "cable", "aliases": [] },
+  {
+    "slug": "cable-car",
+    "name": "CableCar",
+    "label": "cable car",
+    "aliases": []
+  },
+  { "slug": "cake", "name": "Cake", "label": "cake", "aliases": [] },
+  {
+    "slug": "cake-slice",
+    "name": "CakeSlice",
+    "label": "cake slice",
+    "aliases": []
+  },
+  {
+    "slug": "calculator",
+    "name": "Calculator",
+    "label": "calculator",
+    "aliases": []
+  },
+  {
+    "slug": "calendar",
+    "name": "Calendar",
+    "label": "calendar",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-arrow-down",
+    "name": "CalendarArrowDown",
+    "label": "calendar arrow down",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-arrow-up",
+    "name": "CalendarArrowUp",
+    "label": "calendar arrow up",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-check",
+    "name": "CalendarCheck",
+    "label": "calendar check",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-check2",
+    "name": "CalendarCheck2",
+    "label": "calendar check2",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-clock",
+    "name": "CalendarClock",
+    "label": "calendar clock",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-cog",
+    "name": "CalendarCog",
+    "label": "calendar cog",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-days",
+    "name": "CalendarDays",
+    "label": "calendar days",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-fold",
+    "name": "CalendarFold",
+    "label": "calendar fold",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-heart",
+    "name": "CalendarHeart",
+    "label": "calendar heart",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-minus",
+    "name": "CalendarMinus",
+    "label": "calendar minus",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-minus2",
+    "name": "CalendarMinus2",
+    "label": "calendar minus2",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-off",
+    "name": "CalendarOff",
+    "label": "calendar off",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-plus",
+    "name": "CalendarPlus",
+    "label": "calendar plus",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-plus2",
+    "name": "CalendarPlus2",
+    "label": "calendar plus2",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-range",
+    "name": "CalendarRange",
+    "label": "calendar range",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-search",
+    "name": "CalendarSearch",
+    "label": "calendar search",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-sync",
+    "name": "CalendarSync",
+    "label": "calendar sync",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-x",
+    "name": "CalendarX",
+    "label": "calendar x",
+    "aliases": []
+  },
+  {
+    "slug": "calendar-x2",
+    "name": "CalendarX2",
+    "label": "calendar x2",
+    "aliases": []
+  },
+  {
+    "slug": "calendar1",
+    "name": "Calendar1",
+    "label": "calendar1",
+    "aliases": []
+  },
+  { "slug": "camera", "name": "Camera", "label": "camera", "aliases": [] },
+  {
+    "slug": "camera-off",
+    "name": "CameraOff",
+    "label": "camera off",
+    "aliases": []
+  },
+  { "slug": "candy", "name": "Candy", "label": "candy", "aliases": [] },
+  {
+    "slug": "candy-cane",
+    "name": "CandyCane",
+    "label": "candy cane",
+    "aliases": []
+  },
+  {
+    "slug": "candy-off",
+    "name": "CandyOff",
+    "label": "candy off",
+    "aliases": []
+  },
+  {
+    "slug": "cannabis",
+    "name": "Cannabis",
+    "label": "cannabis",
+    "aliases": []
+  },
+  {
+    "slug": "captions",
+    "name": "Captions",
+    "label": "captions",
+    "aliases": ["subtitles"]
+  },
+  {
+    "slug": "captions-off",
+    "name": "CaptionsOff",
+    "label": "captions off",
+    "aliases": []
+  },
+  { "slug": "car", "name": "Car", "label": "car", "aliases": [] },
+  {
+    "slug": "car-front",
+    "name": "CarFront",
+    "label": "car front",
+    "aliases": []
+  },
+  {
+    "slug": "car-taxi-front",
+    "name": "CarTaxiFront",
+    "label": "car taxi front",
+    "aliases": []
+  },
+  { "slug": "caravan", "name": "Caravan", "label": "caravan", "aliases": [] },
+  { "slug": "carrot", "name": "Carrot", "label": "carrot", "aliases": [] },
+  {
+    "slug": "case-lower",
+    "name": "CaseLower",
+    "label": "case lower",
+    "aliases": []
+  },
+  {
+    "slug": "case-sensitive",
+    "name": "CaseSensitive",
+    "label": "case sensitive",
+    "aliases": []
+  },
+  {
+    "slug": "case-upper",
+    "name": "CaseUpper",
+    "label": "case upper",
+    "aliases": []
+  },
+  {
+    "slug": "cassette-tape",
+    "name": "CassetteTape",
+    "label": "cassette tape",
+    "aliases": []
+  },
+  { "slug": "cast", "name": "Cast", "label": "cast", "aliases": [] },
+  { "slug": "castle", "name": "Castle", "label": "castle", "aliases": [] },
+  { "slug": "cat", "name": "Cat", "label": "cat", "aliases": [] },
+  { "slug": "cctv", "name": "Cctv", "label": "cctv", "aliases": [] },
+  {
+    "slug": "chart-area",
+    "name": "ChartArea",
+    "label": "chart area",
+    "aliases": ["area-chart"]
+  },
+  {
+    "slug": "chart-bar",
+    "name": "ChartBar",
+    "label": "chart bar",
+    "aliases": ["bar-chart-horizontal"]
+  },
+  {
+    "slug": "chart-bar-big",
+    "name": "ChartBarBig",
+    "label": "chart bar big",
+    "aliases": ["bar-chart-horizontal-big"]
+  },
+  {
+    "slug": "chart-bar-decreasing",
+    "name": "ChartBarDecreasing",
+    "label": "chart bar decreasing",
+    "aliases": []
+  },
+  {
+    "slug": "chart-bar-increasing",
+    "name": "ChartBarIncreasing",
+    "label": "chart bar increasing",
+    "aliases": []
+  },
+  {
+    "slug": "chart-bar-stacked",
+    "name": "ChartBarStacked",
+    "label": "chart bar stacked",
+    "aliases": []
+  },
+  {
+    "slug": "chart-candlestick",
+    "name": "ChartCandlestick",
+    "label": "chart candlestick",
+    "aliases": ["candlestick-chart"]
+  },
+  {
+    "slug": "chart-column",
+    "name": "ChartColumn",
+    "label": "chart column",
+    "aliases": ["bar-chart-3"]
+  },
+  {
+    "slug": "chart-column-big",
+    "name": "ChartColumnBig",
+    "label": "chart column big",
+    "aliases": ["bar-chart-big"]
+  },
+  {
+    "slug": "chart-column-decreasing",
+    "name": "ChartColumnDecreasing",
+    "label": "chart column decreasing",
+    "aliases": []
+  },
+  {
+    "slug": "chart-column-increasing",
+    "name": "ChartColumnIncreasing",
+    "label": "chart column increasing",
+    "aliases": ["bar-chart-4"]
+  },
+  {
+    "slug": "chart-column-stacked",
+    "name": "ChartColumnStacked",
+    "label": "chart column stacked",
+    "aliases": []
+  },
+  {
+    "slug": "chart-gantt",
+    "name": "ChartGantt",
+    "label": "chart gantt",
+    "aliases": []
+  },
+  {
+    "slug": "chart-line",
+    "name": "ChartLine",
+    "label": "chart line",
+    "aliases": ["line-chart"]
+  },
+  {
+    "slug": "chart-network",
+    "name": "ChartNetwork",
+    "label": "chart network",
+    "aliases": []
+  },
+  {
+    "slug": "chart-no-axes-column",
+    "name": "ChartNoAxesColumn",
+    "label": "chart no axes column",
+    "aliases": ["bar-chart-2"]
+  },
+  {
+    "slug": "chart-no-axes-column-decreasing",
+    "name": "ChartNoAxesColumnDecreasing",
+    "label": "chart no axes column decreasing",
+    "aliases": []
+  },
+  {
+    "slug": "chart-no-axes-column-increasing",
+    "name": "ChartNoAxesColumnIncreasing",
+    "label": "chart no axes column increasing",
+    "aliases": ["bar-chart"]
+  },
+  {
+    "slug": "chart-no-axes-combined",
+    "name": "ChartNoAxesCombined",
+    "label": "chart no axes combined",
+    "aliases": []
+  },
+  {
+    "slug": "chart-no-axes-gantt",
+    "name": "ChartNoAxesGantt",
+    "label": "chart no axes gantt",
+    "aliases": ["gantt-chart"]
+  },
+  {
+    "slug": "chart-pie",
+    "name": "ChartPie",
+    "label": "chart pie",
+    "aliases": ["pie-chart"]
+  },
+  {
+    "slug": "chart-scatter",
+    "name": "ChartScatter",
+    "label": "chart scatter",
+    "aliases": ["scatter-chart"]
+  },
+  {
+    "slug": "chart-spline",
+    "name": "ChartSpline",
+    "label": "chart spline",
+    "aliases": []
+  },
+  { "slug": "check", "name": "Check", "label": "check", "aliases": [] },
+  {
+    "slug": "check-check",
+    "name": "CheckCheck",
+    "label": "check check",
+    "aliases": []
+  },
+  { "slug": "chef-hat", "name": "ChefHat", "label": "chef hat", "aliases": [] },
+  { "slug": "cherry", "name": "Cherry", "label": "cherry", "aliases": [] },
+  {
+    "slug": "chevron-down",
+    "name": "ChevronDown",
+    "label": "chevron down",
+    "aliases": []
+  },
+  {
+    "slug": "chevron-first",
+    "name": "ChevronFirst",
+    "label": "chevron first",
+    "aliases": []
+  },
+  {
+    "slug": "chevron-last",
+    "name": "ChevronLast",
+    "label": "chevron last",
+    "aliases": []
+  },
+  {
+    "slug": "chevron-left",
+    "name": "ChevronLeft",
+    "label": "chevron left",
+    "aliases": []
+  },
+  {
+    "slug": "chevron-right",
+    "name": "ChevronRight",
+    "label": "chevron right",
+    "aliases": []
+  },
+  {
+    "slug": "chevron-up",
+    "name": "ChevronUp",
+    "label": "chevron up",
+    "aliases": []
+  },
+  {
+    "slug": "chevrons-down",
+    "name": "ChevronsDown",
+    "label": "chevrons down",
+    "aliases": []
+  },
+  {
+    "slug": "chevrons-down-up",
+    "name": "ChevronsDownUp",
+    "label": "chevrons down up",
+    "aliases": []
+  },
+  {
+    "slug": "chevrons-left",
+    "name": "ChevronsLeft",
+    "label": "chevrons left",
+    "aliases": []
+  },
+  {
+    "slug": "chevrons-left-right",
+    "name": "ChevronsLeftRight",
+    "label": "chevrons left right",
+    "aliases": []
+  },
+  {
+    "slug": "chevrons-left-right-ellipsis",
+    "name": "ChevronsLeftRightEllipsis",
+    "label": "chevrons left right ellipsis",
+    "aliases": []
+  },
+  {
+    "slug": "chevrons-right",
+    "name": "ChevronsRight",
+    "label": "chevrons right",
+    "aliases": []
+  },
+  {
+    "slug": "chevrons-right-left",
+    "name": "ChevronsRightLeft",
+    "label": "chevrons right left",
+    "aliases": []
+  },
+  {
+    "slug": "chevrons-up",
+    "name": "ChevronsUp",
+    "label": "chevrons up",
+    "aliases": []
+  },
+  {
+    "slug": "chevrons-up-down",
+    "name": "ChevronsUpDown",
+    "label": "chevrons up down",
+    "aliases": []
+  },
+  { "slug": "chrome", "name": "Chrome", "label": "chrome", "aliases": [] },
+  { "slug": "church", "name": "Church", "label": "church", "aliases": [] },
+  {
+    "slug": "cigarette",
+    "name": "Cigarette",
+    "label": "cigarette",
+    "aliases": []
+  },
+  {
+    "slug": "cigarette-off",
+    "name": "CigaretteOff",
+    "label": "cigarette off",
+    "aliases": []
+  },
+  { "slug": "circle", "name": "Circle", "label": "circle", "aliases": [] },
+  {
+    "slug": "circle-alert",
+    "name": "CircleAlert",
+    "label": "circle alert",
+    "aliases": ["alert-circle"]
+  },
+  {
+    "slug": "circle-arrow-down",
+    "name": "CircleArrowDown",
+    "label": "circle arrow down",
+    "aliases": ["arrow-down-circle"]
+  },
+  {
+    "slug": "circle-arrow-left",
+    "name": "CircleArrowLeft",
+    "label": "circle arrow left",
+    "aliases": ["arrow-left-circle"]
+  },
+  {
+    "slug": "circle-arrow-out-down-left",
+    "name": "CircleArrowOutDownLeft",
+    "label": "circle arrow out down left",
+    "aliases": ["arrow-down-left-from-circle"]
+  },
+  {
+    "slug": "circle-arrow-out-down-right",
+    "name": "CircleArrowOutDownRight",
+    "label": "circle arrow out down right",
+    "aliases": ["arrow-down-right-from-circle"]
+  },
+  {
+    "slug": "circle-arrow-out-up-left",
+    "name": "CircleArrowOutUpLeft",
+    "label": "circle arrow out up left",
+    "aliases": ["arrow-up-left-from-circle"]
+  },
+  {
+    "slug": "circle-arrow-out-up-right",
+    "name": "CircleArrowOutUpRight",
+    "label": "circle arrow out up right",
+    "aliases": ["arrow-up-right-from-circle"]
+  },
+  {
+    "slug": "circle-arrow-right",
+    "name": "CircleArrowRight",
+    "label": "circle arrow right",
+    "aliases": ["arrow-right-circle"]
+  },
+  {
+    "slug": "circle-arrow-up",
+    "name": "CircleArrowUp",
+    "label": "circle arrow up",
+    "aliases": ["arrow-up-circle"]
+  },
+  {
+    "slug": "circle-check",
+    "name": "CircleCheck",
+    "label": "circle check",
+    "aliases": ["check-circle-2"]
+  },
+  {
+    "slug": "circle-check-big",
+    "name": "CircleCheckBig",
+    "label": "circle check big",
+    "aliases": ["check-circle"]
+  },
+  {
+    "slug": "circle-chevron-down",
+    "name": "CircleChevronDown",
+    "label": "circle chevron down",
+    "aliases": ["chevron-down-circle"]
+  },
+  {
+    "slug": "circle-chevron-left",
+    "name": "CircleChevronLeft",
+    "label": "circle chevron left",
+    "aliases": ["chevron-left-circle"]
+  },
+  {
+    "slug": "circle-chevron-right",
+    "name": "CircleChevronRight",
+    "label": "circle chevron right",
+    "aliases": ["chevron-right-circle"]
+  },
+  {
+    "slug": "circle-chevron-up",
+    "name": "CircleChevronUp",
+    "label": "circle chevron up",
+    "aliases": ["chevron-up-circle"]
+  },
+  {
+    "slug": "circle-dashed",
+    "name": "CircleDashed",
+    "label": "circle dashed",
+    "aliases": []
+  },
+  {
+    "slug": "circle-divide",
+    "name": "CircleDivide",
+    "label": "circle divide",
+    "aliases": ["divide-circle"]
+  },
+  {
+    "slug": "circle-dollar-sign",
+    "name": "CircleDollarSign",
+    "label": "circle dollar sign",
+    "aliases": []
+  },
+  {
+    "slug": "circle-dot",
+    "name": "CircleDot",
+    "label": "circle dot",
+    "aliases": []
+  },
+  {
+    "slug": "circle-dot-dashed",
+    "name": "CircleDotDashed",
+    "label": "circle dot dashed",
+    "aliases": []
+  },
+  {
+    "slug": "circle-ellipsis",
+    "name": "CircleEllipsis",
+    "label": "circle ellipsis",
+    "aliases": []
+  },
+  {
+    "slug": "circle-equal",
+    "name": "CircleEqual",
+    "label": "circle equal",
+    "aliases": []
+  },
+  {
+    "slug": "circle-fading-arrow-up",
+    "name": "CircleFadingArrowUp",
+    "label": "circle fading arrow up",
+    "aliases": []
+  },
+  {
+    "slug": "circle-fading-plus",
+    "name": "CircleFadingPlus",
+    "label": "circle fading plus",
+    "aliases": []
+  },
+  {
+    "slug": "circle-gauge",
+    "name": "CircleGauge",
+    "label": "circle gauge",
+    "aliases": ["gauge-circle"]
+  },
+  {
+    "slug": "circle-help",
+    "name": "CircleHelp",
+    "label": "circle help",
+    "aliases": ["help-circle"]
+  },
+  {
+    "slug": "circle-minus",
+    "name": "CircleMinus",
+    "label": "circle minus",
+    "aliases": ["minus-circle"]
+  },
+  {
+    "slug": "circle-off",
+    "name": "CircleOff",
+    "label": "circle off",
+    "aliases": []
+  },
+  {
+    "slug": "circle-parking",
+    "name": "CircleParking",
+    "label": "circle parking",
+    "aliases": ["parking-circle"]
+  },
+  {
+    "slug": "circle-parking-off",
+    "name": "CircleParkingOff",
+    "label": "circle parking off",
+    "aliases": ["parking-circle-off"]
+  },
+  {
+    "slug": "circle-pause",
+    "name": "CirclePause",
+    "label": "circle pause",
+    "aliases": ["pause-circle"]
+  },
+  {
+    "slug": "circle-percent",
+    "name": "CirclePercent",
+    "label": "circle percent",
+    "aliases": ["percent-circle"]
+  },
+  {
+    "slug": "circle-play",
+    "name": "CirclePlay",
+    "label": "circle play",
+    "aliases": ["play-circle"]
+  },
+  {
+    "slug": "circle-plus",
+    "name": "CirclePlus",
+    "label": "circle plus",
+    "aliases": ["plus-circle"]
+  },
+  {
+    "slug": "circle-power",
+    "name": "CirclePower",
+    "label": "circle power",
+    "aliases": ["power-circle"]
+  },
+  {
+    "slug": "circle-slash",
+    "name": "CircleSlash",
+    "label": "circle slash",
+    "aliases": []
+  },
+  {
+    "slug": "circle-slash2",
+    "name": "CircleSlash2",
+    "label": "circle slash2",
+    "aliases": []
+  },
+  {
+    "slug": "circle-stop",
+    "name": "CircleStop",
+    "label": "circle stop",
+    "aliases": ["stop-circle"]
+  },
+  {
+    "slug": "circle-user",
+    "name": "CircleUser",
+    "label": "circle user",
+    "aliases": ["user-circle"]
+  },
+  {
+    "slug": "circle-user-round",
+    "name": "CircleUserRound",
+    "label": "circle user round",
+    "aliases": ["user-circle-2"]
+  },
+  {
+    "slug": "circle-x",
+    "name": "CircleX",
+    "label": "circle x",
+    "aliases": ["x-circle"]
+  },
+  {
+    "slug": "circuit-board",
+    "name": "CircuitBoard",
+    "label": "circuit board",
+    "aliases": []
+  },
+  { "slug": "citrus", "name": "Citrus", "label": "citrus", "aliases": [] },
+  {
+    "slug": "clapperboard",
+    "name": "Clapperboard",
+    "label": "clapperboard",
+    "aliases": []
+  },
+  {
+    "slug": "clipboard",
+    "name": "Clipboard",
+    "label": "clipboard",
+    "aliases": []
+  },
+  {
+    "slug": "clipboard-check",
+    "name": "ClipboardCheck",
+    "label": "clipboard check",
+    "aliases": []
+  },
+  {
+    "slug": "clipboard-copy",
+    "name": "ClipboardCopy",
+    "label": "clipboard copy",
+    "aliases": []
+  },
+  {
+    "slug": "clipboard-list",
+    "name": "ClipboardList",
+    "label": "clipboard list",
+    "aliases": []
+  },
+  {
+    "slug": "clipboard-minus",
+    "name": "ClipboardMinus",
+    "label": "clipboard minus",
+    "aliases": []
+  },
+  {
+    "slug": "clipboard-paste",
+    "name": "ClipboardPaste",
+    "label": "clipboard paste",
+    "aliases": []
+  },
+  {
+    "slug": "clipboard-pen",
+    "name": "ClipboardPen",
+    "label": "clipboard pen",
+    "aliases": ["clipboard-edit"]
+  },
+  {
+    "slug": "clipboard-pen-line",
+    "name": "ClipboardPenLine",
+    "label": "clipboard pen line",
+    "aliases": ["clipboard-signature"]
+  },
+  {
+    "slug": "clipboard-plus",
+    "name": "ClipboardPlus",
+    "label": "clipboard plus",
+    "aliases": []
+  },
+  {
+    "slug": "clipboard-type",
+    "name": "ClipboardType",
+    "label": "clipboard type",
+    "aliases": []
+  },
+  {
+    "slug": "clipboard-x",
+    "name": "ClipboardX",
+    "label": "clipboard x",
+    "aliases": []
+  },
+  { "slug": "clock", "name": "Clock", "label": "clock", "aliases": [] },
+  {
+    "slug": "clock-alert",
+    "name": "ClockAlert",
+    "label": "clock alert",
+    "aliases": []
+  },
+  {
+    "slug": "clock-arrow-down",
+    "name": "ClockArrowDown",
+    "label": "clock arrow down",
+    "aliases": []
+  },
+  {
+    "slug": "clock-arrow-up",
+    "name": "ClockArrowUp",
+    "label": "clock arrow up",
+    "aliases": []
+  },
+  { "slug": "clock1", "name": "Clock1", "label": "clock1", "aliases": [] },
+  { "slug": "clock10", "name": "Clock10", "label": "clock10", "aliases": [] },
+  { "slug": "clock11", "name": "Clock11", "label": "clock11", "aliases": [] },
+  { "slug": "clock12", "name": "Clock12", "label": "clock12", "aliases": [] },
+  { "slug": "clock2", "name": "Clock2", "label": "clock2", "aliases": [] },
+  { "slug": "clock3", "name": "Clock3", "label": "clock3", "aliases": [] },
+  { "slug": "clock4", "name": "Clock4", "label": "clock4", "aliases": [] },
+  { "slug": "clock5", "name": "Clock5", "label": "clock5", "aliases": [] },
+  { "slug": "clock6", "name": "Clock6", "label": "clock6", "aliases": [] },
+  { "slug": "clock7", "name": "Clock7", "label": "clock7", "aliases": [] },
+  { "slug": "clock8", "name": "Clock8", "label": "clock8", "aliases": [] },
+  { "slug": "clock9", "name": "Clock9", "label": "clock9", "aliases": [] },
+  { "slug": "cloud", "name": "Cloud", "label": "cloud", "aliases": [] },
+  {
+    "slug": "cloud-alert",
+    "name": "CloudAlert",
+    "label": "cloud alert",
+    "aliases": []
+  },
+  {
+    "slug": "cloud-cog",
+    "name": "CloudCog",
+    "label": "cloud cog",
+    "aliases": []
+  },
+  {
+    "slug": "cloud-download",
+    "name": "CloudDownload",
+    "label": "cloud download",
+    "aliases": ["download-cloud"]
+  },
+  {
+    "slug": "cloud-drizzle",
+    "name": "CloudDrizzle",
+    "label": "cloud drizzle",
+    "aliases": []
+  },
+  {
+    "slug": "cloud-fog",
+    "name": "CloudFog",
+    "label": "cloud fog",
+    "aliases": []
+  },
+  {
+    "slug": "cloud-hail",
+    "name": "CloudHail",
+    "label": "cloud hail",
+    "aliases": []
+  },
+  {
+    "slug": "cloud-lightning",
+    "name": "CloudLightning",
+    "label": "cloud lightning",
+    "aliases": []
+  },
+  {
+    "slug": "cloud-moon",
+    "name": "CloudMoon",
+    "label": "cloud moon",
+    "aliases": []
+  },
+  {
+    "slug": "cloud-moon-rain",
+    "name": "CloudMoonRain",
+    "label": "cloud moon rain",
+    "aliases": []
+  },
+  {
+    "slug": "cloud-off",
+    "name": "CloudOff",
+    "label": "cloud off",
+    "aliases": []
+  },
+  {
+    "slug": "cloud-rain",
+    "name": "CloudRain",
+    "label": "cloud rain",
+    "aliases": []
+  },
+  {
+    "slug": "cloud-rain-wind",
+    "name": "CloudRainWind",
+    "label": "cloud rain wind",
+    "aliases": []
+  },
+  {
+    "slug": "cloud-snow",
+    "name": "CloudSnow",
+    "label": "cloud snow",
+    "aliases": []
+  },
+  {
+    "slug": "cloud-sun",
+    "name": "CloudSun",
+    "label": "cloud sun",
+    "aliases": []
+  },
+  {
+    "slug": "cloud-sun-rain",
+    "name": "CloudSunRain",
+    "label": "cloud sun rain",
+    "aliases": []
+  },
+  {
+    "slug": "cloud-upload",
+    "name": "CloudUpload",
+    "label": "cloud upload",
+    "aliases": ["upload-cloud"]
+  },
+  { "slug": "cloudy", "name": "Cloudy", "label": "cloudy", "aliases": [] },
+  { "slug": "clover", "name": "Clover", "label": "clover", "aliases": [] },
+  { "slug": "club", "name": "Club", "label": "club", "aliases": [] },
+  { "slug": "code", "name": "Code", "label": "code", "aliases": [] },
+  {
+    "slug": "code-xml",
+    "name": "CodeXml",
+    "label": "code xml",
+    "aliases": ["code-2"]
+  },
+  { "slug": "codepen", "name": "Codepen", "label": "codepen", "aliases": [] },
+  {
+    "slug": "codesandbox",
+    "name": "Codesandbox",
+    "label": "codesandbox",
+    "aliases": []
+  },
+  { "slug": "coffee", "name": "Coffee", "label": "coffee", "aliases": [] },
+  { "slug": "cog", "name": "Cog", "label": "cog", "aliases": [] },
+  { "slug": "coins", "name": "Coins", "label": "coins", "aliases": [] },
+  {
+    "slug": "columns2",
+    "name": "Columns2",
+    "label": "columns2",
+    "aliases": []
+  },
+  {
+    "slug": "columns3",
+    "name": "Columns3",
+    "label": "columns3",
+    "aliases": []
+  },
+  {
+    "slug": "columns4",
+    "name": "Columns4",
+    "label": "columns4",
+    "aliases": []
+  },
+  { "slug": "combine", "name": "Combine", "label": "combine", "aliases": [] },
+  { "slug": "command", "name": "Command", "label": "command", "aliases": [] },
+  { "slug": "compass", "name": "Compass", "label": "compass", "aliases": [] },
+  {
+    "slug": "component",
+    "name": "Component",
+    "label": "component",
+    "aliases": []
+  },
+  {
+    "slug": "computer",
+    "name": "Computer",
+    "label": "computer",
+    "aliases": []
+  },
+  {
+    "slug": "concierge-bell",
+    "name": "ConciergeBell",
+    "label": "concierge bell",
+    "aliases": []
+  },
+  { "slug": "cone", "name": "Cone", "label": "cone", "aliases": [] },
+  {
+    "slug": "construction",
+    "name": "Construction",
+    "label": "construction",
+    "aliases": []
+  },
+  { "slug": "contact", "name": "Contact", "label": "contact", "aliases": [] },
+  {
+    "slug": "contact-round",
+    "name": "ContactRound",
+    "label": "contact round",
+    "aliases": ["contact-2"]
+  },
+  {
+    "slug": "container",
+    "name": "Container",
+    "label": "container",
+    "aliases": []
+  },
+  {
+    "slug": "contrast",
+    "name": "Contrast",
+    "label": "contrast",
+    "aliases": []
+  },
+  { "slug": "cookie", "name": "Cookie", "label": "cookie", "aliases": [] },
+  {
+    "slug": "cooking-pot",
+    "name": "CookingPot",
+    "label": "cooking pot",
+    "aliases": []
+  },
+  { "slug": "copy", "name": "Copy", "label": "copy", "aliases": [] },
+  {
+    "slug": "copy-check",
+    "name": "CopyCheck",
+    "label": "copy check",
+    "aliases": []
+  },
+  {
+    "slug": "copy-minus",
+    "name": "CopyMinus",
+    "label": "copy minus",
+    "aliases": []
+  },
+  {
+    "slug": "copy-plus",
+    "name": "CopyPlus",
+    "label": "copy plus",
+    "aliases": []
+  },
+  {
+    "slug": "copy-slash",
+    "name": "CopySlash",
+    "label": "copy slash",
+    "aliases": []
+  },
+  { "slug": "copy-x", "name": "CopyX", "label": "copy x", "aliases": [] },
+  {
+    "slug": "copyleft",
+    "name": "Copyleft",
+    "label": "copyleft",
+    "aliases": []
+  },
+  {
+    "slug": "copyright",
+    "name": "Copyright",
+    "label": "copyright",
+    "aliases": []
+  },
+  {
+    "slug": "corner-down-left",
+    "name": "CornerDownLeft",
+    "label": "corner down left",
+    "aliases": []
+  },
+  {
+    "slug": "corner-down-right",
+    "name": "CornerDownRight",
+    "label": "corner down right",
+    "aliases": []
+  },
+  {
+    "slug": "corner-left-down",
+    "name": "CornerLeftDown",
+    "label": "corner left down",
+    "aliases": []
+  },
+  {
+    "slug": "corner-left-up",
+    "name": "CornerLeftUp",
+    "label": "corner left up",
+    "aliases": []
+  },
+  {
+    "slug": "corner-right-down",
+    "name": "CornerRightDown",
+    "label": "corner right down",
+    "aliases": []
+  },
+  {
+    "slug": "corner-right-up",
+    "name": "CornerRightUp",
+    "label": "corner right up",
+    "aliases": []
+  },
+  {
+    "slug": "corner-up-left",
+    "name": "CornerUpLeft",
+    "label": "corner up left",
+    "aliases": []
+  },
+  {
+    "slug": "corner-up-right",
+    "name": "CornerUpRight",
+    "label": "corner up right",
+    "aliases": []
+  },
+  { "slug": "cpu", "name": "Cpu", "label": "cpu", "aliases": [] },
+  {
+    "slug": "creative-commons",
+    "name": "CreativeCommons",
+    "label": "creative commons",
+    "aliases": []
+  },
+  {
+    "slug": "credit-card",
+    "name": "CreditCard",
+    "label": "credit card",
+    "aliases": []
+  },
+  {
+    "slug": "croissant",
+    "name": "Croissant",
+    "label": "croissant",
+    "aliases": []
+  },
+  { "slug": "crop", "name": "Crop", "label": "crop", "aliases": [] },
+  { "slug": "cross", "name": "Cross", "label": "cross", "aliases": [] },
+  {
+    "slug": "crosshair",
+    "name": "Crosshair",
+    "label": "crosshair",
+    "aliases": []
+  },
+  { "slug": "crown", "name": "Crown", "label": "crown", "aliases": [] },
+  { "slug": "cuboid", "name": "Cuboid", "label": "cuboid", "aliases": [] },
+  { "slug": "cup-soda", "name": "CupSoda", "label": "cup soda", "aliases": [] },
+  {
+    "slug": "currency",
+    "name": "Currency",
+    "label": "currency",
+    "aliases": []
+  },
+  {
+    "slug": "cylinder",
+    "name": "Cylinder",
+    "label": "cylinder",
+    "aliases": []
+  },
+  { "slug": "dam", "name": "Dam", "label": "dam", "aliases": [] },
+  {
+    "slug": "database",
+    "name": "Database",
+    "label": "database",
+    "aliases": []
+  },
+  {
+    "slug": "database-backup",
+    "name": "DatabaseBackup",
+    "label": "database backup",
+    "aliases": []
+  },
+  {
+    "slug": "database-zap",
+    "name": "DatabaseZap",
+    "label": "database zap",
+    "aliases": []
+  },
+  { "slug": "delete", "name": "Delete", "label": "delete", "aliases": [] },
+  { "slug": "dessert", "name": "Dessert", "label": "dessert", "aliases": [] },
+  {
+    "slug": "diameter",
+    "name": "Diameter",
+    "label": "diameter",
+    "aliases": []
+  },
+  { "slug": "diamond", "name": "Diamond", "label": "diamond", "aliases": [] },
+  {
+    "slug": "diamond-minus",
+    "name": "DiamondMinus",
+    "label": "diamond minus",
+    "aliases": []
+  },
+  {
+    "slug": "diamond-percent",
+    "name": "DiamondPercent",
+    "label": "diamond percent",
+    "aliases": ["percent-diamond"]
+  },
+  {
+    "slug": "diamond-plus",
+    "name": "DiamondPlus",
+    "label": "diamond plus",
+    "aliases": []
+  },
+  { "slug": "dice1", "name": "Dice1", "label": "dice1", "aliases": [] },
+  { "slug": "dice2", "name": "Dice2", "label": "dice2", "aliases": [] },
+  { "slug": "dice3", "name": "Dice3", "label": "dice3", "aliases": [] },
+  { "slug": "dice4", "name": "Dice4", "label": "dice4", "aliases": [] },
+  { "slug": "dice5", "name": "Dice5", "label": "dice5", "aliases": [] },
+  { "slug": "dice6", "name": "Dice6", "label": "dice6", "aliases": [] },
+  { "slug": "dices", "name": "Dices", "label": "dices", "aliases": [] },
+  { "slug": "diff", "name": "Diff", "label": "diff", "aliases": [] },
+  { "slug": "disc", "name": "Disc", "label": "disc", "aliases": [] },
+  {
+    "slug": "disc-album",
+    "name": "DiscAlbum",
+    "label": "disc album",
+    "aliases": []
+  },
+  { "slug": "disc2", "name": "Disc2", "label": "disc2", "aliases": [] },
+  { "slug": "disc3", "name": "Disc3", "label": "disc3", "aliases": [] },
+  { "slug": "divide", "name": "Divide", "label": "divide", "aliases": [] },
+  { "slug": "dna", "name": "Dna", "label": "dna", "aliases": [] },
+  { "slug": "dna-off", "name": "DnaOff", "label": "dna off", "aliases": [] },
+  { "slug": "dock", "name": "Dock", "label": "dock", "aliases": [] },
+  { "slug": "dog", "name": "Dog", "label": "dog", "aliases": [] },
+  {
+    "slug": "dollar-sign",
+    "name": "DollarSign",
+    "label": "dollar sign",
+    "aliases": []
+  },
+  { "slug": "donut", "name": "Donut", "label": "donut", "aliases": [] },
+  {
+    "slug": "door-closed",
+    "name": "DoorClosed",
+    "label": "door closed",
+    "aliases": []
+  },
+  {
+    "slug": "door-open",
+    "name": "DoorOpen",
+    "label": "door open",
+    "aliases": []
+  },
+  { "slug": "dot", "name": "Dot", "label": "dot", "aliases": [] },
+  {
+    "slug": "download",
+    "name": "Download",
+    "label": "download",
+    "aliases": []
+  },
+  {
+    "slug": "drafting-compass",
+    "name": "DraftingCompass",
+    "label": "drafting compass",
+    "aliases": []
+  },
+  { "slug": "drama", "name": "Drama", "label": "drama", "aliases": [] },
+  {
+    "slug": "dribbble",
+    "name": "Dribbble",
+    "label": "dribbble",
+    "aliases": []
+  },
+  { "slug": "drill", "name": "Drill", "label": "drill", "aliases": [] },
+  { "slug": "droplet", "name": "Droplet", "label": "droplet", "aliases": [] },
+  {
+    "slug": "droplet-off",
+    "name": "DropletOff",
+    "label": "droplet off",
+    "aliases": []
+  },
+  {
+    "slug": "droplets",
+    "name": "Droplets",
+    "label": "droplets",
+    "aliases": []
+  },
+  { "slug": "drum", "name": "Drum", "label": "drum", "aliases": [] },
+  {
+    "slug": "drumstick",
+    "name": "Drumstick",
+    "label": "drumstick",
+    "aliases": []
+  },
+  {
+    "slug": "dumbbell",
+    "name": "Dumbbell",
+    "label": "dumbbell",
+    "aliases": []
+  },
+  { "slug": "ear", "name": "Ear", "label": "ear", "aliases": [] },
+  { "slug": "ear-off", "name": "EarOff", "label": "ear off", "aliases": [] },
+  {
+    "slug": "earth",
+    "name": "Earth",
+    "label": "earth",
+    "aliases": ["globe-2"]
+  },
+  {
+    "slug": "earth-lock",
+    "name": "EarthLock",
+    "label": "earth lock",
+    "aliases": []
+  },
+  { "slug": "eclipse", "name": "Eclipse", "label": "eclipse", "aliases": [] },
+  { "slug": "egg", "name": "Egg", "label": "egg", "aliases": [] },
+  {
+    "slug": "egg-fried",
+    "name": "EggFried",
+    "label": "egg fried",
+    "aliases": []
+  },
+  { "slug": "egg-off", "name": "EggOff", "label": "egg off", "aliases": [] },
+  {
+    "slug": "ellipsis",
+    "name": "Ellipsis",
+    "label": "ellipsis",
+    "aliases": ["more-horizontal"]
+  },
+  {
+    "slug": "ellipsis-vertical",
+    "name": "EllipsisVertical",
+    "label": "ellipsis vertical",
+    "aliases": ["more-vertical"]
+  },
+  { "slug": "equal", "name": "Equal", "label": "equal", "aliases": [] },
+  {
+    "slug": "equal-approximately",
+    "name": "EqualApproximately",
+    "label": "equal approximately",
+    "aliases": []
+  },
+  {
+    "slug": "equal-not",
+    "name": "EqualNot",
+    "label": "equal not",
+    "aliases": []
+  },
+  { "slug": "eraser", "name": "Eraser", "label": "eraser", "aliases": [] },
+  {
+    "slug": "ethernet-port",
+    "name": "EthernetPort",
+    "label": "ethernet port",
+    "aliases": []
+  },
+  { "slug": "euro", "name": "Euro", "label": "euro", "aliases": [] },
+  { "slug": "expand", "name": "Expand", "label": "expand", "aliases": [] },
+  {
+    "slug": "external-link",
+    "name": "ExternalLink",
+    "label": "external link",
+    "aliases": []
+  },
+  { "slug": "eye", "name": "Eye", "label": "eye", "aliases": [] },
+  {
+    "slug": "eye-closed",
+    "name": "EyeClosed",
+    "label": "eye closed",
+    "aliases": []
+  },
+  { "slug": "eye-off", "name": "EyeOff", "label": "eye off", "aliases": [] },
+  {
+    "slug": "facebook",
+    "name": "Facebook",
+    "label": "facebook",
+    "aliases": []
+  },
+  { "slug": "factory", "name": "Factory", "label": "factory", "aliases": [] },
+  { "slug": "fan", "name": "Fan", "label": "fan", "aliases": [] },
+  {
+    "slug": "fast-forward",
+    "name": "FastForward",
+    "label": "fast forward",
+    "aliases": []
+  },
+  { "slug": "feather", "name": "Feather", "label": "feather", "aliases": [] },
+  { "slug": "fence", "name": "Fence", "label": "fence", "aliases": [] },
+  {
+    "slug": "ferris-wheel",
+    "name": "FerrisWheel",
+    "label": "ferris wheel",
+    "aliases": []
+  },
+  { "slug": "figma", "name": "Figma", "label": "figma", "aliases": [] },
+  { "slug": "file", "name": "File", "label": "file", "aliases": [] },
+  {
+    "slug": "file-archive",
+    "name": "FileArchive",
+    "label": "file archive",
+    "aliases": []
+  },
+  {
+    "slug": "file-audio",
+    "name": "FileAudio",
+    "label": "file audio",
+    "aliases": []
+  },
+  {
+    "slug": "file-audio2",
+    "name": "FileAudio2",
+    "label": "file audio2",
+    "aliases": []
+  },
+  {
+    "slug": "file-axis3d",
+    "name": "FileAxis3d",
+    "label": "file axis3d",
+    "aliases": []
+  },
+  {
+    "slug": "file-badge",
+    "name": "FileBadge",
+    "label": "file badge",
+    "aliases": []
+  },
+  {
+    "slug": "file-badge2",
+    "name": "FileBadge2",
+    "label": "file badge2",
+    "aliases": []
+  },
+  { "slug": "file-box", "name": "FileBox", "label": "file box", "aliases": [] },
+  {
+    "slug": "file-chart-column",
+    "name": "FileChartColumn",
+    "label": "file chart column",
+    "aliases": ["file-bar-chart-2"]
+  },
+  {
+    "slug": "file-chart-column-increasing",
+    "name": "FileChartColumnIncreasing",
+    "label": "file chart column increasing",
+    "aliases": ["file-bar-chart"]
+  },
+  {
+    "slug": "file-chart-line",
+    "name": "FileChartLine",
+    "label": "file chart line",
+    "aliases": ["file-line-chart"]
+  },
+  {
+    "slug": "file-chart-pie",
+    "name": "FileChartPie",
+    "label": "file chart pie",
+    "aliases": ["file-pie-chart"]
+  },
+  {
+    "slug": "file-check",
+    "name": "FileCheck",
+    "label": "file check",
+    "aliases": []
+  },
+  {
+    "slug": "file-check2",
+    "name": "FileCheck2",
+    "label": "file check2",
+    "aliases": []
+  },
+  {
+    "slug": "file-clock",
+    "name": "FileClock",
+    "label": "file clock",
+    "aliases": []
+  },
+  {
+    "slug": "file-code",
+    "name": "FileCode",
+    "label": "file code",
+    "aliases": []
+  },
+  {
+    "slug": "file-code2",
+    "name": "FileCode2",
+    "label": "file code2",
+    "aliases": []
+  },
+  {
+    "slug": "file-cog",
+    "name": "FileCog",
+    "label": "file cog",
+    "aliases": ["file-cog-2"]
+  },
+  {
+    "slug": "file-diff",
+    "name": "FileDiff",
+    "label": "file diff",
+    "aliases": []
+  },
+  {
+    "slug": "file-digit",
+    "name": "FileDigit",
+    "label": "file digit",
+    "aliases": []
+  },
+  {
+    "slug": "file-down",
+    "name": "FileDown",
+    "label": "file down",
+    "aliases": []
+  },
+  {
+    "slug": "file-heart",
+    "name": "FileHeart",
+    "label": "file heart",
+    "aliases": []
+  },
+  {
+    "slug": "file-image",
+    "name": "FileImage",
+    "label": "file image",
+    "aliases": []
+  },
+  {
+    "slug": "file-input",
+    "name": "FileInput",
+    "label": "file input",
+    "aliases": []
+  },
+  {
+    "slug": "file-json",
+    "name": "FileJson",
+    "label": "file json",
+    "aliases": []
+  },
+  {
+    "slug": "file-json2",
+    "name": "FileJson2",
+    "label": "file json2",
+    "aliases": []
+  },
+  { "slug": "file-key", "name": "FileKey", "label": "file key", "aliases": [] },
+  {
+    "slug": "file-key2",
+    "name": "FileKey2",
+    "label": "file key2",
+    "aliases": []
+  },
+  {
+    "slug": "file-lock",
+    "name": "FileLock",
+    "label": "file lock",
+    "aliases": []
+  },
+  {
+    "slug": "file-lock2",
+    "name": "FileLock2",
+    "label": "file lock2",
+    "aliases": []
+  },
+  {
+    "slug": "file-minus",
+    "name": "FileMinus",
+    "label": "file minus",
+    "aliases": []
+  },
+  {
+    "slug": "file-minus2",
+    "name": "FileMinus2",
+    "label": "file minus2",
+    "aliases": []
+  },
+  {
+    "slug": "file-music",
+    "name": "FileMusic",
+    "label": "file music",
+    "aliases": []
+  },
+  {
+    "slug": "file-output",
+    "name": "FileOutput",
+    "label": "file output",
+    "aliases": []
+  },
+  {
+    "slug": "file-pen",
+    "name": "FilePen",
+    "label": "file pen",
+    "aliases": ["file-edit"]
+  },
+  {
+    "slug": "file-pen-line",
+    "name": "FilePenLine",
+    "label": "file pen line",
+    "aliases": ["file-signature"]
+  },
+  {
+    "slug": "file-plus",
+    "name": "FilePlus",
+    "label": "file plus",
+    "aliases": []
+  },
+  {
+    "slug": "file-plus2",
+    "name": "FilePlus2",
+    "label": "file plus2",
+    "aliases": []
+  },
+  {
+    "slug": "file-question",
+    "name": "FileQuestion",
+    "label": "file question",
+    "aliases": []
+  },
+  {
+    "slug": "file-scan",
+    "name": "FileScan",
+    "label": "file scan",
+    "aliases": []
+  },
+  {
+    "slug": "file-search",
+    "name": "FileSearch",
+    "label": "file search",
+    "aliases": []
+  },
+  {
+    "slug": "file-search2",
+    "name": "FileSearch2",
+    "label": "file search2",
+    "aliases": []
+  },
+  {
+    "slug": "file-sliders",
+    "name": "FileSliders",
+    "label": "file sliders",
+    "aliases": []
+  },
+  {
+    "slug": "file-spreadsheet",
+    "name": "FileSpreadsheet",
+    "label": "file spreadsheet",
+    "aliases": []
+  },
+  {
+    "slug": "file-stack",
+    "name": "FileStack",
+    "label": "file stack",
+    "aliases": []
+  },
+  {
+    "slug": "file-symlink",
+    "name": "FileSymlink",
+    "label": "file symlink",
+    "aliases": []
+  },
+  {
+    "slug": "file-terminal",
+    "name": "FileTerminal",
+    "label": "file terminal",
+    "aliases": []
+  },
+  {
+    "slug": "file-text",
+    "name": "FileText",
+    "label": "file text",
+    "aliases": []
+  },
+  {
+    "slug": "file-type",
+    "name": "FileType",
+    "label": "file type",
+    "aliases": []
+  },
+  {
+    "slug": "file-type2",
+    "name": "FileType2",
+    "label": "file type2",
+    "aliases": []
+  },
+  { "slug": "file-up", "name": "FileUp", "label": "file up", "aliases": [] },
+  {
+    "slug": "file-user",
+    "name": "FileUser",
+    "label": "file user",
+    "aliases": []
+  },
+  {
+    "slug": "file-video",
+    "name": "FileVideo",
+    "label": "file video",
+    "aliases": []
+  },
+  {
+    "slug": "file-video2",
+    "name": "FileVideo2",
+    "label": "file video2",
+    "aliases": []
+  },
+  {
+    "slug": "file-volume",
+    "name": "FileVolume",
+    "label": "file volume",
+    "aliases": []
+  },
+  {
+    "slug": "file-volume2",
+    "name": "FileVolume2",
+    "label": "file volume2",
+    "aliases": []
+  },
+  {
+    "slug": "file-warning",
+    "name": "FileWarning",
+    "label": "file warning",
+    "aliases": []
+  },
+  { "slug": "file-x", "name": "FileX", "label": "file x", "aliases": [] },
+  { "slug": "file-x2", "name": "FileX2", "label": "file x2", "aliases": [] },
+  { "slug": "files", "name": "Files", "label": "files", "aliases": [] },
+  { "slug": "film", "name": "Film", "label": "film", "aliases": [] },
+  { "slug": "filter", "name": "Filter", "label": "filter", "aliases": [] },
+  { "slug": "filter-x", "name": "FilterX", "label": "filter x", "aliases": [] },
+  {
+    "slug": "fingerprint",
+    "name": "Fingerprint",
+    "label": "fingerprint",
+    "aliases": []
+  },
+  {
+    "slug": "fire-extinguisher",
+    "name": "FireExtinguisher",
+    "label": "fire extinguisher",
+    "aliases": []
+  },
+  { "slug": "fish", "name": "Fish", "label": "fish", "aliases": [] },
+  { "slug": "fish-off", "name": "FishOff", "label": "fish off", "aliases": [] },
+  {
+    "slug": "fish-symbol",
+    "name": "FishSymbol",
+    "label": "fish symbol",
+    "aliases": []
+  },
+  { "slug": "flag", "name": "Flag", "label": "flag", "aliases": [] },
+  { "slug": "flag-off", "name": "FlagOff", "label": "flag off", "aliases": [] },
+  {
+    "slug": "flag-triangle-left",
+    "name": "FlagTriangleLeft",
+    "label": "flag triangle left",
+    "aliases": []
+  },
+  {
+    "slug": "flag-triangle-right",
+    "name": "FlagTriangleRight",
+    "label": "flag triangle right",
+    "aliases": []
+  },
+  { "slug": "flame", "name": "Flame", "label": "flame", "aliases": [] },
+  {
+    "slug": "flame-kindling",
+    "name": "FlameKindling",
+    "label": "flame kindling",
+    "aliases": []
+  },
+  {
+    "slug": "flashlight",
+    "name": "Flashlight",
+    "label": "flashlight",
+    "aliases": []
+  },
+  {
+    "slug": "flashlight-off",
+    "name": "FlashlightOff",
+    "label": "flashlight off",
+    "aliases": []
+  },
+  {
+    "slug": "flask-conical",
+    "name": "FlaskConical",
+    "label": "flask conical",
+    "aliases": []
+  },
+  {
+    "slug": "flask-conical-off",
+    "name": "FlaskConicalOff",
+    "label": "flask conical off",
+    "aliases": []
+  },
+  {
+    "slug": "flask-round",
+    "name": "FlaskRound",
+    "label": "flask round",
+    "aliases": []
+  },
+  {
+    "slug": "flip-horizontal",
+    "name": "FlipHorizontal",
+    "label": "flip horizontal",
+    "aliases": []
+  },
+  {
+    "slug": "flip-horizontal2",
+    "name": "FlipHorizontal2",
+    "label": "flip horizontal2",
+    "aliases": []
+  },
+  {
+    "slug": "flip-vertical",
+    "name": "FlipVertical",
+    "label": "flip vertical",
+    "aliases": []
+  },
+  {
+    "slug": "flip-vertical2",
+    "name": "FlipVertical2",
+    "label": "flip vertical2",
+    "aliases": []
+  },
+  { "slug": "flower", "name": "Flower", "label": "flower", "aliases": [] },
+  { "slug": "flower2", "name": "Flower2", "label": "flower2", "aliases": [] },
+  { "slug": "focus", "name": "Focus", "label": "focus", "aliases": [] },
+  {
+    "slug": "fold-horizontal",
+    "name": "FoldHorizontal",
+    "label": "fold horizontal",
+    "aliases": []
+  },
+  {
+    "slug": "fold-vertical",
+    "name": "FoldVertical",
+    "label": "fold vertical",
+    "aliases": []
+  },
+  { "slug": "folder", "name": "Folder", "label": "folder", "aliases": [] },
+  {
+    "slug": "folder-archive",
+    "name": "FolderArchive",
+    "label": "folder archive",
+    "aliases": []
+  },
+  {
+    "slug": "folder-check",
+    "name": "FolderCheck",
+    "label": "folder check",
+    "aliases": []
+  },
+  {
+    "slug": "folder-clock",
+    "name": "FolderClock",
+    "label": "folder clock",
+    "aliases": []
+  },
+  {
+    "slug": "folder-closed",
+    "name": "FolderClosed",
+    "label": "folder closed",
+    "aliases": []
+  },
+  {
+    "slug": "folder-code",
+    "name": "FolderCode",
+    "label": "folder code",
+    "aliases": []
+  },
+  {
+    "slug": "folder-cog",
+    "name": "FolderCog",
+    "label": "folder cog",
+    "aliases": ["folder-cog-2"]
+  },
+  {
+    "slug": "folder-dot",
+    "name": "FolderDot",
+    "label": "folder dot",
+    "aliases": []
+  },
+  {
+    "slug": "folder-down",
+    "name": "FolderDown",
+    "label": "folder down",
+    "aliases": []
+  },
+  {
+    "slug": "folder-git",
+    "name": "FolderGit",
+    "label": "folder git",
+    "aliases": []
+  },
+  {
+    "slug": "folder-git2",
+    "name": "FolderGit2",
+    "label": "folder git2",
+    "aliases": []
+  },
+  {
+    "slug": "folder-heart",
+    "name": "FolderHeart",
+    "label": "folder heart",
+    "aliases": []
+  },
+  {
+    "slug": "folder-input",
+    "name": "FolderInput",
+    "label": "folder input",
+    "aliases": []
+  },
+  {
+    "slug": "folder-kanban",
+    "name": "FolderKanban",
+    "label": "folder kanban",
+    "aliases": []
+  },
+  {
+    "slug": "folder-key",
+    "name": "FolderKey",
+    "label": "folder key",
+    "aliases": []
+  },
+  {
+    "slug": "folder-lock",
+    "name": "FolderLock",
+    "label": "folder lock",
+    "aliases": []
+  },
+  {
+    "slug": "folder-minus",
+    "name": "FolderMinus",
+    "label": "folder minus",
+    "aliases": []
+  },
+  {
+    "slug": "folder-open",
+    "name": "FolderOpen",
+    "label": "folder open",
+    "aliases": []
+  },
+  {
+    "slug": "folder-open-dot",
+    "name": "FolderOpenDot",
+    "label": "folder open dot",
+    "aliases": []
+  },
+  {
+    "slug": "folder-output",
+    "name": "FolderOutput",
+    "label": "folder output",
+    "aliases": []
+  },
+  {
+    "slug": "folder-pen",
+    "name": "FolderPen",
+    "label": "folder pen",
+    "aliases": ["folder-edit"]
+  },
+  {
+    "slug": "folder-plus",
+    "name": "FolderPlus",
+    "label": "folder plus",
+    "aliases": []
+  },
+  {
+    "slug": "folder-root",
+    "name": "FolderRoot",
+    "label": "folder root",
+    "aliases": []
+  },
+  {
+    "slug": "folder-search",
+    "name": "FolderSearch",
+    "label": "folder search",
+    "aliases": []
+  },
+  {
+    "slug": "folder-search2",
+    "name": "FolderSearch2",
+    "label": "folder search2",
+    "aliases": []
+  },
+  {
+    "slug": "folder-symlink",
+    "name": "FolderSymlink",
+    "label": "folder symlink",
+    "aliases": []
+  },
+  {
+    "slug": "folder-sync",
+    "name": "FolderSync",
+    "label": "folder sync",
+    "aliases": []
+  },
+  {
+    "slug": "folder-tree",
+    "name": "FolderTree",
+    "label": "folder tree",
+    "aliases": []
+  },
+  {
+    "slug": "folder-up",
+    "name": "FolderUp",
+    "label": "folder up",
+    "aliases": []
+  },
+  { "slug": "folder-x", "name": "FolderX", "label": "folder x", "aliases": [] },
+  { "slug": "folders", "name": "Folders", "label": "folders", "aliases": [] },
+  {
+    "slug": "footprints",
+    "name": "Footprints",
+    "label": "footprints",
+    "aliases": []
+  },
+  {
+    "slug": "forklift",
+    "name": "Forklift",
+    "label": "forklift",
+    "aliases": []
+  },
+  { "slug": "forward", "name": "Forward", "label": "forward", "aliases": [] },
+  { "slug": "frame", "name": "Frame", "label": "frame", "aliases": [] },
+  { "slug": "framer", "name": "Framer", "label": "framer", "aliases": [] },
+  { "slug": "frown", "name": "Frown", "label": "frown", "aliases": [] },
+  { "slug": "fuel", "name": "Fuel", "label": "fuel", "aliases": [] },
+  {
+    "slug": "fullscreen",
+    "name": "Fullscreen",
+    "label": "fullscreen",
+    "aliases": []
+  },
+  {
+    "slug": "gallery-horizontal",
+    "name": "GalleryHorizontal",
+    "label": "gallery horizontal",
+    "aliases": []
+  },
+  {
+    "slug": "gallery-horizontal-end",
+    "name": "GalleryHorizontalEnd",
+    "label": "gallery horizontal end",
+    "aliases": []
+  },
+  {
+    "slug": "gallery-thumbnails",
+    "name": "GalleryThumbnails",
+    "label": "gallery thumbnails",
+    "aliases": []
+  },
+  {
+    "slug": "gallery-vertical",
+    "name": "GalleryVertical",
+    "label": "gallery vertical",
+    "aliases": []
+  },
+  {
+    "slug": "gallery-vertical-end",
+    "name": "GalleryVerticalEnd",
+    "label": "gallery vertical end",
+    "aliases": []
+  },
+  { "slug": "gamepad", "name": "Gamepad", "label": "gamepad", "aliases": [] },
+  {
+    "slug": "gamepad2",
+    "name": "Gamepad2",
+    "label": "gamepad2",
+    "aliases": []
+  },
+  { "slug": "gauge", "name": "Gauge", "label": "gauge", "aliases": [] },
+  { "slug": "gavel", "name": "Gavel", "label": "gavel", "aliases": [] },
+  { "slug": "gem", "name": "Gem", "label": "gem", "aliases": [] },
+  { "slug": "ghost", "name": "Ghost", "label": "ghost", "aliases": [] },
+  { "slug": "gift", "name": "Gift", "label": "gift", "aliases": [] },
+  {
+    "slug": "git-branch",
+    "name": "GitBranch",
+    "label": "git branch",
+    "aliases": []
+  },
+  {
+    "slug": "git-branch-plus",
+    "name": "GitBranchPlus",
+    "label": "git branch plus",
+    "aliases": []
+  },
+  {
+    "slug": "git-commit-horizontal",
+    "name": "GitCommitHorizontal",
+    "label": "git commit horizontal",
+    "aliases": ["git-commit"]
+  },
+  {
+    "slug": "git-commit-vertical",
+    "name": "GitCommitVertical",
+    "label": "git commit vertical",
+    "aliases": []
+  },
+  {
+    "slug": "git-compare",
+    "name": "GitCompare",
+    "label": "git compare",
+    "aliases": []
+  },
+  {
+    "slug": "git-compare-arrows",
+    "name": "GitCompareArrows",
+    "label": "git compare arrows",
+    "aliases": []
+  },
+  { "slug": "git-fork", "name": "GitFork", "label": "git fork", "aliases": [] },
+  {
+    "slug": "git-graph",
+    "name": "GitGraph",
+    "label": "git graph",
+    "aliases": []
+  },
+  {
+    "slug": "git-merge",
+    "name": "GitMerge",
+    "label": "git merge",
+    "aliases": []
+  },
+  {
+    "slug": "git-pull-request",
+    "name": "GitPullRequest",
+    "label": "git pull request",
+    "aliases": []
+  },
+  {
+    "slug": "git-pull-request-arrow",
+    "name": "GitPullRequestArrow",
+    "label": "git pull request arrow",
+    "aliases": []
+  },
+  {
+    "slug": "git-pull-request-closed",
+    "name": "GitPullRequestClosed",
+    "label": "git pull request closed",
+    "aliases": []
+  },
+  {
+    "slug": "git-pull-request-create",
+    "name": "GitPullRequestCreate",
+    "label": "git pull request create",
+    "aliases": []
+  },
+  {
+    "slug": "git-pull-request-create-arrow",
+    "name": "GitPullRequestCreateArrow",
+    "label": "git pull request create arrow",
+    "aliases": []
+  },
+  {
+    "slug": "git-pull-request-draft",
+    "name": "GitPullRequestDraft",
+    "label": "git pull request draft",
+    "aliases": []
+  },
+  { "slug": "github", "name": "Github", "label": "github", "aliases": [] },
+  { "slug": "gitlab", "name": "Gitlab", "label": "gitlab", "aliases": [] },
+  {
+    "slug": "glass-water",
+    "name": "GlassWater",
+    "label": "glass water",
+    "aliases": []
+  },
+  { "slug": "glasses", "name": "Glasses", "label": "glasses", "aliases": [] },
+  { "slug": "globe", "name": "Globe", "label": "globe", "aliases": [] },
+  {
+    "slug": "globe-lock",
+    "name": "GlobeLock",
+    "label": "globe lock",
+    "aliases": []
+  },
+  { "slug": "goal", "name": "Goal", "label": "goal", "aliases": [] },
+  { "slug": "grab", "name": "Grab", "label": "grab", "aliases": [] },
+  {
+    "slug": "graduation-cap",
+    "name": "GraduationCap",
+    "label": "graduation cap",
+    "aliases": []
+  },
+  { "slug": "grape", "name": "Grape", "label": "grape", "aliases": [] },
+  { "slug": "grid2x2", "name": "Grid2x2", "label": "grid2x2", "aliases": [] },
+  {
+    "slug": "grid2x2-check",
+    "name": "Grid2x2Check",
+    "label": "grid2x2 check",
+    "aliases": []
+  },
+  {
+    "slug": "grid2x2-plus",
+    "name": "Grid2x2Plus",
+    "label": "grid2x2 plus",
+    "aliases": []
+  },
+  {
+    "slug": "grid2x2-x",
+    "name": "Grid2x2X",
+    "label": "grid2x2 x",
+    "aliases": []
+  },
+  { "slug": "grid3x3", "name": "Grid3x3", "label": "grid3x3", "aliases": [] },
+  { "slug": "grip", "name": "Grip", "label": "grip", "aliases": [] },
+  {
+    "slug": "grip-horizontal",
+    "name": "GripHorizontal",
+    "label": "grip horizontal",
+    "aliases": []
+  },
+  {
+    "slug": "grip-vertical",
+    "name": "GripVertical",
+    "label": "grip vertical",
+    "aliases": []
+  },
+  { "slug": "group", "name": "Group", "label": "group", "aliases": [] },
+  { "slug": "guitar", "name": "Guitar", "label": "guitar", "aliases": [] },
+  { "slug": "ham", "name": "Ham", "label": "ham", "aliases": [] },
+  { "slug": "hammer", "name": "Hammer", "label": "hammer", "aliases": [] },
+  { "slug": "hand", "name": "Hand", "label": "hand", "aliases": [] },
+  {
+    "slug": "hand-coins",
+    "name": "HandCoins",
+    "label": "hand coins",
+    "aliases": []
+  },
+  {
+    "slug": "hand-heart",
+    "name": "HandHeart",
+    "label": "hand heart",
+    "aliases": []
+  },
+  {
+    "slug": "hand-helping",
+    "name": "HandHelping",
+    "label": "hand helping",
+    "aliases": ["helping-hand"]
+  },
+  {
+    "slug": "hand-metal",
+    "name": "HandMetal",
+    "label": "hand metal",
+    "aliases": []
+  },
+  {
+    "slug": "hand-platter",
+    "name": "HandPlatter",
+    "label": "hand platter",
+    "aliases": []
+  },
+  {
+    "slug": "handshake",
+    "name": "Handshake",
+    "label": "handshake",
+    "aliases": []
+  },
+  {
+    "slug": "hard-drive",
+    "name": "HardDrive",
+    "label": "hard drive",
+    "aliases": []
+  },
+  {
+    "slug": "hard-drive-download",
+    "name": "HardDriveDownload",
+    "label": "hard drive download",
+    "aliases": []
+  },
+  {
+    "slug": "hard-drive-upload",
+    "name": "HardDriveUpload",
+    "label": "hard drive upload",
+    "aliases": []
+  },
+  { "slug": "hard-hat", "name": "HardHat", "label": "hard hat", "aliases": [] },
+  { "slug": "hash", "name": "Hash", "label": "hash", "aliases": [] },
+  { "slug": "haze", "name": "Haze", "label": "haze", "aliases": [] },
+  {
+    "slug": "hdmi-port",
+    "name": "HdmiPort",
+    "label": "hdmi port",
+    "aliases": []
+  },
+  { "slug": "heading", "name": "Heading", "label": "heading", "aliases": [] },
+  {
+    "slug": "heading1",
+    "name": "Heading1",
+    "label": "heading1",
+    "aliases": []
+  },
+  {
+    "slug": "heading2",
+    "name": "Heading2",
+    "label": "heading2",
+    "aliases": []
+  },
+  {
+    "slug": "heading3",
+    "name": "Heading3",
+    "label": "heading3",
+    "aliases": []
+  },
+  {
+    "slug": "heading4",
+    "name": "Heading4",
+    "label": "heading4",
+    "aliases": []
+  },
+  {
+    "slug": "heading5",
+    "name": "Heading5",
+    "label": "heading5",
+    "aliases": []
+  },
+  {
+    "slug": "heading6",
+    "name": "Heading6",
+    "label": "heading6",
+    "aliases": []
+  },
+  {
+    "slug": "headphone-off",
+    "name": "HeadphoneOff",
+    "label": "headphone off",
+    "aliases": []
+  },
+  {
+    "slug": "headphones",
+    "name": "Headphones",
+    "label": "headphones",
+    "aliases": []
+  },
+  { "slug": "headset", "name": "Headset", "label": "headset", "aliases": [] },
+  { "slug": "heart", "name": "Heart", "label": "heart", "aliases": [] },
+  {
+    "slug": "heart-crack",
+    "name": "HeartCrack",
+    "label": "heart crack",
+    "aliases": []
+  },
+  {
+    "slug": "heart-handshake",
+    "name": "HeartHandshake",
+    "label": "heart handshake",
+    "aliases": []
+  },
+  {
+    "slug": "heart-off",
+    "name": "HeartOff",
+    "label": "heart off",
+    "aliases": []
+  },
+  {
+    "slug": "heart-pulse",
+    "name": "HeartPulse",
+    "label": "heart pulse",
+    "aliases": []
+  },
+  { "slug": "heater", "name": "Heater", "label": "heater", "aliases": [] },
+  { "slug": "hexagon", "name": "Hexagon", "label": "hexagon", "aliases": [] },
+  {
+    "slug": "highlighter",
+    "name": "Highlighter",
+    "label": "highlighter",
+    "aliases": []
+  },
+  { "slug": "history", "name": "History", "label": "history", "aliases": [] },
+  { "slug": "hop", "name": "Hop", "label": "hop", "aliases": [] },
+  { "slug": "hop-off", "name": "HopOff", "label": "hop off", "aliases": [] },
+  {
+    "slug": "hospital",
+    "name": "Hospital",
+    "label": "hospital",
+    "aliases": []
+  },
+  { "slug": "hotel", "name": "Hotel", "label": "hotel", "aliases": [] },
+  {
+    "slug": "hourglass",
+    "name": "Hourglass",
+    "label": "hourglass",
+    "aliases": []
+  },
+  { "slug": "house", "name": "House", "label": "house", "aliases": ["home"] },
+  {
+    "slug": "house-plug",
+    "name": "HousePlug",
+    "label": "house plug",
+    "aliases": []
+  },
+  {
+    "slug": "house-plus",
+    "name": "HousePlus",
+    "label": "house plus",
+    "aliases": []
+  },
+  {
+    "slug": "ice-cream-bowl",
+    "name": "IceCreamBowl",
+    "label": "ice cream bowl",
+    "aliases": ["ice-cream-2"]
+  },
+  {
+    "slug": "ice-cream-cone",
+    "name": "IceCreamCone",
+    "label": "ice cream cone",
+    "aliases": ["ice-cream"]
+  },
+  { "slug": "id-card", "name": "IdCard", "label": "id card", "aliases": [] },
+  { "slug": "image", "name": "Image", "label": "image", "aliases": [] },
+  {
+    "slug": "image-down",
+    "name": "ImageDown",
+    "label": "image down",
+    "aliases": []
+  },
+  {
+    "slug": "image-minus",
+    "name": "ImageMinus",
+    "label": "image minus",
+    "aliases": []
+  },
+  {
+    "slug": "image-off",
+    "name": "ImageOff",
+    "label": "image off",
+    "aliases": []
+  },
+  {
+    "slug": "image-play",
+    "name": "ImagePlay",
+    "label": "image play",
+    "aliases": []
+  },
+  {
+    "slug": "image-plus",
+    "name": "ImagePlus",
+    "label": "image plus",
+    "aliases": []
+  },
+  { "slug": "image-up", "name": "ImageUp", "label": "image up", "aliases": [] },
+  {
+    "slug": "image-upscale",
+    "name": "ImageUpscale",
+    "label": "image upscale",
+    "aliases": []
+  },
+  { "slug": "images", "name": "Images", "label": "images", "aliases": [] },
+  { "slug": "import", "name": "Import", "label": "import", "aliases": [] },
+  { "slug": "inbox", "name": "Inbox", "label": "inbox", "aliases": [] },
+  {
+    "slug": "indent-decrease",
+    "name": "IndentDecrease",
+    "label": "indent decrease",
+    "aliases": ["outdent"]
+  },
+  {
+    "slug": "indent-increase",
+    "name": "IndentIncrease",
+    "label": "indent increase",
+    "aliases": ["indent"]
+  },
+  {
+    "slug": "indian-rupee",
+    "name": "IndianRupee",
+    "label": "indian rupee",
+    "aliases": []
+  },
+  {
+    "slug": "infinity",
+    "name": "Infinity",
+    "label": "infinity",
+    "aliases": []
+  },
+  { "slug": "info", "name": "Info", "label": "info", "aliases": [] },
+  {
+    "slug": "inspection-panel",
+    "name": "InspectionPanel",
+    "label": "inspection panel",
+    "aliases": []
+  },
+  {
+    "slug": "instagram",
+    "name": "Instagram",
+    "label": "instagram",
+    "aliases": []
+  },
+  { "slug": "italic", "name": "Italic", "label": "italic", "aliases": [] },
+  {
+    "slug": "iteration-ccw",
+    "name": "IterationCcw",
+    "label": "iteration ccw",
+    "aliases": []
+  },
+  {
+    "slug": "iteration-cw",
+    "name": "IterationCw",
+    "label": "iteration cw",
+    "aliases": []
+  },
+  {
+    "slug": "japanese-yen",
+    "name": "JapaneseYen",
+    "label": "japanese yen",
+    "aliases": []
+  },
+  {
+    "slug": "joystick",
+    "name": "Joystick",
+    "label": "joystick",
+    "aliases": []
+  },
+  { "slug": "kanban", "name": "Kanban", "label": "kanban", "aliases": [] },
+  { "slug": "key", "name": "Key", "label": "key", "aliases": [] },
+  {
+    "slug": "key-round",
+    "name": "KeyRound",
+    "label": "key round",
+    "aliases": []
+  },
+  {
+    "slug": "key-square",
+    "name": "KeySquare",
+    "label": "key square",
+    "aliases": []
+  },
+  {
+    "slug": "keyboard",
+    "name": "Keyboard",
+    "label": "keyboard",
+    "aliases": []
+  },
+  {
+    "slug": "keyboard-music",
+    "name": "KeyboardMusic",
+    "label": "keyboard music",
+    "aliases": []
+  },
+  {
+    "slug": "keyboard-off",
+    "name": "KeyboardOff",
+    "label": "keyboard off",
+    "aliases": []
+  },
+  { "slug": "lamp", "name": "Lamp", "label": "lamp", "aliases": [] },
+  {
+    "slug": "lamp-ceiling",
+    "name": "LampCeiling",
+    "label": "lamp ceiling",
+    "aliases": []
+  },
+  {
+    "slug": "lamp-desk",
+    "name": "LampDesk",
+    "label": "lamp desk",
+    "aliases": []
+  },
+  {
+    "slug": "lamp-floor",
+    "name": "LampFloor",
+    "label": "lamp floor",
+    "aliases": []
+  },
+  {
+    "slug": "lamp-wall-down",
+    "name": "LampWallDown",
+    "label": "lamp wall down",
+    "aliases": []
+  },
+  {
+    "slug": "lamp-wall-up",
+    "name": "LampWallUp",
+    "label": "lamp wall up",
+    "aliases": []
+  },
+  {
+    "slug": "land-plot",
+    "name": "LandPlot",
+    "label": "land plot",
+    "aliases": []
+  },
+  {
+    "slug": "landmark",
+    "name": "Landmark",
+    "label": "landmark",
+    "aliases": []
+  },
+  {
+    "slug": "languages",
+    "name": "Languages",
+    "label": "languages",
+    "aliases": []
+  },
+  { "slug": "laptop", "name": "Laptop", "label": "laptop", "aliases": [] },
+  {
+    "slug": "laptop-minimal",
+    "name": "LaptopMinimal",
+    "label": "laptop minimal",
+    "aliases": ["laptop-2"]
+  },
+  {
+    "slug": "laptop-minimal-check",
+    "name": "LaptopMinimalCheck",
+    "label": "laptop minimal check",
+    "aliases": []
+  },
+  { "slug": "lasso", "name": "Lasso", "label": "lasso", "aliases": [] },
+  {
+    "slug": "lasso-select",
+    "name": "LassoSelect",
+    "label": "lasso select",
+    "aliases": []
+  },
+  { "slug": "laugh", "name": "Laugh", "label": "laugh", "aliases": [] },
+  {
+    "slug": "layers",
+    "name": "Layers",
+    "label": "layers",
+    "aliases": ["layers-3"]
+  },
+  { "slug": "layers2", "name": "Layers2", "label": "layers2", "aliases": [] },
+  {
+    "slug": "layout-dashboard",
+    "name": "LayoutDashboard",
+    "label": "layout dashboard",
+    "aliases": []
+  },
+  {
+    "slug": "layout-grid",
+    "name": "LayoutGrid",
+    "label": "layout grid",
+    "aliases": []
+  },
+  {
+    "slug": "layout-list",
+    "name": "LayoutList",
+    "label": "layout list",
+    "aliases": []
+  },
+  {
+    "slug": "layout-panel-left",
+    "name": "LayoutPanelLeft",
+    "label": "layout panel left",
+    "aliases": []
+  },
+  {
+    "slug": "layout-panel-top",
+    "name": "LayoutPanelTop",
+    "label": "layout panel top",
+    "aliases": []
+  },
+  {
+    "slug": "layout-template",
+    "name": "LayoutTemplate",
+    "label": "layout template",
+    "aliases": []
+  },
+  { "slug": "leaf", "name": "Leaf", "label": "leaf", "aliases": [] },
+  {
+    "slug": "leafy-green",
+    "name": "LeafyGreen",
+    "label": "leafy green",
+    "aliases": []
+  },
+  { "slug": "lectern", "name": "Lectern", "label": "lectern", "aliases": [] },
+  {
+    "slug": "letter-text",
+    "name": "LetterText",
+    "label": "letter text",
+    "aliases": []
+  },
+  { "slug": "library", "name": "Library", "label": "library", "aliases": [] },
+  {
+    "slug": "library-big",
+    "name": "LibraryBig",
+    "label": "library big",
+    "aliases": []
+  },
+  {
+    "slug": "life-buoy",
+    "name": "LifeBuoy",
+    "label": "life buoy",
+    "aliases": []
+  },
+  {
+    "slug": "ligature",
+    "name": "Ligature",
+    "label": "ligature",
+    "aliases": []
+  },
+  {
+    "slug": "lightbulb",
+    "name": "Lightbulb",
+    "label": "lightbulb",
+    "aliases": []
+  },
+  {
+    "slug": "lightbulb-off",
+    "name": "LightbulbOff",
+    "label": "lightbulb off",
+    "aliases": []
+  },
+  { "slug": "link", "name": "Link", "label": "link", "aliases": [] },
+  { "slug": "link2", "name": "Link2", "label": "link2", "aliases": [] },
+  {
+    "slug": "link2-off",
+    "name": "Link2Off",
+    "label": "link2 off",
+    "aliases": []
+  },
+  {
+    "slug": "linkedin",
+    "name": "Linkedin",
+    "label": "linkedin",
+    "aliases": []
+  },
+  { "slug": "list", "name": "List", "label": "list", "aliases": [] },
+  {
+    "slug": "list-check",
+    "name": "ListCheck",
+    "label": "list check",
+    "aliases": []
+  },
+  {
+    "slug": "list-checks",
+    "name": "ListChecks",
+    "label": "list checks",
+    "aliases": []
+  },
+  {
+    "slug": "list-collapse",
+    "name": "ListCollapse",
+    "label": "list collapse",
+    "aliases": []
+  },
+  { "slug": "list-end", "name": "ListEnd", "label": "list end", "aliases": [] },
+  {
+    "slug": "list-filter",
+    "name": "ListFilter",
+    "label": "list filter",
+    "aliases": []
+  },
+  {
+    "slug": "list-filter-plus",
+    "name": "ListFilterPlus",
+    "label": "list filter plus",
+    "aliases": []
+  },
+  {
+    "slug": "list-minus",
+    "name": "ListMinus",
+    "label": "list minus",
+    "aliases": []
+  },
+  {
+    "slug": "list-music",
+    "name": "ListMusic",
+    "label": "list music",
+    "aliases": []
+  },
+  {
+    "slug": "list-ordered",
+    "name": "ListOrdered",
+    "label": "list ordered",
+    "aliases": []
+  },
+  {
+    "slug": "list-plus",
+    "name": "ListPlus",
+    "label": "list plus",
+    "aliases": []
+  },
+  {
+    "slug": "list-restart",
+    "name": "ListRestart",
+    "label": "list restart",
+    "aliases": []
+  },
+  {
+    "slug": "list-start",
+    "name": "ListStart",
+    "label": "list start",
+    "aliases": []
+  },
+  {
+    "slug": "list-todo",
+    "name": "ListTodo",
+    "label": "list todo",
+    "aliases": []
+  },
+  {
+    "slug": "list-tree",
+    "name": "ListTree",
+    "label": "list tree",
+    "aliases": []
+  },
+  {
+    "slug": "list-video",
+    "name": "ListVideo",
+    "label": "list video",
+    "aliases": []
+  },
+  { "slug": "list-x", "name": "ListX", "label": "list x", "aliases": [] },
+  { "slug": "loader", "name": "Loader", "label": "loader", "aliases": [] },
+  {
+    "slug": "loader-circle",
+    "name": "LoaderCircle",
+    "label": "loader circle",
+    "aliases": ["loader-2"]
+  },
+  {
+    "slug": "loader-pinwheel",
+    "name": "LoaderPinwheel",
+    "label": "loader pinwheel",
+    "aliases": []
+  },
+  { "slug": "locate", "name": "Locate", "label": "locate", "aliases": [] },
+  {
+    "slug": "locate-fixed",
+    "name": "LocateFixed",
+    "label": "locate fixed",
+    "aliases": []
+  },
+  {
+    "slug": "locate-off",
+    "name": "LocateOff",
+    "label": "locate off",
+    "aliases": []
+  },
+  { "slug": "lock", "name": "Lock", "label": "lock", "aliases": [] },
+  {
+    "slug": "lock-keyhole",
+    "name": "LockKeyhole",
+    "label": "lock keyhole",
+    "aliases": []
+  },
+  {
+    "slug": "lock-keyhole-open",
+    "name": "LockKeyholeOpen",
+    "label": "lock keyhole open",
+    "aliases": ["unlock-keyhole"]
+  },
+  {
+    "slug": "lock-open",
+    "name": "LockOpen",
+    "label": "lock open",
+    "aliases": ["unlock"]
+  },
+  { "slug": "log-in", "name": "LogIn", "label": "log in", "aliases": [] },
+  { "slug": "log-out", "name": "LogOut", "label": "log out", "aliases": [] },
+  { "slug": "logs", "name": "Logs", "label": "logs", "aliases": [] },
+  {
+    "slug": "lollipop",
+    "name": "Lollipop",
+    "label": "lollipop",
+    "aliases": []
+  },
+  { "slug": "luggage", "name": "Luggage", "label": "luggage", "aliases": [] },
+  { "slug": "magnet", "name": "Magnet", "label": "magnet", "aliases": [] },
+  { "slug": "mail", "name": "Mail", "label": "mail", "aliases": [] },
+  {
+    "slug": "mail-check",
+    "name": "MailCheck",
+    "label": "mail check",
+    "aliases": []
+  },
+  {
+    "slug": "mail-minus",
+    "name": "MailMinus",
+    "label": "mail minus",
+    "aliases": []
+  },
+  {
+    "slug": "mail-open",
+    "name": "MailOpen",
+    "label": "mail open",
+    "aliases": []
+  },
+  {
+    "slug": "mail-plus",
+    "name": "MailPlus",
+    "label": "mail plus",
+    "aliases": []
+  },
+  {
+    "slug": "mail-question",
+    "name": "MailQuestion",
+    "label": "mail question",
+    "aliases": []
+  },
+  {
+    "slug": "mail-search",
+    "name": "MailSearch",
+    "label": "mail search",
+    "aliases": []
+  },
+  {
+    "slug": "mail-warning",
+    "name": "MailWarning",
+    "label": "mail warning",
+    "aliases": []
+  },
+  { "slug": "mail-x", "name": "MailX", "label": "mail x", "aliases": [] },
+  { "slug": "mailbox", "name": "Mailbox", "label": "mailbox", "aliases": [] },
+  { "slug": "mails", "name": "Mails", "label": "mails", "aliases": [] },
+  { "slug": "map", "name": "Map", "label": "map", "aliases": [] },
+  { "slug": "map-pin", "name": "MapPin", "label": "map pin", "aliases": [] },
+  {
+    "slug": "map-pin-check",
+    "name": "MapPinCheck",
+    "label": "map pin check",
+    "aliases": []
+  },
+  {
+    "slug": "map-pin-check-inside",
+    "name": "MapPinCheckInside",
+    "label": "map pin check inside",
+    "aliases": []
+  },
+  {
+    "slug": "map-pin-house",
+    "name": "MapPinHouse",
+    "label": "map pin house",
+    "aliases": []
+  },
+  {
+    "slug": "map-pin-minus",
+    "name": "MapPinMinus",
+    "label": "map pin minus",
+    "aliases": []
+  },
+  {
+    "slug": "map-pin-minus-inside",
+    "name": "MapPinMinusInside",
+    "label": "map pin minus inside",
+    "aliases": []
+  },
+  {
+    "slug": "map-pin-off",
+    "name": "MapPinOff",
+    "label": "map pin off",
+    "aliases": []
+  },
+  {
+    "slug": "map-pin-plus",
+    "name": "MapPinPlus",
+    "label": "map pin plus",
+    "aliases": []
+  },
+  {
+    "slug": "map-pin-plus-inside",
+    "name": "MapPinPlusInside",
+    "label": "map pin plus inside",
+    "aliases": []
+  },
+  {
+    "slug": "map-pin-x",
+    "name": "MapPinX",
+    "label": "map pin x",
+    "aliases": []
+  },
+  {
+    "slug": "map-pin-x-inside",
+    "name": "MapPinXInside",
+    "label": "map pin x inside",
+    "aliases": []
+  },
+  {
+    "slug": "map-pinned",
+    "name": "MapPinned",
+    "label": "map pinned",
+    "aliases": []
+  },
+  { "slug": "martini", "name": "Martini", "label": "martini", "aliases": [] },
+  {
+    "slug": "maximize",
+    "name": "Maximize",
+    "label": "maximize",
+    "aliases": []
+  },
+  {
+    "slug": "maximize2",
+    "name": "Maximize2",
+    "label": "maximize2",
+    "aliases": []
+  },
+  { "slug": "medal", "name": "Medal", "label": "medal", "aliases": [] },
+  {
+    "slug": "megaphone",
+    "name": "Megaphone",
+    "label": "megaphone",
+    "aliases": []
+  },
+  {
+    "slug": "megaphone-off",
+    "name": "MegaphoneOff",
+    "label": "megaphone off",
+    "aliases": []
+  },
+  { "slug": "meh", "name": "Meh", "label": "meh", "aliases": [] },
+  {
+    "slug": "memory-stick",
+    "name": "MemoryStick",
+    "label": "memory stick",
+    "aliases": []
+  },
+  { "slug": "menu", "name": "Menu", "label": "menu", "aliases": [] },
+  { "slug": "merge", "name": "Merge", "label": "merge", "aliases": [] },
+  {
+    "slug": "message-circle",
+    "name": "MessageCircle",
+    "label": "message circle",
+    "aliases": []
+  },
+  {
+    "slug": "message-circle-code",
+    "name": "MessageCircleCode",
+    "label": "message circle code",
+    "aliases": []
+  },
+  {
+    "slug": "message-circle-dashed",
+    "name": "MessageCircleDashed",
+    "label": "message circle dashed",
+    "aliases": []
+  },
+  {
+    "slug": "message-circle-heart",
+    "name": "MessageCircleHeart",
+    "label": "message circle heart",
+    "aliases": []
+  },
+  {
+    "slug": "message-circle-more",
+    "name": "MessageCircleMore",
+    "label": "message circle more",
+    "aliases": []
+  },
+  {
+    "slug": "message-circle-off",
+    "name": "MessageCircleOff",
+    "label": "message circle off",
+    "aliases": []
+  },
+  {
+    "slug": "message-circle-plus",
+    "name": "MessageCirclePlus",
+    "label": "message circle plus",
+    "aliases": []
+  },
+  {
+    "slug": "message-circle-question",
+    "name": "MessageCircleQuestion",
+    "label": "message circle question",
+    "aliases": []
+  },
+  {
+    "slug": "message-circle-reply",
+    "name": "MessageCircleReply",
+    "label": "message circle reply",
+    "aliases": []
+  },
+  {
+    "slug": "message-circle-warning",
+    "name": "MessageCircleWarning",
+    "label": "message circle warning",
+    "aliases": []
+  },
+  {
+    "slug": "message-circle-x",
+    "name": "MessageCircleX",
+    "label": "message circle x",
+    "aliases": []
+  },
+  {
+    "slug": "message-square",
+    "name": "MessageSquare",
+    "label": "message square",
+    "aliases": []
+  },
+  {
+    "slug": "message-square-code",
+    "name": "MessageSquareCode",
+    "label": "message square code",
+    "aliases": []
+  },
+  {
+    "slug": "message-square-dashed",
+    "name": "MessageSquareDashed",
+    "label": "message square dashed",
+    "aliases": []
+  },
+  {
+    "slug": "message-square-diff",
+    "name": "MessageSquareDiff",
+    "label": "message square diff",
+    "aliases": []
+  },
+  {
+    "slug": "message-square-dot",
+    "name": "MessageSquareDot",
+    "label": "message square dot",
+    "aliases": []
+  },
+  {
+    "slug": "message-square-heart",
+    "name": "MessageSquareHeart",
+    "label": "message square heart",
+    "aliases": []
+  },
+  {
+    "slug": "message-square-lock",
+    "name": "MessageSquareLock",
+    "label": "message square lock",
+    "aliases": []
+  },
+  {
+    "slug": "message-square-more",
+    "name": "MessageSquareMore",
+    "label": "message square more",
+    "aliases": []
+  },
+  {
+    "slug": "message-square-off",
+    "name": "MessageSquareOff",
+    "label": "message square off",
+    "aliases": []
+  },
+  {
+    "slug": "message-square-plus",
+    "name": "MessageSquarePlus",
+    "label": "message square plus",
+    "aliases": []
+  },
+  {
+    "slug": "message-square-quote",
+    "name": "MessageSquareQuote",
+    "label": "message square quote",
+    "aliases": []
+  },
+  {
+    "slug": "message-square-reply",
+    "name": "MessageSquareReply",
+    "label": "message square reply",
+    "aliases": []
+  },
+  {
+    "slug": "message-square-share",
+    "name": "MessageSquareShare",
+    "label": "message square share",
+    "aliases": []
+  },
+  {
+    "slug": "message-square-text",
+    "name": "MessageSquareText",
+    "label": "message square text",
+    "aliases": []
+  },
+  {
+    "slug": "message-square-warning",
+    "name": "MessageSquareWarning",
+    "label": "message square warning",
+    "aliases": []
+  },
+  {
+    "slug": "message-square-x",
+    "name": "MessageSquareX",
+    "label": "message square x",
+    "aliases": []
+  },
+  {
+    "slug": "messages-square",
+    "name": "MessagesSquare",
+    "label": "messages square",
+    "aliases": []
+  },
+  { "slug": "mic", "name": "Mic", "label": "mic", "aliases": [] },
+  { "slug": "mic-off", "name": "MicOff", "label": "mic off", "aliases": [] },
+  {
+    "slug": "mic-vocal",
+    "name": "MicVocal",
+    "label": "mic vocal",
+    "aliases": ["mic-2"]
+  },
+  {
+    "slug": "microchip",
+    "name": "Microchip",
+    "label": "microchip",
+    "aliases": []
+  },
+  {
+    "slug": "microscope",
+    "name": "Microscope",
+    "label": "microscope",
+    "aliases": []
+  },
+  {
+    "slug": "microwave",
+    "name": "Microwave",
+    "label": "microwave",
+    "aliases": []
+  },
+  {
+    "slug": "milestone",
+    "name": "Milestone",
+    "label": "milestone",
+    "aliases": []
+  },
+  { "slug": "milk", "name": "Milk", "label": "milk", "aliases": [] },
+  { "slug": "milk-off", "name": "MilkOff", "label": "milk off", "aliases": [] },
+  {
+    "slug": "minimize",
+    "name": "Minimize",
+    "label": "minimize",
+    "aliases": []
+  },
+  {
+    "slug": "minimize2",
+    "name": "Minimize2",
+    "label": "minimize2",
+    "aliases": []
+  },
+  { "slug": "minus", "name": "Minus", "label": "minus", "aliases": [] },
+  { "slug": "monitor", "name": "Monitor", "label": "monitor", "aliases": [] },
+  {
+    "slug": "monitor-check",
+    "name": "MonitorCheck",
+    "label": "monitor check",
+    "aliases": []
+  },
+  {
+    "slug": "monitor-cog",
+    "name": "MonitorCog",
+    "label": "monitor cog",
+    "aliases": []
+  },
+  {
+    "slug": "monitor-dot",
+    "name": "MonitorDot",
+    "label": "monitor dot",
+    "aliases": []
+  },
+  {
+    "slug": "monitor-down",
+    "name": "MonitorDown",
+    "label": "monitor down",
+    "aliases": []
+  },
+  {
+    "slug": "monitor-off",
+    "name": "MonitorOff",
+    "label": "monitor off",
+    "aliases": []
+  },
+  {
+    "slug": "monitor-pause",
+    "name": "MonitorPause",
+    "label": "monitor pause",
+    "aliases": []
+  },
+  {
+    "slug": "monitor-play",
+    "name": "MonitorPlay",
+    "label": "monitor play",
+    "aliases": []
+  },
+  {
+    "slug": "monitor-smartphone",
+    "name": "MonitorSmartphone",
+    "label": "monitor smartphone",
+    "aliases": []
+  },
+  {
+    "slug": "monitor-speaker",
+    "name": "MonitorSpeaker",
+    "label": "monitor speaker",
+    "aliases": []
+  },
+  {
+    "slug": "monitor-stop",
+    "name": "MonitorStop",
+    "label": "monitor stop",
+    "aliases": []
+  },
+  {
+    "slug": "monitor-up",
+    "name": "MonitorUp",
+    "label": "monitor up",
+    "aliases": []
+  },
+  {
+    "slug": "monitor-x",
+    "name": "MonitorX",
+    "label": "monitor x",
+    "aliases": []
+  },
+  { "slug": "moon", "name": "Moon", "label": "moon", "aliases": [] },
+  {
+    "slug": "moon-star",
+    "name": "MoonStar",
+    "label": "moon star",
+    "aliases": []
+  },
+  {
+    "slug": "mountain",
+    "name": "Mountain",
+    "label": "mountain",
+    "aliases": []
+  },
+  {
+    "slug": "mountain-snow",
+    "name": "MountainSnow",
+    "label": "mountain snow",
+    "aliases": []
+  },
+  { "slug": "mouse", "name": "Mouse", "label": "mouse", "aliases": [] },
+  {
+    "slug": "mouse-off",
+    "name": "MouseOff",
+    "label": "mouse off",
+    "aliases": []
+  },
+  {
+    "slug": "mouse-pointer",
+    "name": "MousePointer",
+    "label": "mouse pointer",
+    "aliases": []
+  },
+  {
+    "slug": "mouse-pointer-ban",
+    "name": "MousePointerBan",
+    "label": "mouse pointer ban",
+    "aliases": []
+  },
+  {
+    "slug": "mouse-pointer-click",
+    "name": "MousePointerClick",
+    "label": "mouse pointer click",
+    "aliases": []
+  },
+  {
+    "slug": "mouse-pointer2",
+    "name": "MousePointer2",
+    "label": "mouse pointer2",
+    "aliases": []
+  },
+  { "slug": "move", "name": "Move", "label": "move", "aliases": [] },
+  {
+    "slug": "move-diagonal",
+    "name": "MoveDiagonal",
+    "label": "move diagonal",
+    "aliases": []
+  },
+  {
+    "slug": "move-diagonal2",
+    "name": "MoveDiagonal2",
+    "label": "move diagonal2",
+    "aliases": []
+  },
+  {
+    "slug": "move-down",
+    "name": "MoveDown",
+    "label": "move down",
+    "aliases": []
+  },
+  {
+    "slug": "move-down-left",
+    "name": "MoveDownLeft",
+    "label": "move down left",
+    "aliases": []
+  },
+  {
+    "slug": "move-down-right",
+    "name": "MoveDownRight",
+    "label": "move down right",
+    "aliases": []
+  },
+  {
+    "slug": "move-horizontal",
+    "name": "MoveHorizontal",
+    "label": "move horizontal",
+    "aliases": []
+  },
+  {
+    "slug": "move-left",
+    "name": "MoveLeft",
+    "label": "move left",
+    "aliases": []
+  },
+  {
+    "slug": "move-right",
+    "name": "MoveRight",
+    "label": "move right",
+    "aliases": []
+  },
+  { "slug": "move-up", "name": "MoveUp", "label": "move up", "aliases": [] },
+  {
+    "slug": "move-up-left",
+    "name": "MoveUpLeft",
+    "label": "move up left",
+    "aliases": []
+  },
+  {
+    "slug": "move-up-right",
+    "name": "MoveUpRight",
+    "label": "move up right",
+    "aliases": []
+  },
+  {
+    "slug": "move-vertical",
+    "name": "MoveVertical",
+    "label": "move vertical",
+    "aliases": []
+  },
+  { "slug": "move3d", "name": "Move3d", "label": "move3d", "aliases": [] },
+  { "slug": "music", "name": "Music", "label": "music", "aliases": [] },
+  { "slug": "music2", "name": "Music2", "label": "music2", "aliases": [] },
+  { "slug": "music3", "name": "Music3", "label": "music3", "aliases": [] },
+  { "slug": "music4", "name": "Music4", "label": "music4", "aliases": [] },
+  {
+    "slug": "navigation",
+    "name": "Navigation",
+    "label": "navigation",
+    "aliases": []
+  },
+  {
+    "slug": "navigation-off",
+    "name": "NavigationOff",
+    "label": "navigation off",
+    "aliases": []
+  },
+  {
+    "slug": "navigation2",
+    "name": "Navigation2",
+    "label": "navigation2",
+    "aliases": []
+  },
+  {
+    "slug": "navigation2-off",
+    "name": "Navigation2Off",
+    "label": "navigation2 off",
+    "aliases": []
+  },
+  { "slug": "network", "name": "Network", "label": "network", "aliases": [] },
+  {
+    "slug": "newspaper",
+    "name": "Newspaper",
+    "label": "newspaper",
+    "aliases": []
+  },
+  { "slug": "nfc", "name": "Nfc", "label": "nfc", "aliases": [] },
+  {
+    "slug": "notebook",
+    "name": "Notebook",
+    "label": "notebook",
+    "aliases": []
+  },
+  {
+    "slug": "notebook-pen",
+    "name": "NotebookPen",
+    "label": "notebook pen",
+    "aliases": []
+  },
+  {
+    "slug": "notebook-tabs",
+    "name": "NotebookTabs",
+    "label": "notebook tabs",
+    "aliases": []
+  },
+  {
+    "slug": "notebook-text",
+    "name": "NotebookText",
+    "label": "notebook text",
+    "aliases": []
+  },
+  {
+    "slug": "notepad-text",
+    "name": "NotepadText",
+    "label": "notepad text",
+    "aliases": []
+  },
+  {
+    "slug": "notepad-text-dashed",
+    "name": "NotepadTextDashed",
+    "label": "notepad text dashed",
+    "aliases": []
+  },
+  { "slug": "nut", "name": "Nut", "label": "nut", "aliases": [] },
+  { "slug": "nut-off", "name": "NutOff", "label": "nut off", "aliases": [] },
+  { "slug": "octagon", "name": "Octagon", "label": "octagon", "aliases": [] },
+  {
+    "slug": "octagon-alert",
+    "name": "OctagonAlert",
+    "label": "octagon alert",
+    "aliases": ["alert-octagon"]
+  },
+  {
+    "slug": "octagon-minus",
+    "name": "OctagonMinus",
+    "label": "octagon minus",
+    "aliases": []
+  },
+  {
+    "slug": "octagon-pause",
+    "name": "OctagonPause",
+    "label": "octagon pause",
+    "aliases": ["pause-octagon"]
+  },
+  {
+    "slug": "octagon-x",
+    "name": "OctagonX",
+    "label": "octagon x",
+    "aliases": ["x-octagon"]
+  },
+  { "slug": "omega", "name": "Omega", "label": "omega", "aliases": [] },
+  { "slug": "option", "name": "Option", "label": "option", "aliases": [] },
+  { "slug": "orbit", "name": "Orbit", "label": "orbit", "aliases": [] },
+  { "slug": "origami", "name": "Origami", "label": "origami", "aliases": [] },
+  { "slug": "package", "name": "Package", "label": "package", "aliases": [] },
+  {
+    "slug": "package-check",
+    "name": "PackageCheck",
+    "label": "package check",
+    "aliases": []
+  },
+  {
+    "slug": "package-minus",
+    "name": "PackageMinus",
+    "label": "package minus",
+    "aliases": []
+  },
+  {
+    "slug": "package-open",
+    "name": "PackageOpen",
+    "label": "package open",
+    "aliases": []
+  },
+  {
+    "slug": "package-plus",
+    "name": "PackagePlus",
+    "label": "package plus",
+    "aliases": []
+  },
+  {
+    "slug": "package-search",
+    "name": "PackageSearch",
+    "label": "package search",
+    "aliases": []
+  },
+  {
+    "slug": "package-x",
+    "name": "PackageX",
+    "label": "package x",
+    "aliases": []
+  },
+  {
+    "slug": "package2",
+    "name": "Package2",
+    "label": "package2",
+    "aliases": []
+  },
+  {
+    "slug": "paint-bucket",
+    "name": "PaintBucket",
+    "label": "paint bucket",
+    "aliases": []
+  },
+  {
+    "slug": "paint-roller",
+    "name": "PaintRoller",
+    "label": "paint roller",
+    "aliases": []
+  },
+  {
+    "slug": "paintbrush",
+    "name": "Paintbrush",
+    "label": "paintbrush",
+    "aliases": []
+  },
+  {
+    "slug": "paintbrush-vertical",
+    "name": "PaintbrushVertical",
+    "label": "paintbrush vertical",
+    "aliases": ["paintbrush-2"]
+  },
+  { "slug": "palette", "name": "Palette", "label": "palette", "aliases": [] },
+  {
+    "slug": "panel-bottom",
+    "name": "PanelBottom",
+    "label": "panel bottom",
+    "aliases": []
+  },
+  {
+    "slug": "panel-bottom-close",
+    "name": "PanelBottomClose",
+    "label": "panel bottom close",
+    "aliases": []
+  },
+  {
+    "slug": "panel-bottom-dashed",
+    "name": "PanelBottomDashed",
+    "label": "panel bottom dashed",
+    "aliases": ["panel-bottom-inactive"]
+  },
+  {
+    "slug": "panel-bottom-open",
+    "name": "PanelBottomOpen",
+    "label": "panel bottom open",
+    "aliases": []
+  },
+  {
+    "slug": "panel-left",
+    "name": "PanelLeft",
+    "label": "panel left",
+    "aliases": ["sidebar"]
+  },
+  {
+    "slug": "panel-left-close",
+    "name": "PanelLeftClose",
+    "label": "panel left close",
+    "aliases": ["sidebar-close"]
+  },
+  {
+    "slug": "panel-left-dashed",
+    "name": "PanelLeftDashed",
+    "label": "panel left dashed",
+    "aliases": ["panel-left-inactive"]
+  },
+  {
+    "slug": "panel-left-open",
+    "name": "PanelLeftOpen",
+    "label": "panel left open",
+    "aliases": ["sidebar-open"]
+  },
+  {
+    "slug": "panel-right",
+    "name": "PanelRight",
+    "label": "panel right",
+    "aliases": []
+  },
+  {
+    "slug": "panel-right-close",
+    "name": "PanelRightClose",
+    "label": "panel right close",
+    "aliases": []
+  },
+  {
+    "slug": "panel-right-dashed",
+    "name": "PanelRightDashed",
+    "label": "panel right dashed",
+    "aliases": ["panel-right-inactive"]
+  },
+  {
+    "slug": "panel-right-open",
+    "name": "PanelRightOpen",
+    "label": "panel right open",
+    "aliases": []
+  },
+  {
+    "slug": "panel-top",
+    "name": "PanelTop",
+    "label": "panel top",
+    "aliases": []
+  },
+  {
+    "slug": "panel-top-close",
+    "name": "PanelTopClose",
+    "label": "panel top close",
+    "aliases": []
+  },
+  {
+    "slug": "panel-top-dashed",
+    "name": "PanelTopDashed",
+    "label": "panel top dashed",
+    "aliases": ["panel-top-inactive"]
+  },
+  {
+    "slug": "panel-top-open",
+    "name": "PanelTopOpen",
+    "label": "panel top open",
+    "aliases": []
+  },
+  {
+    "slug": "panels-left-bottom",
+    "name": "PanelsLeftBottom",
+    "label": "panels left bottom",
+    "aliases": []
+  },
+  {
+    "slug": "panels-right-bottom",
+    "name": "PanelsRightBottom",
+    "label": "panels right bottom",
+    "aliases": []
+  },
+  {
+    "slug": "panels-top-left",
+    "name": "PanelsTopLeft",
+    "label": "panels top left",
+    "aliases": ["layout"]
+  },
+  {
+    "slug": "paperclip",
+    "name": "Paperclip",
+    "label": "paperclip",
+    "aliases": []
+  },
+  {
+    "slug": "parentheses",
+    "name": "Parentheses",
+    "label": "parentheses",
+    "aliases": []
+  },
+  {
+    "slug": "parking-meter",
+    "name": "ParkingMeter",
+    "label": "parking meter",
+    "aliases": []
+  },
+  {
+    "slug": "party-popper",
+    "name": "PartyPopper",
+    "label": "party popper",
+    "aliases": []
+  },
+  { "slug": "pause", "name": "Pause", "label": "pause", "aliases": [] },
+  {
+    "slug": "paw-print",
+    "name": "PawPrint",
+    "label": "paw print",
+    "aliases": []
+  },
+  { "slug": "pc-case", "name": "PcCase", "label": "pc case", "aliases": [] },
+  { "slug": "pen", "name": "Pen", "label": "pen", "aliases": ["edit-2"] },
+  {
+    "slug": "pen-line",
+    "name": "PenLine",
+    "label": "pen line",
+    "aliases": ["edit-3"]
+  },
+  { "slug": "pen-off", "name": "PenOff", "label": "pen off", "aliases": [] },
+  { "slug": "pen-tool", "name": "PenTool", "label": "pen tool", "aliases": [] },
+  { "slug": "pencil", "name": "Pencil", "label": "pencil", "aliases": [] },
+  {
+    "slug": "pencil-line",
+    "name": "PencilLine",
+    "label": "pencil line",
+    "aliases": []
+  },
+  {
+    "slug": "pencil-off",
+    "name": "PencilOff",
+    "label": "pencil off",
+    "aliases": []
+  },
+  {
+    "slug": "pencil-ruler",
+    "name": "PencilRuler",
+    "label": "pencil ruler",
+    "aliases": []
+  },
+  {
+    "slug": "pentagon",
+    "name": "Pentagon",
+    "label": "pentagon",
+    "aliases": []
+  },
+  { "slug": "percent", "name": "Percent", "label": "percent", "aliases": [] },
+  {
+    "slug": "person-standing",
+    "name": "PersonStanding",
+    "label": "person standing",
+    "aliases": []
+  },
+  {
+    "slug": "philippine-peso",
+    "name": "PhilippinePeso",
+    "label": "philippine peso",
+    "aliases": []
+  },
+  { "slug": "phone", "name": "Phone", "label": "phone", "aliases": [] },
+  {
+    "slug": "phone-call",
+    "name": "PhoneCall",
+    "label": "phone call",
+    "aliases": []
+  },
+  {
+    "slug": "phone-forwarded",
+    "name": "PhoneForwarded",
+    "label": "phone forwarded",
+    "aliases": []
+  },
+  {
+    "slug": "phone-incoming",
+    "name": "PhoneIncoming",
+    "label": "phone incoming",
+    "aliases": []
+  },
+  {
+    "slug": "phone-missed",
+    "name": "PhoneMissed",
+    "label": "phone missed",
+    "aliases": []
+  },
+  {
+    "slug": "phone-off",
+    "name": "PhoneOff",
+    "label": "phone off",
+    "aliases": []
+  },
+  {
+    "slug": "phone-outgoing",
+    "name": "PhoneOutgoing",
+    "label": "phone outgoing",
+    "aliases": []
+  },
+  { "slug": "pi", "name": "Pi", "label": "pi", "aliases": [] },
+  { "slug": "piano", "name": "Piano", "label": "piano", "aliases": [] },
+  { "slug": "pickaxe", "name": "Pickaxe", "label": "pickaxe", "aliases": [] },
+  {
+    "slug": "picture-in-picture",
+    "name": "PictureInPicture",
+    "label": "picture in picture",
+    "aliases": []
+  },
+  {
+    "slug": "picture-in-picture2",
+    "name": "PictureInPicture2",
+    "label": "picture in picture2",
+    "aliases": []
+  },
+  {
+    "slug": "piggy-bank",
+    "name": "PiggyBank",
+    "label": "piggy bank",
+    "aliases": []
+  },
+  { "slug": "pilcrow", "name": "Pilcrow", "label": "pilcrow", "aliases": [] },
+  {
+    "slug": "pilcrow-left",
+    "name": "PilcrowLeft",
+    "label": "pilcrow left",
+    "aliases": []
+  },
+  {
+    "slug": "pilcrow-right",
+    "name": "PilcrowRight",
+    "label": "pilcrow right",
+    "aliases": []
+  },
+  { "slug": "pill", "name": "Pill", "label": "pill", "aliases": [] },
+  {
+    "slug": "pill-bottle",
+    "name": "PillBottle",
+    "label": "pill bottle",
+    "aliases": []
+  },
+  { "slug": "pin", "name": "Pin", "label": "pin", "aliases": [] },
+  { "slug": "pin-off", "name": "PinOff", "label": "pin off", "aliases": [] },
+  { "slug": "pipette", "name": "Pipette", "label": "pipette", "aliases": [] },
+  { "slug": "pizza", "name": "Pizza", "label": "pizza", "aliases": [] },
+  { "slug": "plane", "name": "Plane", "label": "plane", "aliases": [] },
+  {
+    "slug": "plane-landing",
+    "name": "PlaneLanding",
+    "label": "plane landing",
+    "aliases": []
+  },
+  {
+    "slug": "plane-takeoff",
+    "name": "PlaneTakeoff",
+    "label": "plane takeoff",
+    "aliases": []
+  },
+  { "slug": "play", "name": "Play", "label": "play", "aliases": [] },
+  { "slug": "plug", "name": "Plug", "label": "plug", "aliases": [] },
+  {
+    "slug": "plug-zap",
+    "name": "PlugZap",
+    "label": "plug zap",
+    "aliases": ["plug-zap-2"]
+  },
+  { "slug": "plug2", "name": "Plug2", "label": "plug2", "aliases": [] },
+  { "slug": "plus", "name": "Plus", "label": "plus", "aliases": [] },
+  { "slug": "pocket", "name": "Pocket", "label": "pocket", "aliases": [] },
+  {
+    "slug": "pocket-knife",
+    "name": "PocketKnife",
+    "label": "pocket knife",
+    "aliases": []
+  },
+  { "slug": "podcast", "name": "Podcast", "label": "podcast", "aliases": [] },
+  { "slug": "pointer", "name": "Pointer", "label": "pointer", "aliases": [] },
+  {
+    "slug": "pointer-off",
+    "name": "PointerOff",
+    "label": "pointer off",
+    "aliases": []
+  },
+  { "slug": "popcorn", "name": "Popcorn", "label": "popcorn", "aliases": [] },
+  {
+    "slug": "popsicle",
+    "name": "Popsicle",
+    "label": "popsicle",
+    "aliases": []
+  },
+  {
+    "slug": "pound-sterling",
+    "name": "PoundSterling",
+    "label": "pound sterling",
+    "aliases": []
+  },
+  { "slug": "power", "name": "Power", "label": "power", "aliases": [] },
+  {
+    "slug": "power-off",
+    "name": "PowerOff",
+    "label": "power off",
+    "aliases": []
+  },
+  {
+    "slug": "presentation",
+    "name": "Presentation",
+    "label": "presentation",
+    "aliases": []
+  },
+  { "slug": "printer", "name": "Printer", "label": "printer", "aliases": [] },
+  {
+    "slug": "printer-check",
+    "name": "PrinterCheck",
+    "label": "printer check",
+    "aliases": []
+  },
+  {
+    "slug": "projector",
+    "name": "Projector",
+    "label": "projector",
+    "aliases": []
+  },
+  {
+    "slug": "proportions",
+    "name": "Proportions",
+    "label": "proportions",
+    "aliases": []
+  },
+  { "slug": "puzzle", "name": "Puzzle", "label": "puzzle", "aliases": [] },
+  { "slug": "pyramid", "name": "Pyramid", "label": "pyramid", "aliases": [] },
+  { "slug": "qr-code", "name": "QrCode", "label": "qr code", "aliases": [] },
+  { "slug": "quote", "name": "Quote", "label": "quote", "aliases": [] },
+  { "slug": "rabbit", "name": "Rabbit", "label": "rabbit", "aliases": [] },
+  { "slug": "radar", "name": "Radar", "label": "radar", "aliases": [] },
+  {
+    "slug": "radiation",
+    "name": "Radiation",
+    "label": "radiation",
+    "aliases": []
+  },
+  { "slug": "radical", "name": "Radical", "label": "radical", "aliases": [] },
+  { "slug": "radio", "name": "Radio", "label": "radio", "aliases": [] },
+  {
+    "slug": "radio-receiver",
+    "name": "RadioReceiver",
+    "label": "radio receiver",
+    "aliases": []
+  },
+  {
+    "slug": "radio-tower",
+    "name": "RadioTower",
+    "label": "radio tower",
+    "aliases": []
+  },
+  { "slug": "radius", "name": "Radius", "label": "radius", "aliases": [] },
+  {
+    "slug": "rail-symbol",
+    "name": "RailSymbol",
+    "label": "rail symbol",
+    "aliases": []
+  },
+  { "slug": "rainbow", "name": "Rainbow", "label": "rainbow", "aliases": [] },
+  { "slug": "rat", "name": "Rat", "label": "rat", "aliases": [] },
+  { "slug": "ratio", "name": "Ratio", "label": "ratio", "aliases": [] },
+  { "slug": "receipt", "name": "Receipt", "label": "receipt", "aliases": [] },
+  {
+    "slug": "receipt-cent",
+    "name": "ReceiptCent",
+    "label": "receipt cent",
+    "aliases": []
+  },
+  {
+    "slug": "receipt-euro",
+    "name": "ReceiptEuro",
+    "label": "receipt euro",
+    "aliases": []
+  },
+  {
+    "slug": "receipt-indian-rupee",
+    "name": "ReceiptIndianRupee",
+    "label": "receipt indian rupee",
+    "aliases": []
+  },
+  {
+    "slug": "receipt-japanese-yen",
+    "name": "ReceiptJapaneseYen",
+    "label": "receipt japanese yen",
+    "aliases": []
+  },
+  {
+    "slug": "receipt-pound-sterling",
+    "name": "ReceiptPoundSterling",
+    "label": "receipt pound sterling",
+    "aliases": []
+  },
+  {
+    "slug": "receipt-russian-ruble",
+    "name": "ReceiptRussianRuble",
+    "label": "receipt russian ruble",
+    "aliases": []
+  },
+  {
+    "slug": "receipt-swiss-franc",
+    "name": "ReceiptSwissFranc",
+    "label": "receipt swiss franc",
+    "aliases": []
+  },
+  {
+    "slug": "receipt-text",
+    "name": "ReceiptText",
+    "label": "receipt text",
+    "aliases": []
+  },
+  {
+    "slug": "rectangle-ellipsis",
+    "name": "RectangleEllipsis",
+    "label": "rectangle ellipsis",
+    "aliases": ["form-input"]
+  },
+  {
+    "slug": "rectangle-horizontal",
+    "name": "RectangleHorizontal",
+    "label": "rectangle horizontal",
+    "aliases": []
+  },
+  {
+    "slug": "rectangle-vertical",
+    "name": "RectangleVertical",
+    "label": "rectangle vertical",
+    "aliases": []
+  },
+  { "slug": "recycle", "name": "Recycle", "label": "recycle", "aliases": [] },
+  { "slug": "redo", "name": "Redo", "label": "redo", "aliases": [] },
+  { "slug": "redo-dot", "name": "RedoDot", "label": "redo dot", "aliases": [] },
+  { "slug": "redo2", "name": "Redo2", "label": "redo2", "aliases": [] },
+  {
+    "slug": "refresh-ccw",
+    "name": "RefreshCcw",
+    "label": "refresh ccw",
+    "aliases": []
+  },
+  {
+    "slug": "refresh-ccw-dot",
+    "name": "RefreshCcwDot",
+    "label": "refresh ccw dot",
+    "aliases": []
+  },
+  {
+    "slug": "refresh-cw",
+    "name": "RefreshCw",
+    "label": "refresh cw",
+    "aliases": []
+  },
+  {
+    "slug": "refresh-cw-off",
+    "name": "RefreshCwOff",
+    "label": "refresh cw off",
+    "aliases": []
+  },
+  {
+    "slug": "refrigerator",
+    "name": "Refrigerator",
+    "label": "refrigerator",
+    "aliases": []
+  },
+  { "slug": "regex", "name": "Regex", "label": "regex", "aliases": [] },
+  {
+    "slug": "remove-formatting",
+    "name": "RemoveFormatting",
+    "label": "remove formatting",
+    "aliases": []
+  },
+  { "slug": "repeat", "name": "Repeat", "label": "repeat", "aliases": [] },
+  { "slug": "repeat1", "name": "Repeat1", "label": "repeat1", "aliases": [] },
+  { "slug": "repeat2", "name": "Repeat2", "label": "repeat2", "aliases": [] },
+  { "slug": "replace", "name": "Replace", "label": "replace", "aliases": [] },
+  {
+    "slug": "replace-all",
+    "name": "ReplaceAll",
+    "label": "replace all",
+    "aliases": []
+  },
+  { "slug": "reply", "name": "Reply", "label": "reply", "aliases": [] },
+  {
+    "slug": "reply-all",
+    "name": "ReplyAll",
+    "label": "reply all",
+    "aliases": []
+  },
+  { "slug": "rewind", "name": "Rewind", "label": "rewind", "aliases": [] },
+  { "slug": "ribbon", "name": "Ribbon", "label": "ribbon", "aliases": [] },
+  { "slug": "rocket", "name": "Rocket", "label": "rocket", "aliases": [] },
+  {
+    "slug": "rocking-chair",
+    "name": "RockingChair",
+    "label": "rocking chair",
+    "aliases": []
+  },
+  {
+    "slug": "roller-coaster",
+    "name": "RollerCoaster",
+    "label": "roller coaster",
+    "aliases": []
+  },
+  {
+    "slug": "rotate-ccw",
+    "name": "RotateCcw",
+    "label": "rotate ccw",
+    "aliases": []
+  },
+  {
+    "slug": "rotate-ccw-square",
+    "name": "RotateCcwSquare",
+    "label": "rotate ccw square",
+    "aliases": []
+  },
+  {
+    "slug": "rotate-cw",
+    "name": "RotateCw",
+    "label": "rotate cw",
+    "aliases": []
+  },
+  {
+    "slug": "rotate-cw-square",
+    "name": "RotateCwSquare",
+    "label": "rotate cw square",
+    "aliases": []
+  },
+  {
+    "slug": "rotate3d",
+    "name": "Rotate3d",
+    "label": "rotate3d",
+    "aliases": []
+  },
+  { "slug": "route", "name": "Route", "label": "route", "aliases": [] },
+  {
+    "slug": "route-off",
+    "name": "RouteOff",
+    "label": "route off",
+    "aliases": []
+  },
+  { "slug": "router", "name": "Router", "label": "router", "aliases": [] },
+  { "slug": "rows2", "name": "Rows2", "label": "rows2", "aliases": [] },
+  { "slug": "rows3", "name": "Rows3", "label": "rows3", "aliases": [] },
+  { "slug": "rows4", "name": "Rows4", "label": "rows4", "aliases": [] },
+  { "slug": "rss", "name": "Rss", "label": "rss", "aliases": [] },
+  { "slug": "ruler", "name": "Ruler", "label": "ruler", "aliases": [] },
+  {
+    "slug": "russian-ruble",
+    "name": "RussianRuble",
+    "label": "russian ruble",
+    "aliases": []
+  },
+  {
+    "slug": "sailboat",
+    "name": "Sailboat",
+    "label": "sailboat",
+    "aliases": []
+  },
+  { "slug": "salad", "name": "Salad", "label": "salad", "aliases": [] },
+  {
+    "slug": "sandwich",
+    "name": "Sandwich",
+    "label": "sandwich",
+    "aliases": []
+  },
+  {
+    "slug": "satellite",
+    "name": "Satellite",
+    "label": "satellite",
+    "aliases": []
+  },
+  {
+    "slug": "satellite-dish",
+    "name": "SatelliteDish",
+    "label": "satellite dish",
+    "aliases": []
+  },
+  { "slug": "save", "name": "Save", "label": "save", "aliases": [] },
+  { "slug": "save-all", "name": "SaveAll", "label": "save all", "aliases": [] },
+  { "slug": "save-off", "name": "SaveOff", "label": "save off", "aliases": [] },
+  { "slug": "scale", "name": "Scale", "label": "scale", "aliases": [] },
+  { "slug": "scale3d", "name": "Scale3d", "label": "scale3d", "aliases": [] },
+  { "slug": "scaling", "name": "Scaling", "label": "scaling", "aliases": [] },
+  { "slug": "scan", "name": "Scan", "label": "scan", "aliases": [] },
+  {
+    "slug": "scan-barcode",
+    "name": "ScanBarcode",
+    "label": "scan barcode",
+    "aliases": []
+  },
+  { "slug": "scan-eye", "name": "ScanEye", "label": "scan eye", "aliases": [] },
+  {
+    "slug": "scan-face",
+    "name": "ScanFace",
+    "label": "scan face",
+    "aliases": []
+  },
+  {
+    "slug": "scan-heart",
+    "name": "ScanHeart",
+    "label": "scan heart",
+    "aliases": []
+  },
+  {
+    "slug": "scan-line",
+    "name": "ScanLine",
+    "label": "scan line",
+    "aliases": []
+  },
+  {
+    "slug": "scan-qr-code",
+    "name": "ScanQrCode",
+    "label": "scan qr code",
+    "aliases": []
+  },
+  {
+    "slug": "scan-search",
+    "name": "ScanSearch",
+    "label": "scan search",
+    "aliases": []
+  },
+  {
+    "slug": "scan-text",
+    "name": "ScanText",
+    "label": "scan text",
+    "aliases": []
+  },
+  { "slug": "school", "name": "School", "label": "school", "aliases": [] },
+  {
+    "slug": "scissors",
+    "name": "Scissors",
+    "label": "scissors",
+    "aliases": []
+  },
+  {
+    "slug": "scissors-line-dashed",
+    "name": "ScissorsLineDashed",
+    "label": "scissors line dashed",
+    "aliases": []
+  },
+  {
+    "slug": "screen-share",
+    "name": "ScreenShare",
+    "label": "screen share",
+    "aliases": []
+  },
+  {
+    "slug": "screen-share-off",
+    "name": "ScreenShareOff",
+    "label": "screen share off",
+    "aliases": []
+  },
+  { "slug": "scroll", "name": "Scroll", "label": "scroll", "aliases": [] },
+  {
+    "slug": "scroll-text",
+    "name": "ScrollText",
+    "label": "scroll text",
+    "aliases": []
+  },
+  { "slug": "search", "name": "Search", "label": "search", "aliases": [] },
+  {
+    "slug": "search-check",
+    "name": "SearchCheck",
+    "label": "search check",
+    "aliases": []
+  },
+  {
+    "slug": "search-code",
+    "name": "SearchCode",
+    "label": "search code",
+    "aliases": []
+  },
+  {
+    "slug": "search-slash",
+    "name": "SearchSlash",
+    "label": "search slash",
+    "aliases": []
+  },
+  { "slug": "search-x", "name": "SearchX", "label": "search x", "aliases": [] },
+  { "slug": "section", "name": "Section", "label": "section", "aliases": [] },
+  { "slug": "send", "name": "Send", "label": "send", "aliases": [] },
+  {
+    "slug": "send-horizontal",
+    "name": "SendHorizontal",
+    "label": "send horizontal",
+    "aliases": ["send-horizonal"]
+  },
+  {
+    "slug": "send-to-back",
+    "name": "SendToBack",
+    "label": "send to back",
+    "aliases": []
+  },
+  {
+    "slug": "separator-horizontal",
+    "name": "SeparatorHorizontal",
+    "label": "separator horizontal",
+    "aliases": []
+  },
+  {
+    "slug": "separator-vertical",
+    "name": "SeparatorVertical",
+    "label": "separator vertical",
+    "aliases": []
+  },
+  { "slug": "server", "name": "Server", "label": "server", "aliases": [] },
+  {
+    "slug": "server-cog",
+    "name": "ServerCog",
+    "label": "server cog",
+    "aliases": []
+  },
+  {
+    "slug": "server-crash",
+    "name": "ServerCrash",
+    "label": "server crash",
+    "aliases": []
+  },
+  {
+    "slug": "server-off",
+    "name": "ServerOff",
+    "label": "server off",
+    "aliases": []
+  },
+  {
+    "slug": "settings",
+    "name": "Settings",
+    "label": "settings",
+    "aliases": []
+  },
+  {
+    "slug": "settings2",
+    "name": "Settings2",
+    "label": "settings2",
+    "aliases": []
+  },
+  { "slug": "shapes", "name": "Shapes", "label": "shapes", "aliases": [] },
+  { "slug": "share", "name": "Share", "label": "share", "aliases": [] },
+  { "slug": "share2", "name": "Share2", "label": "share2", "aliases": [] },
+  { "slug": "sheet", "name": "Sheet", "label": "sheet", "aliases": [] },
+  { "slug": "shell", "name": "Shell", "label": "shell", "aliases": [] },
+  { "slug": "shield", "name": "Shield", "label": "shield", "aliases": [] },
+  {
+    "slug": "shield-alert",
+    "name": "ShieldAlert",
+    "label": "shield alert",
+    "aliases": []
+  },
+  {
+    "slug": "shield-ban",
+    "name": "ShieldBan",
+    "label": "shield ban",
+    "aliases": []
+  },
+  {
+    "slug": "shield-check",
+    "name": "ShieldCheck",
+    "label": "shield check",
+    "aliases": []
+  },
+  {
+    "slug": "shield-ellipsis",
+    "name": "ShieldEllipsis",
+    "label": "shield ellipsis",
+    "aliases": []
+  },
+  {
+    "slug": "shield-half",
+    "name": "ShieldHalf",
+    "label": "shield half",
+    "aliases": []
+  },
+  {
+    "slug": "shield-minus",
+    "name": "ShieldMinus",
+    "label": "shield minus",
+    "aliases": []
+  },
+  {
+    "slug": "shield-off",
+    "name": "ShieldOff",
+    "label": "shield off",
+    "aliases": []
+  },
+  {
+    "slug": "shield-plus",
+    "name": "ShieldPlus",
+    "label": "shield plus",
+    "aliases": []
+  },
+  {
+    "slug": "shield-question",
+    "name": "ShieldQuestion",
+    "label": "shield question",
+    "aliases": []
+  },
+  {
+    "slug": "shield-x",
+    "name": "ShieldX",
+    "label": "shield x",
+    "aliases": ["shield-close"]
+  },
+  { "slug": "ship", "name": "Ship", "label": "ship", "aliases": [] },
+  {
+    "slug": "ship-wheel",
+    "name": "ShipWheel",
+    "label": "ship wheel",
+    "aliases": []
+  },
+  { "slug": "shirt", "name": "Shirt", "label": "shirt", "aliases": [] },
+  {
+    "slug": "shopping-bag",
+    "name": "ShoppingBag",
+    "label": "shopping bag",
+    "aliases": []
+  },
+  {
+    "slug": "shopping-basket",
+    "name": "ShoppingBasket",
+    "label": "shopping basket",
+    "aliases": []
+  },
+  {
+    "slug": "shopping-cart",
+    "name": "ShoppingCart",
+    "label": "shopping cart",
+    "aliases": []
+  },
+  { "slug": "shovel", "name": "Shovel", "label": "shovel", "aliases": [] },
+  {
+    "slug": "shower-head",
+    "name": "ShowerHead",
+    "label": "shower head",
+    "aliases": []
+  },
+  { "slug": "shrink", "name": "Shrink", "label": "shrink", "aliases": [] },
+  { "slug": "shrub", "name": "Shrub", "label": "shrub", "aliases": [] },
+  { "slug": "shuffle", "name": "Shuffle", "label": "shuffle", "aliases": [] },
+  { "slug": "sigma", "name": "Sigma", "label": "sigma", "aliases": [] },
+  { "slug": "signal", "name": "Signal", "label": "signal", "aliases": [] },
+  {
+    "slug": "signal-high",
+    "name": "SignalHigh",
+    "label": "signal high",
+    "aliases": []
+  },
+  {
+    "slug": "signal-low",
+    "name": "SignalLow",
+    "label": "signal low",
+    "aliases": []
+  },
+  {
+    "slug": "signal-medium",
+    "name": "SignalMedium",
+    "label": "signal medium",
+    "aliases": []
+  },
+  {
+    "slug": "signal-zero",
+    "name": "SignalZero",
+    "label": "signal zero",
+    "aliases": []
+  },
+  {
+    "slug": "signature",
+    "name": "Signature",
+    "label": "signature",
+    "aliases": []
+  },
+  {
+    "slug": "signpost",
+    "name": "Signpost",
+    "label": "signpost",
+    "aliases": []
+  },
+  {
+    "slug": "signpost-big",
+    "name": "SignpostBig",
+    "label": "signpost big",
+    "aliases": []
+  },
+  { "slug": "siren", "name": "Siren", "label": "siren", "aliases": [] },
+  {
+    "slug": "skip-back",
+    "name": "SkipBack",
+    "label": "skip back",
+    "aliases": []
+  },
+  {
+    "slug": "skip-forward",
+    "name": "SkipForward",
+    "label": "skip forward",
+    "aliases": []
+  },
+  { "slug": "skull", "name": "Skull", "label": "skull", "aliases": [] },
+  { "slug": "slack", "name": "Slack", "label": "slack", "aliases": [] },
+  { "slug": "slash", "name": "Slash", "label": "slash", "aliases": [] },
+  { "slug": "slice", "name": "Slice", "label": "slice", "aliases": [] },
+  {
+    "slug": "sliders-horizontal",
+    "name": "SlidersHorizontal",
+    "label": "sliders horizontal",
+    "aliases": []
+  },
+  {
+    "slug": "sliders-vertical",
+    "name": "SlidersVertical",
+    "label": "sliders vertical",
+    "aliases": ["sliders"]
+  },
+  {
+    "slug": "smartphone",
+    "name": "Smartphone",
+    "label": "smartphone",
+    "aliases": []
+  },
+  {
+    "slug": "smartphone-charging",
+    "name": "SmartphoneCharging",
+    "label": "smartphone charging",
+    "aliases": []
+  },
+  {
+    "slug": "smartphone-nfc",
+    "name": "SmartphoneNfc",
+    "label": "smartphone nfc",
+    "aliases": []
+  },
+  { "slug": "smile", "name": "Smile", "label": "smile", "aliases": [] },
+  {
+    "slug": "smile-plus",
+    "name": "SmilePlus",
+    "label": "smile plus",
+    "aliases": []
+  },
+  { "slug": "snail", "name": "Snail", "label": "snail", "aliases": [] },
+  {
+    "slug": "snowflake",
+    "name": "Snowflake",
+    "label": "snowflake",
+    "aliases": []
+  },
+  { "slug": "sofa", "name": "Sofa", "label": "sofa", "aliases": [] },
+  { "slug": "soup", "name": "Soup", "label": "soup", "aliases": [] },
+  { "slug": "space", "name": "Space", "label": "space", "aliases": [] },
+  { "slug": "spade", "name": "Spade", "label": "spade", "aliases": [] },
+  { "slug": "sparkle", "name": "Sparkle", "label": "sparkle", "aliases": [] },
+  {
+    "slug": "sparkles",
+    "name": "Sparkles",
+    "label": "sparkles",
+    "aliases": ["stars"]
+  },
+  { "slug": "speaker", "name": "Speaker", "label": "speaker", "aliases": [] },
+  { "slug": "speech", "name": "Speech", "label": "speech", "aliases": [] },
+  {
+    "slug": "spell-check",
+    "name": "SpellCheck",
+    "label": "spell check",
+    "aliases": []
+  },
+  {
+    "slug": "spell-check2",
+    "name": "SpellCheck2",
+    "label": "spell check2",
+    "aliases": []
+  },
+  { "slug": "spline", "name": "Spline", "label": "spline", "aliases": [] },
+  { "slug": "split", "name": "Split", "label": "split", "aliases": [] },
+  {
+    "slug": "spray-can",
+    "name": "SprayCan",
+    "label": "spray can",
+    "aliases": []
+  },
+  { "slug": "sprout", "name": "Sprout", "label": "sprout", "aliases": [] },
+  { "slug": "square", "name": "Square", "label": "square", "aliases": [] },
+  {
+    "slug": "square-activity",
+    "name": "SquareActivity",
+    "label": "square activity",
+    "aliases": ["activity-square"]
+  },
+  {
+    "slug": "square-arrow-down",
+    "name": "SquareArrowDown",
+    "label": "square arrow down",
+    "aliases": ["arrow-down-square"]
+  },
+  {
+    "slug": "square-arrow-down-left",
+    "name": "SquareArrowDownLeft",
+    "label": "square arrow down left",
+    "aliases": ["arrow-down-left-square"]
+  },
+  {
+    "slug": "square-arrow-down-right",
+    "name": "SquareArrowDownRight",
+    "label": "square arrow down right",
+    "aliases": ["arrow-down-right-square"]
+  },
+  {
+    "slug": "square-arrow-left",
+    "name": "SquareArrowLeft",
+    "label": "square arrow left",
+    "aliases": ["arrow-left-square"]
+  },
+  {
+    "slug": "square-arrow-out-down-left",
+    "name": "SquareArrowOutDownLeft",
+    "label": "square arrow out down left",
+    "aliases": ["arrow-down-left-from-square"]
+  },
+  {
+    "slug": "square-arrow-out-down-right",
+    "name": "SquareArrowOutDownRight",
+    "label": "square arrow out down right",
+    "aliases": ["arrow-down-right-from-square"]
+  },
+  {
+    "slug": "square-arrow-out-up-left",
+    "name": "SquareArrowOutUpLeft",
+    "label": "square arrow out up left",
+    "aliases": ["arrow-up-left-from-square"]
+  },
+  {
+    "slug": "square-arrow-out-up-right",
+    "name": "SquareArrowOutUpRight",
+    "label": "square arrow out up right",
+    "aliases": ["arrow-up-right-from-square"]
+  },
+  {
+    "slug": "square-arrow-right",
+    "name": "SquareArrowRight",
+    "label": "square arrow right",
+    "aliases": ["arrow-right-square"]
+  },
+  {
+    "slug": "square-arrow-up",
+    "name": "SquareArrowUp",
+    "label": "square arrow up",
+    "aliases": ["arrow-up-square"]
+  },
+  {
+    "slug": "square-arrow-up-left",
+    "name": "SquareArrowUpLeft",
+    "label": "square arrow up left",
+    "aliases": ["arrow-up-left-square"]
+  },
+  {
+    "slug": "square-arrow-up-right",
+    "name": "SquareArrowUpRight",
+    "label": "square arrow up right",
+    "aliases": ["arrow-up-right-square"]
+  },
+  {
+    "slug": "square-asterisk",
+    "name": "SquareAsterisk",
+    "label": "square asterisk",
+    "aliases": ["asterisk-square"]
+  },
+  {
+    "slug": "square-bottom-dashed-scissors",
+    "name": "SquareBottomDashedScissors",
+    "label": "square bottom dashed scissors",
+    "aliases": ["scissors-square-dashed-bottom"]
+  },
+  {
+    "slug": "square-chart-gantt",
+    "name": "SquareChartGantt",
+    "label": "square chart gantt",
+    "aliases": ["gantt-chart-square", "square-gantt-chart"]
+  },
+  {
+    "slug": "square-check",
+    "name": "SquareCheck",
+    "label": "square check",
+    "aliases": ["check-square-2"]
+  },
+  {
+    "slug": "square-check-big",
+    "name": "SquareCheckBig",
+    "label": "square check big",
+    "aliases": ["check-square"]
+  },
+  {
+    "slug": "square-chevron-down",
+    "name": "SquareChevronDown",
+    "label": "square chevron down",
+    "aliases": ["chevron-down-square"]
+  },
+  {
+    "slug": "square-chevron-left",
+    "name": "SquareChevronLeft",
+    "label": "square chevron left",
+    "aliases": ["chevron-left-square"]
+  },
+  {
+    "slug": "square-chevron-right",
+    "name": "SquareChevronRight",
+    "label": "square chevron right",
+    "aliases": ["chevron-right-square"]
+  },
+  {
+    "slug": "square-chevron-up",
+    "name": "SquareChevronUp",
+    "label": "square chevron up",
+    "aliases": ["chevron-up-square"]
+  },
+  {
+    "slug": "square-code",
+    "name": "SquareCode",
+    "label": "square code",
+    "aliases": ["code-square"]
+  },
+  {
+    "slug": "square-dashed",
+    "name": "SquareDashed",
+    "label": "square dashed",
+    "aliases": ["box-select"]
+  },
+  {
+    "slug": "square-dashed-bottom",
+    "name": "SquareDashedBottom",
+    "label": "square dashed bottom",
+    "aliases": []
+  },
+  {
+    "slug": "square-dashed-bottom-code",
+    "name": "SquareDashedBottomCode",
+    "label": "square dashed bottom code",
+    "aliases": []
+  },
+  {
+    "slug": "square-dashed-kanban",
+    "name": "SquareDashedKanban",
+    "label": "square dashed kanban",
+    "aliases": ["kanban-square-dashed"]
+  },
+  {
+    "slug": "square-dashed-mouse-pointer",
+    "name": "SquareDashedMousePointer",
+    "label": "square dashed mouse pointer",
+    "aliases": ["mouse-pointer-square-dashed"]
+  },
+  {
+    "slug": "square-divide",
+    "name": "SquareDivide",
+    "label": "square divide",
+    "aliases": ["divide-square"]
+  },
+  {
+    "slug": "square-dot",
+    "name": "SquareDot",
+    "label": "square dot",
+    "aliases": ["dot-square"]
+  },
+  {
+    "slug": "square-equal",
+    "name": "SquareEqual",
+    "label": "square equal",
+    "aliases": ["equal-square"]
+  },
+  {
+    "slug": "square-function",
+    "name": "SquareFunction",
+    "label": "square function",
+    "aliases": ["function-square"]
+  },
+  {
+    "slug": "square-kanban",
+    "name": "SquareKanban",
+    "label": "square kanban",
+    "aliases": ["kanban-square"]
+  },
+  {
+    "slug": "square-library",
+    "name": "SquareLibrary",
+    "label": "square library",
+    "aliases": ["library-square"]
+  },
+  {
+    "slug": "square-m",
+    "name": "SquareM",
+    "label": "square m",
+    "aliases": ["m-square"]
+  },
+  {
+    "slug": "square-menu",
+    "name": "SquareMenu",
+    "label": "square menu",
+    "aliases": ["menu-square"]
+  },
+  {
+    "slug": "square-minus",
+    "name": "SquareMinus",
+    "label": "square minus",
+    "aliases": ["minus-square"]
+  },
+  {
+    "slug": "square-mouse-pointer",
+    "name": "SquareMousePointer",
+    "label": "square mouse pointer",
+    "aliases": ["inspect"]
+  },
+  {
+    "slug": "square-parking",
+    "name": "SquareParking",
+    "label": "square parking",
+    "aliases": ["parking-square"]
+  },
+  {
+    "slug": "square-parking-off",
+    "name": "SquareParkingOff",
+    "label": "square parking off",
+    "aliases": ["parking-square-off"]
+  },
+  {
+    "slug": "square-pen",
+    "name": "SquarePen",
+    "label": "square pen",
+    "aliases": ["edit", "pen-box", "pen-square"]
+  },
+  {
+    "slug": "square-percent",
+    "name": "SquarePercent",
+    "label": "square percent",
+    "aliases": ["percent-square"]
+  },
+  {
+    "slug": "square-pi",
+    "name": "SquarePi",
+    "label": "square pi",
+    "aliases": ["pi-square"]
+  },
+  {
+    "slug": "square-pilcrow",
+    "name": "SquarePilcrow",
+    "label": "square pilcrow",
+    "aliases": ["pilcrow-square"]
+  },
+  {
+    "slug": "square-play",
+    "name": "SquarePlay",
+    "label": "square play",
+    "aliases": ["play-square"]
+  },
+  {
+    "slug": "square-plus",
+    "name": "SquarePlus",
+    "label": "square plus",
+    "aliases": ["plus-square"]
+  },
+  {
+    "slug": "square-power",
+    "name": "SquarePower",
+    "label": "square power",
+    "aliases": ["power-square"]
+  },
+  {
+    "slug": "square-radical",
+    "name": "SquareRadical",
+    "label": "square radical",
+    "aliases": []
+  },
+  {
+    "slug": "square-scissors",
+    "name": "SquareScissors",
+    "label": "square scissors",
+    "aliases": ["scissors-square"]
+  },
+  {
+    "slug": "square-sigma",
+    "name": "SquareSigma",
+    "label": "square sigma",
+    "aliases": ["sigma-square"]
+  },
+  {
+    "slug": "square-slash",
+    "name": "SquareSlash",
+    "label": "square slash",
+    "aliases": ["slash-square"]
+  },
+  {
+    "slug": "square-split-horizontal",
+    "name": "SquareSplitHorizontal",
+    "label": "square split horizontal",
+    "aliases": ["split-square-horizontal"]
+  },
+  {
+    "slug": "square-split-vertical",
+    "name": "SquareSplitVertical",
+    "label": "square split vertical",
+    "aliases": ["split-square-vertical"]
+  },
+  {
+    "slug": "square-square",
+    "name": "SquareSquare",
+    "label": "square square",
+    "aliases": []
+  },
+  {
+    "slug": "square-stack",
+    "name": "SquareStack",
+    "label": "square stack",
+    "aliases": []
+  },
+  {
+    "slug": "square-terminal",
+    "name": "SquareTerminal",
+    "label": "square terminal",
+    "aliases": ["terminal-square"]
+  },
+  {
+    "slug": "square-user",
+    "name": "SquareUser",
+    "label": "square user",
+    "aliases": ["user-square"]
+  },
+  {
+    "slug": "square-user-round",
+    "name": "SquareUserRound",
+    "label": "square user round",
+    "aliases": ["user-square-2"]
+  },
+  {
+    "slug": "square-x",
+    "name": "SquareX",
+    "label": "square x",
+    "aliases": ["x-square"]
+  },
+  {
+    "slug": "squircle",
+    "name": "Squircle",
+    "label": "squircle",
+    "aliases": []
+  },
+  {
+    "slug": "squirrel",
+    "name": "Squirrel",
+    "label": "squirrel",
+    "aliases": []
+  },
+  { "slug": "stamp", "name": "Stamp", "label": "stamp", "aliases": [] },
+  { "slug": "star", "name": "Star", "label": "star", "aliases": [] },
+  {
+    "slug": "star-half",
+    "name": "StarHalf",
+    "label": "star half",
+    "aliases": []
+  },
+  { "slug": "star-off", "name": "StarOff", "label": "star off", "aliases": [] },
+  {
+    "slug": "step-back",
+    "name": "StepBack",
+    "label": "step back",
+    "aliases": []
+  },
+  {
+    "slug": "step-forward",
+    "name": "StepForward",
+    "label": "step forward",
+    "aliases": []
+  },
+  {
+    "slug": "stethoscope",
+    "name": "Stethoscope",
+    "label": "stethoscope",
+    "aliases": []
+  },
+  { "slug": "sticker", "name": "Sticker", "label": "sticker", "aliases": [] },
+  {
+    "slug": "sticky-note",
+    "name": "StickyNote",
+    "label": "sticky note",
+    "aliases": []
+  },
+  { "slug": "store", "name": "Store", "label": "store", "aliases": [] },
+  {
+    "slug": "stretch-horizontal",
+    "name": "StretchHorizontal",
+    "label": "stretch horizontal",
+    "aliases": []
+  },
+  {
+    "slug": "stretch-vertical",
+    "name": "StretchVertical",
+    "label": "stretch vertical",
+    "aliases": []
+  },
+  {
+    "slug": "strikethrough",
+    "name": "Strikethrough",
+    "label": "strikethrough",
+    "aliases": []
+  },
+  {
+    "slug": "subscript",
+    "name": "Subscript",
+    "label": "subscript",
+    "aliases": []
+  },
+  { "slug": "sun", "name": "Sun", "label": "sun", "aliases": [] },
+  { "slug": "sun-dim", "name": "SunDim", "label": "sun dim", "aliases": [] },
+  {
+    "slug": "sun-medium",
+    "name": "SunMedium",
+    "label": "sun medium",
+    "aliases": []
+  },
+  { "slug": "sun-moon", "name": "SunMoon", "label": "sun moon", "aliases": [] },
+  { "slug": "sun-snow", "name": "SunSnow", "label": "sun snow", "aliases": [] },
+  { "slug": "sunrise", "name": "Sunrise", "label": "sunrise", "aliases": [] },
+  { "slug": "sunset", "name": "Sunset", "label": "sunset", "aliases": [] },
+  {
+    "slug": "superscript",
+    "name": "Superscript",
+    "label": "superscript",
+    "aliases": []
+  },
+  {
+    "slug": "swatch-book",
+    "name": "SwatchBook",
+    "label": "swatch book",
+    "aliases": []
+  },
+  {
+    "slug": "swiss-franc",
+    "name": "SwissFranc",
+    "label": "swiss franc",
+    "aliases": []
+  },
+  {
+    "slug": "switch-camera",
+    "name": "SwitchCamera",
+    "label": "switch camera",
+    "aliases": []
+  },
+  { "slug": "sword", "name": "Sword", "label": "sword", "aliases": [] },
+  { "slug": "swords", "name": "Swords", "label": "swords", "aliases": [] },
+  { "slug": "syringe", "name": "Syringe", "label": "syringe", "aliases": [] },
+  { "slug": "table", "name": "Table", "label": "table", "aliases": [] },
+  {
+    "slug": "table-cells-merge",
+    "name": "TableCellsMerge",
+    "label": "table cells merge",
+    "aliases": []
+  },
+  {
+    "slug": "table-cells-split",
+    "name": "TableCellsSplit",
+    "label": "table cells split",
+    "aliases": []
+  },
+  {
+    "slug": "table-columns-split",
+    "name": "TableColumnsSplit",
+    "label": "table columns split",
+    "aliases": []
+  },
+  {
+    "slug": "table-of-contents",
+    "name": "TableOfContents",
+    "label": "table of contents",
+    "aliases": []
+  },
+  {
+    "slug": "table-properties",
+    "name": "TableProperties",
+    "label": "table properties",
+    "aliases": []
+  },
+  {
+    "slug": "table-rows-split",
+    "name": "TableRowsSplit",
+    "label": "table rows split",
+    "aliases": []
+  },
+  { "slug": "table2", "name": "Table2", "label": "table2", "aliases": [] },
+  { "slug": "tablet", "name": "Tablet", "label": "tablet", "aliases": [] },
+  {
+    "slug": "tablet-smartphone",
+    "name": "TabletSmartphone",
+    "label": "tablet smartphone",
+    "aliases": []
+  },
+  { "slug": "tablets", "name": "Tablets", "label": "tablets", "aliases": [] },
+  { "slug": "tag", "name": "Tag", "label": "tag", "aliases": [] },
+  { "slug": "tags", "name": "Tags", "label": "tags", "aliases": [] },
+  { "slug": "tally1", "name": "Tally1", "label": "tally1", "aliases": [] },
+  { "slug": "tally2", "name": "Tally2", "label": "tally2", "aliases": [] },
+  { "slug": "tally3", "name": "Tally3", "label": "tally3", "aliases": [] },
+  { "slug": "tally4", "name": "Tally4", "label": "tally4", "aliases": [] },
+  { "slug": "tally5", "name": "Tally5", "label": "tally5", "aliases": [] },
+  { "slug": "tangent", "name": "Tangent", "label": "tangent", "aliases": [] },
+  { "slug": "target", "name": "Target", "label": "target", "aliases": [] },
+  {
+    "slug": "telescope",
+    "name": "Telescope",
+    "label": "telescope",
+    "aliases": []
+  },
+  { "slug": "tent", "name": "Tent", "label": "tent", "aliases": [] },
+  {
+    "slug": "tent-tree",
+    "name": "TentTree",
+    "label": "tent tree",
+    "aliases": []
+  },
+  {
+    "slug": "terminal",
+    "name": "Terminal",
+    "label": "terminal",
+    "aliases": []
+  },
+  {
+    "slug": "test-tube",
+    "name": "TestTube",
+    "label": "test tube",
+    "aliases": []
+  },
+  {
+    "slug": "test-tube-diagonal",
+    "name": "TestTubeDiagonal",
+    "label": "test tube diagonal",
+    "aliases": ["test-tube-2"]
+  },
+  {
+    "slug": "test-tubes",
+    "name": "TestTubes",
+    "label": "test tubes",
+    "aliases": []
+  },
+  { "slug": "text", "name": "Text", "label": "text", "aliases": [] },
+  {
+    "slug": "text-cursor",
+    "name": "TextCursor",
+    "label": "text cursor",
+    "aliases": []
+  },
+  {
+    "slug": "text-cursor-input",
+    "name": "TextCursorInput",
+    "label": "text cursor input",
+    "aliases": []
+  },
+  {
+    "slug": "text-quote",
+    "name": "TextQuote",
+    "label": "text quote",
+    "aliases": []
+  },
+  {
+    "slug": "text-search",
+    "name": "TextSearch",
+    "label": "text search",
+    "aliases": []
+  },
+  {
+    "slug": "text-select",
+    "name": "TextSelect",
+    "label": "text select",
+    "aliases": ["text-selection"]
+  },
+  { "slug": "theater", "name": "Theater", "label": "theater", "aliases": [] },
+  {
+    "slug": "thermometer",
+    "name": "Thermometer",
+    "label": "thermometer",
+    "aliases": []
+  },
+  {
+    "slug": "thermometer-snowflake",
+    "name": "ThermometerSnowflake",
+    "label": "thermometer snowflake",
+    "aliases": []
+  },
+  {
+    "slug": "thermometer-sun",
+    "name": "ThermometerSun",
+    "label": "thermometer sun",
+    "aliases": []
+  },
+  {
+    "slug": "thumbs-down",
+    "name": "ThumbsDown",
+    "label": "thumbs down",
+    "aliases": []
+  },
+  {
+    "slug": "thumbs-up",
+    "name": "ThumbsUp",
+    "label": "thumbs up",
+    "aliases": []
+  },
+  { "slug": "ticket", "name": "Ticket", "label": "ticket", "aliases": [] },
+  {
+    "slug": "ticket-check",
+    "name": "TicketCheck",
+    "label": "ticket check",
+    "aliases": []
+  },
+  {
+    "slug": "ticket-minus",
+    "name": "TicketMinus",
+    "label": "ticket minus",
+    "aliases": []
+  },
+  {
+    "slug": "ticket-percent",
+    "name": "TicketPercent",
+    "label": "ticket percent",
+    "aliases": []
+  },
+  {
+    "slug": "ticket-plus",
+    "name": "TicketPlus",
+    "label": "ticket plus",
+    "aliases": []
+  },
+  {
+    "slug": "ticket-slash",
+    "name": "TicketSlash",
+    "label": "ticket slash",
+    "aliases": []
+  },
+  { "slug": "ticket-x", "name": "TicketX", "label": "ticket x", "aliases": [] },
+  { "slug": "tickets", "name": "Tickets", "label": "tickets", "aliases": [] },
+  {
+    "slug": "tickets-plane",
+    "name": "TicketsPlane",
+    "label": "tickets plane",
+    "aliases": []
+  },
+  { "slug": "timer", "name": "Timer", "label": "timer", "aliases": [] },
+  {
+    "slug": "timer-off",
+    "name": "TimerOff",
+    "label": "timer off",
+    "aliases": []
+  },
+  {
+    "slug": "timer-reset",
+    "name": "TimerReset",
+    "label": "timer reset",
+    "aliases": []
+  },
+  {
+    "slug": "toggle-left",
+    "name": "ToggleLeft",
+    "label": "toggle left",
+    "aliases": []
+  },
+  {
+    "slug": "toggle-right",
+    "name": "ToggleRight",
+    "label": "toggle right",
+    "aliases": []
+  },
+  { "slug": "toilet", "name": "Toilet", "label": "toilet", "aliases": [] },
+  { "slug": "tornado", "name": "Tornado", "label": "tornado", "aliases": [] },
+  { "slug": "torus", "name": "Torus", "label": "torus", "aliases": [] },
+  {
+    "slug": "touchpad",
+    "name": "Touchpad",
+    "label": "touchpad",
+    "aliases": []
+  },
+  {
+    "slug": "touchpad-off",
+    "name": "TouchpadOff",
+    "label": "touchpad off",
+    "aliases": []
+  },
+  {
+    "slug": "tower-control",
+    "name": "TowerControl",
+    "label": "tower control",
+    "aliases": []
+  },
+  {
+    "slug": "toy-brick",
+    "name": "ToyBrick",
+    "label": "toy brick",
+    "aliases": []
+  },
+  { "slug": "tractor", "name": "Tractor", "label": "tractor", "aliases": [] },
+  {
+    "slug": "traffic-cone",
+    "name": "TrafficCone",
+    "label": "traffic cone",
+    "aliases": []
+  },
+  {
+    "slug": "train-front",
+    "name": "TrainFront",
+    "label": "train front",
+    "aliases": []
+  },
+  {
+    "slug": "train-front-tunnel",
+    "name": "TrainFrontTunnel",
+    "label": "train front tunnel",
+    "aliases": []
+  },
+  {
+    "slug": "train-track",
+    "name": "TrainTrack",
+    "label": "train track",
+    "aliases": []
+  },
+  {
+    "slug": "tram-front",
+    "name": "TramFront",
+    "label": "tram front",
+    "aliases": ["train"]
+  },
+  { "slug": "trash", "name": "Trash", "label": "trash", "aliases": [] },
+  { "slug": "trash2", "name": "Trash2", "label": "trash2", "aliases": [] },
+  {
+    "slug": "tree-deciduous",
+    "name": "TreeDeciduous",
+    "label": "tree deciduous",
+    "aliases": []
+  },
+  {
+    "slug": "tree-palm",
+    "name": "TreePalm",
+    "label": "tree palm",
+    "aliases": ["palmtree"]
+  },
+  {
+    "slug": "tree-pine",
+    "name": "TreePine",
+    "label": "tree pine",
+    "aliases": []
+  },
+  { "slug": "trees", "name": "Trees", "label": "trees", "aliases": [] },
+  { "slug": "trello", "name": "Trello", "label": "trello", "aliases": [] },
+  {
+    "slug": "trending-down",
+    "name": "TrendingDown",
+    "label": "trending down",
+    "aliases": []
+  },
+  {
+    "slug": "trending-up",
+    "name": "TrendingUp",
+    "label": "trending up",
+    "aliases": []
+  },
+  {
+    "slug": "trending-up-down",
+    "name": "TrendingUpDown",
+    "label": "trending up down",
+    "aliases": []
+  },
+  {
+    "slug": "triangle",
+    "name": "Triangle",
+    "label": "triangle",
+    "aliases": []
+  },
+  {
+    "slug": "triangle-alert",
+    "name": "TriangleAlert",
+    "label": "triangle alert",
+    "aliases": ["alert-triangle"]
+  },
+  {
+    "slug": "triangle-right",
+    "name": "TriangleRight",
+    "label": "triangle right",
+    "aliases": []
+  },
+  { "slug": "trophy", "name": "Trophy", "label": "trophy", "aliases": [] },
+  { "slug": "truck", "name": "Truck", "label": "truck", "aliases": [] },
+  { "slug": "turtle", "name": "Turtle", "label": "turtle", "aliases": [] },
+  { "slug": "tv", "name": "Tv", "label": "tv", "aliases": [] },
+  {
+    "slug": "tv-minimal",
+    "name": "TvMinimal",
+    "label": "tv minimal",
+    "aliases": ["tv-2"]
+  },
+  {
+    "slug": "tv-minimal-play",
+    "name": "TvMinimalPlay",
+    "label": "tv minimal play",
+    "aliases": []
+  },
+  { "slug": "twitch", "name": "Twitch", "label": "twitch", "aliases": [] },
+  { "slug": "twitter", "name": "Twitter", "label": "twitter", "aliases": [] },
+  { "slug": "type", "name": "Type", "label": "type", "aliases": [] },
+  {
+    "slug": "type-outline",
+    "name": "TypeOutline",
+    "label": "type outline",
+    "aliases": []
+  },
+  {
+    "slug": "umbrella",
+    "name": "Umbrella",
+    "label": "umbrella",
+    "aliases": []
+  },
+  {
+    "slug": "umbrella-off",
+    "name": "UmbrellaOff",
+    "label": "umbrella off",
+    "aliases": []
+  },
+  {
+    "slug": "underline",
+    "name": "Underline",
+    "label": "underline",
+    "aliases": []
+  },
+  { "slug": "undo", "name": "Undo", "label": "undo", "aliases": [] },
+  { "slug": "undo-dot", "name": "UndoDot", "label": "undo dot", "aliases": [] },
+  { "slug": "undo2", "name": "Undo2", "label": "undo2", "aliases": [] },
+  {
+    "slug": "unfold-horizontal",
+    "name": "UnfoldHorizontal",
+    "label": "unfold horizontal",
+    "aliases": []
+  },
+  {
+    "slug": "unfold-vertical",
+    "name": "UnfoldVertical",
+    "label": "unfold vertical",
+    "aliases": []
+  },
+  { "slug": "ungroup", "name": "Ungroup", "label": "ungroup", "aliases": [] },
+  {
+    "slug": "university",
+    "name": "University",
+    "label": "university",
+    "aliases": ["school-2"]
+  },
+  { "slug": "unlink", "name": "Unlink", "label": "unlink", "aliases": [] },
+  { "slug": "unlink2", "name": "Unlink2", "label": "unlink2", "aliases": [] },
+  { "slug": "unplug", "name": "Unplug", "label": "unplug", "aliases": [] },
+  { "slug": "upload", "name": "Upload", "label": "upload", "aliases": [] },
+  { "slug": "usb", "name": "Usb", "label": "usb", "aliases": [] },
+  { "slug": "user", "name": "User", "label": "user", "aliases": [] },
+  {
+    "slug": "user-check",
+    "name": "UserCheck",
+    "label": "user check",
+    "aliases": []
+  },
+  { "slug": "user-cog", "name": "UserCog", "label": "user cog", "aliases": [] },
+  {
+    "slug": "user-minus",
+    "name": "UserMinus",
+    "label": "user minus",
+    "aliases": []
+  },
+  { "slug": "user-pen", "name": "UserPen", "label": "user pen", "aliases": [] },
+  {
+    "slug": "user-plus",
+    "name": "UserPlus",
+    "label": "user plus",
+    "aliases": []
+  },
+  {
+    "slug": "user-round",
+    "name": "UserRound",
+    "label": "user round",
+    "aliases": ["user-2"]
+  },
+  {
+    "slug": "user-round-check",
+    "name": "UserRoundCheck",
+    "label": "user round check",
+    "aliases": ["user-check-2"]
+  },
+  {
+    "slug": "user-round-cog",
+    "name": "UserRoundCog",
+    "label": "user round cog",
+    "aliases": ["user-cog-2"]
+  },
+  {
+    "slug": "user-round-minus",
+    "name": "UserRoundMinus",
+    "label": "user round minus",
+    "aliases": ["user-minus-2"]
+  },
+  {
+    "slug": "user-round-pen",
+    "name": "UserRoundPen",
+    "label": "user round pen",
+    "aliases": []
+  },
+  {
+    "slug": "user-round-plus",
+    "name": "UserRoundPlus",
+    "label": "user round plus",
+    "aliases": ["user-plus-2"]
+  },
+  {
+    "slug": "user-round-search",
+    "name": "UserRoundSearch",
+    "label": "user round search",
+    "aliases": []
+  },
+  {
+    "slug": "user-round-x",
+    "name": "UserRoundX",
+    "label": "user round x",
+    "aliases": ["user-x-2"]
+  },
+  {
+    "slug": "user-search",
+    "name": "UserSearch",
+    "label": "user search",
+    "aliases": []
+  },
+  { "slug": "user-x", "name": "UserX", "label": "user x", "aliases": [] },
+  { "slug": "users", "name": "Users", "label": "users", "aliases": [] },
+  {
+    "slug": "users-round",
+    "name": "UsersRound",
+    "label": "users round",
+    "aliases": ["users-2"]
+  },
+  {
+    "slug": "utensils",
+    "name": "Utensils",
+    "label": "utensils",
+    "aliases": ["fork-knife"]
+  },
+  {
+    "slug": "utensils-crossed",
+    "name": "UtensilsCrossed",
+    "label": "utensils crossed",
+    "aliases": ["fork-knife-crossed"]
+  },
+  {
+    "slug": "utility-pole",
+    "name": "UtilityPole",
+    "label": "utility pole",
+    "aliases": []
+  },
+  {
+    "slug": "variable",
+    "name": "Variable",
+    "label": "variable",
+    "aliases": []
+  },
+  { "slug": "vault", "name": "Vault", "label": "vault", "aliases": [] },
+  { "slug": "vegan", "name": "Vegan", "label": "vegan", "aliases": [] },
+  {
+    "slug": "venetian-mask",
+    "name": "VenetianMask",
+    "label": "venetian mask",
+    "aliases": []
+  },
+  { "slug": "vibrate", "name": "Vibrate", "label": "vibrate", "aliases": [] },
+  {
+    "slug": "vibrate-off",
+    "name": "VibrateOff",
+    "label": "vibrate off",
+    "aliases": []
+  },
+  { "slug": "video", "name": "Video", "label": "video", "aliases": [] },
+  {
+    "slug": "video-off",
+    "name": "VideoOff",
+    "label": "video off",
+    "aliases": []
+  },
+  {
+    "slug": "videotape",
+    "name": "Videotape",
+    "label": "videotape",
+    "aliases": []
+  },
+  { "slug": "view", "name": "View", "label": "view", "aliases": [] },
+  {
+    "slug": "voicemail",
+    "name": "Voicemail",
+    "label": "voicemail",
+    "aliases": []
+  },
+  {
+    "slug": "volleyball",
+    "name": "Volleyball",
+    "label": "volleyball",
+    "aliases": []
+  },
+  { "slug": "volume", "name": "Volume", "label": "volume", "aliases": [] },
+  {
+    "slug": "volume-off",
+    "name": "VolumeOff",
+    "label": "volume off",
+    "aliases": []
+  },
+  { "slug": "volume-x", "name": "VolumeX", "label": "volume x", "aliases": [] },
+  { "slug": "volume1", "name": "Volume1", "label": "volume1", "aliases": [] },
+  { "slug": "volume2", "name": "Volume2", "label": "volume2", "aliases": [] },
+  { "slug": "vote", "name": "Vote", "label": "vote", "aliases": [] },
+  { "slug": "wallet", "name": "Wallet", "label": "wallet", "aliases": [] },
+  {
+    "slug": "wallet-cards",
+    "name": "WalletCards",
+    "label": "wallet cards",
+    "aliases": []
+  },
+  {
+    "slug": "wallet-minimal",
+    "name": "WalletMinimal",
+    "label": "wallet minimal",
+    "aliases": ["wallet-2"]
+  },
+  {
+    "slug": "wallpaper",
+    "name": "Wallpaper",
+    "label": "wallpaper",
+    "aliases": []
+  },
+  { "slug": "wand", "name": "Wand", "label": "wand", "aliases": [] },
+  {
+    "slug": "wand-sparkles",
+    "name": "WandSparkles",
+    "label": "wand sparkles",
+    "aliases": ["wand-2"]
+  },
+  {
+    "slug": "warehouse",
+    "name": "Warehouse",
+    "label": "warehouse",
+    "aliases": []
+  },
+  {
+    "slug": "washing-machine",
+    "name": "WashingMachine",
+    "label": "washing machine",
+    "aliases": []
+  },
+  { "slug": "watch", "name": "Watch", "label": "watch", "aliases": [] },
+  { "slug": "waves", "name": "Waves", "label": "waves", "aliases": [] },
+  {
+    "slug": "waves-ladder",
+    "name": "WavesLadder",
+    "label": "waves ladder",
+    "aliases": []
+  },
+  {
+    "slug": "waypoints",
+    "name": "Waypoints",
+    "label": "waypoints",
+    "aliases": []
+  },
+  { "slug": "webcam", "name": "Webcam", "label": "webcam", "aliases": [] },
+  { "slug": "webhook", "name": "Webhook", "label": "webhook", "aliases": [] },
+  {
+    "slug": "webhook-off",
+    "name": "WebhookOff",
+    "label": "webhook off",
+    "aliases": []
+  },
+  { "slug": "weight", "name": "Weight", "label": "weight", "aliases": [] },
+  { "slug": "wheat", "name": "Wheat", "label": "wheat", "aliases": [] },
+  {
+    "slug": "wheat-off",
+    "name": "WheatOff",
+    "label": "wheat off",
+    "aliases": []
+  },
+  {
+    "slug": "whole-word",
+    "name": "WholeWord",
+    "label": "whole word",
+    "aliases": []
+  },
+  { "slug": "wifi", "name": "Wifi", "label": "wifi", "aliases": [] },
+  {
+    "slug": "wifi-high",
+    "name": "WifiHigh",
+    "label": "wifi high",
+    "aliases": []
+  },
+  { "slug": "wifi-low", "name": "WifiLow", "label": "wifi low", "aliases": [] },
+  { "slug": "wifi-off", "name": "WifiOff", "label": "wifi off", "aliases": [] },
+  {
+    "slug": "wifi-zero",
+    "name": "WifiZero",
+    "label": "wifi zero",
+    "aliases": []
+  },
+  { "slug": "wind", "name": "Wind", "label": "wind", "aliases": [] },
+  {
+    "slug": "wind-arrow-down",
+    "name": "WindArrowDown",
+    "label": "wind arrow down",
+    "aliases": []
+  },
+  { "slug": "wine", "name": "Wine", "label": "wine", "aliases": [] },
+  { "slug": "wine-off", "name": "WineOff", "label": "wine off", "aliases": [] },
+  {
+    "slug": "workflow",
+    "name": "Workflow",
+    "label": "workflow",
+    "aliases": []
+  },
+  { "slug": "worm", "name": "Worm", "label": "worm", "aliases": [] },
+  {
+    "slug": "wrap-text",
+    "name": "WrapText",
+    "label": "wrap text",
+    "aliases": []
+  },
+  { "slug": "wrench", "name": "Wrench", "label": "wrench", "aliases": [] },
+  { "slug": "x", "name": "X", "label": "x", "aliases": [] },
+  { "slug": "youtube", "name": "Youtube", "label": "youtube", "aliases": [] },
+  { "slug": "zap", "name": "Zap", "label": "zap", "aliases": [] },
+  { "slug": "zap-off", "name": "ZapOff", "label": "zap off", "aliases": [] },
+  { "slug": "zoom-in", "name": "ZoomIn", "label": "zoom in", "aliases": [] },
+  { "slug": "zoom-out", "name": "ZoomOut", "label": "zoom out", "aliases": [] }
+]

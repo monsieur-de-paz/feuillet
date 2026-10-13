@@ -10,6 +10,12 @@ import {
   pageUrl,
 } from "./types";
 
+import {
+  databaseViewRows,
+  normalizeDatabaseView,
+  type DatabaseBundle,
+} from "./database-types";
+
 let fontCache: Promise<[string, string, string, string]> | null = null;
 function bytes64(bytes: Uint8Array) {
   let value = "";
@@ -445,14 +451,25 @@ export async function exportPdf(
       }
       case "databaseView": {
         try {
-          const bundle = await api("db_get", undefined, { id: String(a.dbId) });
+          const bundle = await api<DatabaseBundle>("db_get", undefined, {
+            id: String(a.dbId),
+          });
+          const view = normalizeDatabaseView(a.viewConfig, bundle.properties);
+          const rows = databaseViewRows(
+            bundle,
+            view,
+            "",
+            bundle.relation_labels || {},
+          );
           line(bundle.database.name || "Base de données", 12, true, indent);
-          const properties = bundle.properties;
+          const properties = bundle.properties.filter(
+            (p) => p.type === "title" || !view.hiddenPropertyIds.includes(p.id),
+          );
           const attachedFiles = new Map<string, FileRecord>(
             (bundle.files || []).map((file: FileRecord) => [file.id, file]),
           );
           const relations = new Map<string, any>();
-          for (const row of bundle.rows) {
+          for (const row of rows) {
             for (const property of properties) {
               let value =
                 row.derived?.[property.id] ?? row.values?.[property.id];
@@ -494,7 +511,8 @@ export async function exportPdf(
             }
             y += 3;
           }
-          if (!bundle.rows.length) line("Base vide", 9, false, indent);
+          if (!rows.length)
+            line("Aucune fiche dans cette vue", 9, false, indent);
         } catch {
           line("Base de données (voir la page en ligne)", 10, true, indent);
         }

@@ -14,9 +14,9 @@ export type AppContextType = {
     purpose: ImagePurpose,
     onSelect?: (file: FileRecord) => void,
   ) => void;
-  zoomImage: (src:string,alt?:string)=>void;
-  chooseDatabase: (callback:(id:string)=>void)=>void;
-  chooseForm: (callback:(id:string)=>void)=>void;
+  zoomImage: (src: string, alt?: string) => void;
+  chooseDatabase: (callback: (id: string) => void) => void;
+  chooseForm: (callback: (id: string) => void) => void;
   renameFile: (file: FileRecord, onRename?: (file: FileRecord) => void) => void;
 };
 export const AppContext = createContext<AppContextType>({
@@ -28,8 +28,8 @@ export const AppContext = createContext<AppContextType>({
   createPage: async () => null,
   chooseImage: () => {},
   renameFile: () => {},
-  zoomImage: ()=>{},
-  chooseDatabase: ()=>{},
-  chooseForm: ()=>{},
+  zoomImage: () => {},
+  chooseDatabase: () => {},
+  chooseForm: () => {},
 });
 export const useApp = () => useContext(AppContext);

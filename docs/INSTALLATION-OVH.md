@@ -48,7 +48,7 @@ Ouvrir `https://cours.exemple.fr/setup.php`. Compléter les paramètres de la ba
 
 Se connecter, créer une page privée, envoyer un petit PDF, puis publier la page. Dans un navigateur privé, vérifier la lecture et le téléchargement. Repasser la page en privé et vérifier que **le lien direct du PDF** n'est plus accessible, sauf si le même fichier est également utilisé dans une autre page publique.
 
-Vérifier aussi qu'une modification enregistrée dans un cours déjà publié reste en brouillon jusqu'à « Publier ». Une page publique n'a pas besoin de compte élève ; un lien peut donc être partagé au-delà de la classe.
+Vérifier qu’une modification enregistrée dans un cours déjà publié apparaît automatiquement chez les visiteurs. Pour préparer des modifications privées, désactiver la publication automatique dans les réglages du carnet ; dans ce mode, le cours conserve son ancienne version jusqu’à « Publier ». Une page publique n'a pas besoin de compte élève ; un lien peut donc être partagé au-delà de la classe.
 
 ## 5. Quotas et médias
 
@@ -91,3 +91,13 @@ Le lecteur PDF.js est fourni dans `public/vendor/pdfjs/` avec ses licences. Il f
 La limite d'envoi effective est la plus petite des limites PHP et de `max_upload` dans `config.php` (100 Mo par défaut pour le logiciel). L'écran Réglages affiche cette limite. La version 0.1 ne propose pas l'envoi par morceaux ni l'import de médias par FTP ; réduire les fichiers trop gros ou relever les limites autorisées lorsque l'hébergement le permet.
 
 Fonctions ajoutées et procédure de mise à jour : [NOUVEAUTES-0.2.md](NOUVEAUTES-0.2.md). La recherche Commons nécessite cURL et une connexion HTTPS sortante, sans clé API.
+
+## Préparer l’accueil visiteur (0.4)
+
+Après connexion, ouvrir **Accueil visiteur**. Créer une page d’accueil, modifier les titres et sections, puis choisir et ordonner les pages de ses galeries. Publier cette page, puis tester `index.php?read=1` dans une fenêtre privée. Le choix d’une page privée ne la rend pas publique ; l’accueil ne liste plus automatiquement tous les documents. Le logo Feuillet est commun aux deux interfaces.
+
+Pour une mise à jour de 0.3 vers 0.4, conserver `config.php` et `storage/`, sauvegarder SQL et médias, remplacer le code et les assets, puis configurer cet accueil. Voir [Maintenance](MAINTENANCE.md) pour sauvegarde, vérification et retour arrière.
+
+## Clé privée de première installation
+
+Sur un hébergement neuf, ouvrir `setup.php` crée `storage/installation-key.txt`, en dehors de la racine web. Lire son contenu par FTP/SFTP et le coller dans **Clé d’installation**, avec les autres paramètres. Le site n’affiche jamais cette clé. L’installateur ne crée aucun compte ni base sans elle ; elle est supprimée quand la configuration est enregistrée. Si sa création échoue, vérifier les droits du propriétaire sur `storage/`. Cette étape ne concerne pas la mise à jour d’un carnet déjà installé.

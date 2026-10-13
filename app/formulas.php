@@ -39,6 +39,7 @@ final class FeuilletFormula {
     private static function number(mixed $value): float { if(!is_int($value)&&!is_float($value))throw new RuntimeException('Une valeur numérique est nécessaire.');if(!is_finite((float)$value))throw new RuntimeException('Nombre hors limites.');return (float)$value; }
     private static function stringify(mixed $value): string { if($value===null)return '';if(is_bool($value))return $value?'true':'false';if(is_array($value))return implode(', ',array_map(self::stringify(...),$value));return (string)$value; }
     private static function flatten(array $arguments): array { $values=[];foreach($arguments as $argument){if(is_array($argument))$values=array_merge($values,$argument);else $values[]=$argument;}if(count($values)>5000)throw new RuntimeException('Trop de valeurs à agréger.');return $values; }
+    private static function bounded_text(string $value): string { if(strlen($value)>100000)throw new RuntimeException('Résultat intermédiaire trop volumineux.');return $value; }
     private function run(array $node,callable $property,int $depth): mixed {
         if(++$this->steps>2000||$depth>40)throw new RuntimeException('Calcul trop complexe.');
         if($node[0]==='literal')return $node[1];
@@ -48,7 +49,7 @@ final class FeuilletFormula {
             if(in_array($operator,['&&','||'],true))return self::truthy($b);
             if(in_array($operator,['==','!='],true)){$equal=(is_numeric($a)&&is_numeric($b))?((float)$a===(float)$b):$a===$b;return $operator==='=='?$equal:!$equal;}
             if(in_array($operator,['>','>=','<','<='],true)){if(!is_scalar($a)||!is_scalar($b))throw new RuntimeException('Comparaison impossible.');return match($operator){'>'=>$a>$b,'>='=>$a>=$b,'<'=>$a<$b,default=>$a<=$b};}
-            if($operator==='+'&&(is_string($a)||is_string($b)))return self::stringify($a).self::stringify($b);
+            if($operator==='+'&&(is_string($a)||is_string($b)))return self::bounded_text(self::stringify($a).self::stringify($b));
             $a=self::number($a);$b=self::number($b);if(in_array($operator,['/','%'],true)&&$b===0.0)throw new RuntimeException('Division par zéro.');
             $value=match($operator){'+'=>$a+$b,'-'=>$a-$b,'*'=>$a*$b,'/'=>$a/$b,'%'=>fmod($a,$b),'^'=>pow($a,$b),default=>throw new RuntimeException('Opérateur inconnu.')};if(!is_finite($value))throw new RuntimeException('Nombre hors limites.');return $value;
         }
@@ -56,7 +57,7 @@ final class FeuilletFormula {
         if($function==='if'){if(count($trees)!==3)throw new RuntimeException('if attend 3 arguments.');return $this->run(self::truthy($this->run($trees[0],$property,$depth+1))?$trees[1]:$trees[2],$property,$depth+1);}
         $args=array_map(fn($tree)=>$this->run($tree,$property,$depth+1),$trees);
         if($function==='prop'){if(count($args)!==1||!is_string($args[0]))throw new RuntimeException('prop attend un nom de propriété.');return $property($args[0]);}
-        if($function==='concat')return implode('',array_map(self::stringify(...),$args));
+        if($function==='concat'){$result='';foreach($args as $argument)$result=self::bounded_text($result.self::stringify($argument));return $result;}
         if(in_array($function,['sum','avg','min','max'],true)){$values=array_map(self::number(...),self::flatten($args));if(!$values)return $function==='sum'?0:null;return match($function){'sum'=>array_sum($values),'avg'=>array_sum($values)/count($values),'min'=>min($values),default=>max($values)};}
         if($function==='count'){if(count($args)!==1)throw new RuntimeException('count attend un argument.');return is_array($args[0])?count($args[0]):(is_string($args[0])?mb_strlen($args[0]):($args[0]===null?0:1));}
         if($function==='empty'){if(count($args)!==1)throw new RuntimeException('empty attend un argument.');return !self::truthy($args[0]);}

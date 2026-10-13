@@ -146,6 +146,7 @@ class Customization(unittest.TestCase):
 
     def test_09_reader_index_never_contains_admin_private_titles(self):
         p=self.save(title='INDEX_NE_DOIT_PAS_REVELER_LE_PRIVE')
+        self.ok(self.admin.api('homepage',{'id':p['id']}))
         status,html,_=self.admin.request('index.php?read=1');self.assertEqual(status,200);self.assertNotIn(p['title'],html.decode())
         p=self.publish(p);p=self.save(p,title='TITRE_BROUILLON_INDEX_CACHE')
         status,html,_=self.admin.request('index.php?read=1');self.assertEqual(status,200);self.assertIn('INDEX_NE_DOIT_PAS_REVELER_LE_PRIVE',html.decode());self.assertNotIn('TITRE_BROUILLON_INDEX_CACHE',html.decode())

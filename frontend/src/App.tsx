@@ -7,6 +7,7 @@ import {
 } from "react";
 import type { Editor } from "@tiptap/core";
 import {
+  Home,
   Table as TableIcon,
   Menu,
   Search,
@@ -50,6 +51,15 @@ import {
   Minimize,
   Pencil,
 } from "lucide-react";
+import { IconPicker, FeuilletIcon } from "./IconPicker";
+import {
+  ThemeToggle,
+  readThemePreference,
+  storeThemePreference,
+  applyThemePreference,
+  type ThemePreference,
+} from "./ThemeToggle";
+import { HomepageControls, type HomepageSetting } from "./Homepage";
 import CourseEditor, { type EditorRequest } from "./Editor";
 import { AppContext } from "./context";
 import { ImageLightbox, type ZoomImage } from "./MediaLightbox";
@@ -237,6 +247,14 @@ export default function App() {
     title: "Feuillet.",
     subtitle: "Mon carnet pédagogique",
     max_upload: 104857600,
+    auto_publish: true,
+    icon: "f.",
+    icon_id: null,
+  });
+  const [homepage, setHomepage] = useState<HomepageSetting>({
+    id: null,
+    title: null,
+    published: false,
   });
   const [serverLimit, setServerLimit] = useState(104857600);
   const [zoomedImage, setZoomedImage] = useState<ZoomImage | null>(null);
@@ -247,15 +265,30 @@ export default function App() {
   const formCallback = useRef<((id: string) => void) | null>(null);
   const focusNewTitle = useRef<string | null>(null);
   const [appearance, setAppearance] = useState<Appearance>(defaultAppearance);
+  const [themePreference, setThemePreference] =
+    useState<ThemePreference>(readThemePreference);
+  const displayAppearance = applyThemePreference(appearance, themePreference);
+  function changeTheme(value: ThemePreference) {
+    storeThemePreference(value);
+    setThemePreference(value);
+  }
   useEffect(() => {
-    Object.entries(themeStyle(appearance)).forEach(([key, value]) => {
+    const changed = (event: StorageEvent) => {
+      if (event.key === "feuillet.theme")
+        setThemePreference(readThemePreference());
+    };
+    window.addEventListener("storage", changed);
+    return () => window.removeEventListener("storage", changed);
+  }, []);
+  useEffect(() => {
+    Object.entries(themeStyle(displayAppearance)).forEach(([key, value]) => {
       if (key.startsWith("--"))
         document.documentElement.style.setProperty(key, String(value));
     });
     document.documentElement.style.colorScheme =
-      appearance.mode === "light" ? "light" : "dark";
-    document.documentElement.dataset.theme = appearance.mode;
-  }, [appearance]);
+      displayAppearance.mode === "light" ? "light" : "dark";
+    document.documentElement.dataset.theme = displayAppearance.mode;
+  }, [appearance, themePreference]);
   const appearanceRef = useRef<Appearance>(defaultAppearance);
   const appearanceSave = useRef<Promise<any>>(Promise.resolve());
   const [appearanceScope, setAppearanceScope] = useState<"global" | "page">(
@@ -334,7 +367,7 @@ export default function App() {
   });
   const [loginPassword, setLoginPassword] = useState("");
   const [moveParent, setMoveParent] = useState("");
-  const [icon, setIcon] = useState("");
+  const [iconTarget, setIconTarget] = useState<"page" | "notebook">("page");
   const editorRef = useRef<Editor | null>(null);
   const insertEditor = useRef<Editor | null>(null);
   const draftRef = useRef<Page | null>(null);
@@ -361,6 +394,64 @@ export default function App() {
     setDraft(next);
     setSaveStatus("dirty");
   }
+  useEffect(() => {
+    const changed = (event: Event) => {
+      const { dbId, deletedPropertyId, pageVersions } =
+        (event as CustomEvent).detail || {};
+      if (!deletedPropertyId || !pageVersions || !draftRef.current) return;
+      const current = draftRef.current;
+      const change = pageVersions[current.id];
+      if (!change) return;
+      if (current.version !== change.before) {
+        notify(
+          "La page a aussi été modifiée ailleurs. Recharge-la avant de poursuivre la rédaction.",
+        );
+        return;
+      }
+      let content = current.content;
+      const editor = editorRef.current;
+      if (editor && !editor.isDestroyed) {
+        const transaction = editor.state.tr;
+        editor.state.doc.descendants((node, position) => {
+          if (
+            node.type.name !== "databaseView" ||
+            node.attrs.dbId !== dbId ||
+            !node.attrs.viewConfig
+          )
+            return;
+          const previous = node.attrs.viewConfig;
+          const viewConfig = {
+            ...previous,
+            filters: (previous.filters || []).filter(
+              (f: any) => f.propertyId !== deletedPropertyId,
+            ),
+            hiddenPropertyIds: (previous.hiddenPropertyIds || []).filter(
+              (id: string) => id !== deletedPropertyId,
+            ),
+            sort:
+              previous.sort?.propertyId === deletedPropertyId
+                ? null
+                : previous.sort,
+          };
+          transaction.setNodeMarkup(position, undefined, {
+            ...node.attrs,
+            viewConfig,
+          });
+        });
+        if (transaction.docChanged) {
+          editor.view.dispatch(transaction.setMeta("preventUpdate", true));
+          content = editor.getJSON();
+        }
+      }
+      const next = { ...current, content, version: change.after };
+      draftRef.current = next;
+      setDraft(next);
+      void loadList().catch(() => {});
+    };
+    window.addEventListener("feuillet:database-changed", changed);
+    return () =>
+      window.removeEventListener("feuillet:database-changed", changed);
+  }, []);
   async function loadList() {
     const result = await api("pages");
     setPages(result.pages || []);
@@ -528,6 +619,21 @@ export default function App() {
     window.addEventListener("popstate", pop);
     return () => window.removeEventListener("popstate", pop);
   }, []);
+  async function editHomepage(id: string, created = false) {
+    if (created) focusNewTitle.current = id;
+    await loadList();
+    setModal(null);
+    await openPage(id);
+  }
+  async function showHomepage() {
+    try {
+      const r = await api("settings");
+      if (r.homepage) setHomepage(r.homepage);
+      showModal("homepage");
+    } catch (e) {
+      notify((e as Error).message);
+    }
+  }
   async function perform(fn: () => Promise<void>) {
     setBusy(true);
     setModalError("");
@@ -553,6 +659,7 @@ export default function App() {
     void api("settings")
       .then((result) => {
         if (result.notebook) setNotebook(result.notebook);
+        if (result.homepage) setHomepage(result.homepage);
         if (result.server_upload_limit)
           setServerLimit(result.server_upload_limit);
       })
@@ -809,6 +916,17 @@ export default function App() {
   }
   function selectFile(file: FileRecord) {
     if (!requested) return;
+    if (imageCallback.current) {
+      if (!file.mime.startsWith("image/")) {
+        setModalError("Choisis une image.");
+        return;
+      }
+      imageCallback.current(file);
+      imageCallback.current = null;
+      setRequested(null);
+      setModal(null);
+      return;
+    }
     if (requested === "cover" || requested === "icon") {
       if (!file.mime.startsWith("image/")) {
         setModalError("Choisis une image pour la couverture.");
@@ -825,17 +943,6 @@ export default function App() {
               icon_attribution: file.attribution || null,
             },
       );
-      setRequested(null);
-      setModal(null);
-      return;
-    }
-    if (imageCallback.current) {
-      if (!file.mime.startsWith("image/")) {
-        setModalError("Choisis une image.");
-        return;
-      }
-      imageCallback.current(file);
-      imageCallback.current = null;
       setRequested(null);
       setModal(null);
       return;
@@ -936,6 +1043,62 @@ export default function App() {
   ) {
     imageCallback.current = onSelect || null;
     void showFiles(purpose);
+  }
+  function showNotebookIcon() {
+    setIconTarget("notebook");
+    showModal("icon");
+  }
+  async function applyChosenIcon(
+    value: string,
+    file: FileRecord | null = null,
+    target = iconTarget,
+  ) {
+    if (target === "notebook")
+      await saveNotebook({
+        ...notebook,
+        icon: value,
+        icon_id: file?.id || null,
+      });
+    else
+      updateDraft({
+        icon: value || "📄",
+        icon_id: file?.id || null,
+        icon_attribution: file?.attribution || null,
+      });
+    setModal(null);
+  }
+  function iconImageAction(
+    action: "upload" | "library" | "internet" | "paste",
+    file?: File,
+  ) {
+    const target = iconTarget;
+    if (file) {
+      void perform(async () => {
+        const fd = new FormData();
+        fd.append("file", file);
+        const r = await api("upload", fd);
+        await applyChosenIcon(
+          target === "notebook"
+            ? notebook.icon || "f."
+            : draftRef.current?.icon || "📄",
+          r.file,
+          target,
+        );
+      });
+      return;
+    }
+    chooseImage("icon", (stored) => {
+      void perform(() =>
+        applyChosenIcon(
+          target === "notebook"
+            ? notebook.icon || "f."
+            : draftRef.current?.icon || "📄",
+          stored,
+          target,
+        ),
+      );
+    });
+    if (action === "internet") setImageTab("internet");
   }
   function renameFile(file: FileRecord, onRename?: (file: FileRecord) => void) {
     renameCallback.current = onRename || null;
@@ -1083,26 +1246,14 @@ export default function App() {
   }
   modalRef.current = modal;
   useEffect(() => {
-    if (modal !== "icon" && modal !== "files") return;
+    if (modal !== "files") return;
     const paste = (e: ClipboardEvent) => {
       const file = Array.from(e.clipboardData?.items || [])
         .find((x) => x.type.startsWith("image/"))
         ?.getAsFile();
       if (!file) return;
       e.preventDefault();
-      if (modalRef.current === "icon")
-        void perform(async () => {
-          const fd = new FormData();
-          fd.append("file", file);
-          const { file: stored } = await api("upload", fd);
-          updateDraft({
-            icon_id: String(stored.id),
-            icon_attribution: stored.attribution || null,
-          });
-          setModal(null);
-          notify("L’image collée est devenue l’icône de la page.");
-        });
-      else void upload(file);
+      void upload(file);
     };
     document.addEventListener("paste", paste);
     return () => document.removeEventListener("paste", paste);
@@ -1275,15 +1426,7 @@ export default function App() {
             onClick={() => void openPage(String(p.id))}
           >
             <span className="page-icon">
-              {p.icon_id ? (
-                <img
-                  className="inline-page-icon"
-                  src={fileUrl(p.icon_id)}
-                  alt=""
-                />
-              ) : (
-                p.icon || "📄"
-              )}
+              <FeuilletIcon icon={p.icon} iconId={p.icon_id} size={18} />
             </span>
             <span>{titleOf(p)}</span>
           </button>
@@ -1327,7 +1470,10 @@ export default function App() {
     }
     return false;
   });
-  const effectiveAppearance = { ...appearance, ...draft?.appearance };
+  const effectiveAppearance = applyThemePreference(
+    { ...appearance, ...draft?.appearance },
+    themePreference,
+  );
   const appearanceStyles = {
     ...themeStyle(effectiveAppearance),
     "--page-background": effectiveAppearance.background,
@@ -1377,8 +1523,8 @@ export default function App() {
       }}
     >
       <div
-        style={themeStyle(appearance)}
-        data-theme={appearance.mode || "light"}
+        style={themeStyle(displayAppearance)}
+        data-theme={displayAppearance.mode || "light"}
         className={`app-shell ${focus ? "focus-mode" : ""} ${sidebar ? "sidebar-open" : ""} ${admin ? "admin-mode" : "public-mode"}`}
       >
         {sidebar && (
@@ -1394,6 +1540,20 @@ export default function App() {
           inert={mobile && !sidebar}
         >
           <div className="workspace-heading">
+            <button
+              className="brand-icon-change"
+              type="button"
+              disabled={!admin}
+              title="Changer l’icône du carnet"
+              aria-label="Changer l’icône du carnet"
+              onClick={showNotebookIcon}
+            >
+              <FeuilletIcon
+                icon={notebook.icon || "f."}
+                iconId={notebook.icon_id}
+                size={36}
+              />
+            </button>
             <a
               href="index.php"
               className="workspace-name"
@@ -1405,7 +1565,6 @@ export default function App() {
                   );
               }}
             >
-              <span className="brand-symbol">f.</span>
               <span>
                 {session?.name || "Feuillet"}
                 <small>{notebook.subtitle}</small>
@@ -1547,15 +1706,11 @@ export default function App() {
                         onClick={() => void openPage(String(p.id))}
                       >
                         <span>
-                          {p.icon_id ? (
-                            <img
-                              className="inline-page-icon"
-                              src={fileUrl(p.icon_id)}
-                              alt=""
-                            />
-                          ) : (
-                            p.icon || "📄"
-                          )}
+                          <FeuilletIcon
+                            icon={p.icon}
+                            iconId={p.icon_id}
+                            size={18}
+                          />
                         </span>
                         {titleOf(p)}
                       </button>
@@ -1635,6 +1790,9 @@ export default function App() {
                 >
                   <TableIcon size={16} /> Bases de données
                 </button>
+                <button onClick={() => void showHomepage()}>
+                  <Home size={16} /> Accueil visiteur
+                </button>
                 <button onClick={() => void showSettings()}>
                   <Settings size={16} /> Réglages & sauvegardes
                 </button>
@@ -1652,6 +1810,11 @@ export default function App() {
             </div>
           </div>
         </aside>
+        <ThemeToggle
+          mode={effectiveAppearance.mode}
+          onChange={changeTheme}
+          className="mobile-theme-control"
+        />
         <main className="main-panel" style={appearanceStyles}>
           {focus && (
             <button
@@ -1685,17 +1848,28 @@ export default function App() {
               {ancestors.map((p) => (
                 <span className="breadcrumb-parent" key={p.id}>
                   <button onClick={() => void openPage(String(p.id))}>
-                    {p.icon} {titleOf(p)}
+                    <FeuilletIcon icon={p.icon} iconId={p.icon_id} size={15} />{" "}
+                    {titleOf(p)}
                   </button>
                   <ChevronRight size={12} />
                 </span>
               ))}
               <span className="breadcrumb-current">
-                {draft?.icon || "📚"} {draft ? titleOf(draft) : "Ton espace"}
+                <FeuilletIcon
+                  icon={draft?.icon || "📚"}
+                  iconId={draft?.icon_id}
+                  size={16}
+                />{" "}
+                {draft ? titleOf(draft) : "Ton espace"}
               </span>
             </nav>
             {admin && hasPage && (
               <div className="topbar-actions">
+                <ThemeToggle
+                  mode={effectiveAppearance.mode}
+                  onChange={changeTheme}
+                  className="desktop-theme-control"
+                />
                 <span className={`save-state state-${saveStatus}`}>
                   {saveStatus === "saving" ? (
                     <Spinner />
@@ -1984,31 +2158,23 @@ export default function App() {
                       className="large-page-icon"
                       title="Changer l’icône"
                       onClick={() => {
-                        setIcon(draft.icon || "📄");
+                        setIconTarget("page");
                         showModal("icon");
                       }}
                     >
-                      {draft.icon_id ? (
-                        <img
-                          className="uploaded-page-icon"
-                          src={fileUrl(draft.icon_id)}
-                          alt="Icône de la page"
-                        />
-                      ) : (
-                        draft.icon || "📄"
-                      )}
+                      <FeuilletIcon
+                        icon={draft.icon}
+                        iconId={draft.icon_id}
+                        size={62}
+                      />
                     </button>
                   ) : (
                     <span className="large-page-icon">
-                      {draft.icon_id ? (
-                        <img
-                          className="uploaded-page-icon"
-                          src={fileUrl(draft.icon_id)}
-                          alt="Icône de la page"
-                        />
-                      ) : (
-                        draft.icon || "📄"
-                      )}
+                      <FeuilletIcon
+                        icon={draft.icon}
+                        iconId={draft.icon_id}
+                        size={62}
+                      />
                     </span>
                   )}
                 </div>
@@ -2016,7 +2182,7 @@ export default function App() {
                   <div className="page-decorations">
                     <button
                       onClick={() => {
-                        setIcon(draft.icon || "📄");
+                        setIconTarget("page");
                         showModal("icon");
                       }}
                     >
@@ -2107,6 +2273,12 @@ export default function App() {
                         : "Page privée"}
                     </span>
                     {draft.visibility === "public" &&
+                      notebook.auto_publish !== false && (
+                        <span className="draft-badge">
+                          Synchronisation automatique
+                        </span>
+                      )}
+                    {draft.visibility === "public" &&
                       draft.has_unpublished_changes && (
                         <span className="draft-badge">
                           Brouillon modifié · à publier
@@ -2141,15 +2313,11 @@ export default function App() {
                           }}
                         >
                           <span>
-                            {p.icon_id ? (
-                              <img
-                                className="inline-page-icon"
-                                src={fileUrl(p.icon_id)}
-                                alt=""
-                              />
-                            ) : (
-                              p.icon || "📄"
-                            )}
+                            <FeuilletIcon
+                              icon={p.icon}
+                              iconId={p.icon_id}
+                              size={18}
+                            />
                           </span>
                           <strong>{titleOf(p)}</strong>
                           <ArrowUpRight size={17} />
@@ -2501,7 +2669,9 @@ export default function App() {
             <p>
               <strong>{titleOf(draft)}</strong>
               {draft.visibility === "public"
-                ? " est accessible publiquement. Les modifications du brouillon restent privées jusqu’à leur publication."
+                ? notebook.auto_publish !== false
+                  ? " est accessible publiquement. Chaque modification enregistrée est automatiquement visible aux visiteurs."
+                  : " est accessible publiquement. Les modifications du brouillon restent privées jusqu’à leur publication."
                 : " sera accessible à toute personne disposant de son lien, sans connexion."}
             </p>
             <div className="publication-notice">
@@ -2523,7 +2693,12 @@ export default function App() {
                 <ul>
                   {childPages.map((p) => (
                     <li key={p.id}>
-                      {p.icon} {titleOf(p)}
+                      <FeuilletIcon
+                        icon={p.icon}
+                        iconId={p.icon_id}
+                        size={15}
+                      />{" "}
+                      {titleOf(p)}
                     </li>
                   ))}
                 </ul>
@@ -2570,53 +2745,48 @@ export default function App() {
         </Modal>
       )}
       {modal === "icon" && (
-        <Modal title="L’icône de ta page" onClose={() => setModal(null)}>
-          <div className="modal-form">
-            <p className="muted">
-              Choisis un emoji, une image ou colle une image depuis le
-              presse-papiers (Ctrl/Cmd + V).
+        <Modal
+          title={
+            iconTarget === "notebook"
+              ? "L’icône du carnet"
+              : "L’icône de la page"
+          }
+          onClose={() => setModal(null)}
+        >
+          <IconPicker
+            value={{
+              emoji:
+                iconTarget === "notebook"
+                  ? notebook.icon || "f."
+                  : draft?.icon || "📄",
+              webIcon: (iconTarget === "notebook"
+                ? notebook.icon
+                : draft?.icon
+              )?.startsWith("lucide:")
+                ? iconTarget === "notebook"
+                  ? notebook.icon!
+                  : draft!.icon
+                : null,
+              iconId:
+                iconTarget === "notebook"
+                  ? notebook.icon_id || null
+                  : draft?.icon_id || null,
+            }}
+            busy={busy}
+            onEmoji={(value) => void perform(() => applyChosenIcon(value))}
+            onWebIcon={(value) => void perform(() => applyChosenIcon(value))}
+            onImage={iconImageAction}
+            onRemove={() =>
+              void perform(() =>
+                applyChosenIcon(iconTarget === "notebook" ? "f." : "📄"),
+              )
+            }
+          />
+          {modalError && (
+            <p role="alert" className="form-error">
+              {modalError}
             </p>
-            <button
-              className="small-button"
-              onClick={() => chooseImage("icon")}
-            >
-              <ImageIcon size={16} /> Importer ou rechercher une image
-            </button>
-            <div className="emoji-grid">
-              {"📄 📚 🎓 🧪 💡 📰 📝 🎧 🎬 🌍 🔬 🛠️ 🚀 🧭 🎨 🧩 📐 🏫 🌱 🔗 ✅ ✨ 💻 📎"
-                .split(" ")
-                .map((emoji) => (
-                  <button
-                    key={emoji}
-                    className={icon === emoji ? "selected" : ""}
-                    onClick={() => setIcon(emoji)}
-                  >
-                    {emoji}
-                  </button>
-                ))}
-            </div>
-            <label>
-              Ou choisis ton emoji
-              <input
-                value={icon}
-                onChange={(e) => setIcon(e.target.value)}
-                maxLength={16}
-              />
-            </label>
-            <button
-              className="primary-button"
-              onClick={() => {
-                updateDraft({
-                  icon: icon || "📄",
-                  icon_id: null,
-                  icon_attribution: null,
-                });
-                setModal(null);
-              }}
-            >
-              Appliquer
-            </button>
-          </div>
+          )}
         </Modal>
       )}
       {modal === "files" && (
@@ -2915,15 +3085,7 @@ export default function App() {
               .map((p) => (
                 <button key={p.id} onClick={() => insertPage(p)}>
                   <span>
-                    {p.icon_id ? (
-                      <img
-                        className="inline-page-icon"
-                        src={fileUrl(p.icon_id)}
-                        alt=""
-                      />
-                    ) : (
-                      p.icon || "📄"
-                    )}
+                    <FeuilletIcon icon={p.icon} iconId={p.icon_id} size={18} />
                   </span>
                   <strong>{titleOf(p)}</strong>
                   <ChevronRight size={16} />
@@ -3076,7 +3238,12 @@ export default function App() {
                   )
                   .map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.icon} {titleOf(p)}
+                      <FeuilletIcon
+                        icon={p.icon}
+                        iconId={p.icon_id}
+                        size={15}
+                      />{" "}
+                      {titleOf(p)}
                     </option>
                   ))}
               </select>
@@ -3154,15 +3321,7 @@ export default function App() {
             {trash.map((p) => (
               <div key={p.id}>
                 <span>
-                  {p.icon_id ? (
-                    <img
-                      className="inline-page-icon"
-                      src={fileUrl(p.icon_id)}
-                      alt=""
-                    />
-                  ) : (
-                    p.icon || "📄"
-                  )}
+                  <FeuilletIcon icon={p.icon} iconId={p.icon_id} size={18} />
                 </span>
                 <strong>{titleOf(p)}</strong>
                 <button
@@ -3227,15 +3386,32 @@ export default function App() {
             )}
             {modalError && <p className="form-error">{modalError}</p>}
             <p className="muted">
-              La restauration modifie le brouillon. Elle ne remplace pas la
-              version publique.
+              {notebook.auto_publish !== false
+                ? "Sur une page publique, la restauration sera immédiatement visible aux visiteurs."
+                : "La restauration modifie le brouillon. Elle ne remplace pas la version publique."}
             </p>
           </div>
+        </Modal>
+      )}
+      {modal === "homepage" && (
+        <Modal title="Accueil visiteur" onClose={() => setModal(null)}>
+          <HomepageControls
+            value={homepage}
+            pages={pages}
+            onChange={setHomepage}
+            onEdit={editHomepage}
+          />
         </Modal>
       )}
       {modal === "settings" && (
         <Modal title="Réglages & sauvegardes" onClose={() => setModal(null)}>
           <div className="modal-form">
+            <HomepageControls
+              value={homepage}
+              pages={pages}
+              onChange={setHomepage}
+              onEdit={editHomepage}
+            />
             <NotebookControls
               value={notebook}
               serverLimit={serverLimit}

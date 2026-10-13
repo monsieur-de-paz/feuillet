@@ -1,12 +1,12 @@
 {
   "name": "feuillet-web",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "license": "MIT",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "tsc --noEmit && node ../tools/prepare-pdf.mjs && vite build",
+    "build": "tsc --noEmit && node ../tools/prepare-pdf.mjs && node ../tools/prepare-shared-styles.mjs && vite build",
     "format": "prettier --write src vite.config.ts",
     "format:check": "prettier --check src vite.config.ts"
   },

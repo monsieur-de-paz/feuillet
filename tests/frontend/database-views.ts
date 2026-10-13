@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import {databaseViewRows,normalizeDatabaseView,defaultDatabaseView} from '../../frontend/src/database-types';
+const specs=[['title','title'],['number','number'],['date','date'],['tags','multiselect'],['relation','relation'],['files','files'],['check','checkbox']];
+const properties=specs.map(([id,type])=>({id,type,name:id,db_id:'db',config:{},required:false,sort_order:0,version:1}));
+const make=(id,values)=>({id,db_id:'db',values,derived:{},errors:{},visibility:'public',from_form:false,source_form_id:null,version:1});
+const bundle={database:{id:'db',name:'Cours',visibility:'private',version:1},properties,forms:[],files:[{id:'f1',name:'Énergie.pdf'}],relation_labels:{r1:'Classe Électricité',r2:'Mécanique'},rows:[make('a',{title:'Énergie',number:14,date:'2026-10-13',tags:['Projet','Solaire'],relation:['r1'],files:['f1'],check:true}),make('b',{title:'Mécanique',number:2,date:'2026-09-01',tags:['Cours'],relation:['r2'],files:[],check:false}),make('c',{title:'Vide',number:null,date:'',tags:[],relation:[],files:[],check:false})]};
+let checks=0;
+const ids=(v,s='')=>databaseViewRows(bundle,normalizeDatabaseView(v,properties),s).map(r=>r.id);
+function test(name,fn){fn();checks++;console.log('PASS '+name)}
+test('accent-insensitive full-text including human relation labels',()=>assert.deepEqual(ids({},'electricite'),['a']));
+test('file names searchable instead of IDs',()=>assert.deepEqual(ids({},'energie.pdf'),['a']));
+test('AND filters preserve typed numeric comparisons',()=>assert.deepEqual(ids({filters:[{propertyId:'number',operator:'gte',value:10},{propertyId:'tags',operator:'equals',value:'solaire'}]}),['a']));
+test('dates ordered by ISO value',()=>assert.deepEqual(ids({filters:[{propertyId:'date',operator:'gt',value:'2026-10-01'}]}),['a']));
+test('relation equality compares human titles',()=>assert.deepEqual(ids({filters:[{propertyId:'relation',operator:'equals',value:'classe electricite'}]}),['a']));
+test('file equality compares file names',()=>assert.deepEqual(ids({filters:[{propertyId:'files',operator:'equals',value:'energie.pdf'}]}),['a']));
+test('empty arrays recognised',()=>assert.deepEqual(ids({filters:[{propertyId:'tags',operator:'isEmpty',value:''}]}),['c']));
+test('checkbox uses booleans',()=>assert.deepEqual(ids({filters:[{propertyId:'check',operator:'equals',value:true}]}),['a']));
+test('ascending numbers put blank last',()=>assert.deepEqual(ids({sort:{propertyId:'number',direction:'asc'}}),['b','a','c']));
+test('descending numbers put blank last',()=>assert.deepEqual(ids({sort:{propertyId:'number',direction:'desc'}}),['a','b','c']));
+test('unknown property IDs and duplicate hidden IDs removed',()=>assert.deepEqual(normalizeDatabaseView({filters:[{propertyId:'gone',operator:'equals',value:'x'}],hiddenPropertyIds:['title','title','gone'],sort:{propertyId:'gone',direction:'desc'}},properties),{...defaultDatabaseView,hiddenPropertyIds:['title']}));
+test('filter count bounded to ten and nonfinite coerced',()=>{const normalized=normalizeDatabaseView({filters:Array.from({length:20},()=>({propertyId:'number',operator:'equals',value:Infinity}))},properties);assert.equal(normalized.filters.length,10);assert.equal(normalized.filters[0].value,'Infinity')});
+test('linked view presentation does not mutate source data',()=>{const before=JSON.stringify(bundle);ids({sort:{propertyId:'title',direction:'desc'},hiddenPropertyIds:['title']});assert.equal(JSON.stringify(bundle),before)});
+console.log(`${checks}/${checks} checks passed`);

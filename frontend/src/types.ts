@@ -162,4 +162,30 @@ export type Category = {
   sort_order: number;
   deleted_at: string | null;
 };
-export type Notebook = { title: string; subtitle: string; max_upload: number };
+export type Notebook = {
+  title: string;
+  subtitle: string;
+  max_upload: number;
+  auto_publish?: boolean;
+  icon?: string;
+  icon_id?: string | null;
+};
+
+/** Empty text nodes from older imports are invalid in ProseMirror; keep their surrounding blocks. */
+export function editableDocument(doc: Doc): Doc {
+  const clean = (node: Doc): Doc => ({
+    ...node,
+    ...(node.content
+      ? {
+          content: node.content
+            .filter(
+              (n) =>
+                n.type !== "text" ||
+                (typeof n.text === "string" && n.text.length > 0),
+            )
+            .map(clean),
+        }
+      : {}),
+  });
+  return clean(doc);
+}

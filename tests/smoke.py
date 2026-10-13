@@ -76,6 +76,9 @@ class Integration(unittest.TestCase):
         status, body, _ = cls.admin.api('login', {'password': cls.password})
         assert status == 200, body
         cls.admin.session()
+        cls.initial_notebook = cls.admin.api('settings')[1]['notebook']
+        status, body, _ = cls.admin.api('settings', {'notebook':{'auto_publish':False}})
+        assert status==200 and body['notebook']['auto_publish'] is False, body
         cls.page = None
         cls.file = None
     @classmethod
@@ -104,11 +107,20 @@ class Integration(unittest.TestCase):
         assert match, 'Installer CSRF field not found'
         cls.setup_csrf = match.group(1)
         values = {'name':'Test HTTP','password':cls.password,'password_confirm':cls.password,'driver':'sqlite','sqlite_name':'feuillet.sqlite','csrf':cls.setup_csrf}
+        key_path = cls.install/'storage'/'installation-key.txt'
+        installation_key = key_path.read_text().strip()
+        assert len(installation_key)==64 and installation_key not in source, 'Installation key disclosed over HTTP'
+        bad_values = dict(values, installation_key='0'*64)
+        status, body, _ = cls.admin.request('setup.php', urllib.parse.urlencode(bad_values).encode(), {'Content-Type':'application/x-www-form-urlencoded'})
+        assert status==403 and not (cls.install/'config.php').exists(), body
+        assert not (cls.install/'storage'/'feuillet.sqlite').exists(), 'Wrong installation key created a database'
+        values['installation_key'] = installation_key
         if ARGS.mysql: values.update(driver='mysql',db_host='127.0.0.1',db_port=cls.mysql_port,db_name='feuillet_test',db_user='root',db_password='')
         status, body, _ = cls.admin.request('setup.php', urllib.parse.urlencode(values).encode(), {'Content-Type':'application/x-www-form-urlencoded'})
         assert status in (200,302,303), body
         assert (cls.install/'config.php').is_file(), body
         assert cls.password not in (cls.install/'config.php').read_text(), 'Password stored in plaintext' 
+        assert not key_path.exists(), 'Installation key retained after success'
     @classmethod
     def tearDownClass(cls):
         if hasattr(cls, 'proc'): cls.proc.terminate(); cls.proc.wait(timeout=5)

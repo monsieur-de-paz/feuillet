@@ -4,14 +4,14 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.3.0-2563eb" alt="Version 0.3.0">
+  <img src="https://img.shields.io/badge/version-0.4.0-2563eb" alt="Version 0.4.0">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour rédiger, organiser et partager ses ressources.** Inspiré de l’édition par blocs, il permet de préparer des cours, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
 
 Il fonctionne sur un hébergement **PHP + MySQL/MariaDB**, y compris un mutualisé compatible. Un seul compte rédige ; les lecteurs consultent les pages et répondent aux formulaires depuis leur navigateur, sur ordinateur ou mobile. Aucun VPS ni abonnement n’est nécessaire. Node.js sert uniquement à développer l’interface ; les fichiers compilés sont fournis.
 
-<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.3.md">Nouveautés</a></p>
+<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.4.md">Nouveautés</a></p>
 
 ## Ce que vous pouvez faire
 
@@ -21,12 +21,12 @@ Il fonctionne sur un hébergement **PHP + MySQL/MariaDB**, y compris un mutualis
 | Couleur du texte et du fond, liens, boutons modifiables | Galeries de pages et bases avec champs typés | PDF, audio, vidéo et fichiers à télécharger |
 | Couvertures repositionnables, icônes importées, images redimensionnables et agrandissables dans l’éditeur | Relations entre bases, formules et agrégations | Exercices avec correction immédiate |
 | Thèmes blanc, sombre et OLED ; polices Quicksand et Fraunces | Notes privées, recherche et historique | Formulaires : texte, e-mail, téléphone, URL, fichiers… |
-| Import et export Markdown, export PDF | Sauvegarde et restauration ZIP | Réponses aux formulaires consultables uniquement par l’administrateur |
+| Import et export Markdown, export PDF | Accueil visiteur éditable, sauvegarde et restauration ZIP | Réponses aux formulaires consultables uniquement par l’administrateur |
 
 <details>
 <summary>Voir un exemple de lecture publique</summary>
 
-![Une page de cours publique et son fil d’Ariane](docs/feuillet-v03-public.jpg)
+![Une page publique Feuillet avec galerie et documents](docs/feuillet-v04-public.jpg)
 
 </details>
 
@@ -49,7 +49,7 @@ SQLite est aussi disponible avec `pdo_sqlite` pour une installation locale ou un
 
 ### 2. Télécharger et transférer le logiciel
 
-Télécharger **`Feuillet-0.3.0.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
+Télécharger **`Feuillet-0.4.0.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
 
 Le ZIP de GitHub, accessible par **Code → Download ZIP**, convient également : renommer le dossier extrait `feuillet` si nécessaire. Il contient lui aussi l’interface compilée.
 
@@ -82,14 +82,17 @@ Associer le domaine ou sous-domaine au dossier `feuillet/public`, activer HTTPS 
 
 Ouvrir `https://cours.exemple.fr/setup.php`, puis :
 
-1. Vérifier les prérequis affichés.
-2. Choisir le nom du carnet et un mot de passe administrateur d’au moins 12 caractères.
-3. Choisir MySQL/MariaDB et renseigner les paramètres fournis par l’hébergeur.
-4. Cliquer sur **Créer mon carnet**.
+1. Vérifier les prérequis affichés. À la première ouverture, l’installateur crée une clé privée dans `storage/installation-key.txt`.
+2. Lire ce fichier par FTP/SFTP, puis saisir sa clé dans le champ **Clé d’installation**. Elle n’est jamais affichée par le site et sera supprimée après installation.
+3. Choisir le nom du carnet et un mot de passe administrateur d’au moins 12 caractères.
+4. Choisir MySQL/MariaDB et renseigner les paramètres fournis par l’hébergeur.
+5. Cliquer sur **Créer mon carnet**.
 
 La configuration est créée automatiquement. Il n’y a aucun compte ou mot de passe prédéfini. Le carnet démarre sans les cours et données de démonstration du développement. Aucune commande SSH, installation Composer ou compilation n’est nécessaire pour cette installation.
 
-### 5. Essayer avant de partager
+### 5. Composer l’accueil et essayer avant de partager
+
+Ouvrir **Accueil visiteur** dans la barre latérale, créer une page d’accueil ou en choisir une, puis modifier son contenu avec l’éditeur. Dans une galerie, choisir les pages et leur ordre. Publier l’accueil pour qu’il apparaisse à `index.php?read=1`. Les brouillons et pages privées ne sont jamais affichés automatiquement. [Guide de la version 0.4](docs/NOUVEAUTES-0.4.md).
 
 Créer une page, y déposer un petit PDF, puis cliquer sur **Publier**. Dans une fenêtre privée du navigateur, vérifier la lecture et le téléchargement. Repasser la page en privé et vérifier l’accès au lien du fichier. Un média réutilisé dans une autre page publique reste accessible.
 
@@ -108,13 +111,17 @@ La version a été testée localement sur SQLite et MySQL. La configuration exac
 | `/formulaire` | Créer ou choisir un formulaire lié à une base |
 | `/quiz` | Ajouter un exercice avec correction |
 
-Le bouton **Ajouter** propose les mêmes insertions sur mobile. Sélectionner du texte ouvre les outils de mise en forme. Le nom, le sous-titre, la limite d’envoi et le thème général se règlent dans **Réglages & sauvegardes**. Les propriétés d’une page permettent de personnaliser son apparence et sa catégorie.
+Le bouton **Ajouter** propose les mêmes insertions sur mobile. Sélectionner du texte ouvre les outils de mise en forme. Le nom, le sous-titre, la limite d’envoi et le thème général se règlent dans **Réglages & sauvegardes**. Les propriétés d’une page permettent de personnaliser son apparence et sa catégorie. Le bouton **Présentation** transforme les fichiers déjà présents en lecteurs ou téléchargements, et les liens en boutons ou cartes. [Modifier les blocs](docs/BLOCS-0.4.md).
 
 ## Comprendre ce qui est public
 
-Les modifications sont automatiquement enregistrées **dans un brouillon**. **Publier** rend public ce brouillon et ceux de toutes ses sous-pages actuelles. Une sous-page créée ensuite reste privée jusqu’à la prochaine publication. **Rendre privée** retire aussi les sous-pages de la consultation publique.
+Les nouvelles pages sont **privées**. **Publier** partage cette page et toutes ses sous-pages actuelles. Ensuite, par défaut, chaque enregistrement actualise automatiquement une page déjà publique, y compris les médias et la couverture. Les sous-pages créées ensuite restent privées jusqu’à leur première publication. **Rendre privée** retire aussi les sous-pages.
 
-Le cadrage d’une couverture modifiée reste lui aussi en brouillon jusqu’à la publication. Le lecteur public utilise le titre et le contenu publiés, et son fil d’Ariane n’affiche aucun titre d’ancêtre privé.
+Décocher **Mettre à jour automatiquement les pages déjà publiques** dans les réglages retrouve le mode brouillon et sa publication manuelle. Les visiteurs déjà présents suivent les changements toutes les 15 secondes lorsque leur onglet est visible. Un exercice commencé ou un média en lecture est préservé. [Fonctionnement détaillé](docs/PUBLICATION-ET-THEMES-0.4.md).
+
+Les cartes de galerie partagent le même ratio, la même disposition et les mêmes tailles dans les deux vues ; les contrôles et pages privées restent réservés à l’administrateur. L’icône du carnet et celle d’une page se modifient avec un catalogue d’émojis, les dessins Lucide colorables ou une image. Le bouton de thème personnel propose clair, sombre et OLED ; il est adapté à l’ordinateur et au mobile.
+
+Le tri, les filtres et les colonnes affichées se règlent indépendamment dans chaque vue liée. Les cellules s’éditent directement ; une relation sélectionne des fiches de la base cible. **Les filtres et colonnes masquées sont des réglages de présentation : ils ne protègent pas des données.** Rendre privées les fiches ou bases à cacher.
 
 Une base possède sa propre visibilité : elle doit être publique **et** intégrée à une page publiée pour être accessible aux lecteurs. Les formulaires peuvent être partagés par leur lien. Leurs réponses et fichiers restent privés, même si le formulaire ou la base est public. Un lecteur n’a pas besoin de compte pour envoyer une réponse.
 
@@ -138,6 +145,8 @@ Pour une mise à jour : sauvegarder, remplacer le code et le contenu de `public/
 - Les exports PDF sont des documents de lecture : colonnes parcourues dans l’ordre, médias référencés et police PDF Noto Sans. Ils ne reproduisent pas exactement la mise en page interactive.
 - Markdown transmet le texte et un tableau lisible des bases ; le ZIP est nécessaire pour déplacer l’ensemble des données et pièces jointes.
 
+Les procédures détaillées figurent dans [Maintenance](docs/MAINTENANCE.md), les composants dans [Architecture](docs/ARCHITECTURE.md) et les résultats de l’audit dans [Sécurité 0.4](docs/SECURITE-0.4.md).
+
 ## Développer et contribuer
 
 Le backend PHP n’utilise ni framework ni dépendance Composer. Le frontend React + TypeScript est compilé par Vite.
@@ -158,6 +167,10 @@ Les tests utilisent des installations jetables et ne modifient aucun carnet exis
 ```sh
 python3 tests/smoke.py
 python3 tests/customization.py
+python3 tests/homepage.py
+python3 tests/security.py
+python3 tests/autopublish.py
+python3 tests/reader.py
 python3 tests/databases.py
 ```
 

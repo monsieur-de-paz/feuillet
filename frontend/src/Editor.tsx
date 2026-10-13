@@ -1,3 +1,4 @@
+import { editableDocument } from "./types";
 import { useEditor, EditorContent } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
@@ -67,6 +68,7 @@ import {
   ResizableImage,
   DatabaseEmbed,
   FormEmbed,
+  transformSelectedLink,
 } from "./nodes";
 import { type Doc, safeLink, fileUrl } from "./types";
 import { useApp } from "./context";
@@ -192,8 +194,6 @@ export default function CourseEditor({
         heading: { levels: [1, 2, 3] },
       }),
       ResizableImage,
-      DatabaseEmbed,
-      FormEmbed,
       TextStyle,
       Placeholder.configure({
         placeholder: ({ node }) =>
@@ -222,7 +222,7 @@ export default function CourseEditor({
       DatabaseEmbed,
       FormEmbed,
     ],
-    content: content as any,
+    content: editableDocument(content) as any,
     editable: admin,
     immediatelyRender: true,
     editorProps: {
@@ -768,26 +768,12 @@ export default function CourseEditor({
     const node = editor.state.doc.child(index);
     let pos = 0;
     for (let i = 0; i < index; i++) pos += editor.state.doc.child(i).nodeSize;
-    const attrs = { ...node.attrs };
-    if (node.type.name === "buttonLink") {
+    if (["buttonLink", "bookmark", "fileBlock"].includes(node.type.name)) {
       document.dispatchEvent(
-        new CustomEvent("feuillet-edit-button", { detail: { pos } }),
+        new CustomEvent("feuillet-edit-resource", { detail: { pos } }),
       );
       setBlockMenu(false);
-      return;
-    } else if (node.type.name === "bookmark") {
-      const title = prompt("Titre de la ressource", attrs.title);
-      if (title === null) return;
-      const href = prompt("Adresse du lien", attrs.href);
-      if (href === null || safeLink(href) === "#") return;
-      const description = prompt("Commentaire pédagogique", attrs.description);
-      if (description === null) return;
-      attrs.title = title;
-      attrs.href = safeLink(href);
-      attrs.description = description;
-    } else return;
-    editor.view.dispatch(editor.state.tr.setNodeMarkup(pos, undefined, attrs));
-    setBlockMenu(false);
+    }
   }
 
   const mutateBlock = (action: "up" | "down" | "duplicate" | "delete") => {
@@ -960,6 +946,28 @@ export default function CourseEditor({
       {formatMenu === "transform" ? (
         <>
           <small>Transformer en</small>
+          {editor?.isActive("link") && (
+            <>
+              <button
+                onClick={() => {
+                  transformSelectedLink(editor, "button");
+                  setFormatMenu(null);
+                }}
+              >
+                <ExternalLink size={16} />
+                Lien → bouton
+              </button>
+              <button
+                onClick={() => {
+                  transformSelectedLink(editor, "card");
+                  setFormatMenu(null);
+                }}
+              >
+                <BookOpen size={16} />
+                Lien → carte avec aperçu
+              </button>
+            </>
+          )}
           {[
             { type: "paragraph", label: "Texte", icon: <FileText size={16} /> },
             { type: "h1", label: "Titre 1", icon: <Heading1 size={16} /> },
@@ -1160,7 +1168,7 @@ export default function CourseEditor({
               <div className="dropdown block-dropdown">
                 <small>Bloc sélectionné</small>
                 {editor &&
-                  ["buttonLink", "bookmark"].includes(
+                  ["buttonLink", "bookmark", "fileBlock"].includes(
                     editor.state.doc.child(
                       Math.min(
                         editor.state.selection.$from.index(0),
@@ -1173,7 +1181,7 @@ export default function CourseEditor({
                       onClick={editCurrentBlock}
                     >
                       <Link />
-                      Modifier ce bloc
+                      Modifier la présentation
                     </button>
                   )}
                 <button

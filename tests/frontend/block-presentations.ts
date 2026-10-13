@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {linkPresentationContent, transformSelectedLink,FileBlock} from '../../frontend/src/nodes';
+globalThis.location={href:'https://feuillet.test/index.php'};
+const uri='https://example.org/cours';
+const button=linkPresentationContent('button',uri,'Cours');
+assert.deepEqual(button,{type:'buttonLink',attrs:{href:uri,label:'Cours'}});
+const card=linkPresentationContent('card',uri,'Cours','Description écrite');
+assert.deepEqual(card.attrs,{href:uri,title:'Cours',description:'Description écrite',source:uri});
+const inline=linkPresentationContent('inline',uri,'Cours');
+assert.equal(inline.content[0].text,'Cours');assert.equal(inline.content[0].marks[0].attrs.href,uri);
+let content,range;
+const editor={getAttributes:()=>({href:uri}),commands:{extendMarkRange:()=>true},state:{selection:{from:4,to:9},doc:{textBetween:()=> 'Cours'}},chain:()=>({focus(){return this},insertContentAt(r,c){range=r;content=c;return this},run:()=>true})};
+assert.equal(transformSelectedLink(editor,'button'),true);assert.deepEqual(range,{from:4,to:9});assert.equal(content.type,'buttonLink');
+assert.equal(transformSelectedLink({...editor,getAttributes:()=>({href:'javascript:alert(1)'})},'card'),false);
+assert.equal(FileBlock.config.addAttributes().mode.default,'download');
+console.log('6/6 block presentation checks passed');

@@ -148,3 +148,50 @@ La compilation TypeScript/Vite et la syntaxe des 13 fichiers PHP de l’applicat
 Les exports PDF ont également été générés avec le module réel du frontend : couverture recadrée, base avec valeurs calculées et noms de fichiers, formulaire, titres, liens et document Markdown long. Les six pages résultantes ont été extraites et les premières pages rendues pour vérifier leur lisibilité. Le PDF utilise Noto Sans ; les polices de l’interface ne sont pas reproduites dans l’export.
 
 Captures : [lecture publique](feuillet-v03-public.jpg), [thème OLED](feuillet-v03-oled.jpg), [éditeur mobile](feuillet-v03-mobile.jpg). Les limites de validation sur PHP 8.3/8.4, MariaDB, le serveur OVH et Apache restent celles indiquées plus haut.
+
+
+## Version 0.4.0 — 13 octobre 2026
+
+Les sections précédentes décrivent les comportements des versions historiques, notamment la publication manuelle. En 0.4, la publication automatique des pages déjà publiques est activée par défaut ; les suites historiques la désactivent pour continuer à contrôler la confidentialité du mode brouillon. Toutes les installations de test restent jetables.
+
+| Suite HTTP | SQLite | MySQL local |
+|---|---|---|
+| `smoke.py` | 21 réussis, réseau Commons réel inclus | 20 réussis, 1 scénario réseau ignoré |
+| `customization.py` | 9 réussis | 9 réussis |
+| `databases.py` | 12 réussis | 12 réussis |
+| `homepage.py` | 6 réussis | 6 réussis |
+| `security.py` | 13 réussis | 13 réussis |
+| `autopublish.py` | 6 réussis | 6 réussis |
+| `reader.py` | 5 réussis | 5 réussis |
+
+Soit **72 scénarios par pilote**, avec le seul scénario réseau ignoré sur MySQL. Les tests couvrent l’accueil et ses droits, les vues liées et leur configuration, la synchronisation atomique des publications, les fichiers privés, les réponses de formulaires, les changements et révocations détectés par le lecteur, ainsi que la valeur zéro dans les cartes publiques. L’audit détaillé expose les attaques effectivement reproduites et les corrections : [Sécurité 0.4](SECURITE-0.4.md).
+
+### Tests du frontend reproductibles
+
+Après `npm ci` dans `frontend/` :
+
+```sh
+node tests/frontend.mjs
+npm --prefix frontend run format:check
+npm --prefix frontend run build
+```
+
+Le lanceur compile le code source réel dans un dossier temporaire puis le supprime. **29 contrôles** passent : 13 sur recherche/filtres/tris des vues, 6 sur les présentations, 7 avec Tiptap/ProseMirror sur les transformations et la conservation des contenus, 3 sur la suppression des nœuds texte vides d’un document ancien sans perte de texte. Il ne s’agit pas de 29 parcours navigateur. Les fichiers PHP de `app/` et `public/` passent aussi `php -l`. TypeScript, Vite et Prettier passent.
+
+### Contrôles dans le navigateur intégré
+
+- Boutons **Changer**, **Repositionner** et **Retirer** testés par clic réel, cadrage modifié par glissement et conservé après rechargement.
+- PDF changé de lecteur en téléchargement, lien transformé en bouton, identifiants/adresses et contenu environnant conservés.
+- Cellule Durée passée de 7 à 9, formule passée de 14 à 18 dans les deux vues liées ; relation recherchée par titre humain.
+- Page publique déjà ouverte : description et valeurs de base actualisées sans rechargement ni nouvelle publication manuelle.
+- Icône Lucide colorée du carnet identique dans les deux vues, puis remise de la marque par défaut ; modes sombre et OLED contrôlés puis préférence locale remise au thème du carnet.
+- Galerie de l’accueil à ratio 4/3 : cartes de **338,5 × 322,664 px**, aperçus de **338,5 × 253,875 px**, titre 13 px dans les deux vues au viewport essayé.
+- Galerie de démonstration portrait : cartes **166 × 316,641 px** à 390 px, **131 × 305,766 px** à 320 px dans les deux vues. Aucun débordement horizontal de la page ; les tables défilent dans leur conteneur. Bouton de thème flottant sur mobile.
+
+Captures : [éditeur](feuillet-v04-editor.jpg), [lecture publique](feuillet-v04-public.jpg), [mobile](feuillet-v04-mobile.jpg). Ces exemples utilisent seulement des données fictives et une image de test générée localement.
+
+Le build principal produit environ 947 Ko JS / 292 Ko gzip et 107 Ko CSS / 20 Ko gzip. Les catalogues d’icônes, le PDF et les émojis sont chargés séparément. Vite prévient de la taille de certains chunks ; la compilation réussit. Le repli Noto Color Emoji est un TTF de 10,7 Mo chargé si nécessaire. Les audits npm complets et production ne signalent aucune vulnérabilité connue pour le verrouillage examiné.
+
+Validation locale sur PHP 8.5.11 et MySQL : aucun déploiement ni contrôle de performances sur le mutualisé OVH, PHP 8.3/8.4, MariaDB ou Apache réel. Ces vérifications restent nécessaires lors de l’installation.
+
+L’archive installable 0.4 a été extraite dans un nouveau dossier, puis les 20 scénarios généraux hors réseau ont été rejoués avec succès sur cette distribution, y compris l’installation par clé privée. Aucun fichier de configuration, mot de passe, session, base locale ou média personnel n’est distribué.

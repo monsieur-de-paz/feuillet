@@ -90,3 +90,21 @@ Migrations idempotentes vers le schéma 3 : catégories par espace, position x/y
 - Le lecteur PHP expose un fil d’Ariane composé exclusivement des snapshots publiés des ancêtres actifs. L’index `?read=1` ne reprend jamais les brouillons de la session administrateur.
 
 Pour les champs, limites et exemples de formules : [BASES-ET-FORMULAIRES.md](docs/BASES-ET-FORMULAIRES.md).
+
+## Complément 0.4 : accueil et vues liées
+
+- `GET settings` renvoie `homepage: {id,title,published}` uniquement à l’administrateur. Un lecteur ne reçoit pas l’identifiant d’un accueil privé.
+- `POST homepage {create:true}` crée une page privée avec galerie manuelle vide et la choisit comme accueil. Réponse `{homepage,page}`.
+- `POST homepage {id: PAGE_ID|null}` sélectionne une page existante ou efface le choix. Authentification et CSRF obligatoires ; cette action ne publie pas de page.
+- `index.php?read=1` utilise exclusivement la version publiée de l’accueil choisi, y compris si le lecteur est connecté comme administrateur.
+- `databaseView.attrs.viewConfig` conserve `{layout,filters,sort,hiddenPropertyIds}` par bloc. `layout`: `table`, `gallery`, `chart`. Filtres ET, dix maximum ; opérateurs `contains`, `equals`, `notEquals`, `isEmpty`, `isNotEmpty`, `gt`, `gte`, `lt`, `lte`. Le tri utilise `{propertyId,direction:'asc'|'desc'}` ou `null`. Les identifiants de propriétés appartiennent à la base du bloc.
+- `POST row_patch {id,version,property_id,value}` modifie un seul champ de la fiche, sans effacer les autres ni sa provenance. Réponse `{row}` ; HTTP 409 en cas de conflit. Champs calculés non modifiables. Authentification et CSRF obligatoires.
+- Les vues sont de la présentation, pas une politique d’accès. L’API publique renvoie les fiches publiques autorisées ; un filtre ne les rend pas privées.
+
+### Publication automatique et lecture (0.4)
+
+- `notebook.auto_publish`: booléen, actif par défaut. Seules les pages déjà publiques sont synchronisées après `save`, dans la transaction de l’écriture. Une nouvelle page reste privée.
+- `notebook.icon`: émoji, `f.` ou `lucide:slug[:#RRGGBB]` validé dans le manifeste ; `notebook.icon_id`: image existante ou `null`. Une image choisie pour la marque du carnet est publique.
+- `GET page&id=...&published=1` force le snapshot publié, même pour un administrateur.
+- `GET reader-state.php?page=...&token=...` force également la visibilité publique. Le champ `page` vide suit l’accueil sélectionné. Une réponse inchangée contient uniquement `{token}` ; une modification ajoute `html`, `breadcrumbs`, `title`, `appearance`, `mode` et `unavailable`. Ce jeton est une empreinte de contenu, pas un secret d’authentification.
+- Un lien transformé utilise les types existants `buttonLink`, `bookmark` ou un paragraphe avec marque `link`. `fileBlock.mode` choisit téléchargement ou lecteur compatible, sans changer `fileId`.

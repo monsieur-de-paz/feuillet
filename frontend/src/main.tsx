@@ -1,4 +1,5 @@
 import "./style.css";
+import "./gallery-layout.css";
 import React, { useEffect } from "react";
 import { api, defaultAppearance } from "./types";
 import { themeStyle } from "./Customization";

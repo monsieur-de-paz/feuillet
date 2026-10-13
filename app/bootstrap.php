@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.3.0';
+const FEUILLET_VERSION = '0.4.0';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -49,6 +49,8 @@ function start_session(): void {
     session_save_path($dir);
     session_name('feuillet_session');
     ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.use_trans_sid', '0');
     session_set_cookie_params(['lifetime'=>0,'path'=>cookie_path(),'secure'=>!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off','httponly'=>true,'samesite'=>'Lax']);
     session_start();
     if (empty($_SESSION['csrf'])) $_SESSION['csrf'] = bin2hex(random_bytes(32));
@@ -68,7 +70,10 @@ class AppError extends RuntimeException { public function __construct(string $me
 function json_out(array $data, int $status=200): never { http_response_code($status); header('Content-Type: application/json; charset=utf-8'); echo json_encode($data, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_INVALID_UTF8_SUBSTITUTE); exit; }
 function json_in(): array {
     if ((int)($_SERVER['CONTENT_LENGTH'] ?? 0) > 4 * 1024 * 1024) fail('Cette page est trop volumineuse.', 413);
-    try { $v = json_decode(file_get_contents('php://input'), true, 80, JSON_THROW_ON_ERROR); }
+    $raw=file_get_contents('php://input',false,null,0,4*1024*1024+1);
+    if($raw===false)fail('Données illisibles.');
+    if(strlen($raw)>4*1024*1024)fail('Cette page est trop volumineuse.',413);
+    try { $v = json_decode($raw, true, 80, JSON_THROW_ON_ERROR); }
     catch (Throwable) { fail('Données JSON invalides.'); }
     if (!is_array($v)) fail('Données invalides.');
     return $v;
@@ -109,13 +114,17 @@ function normalize_doc(mixed $doc): array {
         $types=['doc','paragraph','text','heading','bulletList','orderedList','listItem','taskList','taskItem','blockquote','horizontalRule','hardBreak','codeBlock','table','tableRow','tableCell','tableHeader','callout','columns','column','details','pageLink','buttonLink','bookmark','fileBlock','image','gallery','quiz','databaseView','formView'];
         if(!in_array($node['type']??'', $types, true)) fail('Type de bloc inconnu : '.str_limit($node['type']??'',40));
         $out=['type'=>$node['type']];
-        if(isset($node['text'])) $out['text']=is_string($node['text']) ? $node['text'] : '';
+        if($node['type']==='text'){if(!is_string($node['text']??null))fail('Texte de bloc invalide.');$out['text']=$node['text'];}
         if(isset($node['attrs'])) {
             if(!is_array($node['attrs'])) fail('Attributs de bloc invalides.');
             $out['attrs']=$node['attrs'];
             if(strlen(encoded($out['attrs']))>250000) fail('Bloc trop volumineux.');
             if($node['type']==='quiz') validate_quiz($out['attrs']);
+            foreach(['href','src'] as $key)if(isset($out['attrs'][$key]))$out['attrs'][$key]=safe_url($out['attrs'][$key]);
+            if($node['type']==='databaseView'){$id=str_limit($out['attrs']['dbId']??'',36);database_record($id);$out['attrs']=['dbId'=>$id,'viewConfig'=>database_view_config($id,$out['attrs']['viewConfig']??[])];}
+            if($node['type']==='formView'){$id=str_limit($out['attrs']['formId']??'',36);if(!query('SELECT id FROM collection_forms WHERE id=?',[$id])->fetch())fail('Formulaire introuvable.');$out['attrs']=['formId'=>$id];}
             if($node['type']==='gallery'){ $out['attrs']['pageIds']=array_values(array_unique(array_filter(array_slice(is_array($out['attrs']['pageIds']??null)?$out['attrs']['pageIds']:[],0,500),fn($id)=>is_string($id)&&preg_match('/^[a-f0-9-]{36}$/',$id))));$out['attrs']['columns']=max(1,min(6,(int)($out['attrs']['columns']??2)));$out['attrs']['rows']=max(0,min(12,(int)($out['attrs']['rows']??2)));$out['attrs']['layout']=($out['attrs']['layout']??'grid')==='list'?'list':'grid';$out['attrs']['aspect']=in_array($out['attrs']['aspect']??'', ['16/9','4/3','1/1','3/4','auto'],true)?$out['attrs']['aspect']:'16/9'; }
+            if($node['type']==='image'&&!empty($out['attrs']['fileId']))$out['attrs']['src']='media.php?id='.rawurlencode((string)$out['attrs']['fileId']);
             if($node['type']==='image'){ $out['attrs']['width']=max(10,min(100,(int)($out['attrs']['width']??100)));$out['attrs']['align']=in_array($out['attrs']['align']??'',['left','center','right'],true)?$out['attrs']['align']:'center'; }
             if($node['type']==='fileBlock' || ($node['type']==='image' && !empty($out['attrs']['fileId']))) {
                 $id=$out['attrs']['fileId']??'';
@@ -123,6 +132,7 @@ function normalize_doc(mixed $doc): array {
             }
         }
         if(isset($node['marks'])) {
+            if(!is_array($node['marks'])||count($node['marks'])>20)fail('Mise en forme invalide.');
             $out['marks']=[];
             foreach($node['marks'] as $m) {
                 if(!is_array($m)||!in_array($m['type']??'', ['bold','italic','underline','strike','code','highlight','link','textStyle','subscript','superscript'],true)) continue;
@@ -133,7 +143,7 @@ function normalize_doc(mixed $doc): array {
         }
         if(isset($node['content'])) {
             if(!is_array($node['content'])) fail('Contenu de bloc invalide.');
-            $out['content']=array_map(fn($n)=>$walk($n,$depth+1),$node['content']);
+            $out['content']=array_values(array_filter(array_map(fn($n)=>$walk($n,$depth+1),$node['content']),fn($n)=>$n['type']!=='text'||$n['text']!==''));
         }
         return $out;
     };
@@ -163,6 +173,9 @@ function row_page(array $row, bool $public=false): array {
     return page_credits($row);
 }
 function public_doc(array $doc): array {
+    if(($doc['type']??'')==='databaseView'&&!database_public(str_limit($doc['attrs']['dbId']??'',36)))return ['type'=>'paragraph'];
+    if(($doc['type']??'')==='formView'){$id=str_limit($doc['attrs']['formId']??'',36);$f=query('SELECT is_public FROM collection_forms WHERE id=?',[$id])->fetch();if(!$f||!$f['is_public'])return ['type'=>'paragraph'];}
+
     if(($doc['type']??'')==='pageLink') {
         $id=$doc['attrs']['pageId']??'';
         $r=is_string($id)?query('SELECT * FROM pages WHERE id=?',[$id])->fetch():false;
@@ -231,11 +244,12 @@ function save_page(array $input): array {
     if($existing&&($existing['space_id']??null)!==$spaceId&&!array_key_exists('category_id',$input))$categoryId=category_for_kind($spaceId,$kind);category_validate($categoryId,$spaceId);
     $position=cover_position($input['cover_position']??($existing['cover_position']??null));
     $tags=array_values(array_unique(array_filter(array_map(fn($t)=>str_limit($t,50),is_array($input['tags']??null)?array_slice($input['tags'],0,30):[]))));
-    $args=[$parent,$title,str_limit($input['icon']??'📄',64),$cover,$kind,str_limit($input['description']??'',2000),encoded($tags),safe_url($input['source_url']??''),str_limit($input['source_name']??''),encoded($content),now(),$spaceId,$iconId,encoded($appearance),$categoryId,encoded($position)];
+    $args=[$parent,$title,validate_icon($input['icon']??'📄'),$cover,$kind,str_limit($input['description']??'',2000),encoded($tags),safe_url($input['source_url']??''),str_limit($input['source_name']??''),encoded($content),now(),$spaceId,$iconId,encoded($appearance),$categoryId,encoded($position)];
     $pdo=db();$pdo->beginTransaction();
     try{
         if($existing){$q=query('UPDATE pages SET parent_id=?,title=?,icon=?,cover_id=?,kind=?,description=?,tags=?,source_url=?,source_name=?,content=?,updated_at=?,space_id=?,icon_id=?,appearance=?,category_id=?,cover_position=?,version=version+1 WHERE id=? AND version=?',array_merge($args,[$id,$existing['version']]));if($q->rowCount()!==1)fail('Conflit de modification.',409,'conflict');}
         else { $slug=substr(trim(preg_replace('/[^a-z0-9]+/','-',mb_strtolower(iconv('UTF-8','ASCII//TRANSLIT//IGNORE',$title)?:$title)),'-'),0,120)?:'page';$slug.='-'.substr($id,0,8);query('INSERT INTO pages (parent_id,title,icon,cover_id,kind,description,tags,source_url,source_name,content,updated_at,space_id,icon_id,appearance,category_id,cover_position,id,slug,visibility,sort_order,version,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',array_merge($args,[$id,$slug,'private',(int)($input['sort_order']??0),1,now()]));}
+        if($existing)auto_publish_page($id);
         $p=row_page(query('SELECT * FROM pages WHERE id=?',[$id])->fetch());revision_save($p);$pdo->commit();return $p;
     } catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}
 }
@@ -245,6 +259,7 @@ function files_in(array $doc): array {
     return array_values(array_unique($ids));
 }
 function file_public(string $id): bool {
+    if((notebook_settings()['icon_id']??null)===$id)return true;
     if(function_exists('database_file_public')&&database_file_public($id))return true;
     $all=page_rows();
     foreach($all as $row){if($row['deleted_at']||$row['visibility']!=='public'||!$row['published']||!ancestors_active($row,$all))continue;$p=json_decode($row['published'],true);if(($p['cover_id']??null)===$id||($p['icon_id']??null)===$id||in_array($id,files_in($p['content']??[]),true))return true;}
@@ -262,14 +277,21 @@ function persist_file(array $f,bool $uploaded=true,?array $attribution=null): ar
     if(!isset($types[$ext]))fail('Ce format de fichier n’est pas autorisé.');
     $size=filesize($f['tmp_name']);if($size===false||$size>upload_limit())fail('Fichier trop volumineux.',413);
     $mime=(new finfo(FILEINFO_MIME_TYPE))->file($f['tmp_name']);
-    if(in_array($mime,['text/html','application/x-httpd-php','application/x-executable','application/x-dosexec','image/svg+xml'],true))fail('Contenu de fichier refusé.');
+    if(file_mime_forbidden((string)$mime))fail('Contenu de fichier refusé.');
     if($ext==='pdf'&&$mime!=='application/pdf')fail('Ce fichier n’est pas un PDF valide.');
-    if(str_starts_with($types[$ext],'image/')&&(!getimagesize($f['tmp_name'])||!str_starts_with((string)$mime,'image/')))fail('Image invalide.');
+    if(str_starts_with($types[$ext],'image/'))validate_image_file($f['tmp_name'],(string)$mime);
     $id=uuid();$path=bin2hex(random_bytes(24));$dir=storage().'/files';if(!is_dir($dir))mkdir($dir,0700,true);
     if(!($uploaded?move_uploaded_file($f['tmp_name'],$dir.'/'.$path):rename($f['tmp_name'],$dir.'/'.$path)))fail('Impossible de conserver ce fichier.',500);
     chmod($dir.'/'.$path,0600);
     try{query('INSERT INTO files (id,name,mime,size,path,created_at) VALUES (?,?,?,?,?,?)',[$id,$name,$types[$ext],$size,$path,now()]);if($attribution)query('UPDATE files SET attribution=? WHERE id=?',[encoded($attribution),$id]);}catch(Throwable $e){unlink($dir.'/'.$path);throw $e;}
     return file_info(query('SELECT * FROM files WHERE id=?',[$id])->fetch());
+}
+function file_mime_forbidden(string $mime): bool {
+    return in_array($mime,['text/html','text/x-php','application/x-php','application/x-httpd-php','application/x-executable','application/x-pie-executable','application/x-sharedlib','application/x-dosexec','application/x-msdownload','image/svg+xml'],true);
+}
+function validate_image_file(string $path,string $mime): void {
+    $dimensions=getimagesize($path);if(!$dimensions||!in_array($mime,['image/jpeg','image/png','image/gif','image/webp','image/avif'],true))fail('Image invalide.');
+    if($dimensions[0]>20000||$dimensions[1]>20000||$dimensions[0]*$dimensions[1]>64000000)fail('Image trop grande (64 millions de pixels maximum).',413,'image_dimensions');
 }
 function descendants(string $id): array {
     $all=page_rows();$ids=[$id];for($i=0;$i<count($ids);$i++)foreach($all as $r)if($r['parent_id']===$ids[$i]&&!in_array($r['id'],$ids,true))$ids[]=$r['id'];return $ids;

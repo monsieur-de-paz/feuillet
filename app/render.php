@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/database-views.php';
 function h(mixed $s): string { return htmlspecialchars(is_scalar($s)?(string)$s:'',ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8'); }
 function render_document(array $node,string $pageId='',bool $public=true): string {
     $t=$node['type']??'';$a=$node['attrs']??[];$children='';foreach($node['content']??[] as $child)$children.=render_document($child,$pageId,$public);
@@ -45,15 +46,8 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
         if(($a['mode']??'')==='video'&&str_starts_with($f['mime'],'video/'))return '<section class="file-block"><video controls playsinline preload="metadata" src="'.$url.'"></video>'.$link.'</section>';
         return '<section class="file-block">'.$link.'</section>';
     }
-    if($t==='gallery'){
-        $all=page_rows();$selection=!empty($a['manual'])?array_values(array_intersect($a['pageIds']??[],array_keys($all))):array_keys($all);$cards='';$count=0;$columns=max(1,min(6,(int)($a['columns']??2)));$rows=max(0,min(12,(int)($a['rows']??2)));$layout=($a['layout']??'grid')==='list'?'list':'grid';$aspect=in_array($a['aspect']??'', ['16/9','4/3','1/1','3/4','auto'],true)?$a['aspect']:'16/9';$limit=$rows?$rows*($layout==='list'?1:$columns):500;
-        foreach($selection as $id){$r=$all[$id];if($r['deleted_at']||!ancestors_active($r,$all)||($public&&($r['visibility']!=='public'||!$r['published'])))continue;$p=row_page($r,$public);
-            if(empty($a['manual'])&&!empty($a['parentId'])&&$p['parent_id']!==$a['parentId'])continue;if(empty($a['manual'])&&!empty($a['kind'])&&$p['kind']!==$a['kind'])continue;if($p['id']===$pageId)continue;if($count++ >= $limit)break;
-            $cards.='<article class="gallery-card-wrapper"><a class="gallery-card" href="index.php?page='.rawurlencode($p['slug']).($public?'&read=1':'').'">'.(!empty($p['cover_id'])?'<img loading="lazy" style="aspect-ratio:'.h($aspect).';object-position:'.h(($p['cover_position']['x']??50).'% '.($p['cover_position']['y']??50).'%').'" src="media.php?id='.rawurlencode($p['cover_id']).'" alt="">':'').'<div><strong>'.render_page_icon($p).' '.h($p['title']).'</strong>'.(!empty($p['description'])?'<p>'.h($p['description']).'</p>':'').'</div></a><div class="gallery-card-credits">'.render_credit($p['cover_attribution']??null).render_credit($p['icon_attribution']??null).'</div></article>';
-        }
-        return '<section class="gallery-block">'.(!empty($a['title'])?'<h2>'.h($a['title']).'</h2>':'').'<div class="gallery layout-'.$layout.' columns-'.$columns.'" style="--gallery-columns:'.$columns.';'.($layout==='list'?'display:flex;flex-direction:column;':'grid-template-columns:repeat('.$columns.',minmax(0,1fr));').'">'.($cards?:'<p class="muted">Aucune ressource dans cette galerie.</p>').'</div></section>';
-    }
-    if($t==='databaseView')return render_database_view(str_limit($a['dbId']??'',36),$public);
+    if($t==='gallery')return render_gallery($a,$pageId,$public);
+    if($t==='databaseView')return render_database_view(str_limit($a['dbId']??'',36),$public,is_array($a['viewConfig']??null)?$a['viewConfig']:[]);
     if($t==='formView')return render_form_view(str_limit($a['formId']??'',36),$public);
     if($t==='quiz'){
         $html='<form class="quiz" data-page="'.h($pageId).'" data-quiz="'.h($a['quizId']??'').'"><h3>'.h($a['title']??'À toi de jouer').'</h3>';
@@ -67,16 +61,29 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
     return $children;
 }
 
-function render_page_icon(array $page): string { return !empty($page['icon_id'])?'<img class="page-icon-image" src="media.php?id='.rawurlencode($page['icon_id']).'" alt="" style="width:1em;height:1em;object-fit:contain;display:inline-block">':h($page['icon']??'📄'); }
+function render_page_icon(array $page): string {
+    if(!empty($page['icon_id']))return '<img class="page-icon-image feuillet-icon" src="media.php?id='.rawurlencode($page['icon_id']).'" alt="" style="width:1em;height:1em;object-fit:contain;display:inline-block">';
+    return render_feuillet_icon($page['icon']??'📄');
+}
+function render_feuillet_icon(string $value): string {
+    if($value==='f.')return '<span class="brand-symbol" aria-hidden="true">f.</span>';
+    if(preg_match('/^lucide:([a-z0-9-]{1,60})(:#[a-fA-F0-9]{6})?$/D',$value,$match)){
+        $color=isset($match[2])?' style="color:'.h(substr($match[2],1)).'"':'';
+        return '<svg viewBox="0 0 24 24" class="feuillet-icon feuillet-web-icon" width="1em" height="1em" aria-hidden="true"'.$color.'><use href="icons.svg#'.h($match[1]).'"></use></svg>';
+    }
+    return '<span class="feuillet-icon feuillet-emoji" aria-hidden="true">'.h($value).'</span>';
+}
+
 
 
 /** Same visibility policy as public_db_get; never render private/form responses. */
-function render_database_view(string $id,bool $public): string {
+function render_database_view(string $id,bool $public,array $config=[]): string {
     try{$bundle=database_bundle($id,$public||!admin());}catch(Throwable){return '<section class="embedded-database reader-embed-unavailable"><p>Cette base n’est pas disponible.</p></section>';}
-    $properties=$bundle['properties'];$files=array_column($bundle['files'],null,'id');$head='';$body='';
+    $rows=database_view_rows($bundle,$config);$hidden=is_array($config['hiddenPropertyIds']??null)?$config['hiddenPropertyIds']:[];$properties=array_values(array_filter($bundle['properties'],fn($p)=>$p['type']==='title'||!in_array($p['id'],$hidden,true)));$files=array_column($bundle['files'],null,'id');$head='';$body='';
     foreach($properties as $property)$head.='<th scope="col">'.h($property['name']).'</th>';
-    foreach(array_slice($bundle['rows'],0,500) as $row){$cells='';foreach($properties as $property){$value=$row['derived'][$property['id']]??$row['values'][$property['id']]??null;
+    foreach(array_slice($rows,0,500) as $row){$cells='';foreach($properties as $property){$value=$row['derived'][$property['id']]??$row['values'][$property['id']]??null;
         if($property['type']==='files'){$text='';foreach(is_array($value)?$value:[] as $fileId){$file=$files[$fileId]??null;if(!$file)continue;$text.='<a class="database-file" href="media.php?id='.rawurlencode($fileId).'&download=1">'.h($file['name']).'</a>';}}
+        elseif($property['type']==='relation')$text=h(database_view_text(database_view_value($row,$property,$bundle)));
         elseif($property['type']==='checkbox')$text=!empty($value)?'<span aria-label="Oui">✓</span>':'<span aria-label="Non">—</span>';
         elseif(is_array($value))$text=h(implode(', ',array_map(fn($v)=>is_scalar($v)?(string)$v:encoded($v),$value)));
         elseif(is_bool($value))$text=$value?'Oui':'Non';
@@ -86,7 +93,17 @@ function render_database_view(string $id,bool $public): string {
     $title='<h2>'.h($bundle['database']['name']).'</h2>';
     if(!$properties)return '<section class="embedded-database">'.$title.'<p>Cette base ne contient pas encore de propriétés.</p></section>';
     if(!$body)$body='<tr><td colspan="'.count($properties).'">Aucune ligne disponible.</td></tr>';
-    $more=count($bundle['rows'])>500?'<p class="muted">Les 500 premières lignes sont affichées dans cette vue de lecture.</p>':'';
+    $more=count($rows)>500?'<p class="muted">Les 500 premières lignes sont affichées dans cette vue de lecture.</p>':'';
+    if(($config['layout']??'table')==='gallery'){
+        $cards='';foreach(array_slice($rows,0,500) as $row){$fields='';foreach($properties as $property){$value=database_view_value($row,$property,$bundle);$fields.='<div><strong>'.h($property['name']).'</strong><p>'.h($value===null||$value===''||$value===[]?'—':database_view_text($value)).'</p></div>';}$cards.='<article class="database-gallery-card">'.$fields.'</article>';}
+        return '<section class="embedded-database">'.$title.'<div class="database-reader-gallery">'.($cards?:'<p>Aucune ligne disponible.</p>').'</div>'.$more.'</section>';
+    }
+    if(($config['layout']??'table')==='chart'){
+        $number=null;$label=null;foreach($bundle['properties'] as $property){if(!$label&&$property['type']==='title')$label=$property;if(!$number&&in_array($property['type'],['number','formula','rollup'],true))$number=$property;}
+        if($number&&$label){$bars='';$max=1;foreach($rows as $row)$max=max($max,abs((float)(database_view_value($row,$number,$bundle)??0)));foreach(array_slice($rows,0,100) as $row){$value=database_view_value($row,$number,$bundle);if(!is_numeric($value))continue;$bars.='<div class="database-reader-bar"><span>'.h(database_view_text(database_view_value($row,$label,$bundle))).'</span><div><i style="width:'.h(max(0,min(100,abs((float)$value)/$max*100))).'%"></i></div><strong>'.h($value).'</strong></div>';}
+            return '<section class="embedded-database">'.$title.'<p>'.h($number['name']).'</p><div class="database-reader-chart">'.$bars.'</div></section>';
+        }
+    }
     return '<section class="embedded-database">'.$title.'<div class="table-scroll"><table><thead><tr>'.$head.'</tr></thead><tbody>'.$body.'</tbody></table></div>'.$more.'</section>';
 }
 function render_form_view(string $id,bool $public): string {
@@ -111,11 +128,31 @@ function reader_ancestors(array $page): array {
     return $chain;
 }
 function render_reader_breadcrumbs(array $page): string {
-    $html='<nav class="reader-breadcrumbs" aria-label="Fil d’Ariane"><ol><li><a href="index.php?read=1">'.h(notebook_settings()['title']).'</a></li>';
+    $html='<nav class="reader-breadcrumbs" aria-label="Fil d’Ariane"><ol><li><a href="index.php?read=1">'.render_reader_brand().'</a></li>';
     foreach(reader_ancestors($page) as $ancestor)$html.='<li><span class="breadcrumb-separator" aria-hidden="true">›</span><a href="index.php?page='.rawurlencode($ancestor['slug']).'&amp;read=1">'.h($ancestor['title']).'</a></li>';
     return $html.'<li><span class="breadcrumb-separator" aria-hidden="true">›</span><span aria-current="page">'.h($page['title']).'</span></li></ol></nav>';
 }
 
 function list_public_pages(): array {
     $pages=[];$all=page_rows();foreach($all as $row){if($row['deleted_at']||$row['visibility']!=='public'||!$row['published']||!ancestors_active($row,$all))continue;$p=row_page($row,true);unset($p['content']);$pages[]=$p;}return $pages;
+}
+
+function render_reader_brand(): string { $n=notebook_settings();return '<span class="reader-brand-icon">'.render_page_icon(['icon'=>$n['icon']??'f.','icon_id'=>$n['icon_id']??null]).'</span><span>'.h($n['title']).'</span>'; }
+
+function render_gallery(array $attrs,string $pageId,bool $public): string {
+    $all=page_rows();$manual=!empty($attrs['manual']);$selection=$manual?array_values(array_intersect($attrs['pageIds']??[],array_keys($all))):array_keys($all);
+    $columns=max(1,min(6,(int)($attrs['columns']??2)));$rows=max(0,min(12,(int)($attrs['rows']??2)));$layout=($attrs['layout']??'grid')==='list'?'list':'grid';
+    $aspect=in_array($attrs['aspect']??'', ['16/9','4/3','1/1','3/4','auto'],true)?$attrs['aspect']:'16/9';$limit=$rows?$rows*($layout==='list'?1:$columns):500;$count=0;$cards='';
+    foreach($selection as $id){$row=$all[$id];if($id===$pageId||$row['deleted_at']||!ancestors_active($row,$all)||($public&&($row['visibility']!=='public'||!$row['published'])))continue;$p=row_page($row,$public);
+        if(!$manual&&!empty($attrs['parentId'])&&$p['parent_id']!==$attrs['parentId'])continue;if(!$manual&&!empty($attrs['kind'])&&$p['kind']!==$attrs['kind'])continue;
+        if($count>=500)break;$hidden=$count++ >= $limit;$icon=render_page_icon($p);$preview=$p['cover_id']?'<img loading="lazy" style="object-position:'.h(($p['cover_position']['x']??50).'% '.($p['cover_position']['y']??50).'%').'" src="media.php?id='.rawurlencode($p['cover_id']).'" alt="">':'<div class="gallery-placeholder"><span>'.$icon.'</span></div>';
+        $cards.='<div class="gallery-card"'.($hidden?' hidden data-gallery-extra="1"':'').'><a class="gallery-card-main" href="index.php?page='.rawurlencode($p['slug']).($public?'&amp;read=1':'').'">'.$preview.'<div class="gallery-card-text"><strong>'.$icon.' '.h($p['title']).'</strong>'.($p['description']?'<p>'.h($p['description']).'</p>':'').($p['kind']==='article'&&$p['source_name']?'<small>'.h($p['source_name']).'</small>':'').'</div></a>';
+        foreach(['cover_attribution','icon_attribution'] as $key)if(!empty($p[$key]))$cards.=str_replace('class="image-attribution"','class="image-attribution compact"',render_credit($p[$key]));$cards.='</div>';
+    }
+    $styles='--gallery-columns:'.$columns.';--gallery-mobile-columns:'.min(2,$columns).';--gallery-aspect:'.h($aspect).';';
+    return '<section class="gallery-block gallery-v2 layout-'.$layout.'" style="'.$styles.'"><div class="gallery-heading"><h3>'.h($attrs['title']??'Collection').'</h3></div><div class="gallery-grid gallery-v2-grid">'.($cards?:'<p class="muted">Aucune ressource publiée dans cette collection pour le moment.</p>').'</div>'.($count>$limit?'<button type="button" class="gallery-show-more" aria-expanded="false" data-gallery-toggle>Afficher tout ('.$count.')</button>':'').'</section>';
+}
+
+function render_reader_theme_toggle(): string {
+    return '<div class="feuillet-theme-toggle"><button type="button" class="theme-main-button" data-theme-main aria-label="Activer le mode sombre"><span data-theme-symbol aria-hidden="true">☾</span></button><details class="theme-options"><summary aria-label="Choisir le thème">⌄</summary><div><button type="button" data-theme-value="light">Clair</button><button type="button" data-theme-value="dark">Sombre</button><button type="button" data-theme-value="oled">Noir OLED</button><button type="button" data-theme-value="inherit">Thème du carnet</button></div></details></div>';
 }

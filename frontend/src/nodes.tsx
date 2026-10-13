@@ -1,4 +1,9 @@
-import { Node, mergeAttributes, type NodeViewProps } from "@tiptap/core";
+import {
+  Node,
+  mergeAttributes,
+  type NodeViewProps,
+  type Editor,
+} from "@tiptap/core";
 import Image from "@tiptap/extension-image";
 import {
   NodeViewWrapper,
@@ -31,6 +36,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useApp } from "./context";
 import { DatabaseView, FormView } from "./Database";
 import { imageSource } from "./MediaLightbox";
+import { FeuilletIcon } from "./IconPicker";
 import {
   api,
   fileUrl,
@@ -490,15 +496,11 @@ function PageLinkView({ node }: NodeViewProps) {
         }}
       >
         <span>
-          {page?.icon_id ? (
-            <img
-              className="page-link-icon-image"
-              src={fileUrl(page.icon_id)}
-              alt=""
-            />
-          ) : (
-            page?.icon || node.attrs.icon || "📄"
-          )}
+          <FeuilletIcon
+            icon={page?.icon || node.attrs.icon || "📄"}
+            iconId={page?.icon_id}
+            size={20}
+          />
         </span>
         <span>{page?.title || node.attrs.label || "Page"}</span>
         <ArrowUpRight size={17} />
@@ -527,76 +529,155 @@ export const PageLink = Node.create({
     return ReactNodeViewRenderer(PageLinkView);
   },
 });
-function ButtonView({ node, updateAttributes, getPos }: NodeViewProps) {
+export type LinkPresentation = "inline" | "button" | "card";
+export function linkPresentationContent(
+  mode: LinkPresentation,
+  href: string,
+  label: string,
+  description = "",
+) {
+  const url = safeLink(href);
+  if (mode === "inline")
+    return {
+      type: "paragraph",
+      content: [
+        {
+          type: "text",
+          text: label || href,
+          marks: [{ type: "link", attrs: { href: url } }],
+        },
+      ],
+    };
+  if (mode === "button")
+    return { type: "buttonLink", attrs: { href: url, label: label || href } };
+  return {
+    type: "bookmark",
+    attrs: { href: url, title: label || href, description, source: url },
+  };
+}
+export function transformSelectedLink(editor: Editor, mode: LinkPresentation) {
+  const href = editor.getAttributes("link").href;
+  if (!href || safeLink(href) === "#") return false;
+  editor.commands.extendMarkRange("link");
+  const { from, to } = editor.state.selection;
+  const label = editor.state.doc.textBetween(from, to, " ") || href;
+  if (mode === "inline") return true;
+  return editor
+    .chain()
+    .focus()
+    .insertContentAt({ from, to }, linkPresentationContent(mode, href, label))
+    .run();
+}
+function LinkResourceView({ node, editor, getPos, selected }: NodeViewProps) {
   const app = useApp();
-  const [editing, setEditing] = useState(false),
-    [label, setLabel] = useState(node.attrs.label || ""),
-    [href, setHref] = useState(node.attrs.href || ""),
-    [error, setError] = useState("");
-  const labelInput = useRef<HTMLInputElement>(null);
+  const [editing, setEditing] = useState(false);
+  const [mode, setMode] = useState<LinkPresentation>(
+    node.type.name === "bookmark" ? "card" : "button",
+  );
+  const [label, setLabel] = useState("");
+  const [href, setHref] = useState("");
+  const [description, setDescription] = useState("");
+  const [error, setError] = useState("");
+  const first = useRef<HTMLInputElement>(null);
   const edit = () => {
-    setLabel(node.attrs.label || "");
+    setMode(node.type.name === "bookmark" ? "card" : "button");
+    setLabel(node.attrs.label || node.attrs.title || "");
     setHref(node.attrs.href || "");
+    setDescription(node.attrs.description || "");
     setError("");
     setEditing(true);
   };
   useEffect(() => {
-    if (editing) requestAnimationFrame(() => labelInput.current?.focus());
+    if (editing) requestAnimationFrame(() => first.current?.focus());
   }, [editing]);
   useEffect(() => {
     const open = (event: Event) => {
-      const position = (event as CustomEvent<{ pos: number }>).detail?.pos;
-      if (position === getPos()) edit();
+      if ((event as CustomEvent<{ pos: number }>).detail?.pos === getPos())
+        edit();
     };
+    document.addEventListener("feuillet-edit-resource", open);
     document.addEventListener("feuillet-edit-button", open);
-    return () => document.removeEventListener("feuillet-edit-button", open);
+    return () => {
+      document.removeEventListener("feuillet-edit-resource", open);
+      document.removeEventListener("feuillet-edit-button", open);
+    };
   }, [node.attrs, getPos]);
+  const isCard = node.type.name === "bookmark";
   return (
-    <NodeViewWrapper contentEditable={false} className="button-block">
-      {app.admin ? (
-        <div className="editable-button-row">
-          <button className="resource-button" onClick={edit}>
-            {node.attrs.label}
-            <Pencil size={15} />
-          </button>
+    <NodeViewWrapper
+      contentEditable={false}
+      className={`${isCard ? "bookmark-block" : "button-block"} ${selected ? "resource-selected" : ""}`}
+    >
+      <div className="resource-presentation-row">
+        {isCard ? (
           <a
-            className="button-preview-link"
             href={safeLink(node.attrs.href)}
             target="_blank"
             rel="noopener noreferrer"
-            title="Ouvrir le lien du bouton"
           >
+            <div className="bookmark-symbol">
+              <BookOpen size={25} />
+            </div>
+            <div>
+              <strong>{node.attrs.title || node.attrs.href}</strong>
+              {node.attrs.description && <p>{node.attrs.description}</p>}
+              <small>{node.attrs.href}</small>
+            </div>
+            <ArrowUpRight size={18} />
+          </a>
+        ) : (
+          <a
+            className="resource-button"
+            href={safeLink(node.attrs.href)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {node.attrs.label}
             <ExternalLink size={16} />
           </a>
-        </div>
-      ) : (
-        <a
-          className="resource-button"
-          href={safeLink(node.attrs.href)}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {node.attrs.label}
-          <ExternalLink size={16} />
-        </a>
-      )}
+        )}
+        {app.admin && (
+          <button
+            className="small-button resource-settings"
+            aria-label="Modifier la présentation du lien"
+            title="Modifier la présentation du lien"
+            aria-expanded={editing}
+            onClick={edit}
+          >
+            <Settings size={16} />
+            <span>Présentation</span>
+          </button>
+        )}
+      </div>
       {app.admin && editing && (
         <form
-          className="inline-button-editor"
+          className="inline-button-editor resource-config"
           onSubmit={(event) => {
             event.preventDefault();
-            if (!label.trim()) {
-              setError("Donne un libellé au bouton.");
-              return;
-            }
             const url = safeLink(href);
-            if (url === "#" || !href.trim()) {
-              setError(
-                "Indique un lien HTTP, HTTPS ou une adresse e-mail valide.",
-              );
+            if (!href.trim() || url === "#") {
+              setError("Indique une adresse HTTP, HTTPS ou un lien valide.");
               return;
             }
-            updateAttributes({ label: label.trim(), href: url });
+            if (!label.trim()) {
+              setError("Donne un libellé au lien.");
+              return;
+            }
+            const pos = getPos();
+            if (typeof pos !== "number" || editor.isDestroyed) return;
+            editor
+              .chain()
+              .focus()
+              .insertContentAt(
+                { from: pos, to: pos + node.nodeSize },
+                linkPresentationContent(
+                  mode,
+                  url,
+                  label.trim(),
+                  description.trim(),
+                ),
+              )
+              .run();
             setEditing(false);
           }}
           onKeyDown={(event) => {
@@ -607,9 +688,22 @@ function ButtonView({ node, updateAttributes, getPos }: NodeViewProps) {
           }}
         >
           <label>
-            Texte du bouton
+            Présentation
+            <select
+              value={mode}
+              onChange={(event) =>
+                setMode(event.target.value as LinkPresentation)
+              }
+            >
+              <option value="inline">Lien dans le texte</option>
+              <option value="button">Bouton</option>
+              <option value="card">Carte avec aperçu</option>
+            </select>
+          </label>
+          <label>
+            Texte du lien
             <input
-              ref={labelInput}
+              ref={first}
               value={label}
               maxLength={240}
               onChange={(event) => setLabel(event.target.value)}
@@ -619,10 +713,24 @@ function ButtonView({ node, updateAttributes, getPos }: NodeViewProps) {
             Adresse du lien
             <input
               value={href}
-              placeholder="https://…"
               onChange={(event) => setHref(event.target.value)}
+              placeholder="https://…"
             />
           </label>
+          {mode === "card" && (
+            <label>
+              Description de l’aperçu
+              <textarea
+                value={description}
+                maxLength={2000}
+                onChange={(event) => setDescription(event.target.value)}
+              />
+              <small>
+                Aperçu rédigé ici ; aucune récupération automatique du site
+                distant.
+              </small>
+            </label>
+          )}
           {error && (
             <p className="form-error" role="alert">
               {error}
@@ -637,7 +745,8 @@ function ButtonView({ node, updateAttributes, getPos }: NodeViewProps) {
               Annuler
             </button>
             <button className="primary-button">
-              <Check size={15} /> Enregistrer le bouton
+              <Check size={15} />
+              Appliquer
             </button>
           </div>
         </form>
@@ -659,30 +768,9 @@ export const ButtonLink = Node.create({
     return ["div", mergeAttributes(HTMLAttributes, { "data-button-link": "" })];
   },
   addNodeView() {
-    return ReactNodeViewRenderer(ButtonView);
+    return ReactNodeViewRenderer(LinkResourceView);
   },
 });
-function BookmarkView({ node }: NodeViewProps) {
-  return (
-    <NodeViewWrapper contentEditable={false} className="bookmark-block">
-      <a
-        href={safeLink(node.attrs.href)}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <div className="bookmark-symbol">
-          <BookOpen size={25} />
-        </div>
-        <div>
-          <strong>{node.attrs.title || node.attrs.href}</strong>
-          {node.attrs.description && <p>{node.attrs.description}</p>}
-          <small>{node.attrs.source || node.attrs.href}</small>
-        </div>
-        <ArrowUpRight size={18} />
-      </a>
-    </NodeViewWrapper>
-  );
-}
 export const Bookmark = Node.create({
   name: "bookmark",
   group: "block",
@@ -702,27 +790,47 @@ export const Bookmark = Node.create({
     return ["div", mergeAttributes(HTMLAttributes, { "data-bookmark": "" })];
   },
   addNodeView() {
-    return ReactNodeViewRenderer(BookmarkView);
+    return ReactNodeViewRenderer(LinkResourceView);
   },
 });
-function FileView({ node, updateAttributes }: NodeViewProps) {
+function FileView({ node, updateAttributes, getPos, selected }: NodeViewProps) {
   const app = useApp();
+  const [editing, setEditing] = useState(false);
   const { fileId, name, mime, size, mode } = node.attrs;
+  const supportedMode =
+    mime === "application/pdf"
+      ? "pdf"
+      : String(mime).startsWith("audio/")
+        ? "audio"
+        : String(mime).startsWith("video/")
+          ? "video"
+          : "download";
+  const effectiveMode = mode === supportedMode ? mode : "download";
+  useEffect(() => {
+    const open = (event: Event) => {
+      if ((event as CustomEvent<{ pos: number }>).detail?.pos === getPos())
+        setEditing(true);
+    };
+    document.addEventListener("feuillet-edit-resource", open);
+    return () => document.removeEventListener("feuillet-edit-resource", open);
+  }, [getPos]);
   const url = fileUrl(fileId);
   return (
     <NodeViewWrapper
       contentEditable={false}
-      className={`file-block mode-${mode}`}
+      className={`file-block mode-${effectiveMode} ${selected ? "resource-selected" : ""}`}
     >
-      {mode === "pdf" && (
+      {effectiveMode === "pdf" && (
         <iframe
           src={`pdf-viewer.php?id=${encodeURIComponent(fileId)}`}
           title={name || "Document PDF"}
           loading="lazy"
         />
       )}
-      {mode === "audio" && <audio controls preload="none" src={url} />}{" "}
-      {mode === "video" && <video controls preload="metadata" src={url} />}
+      {effectiveMode === "audio" && <audio controls preload="none" src={url} />}{" "}
+      {effectiveMode === "video" && (
+        <video controls preload="metadata" src={url} />
+      )}
       <div className="file-caption">
         <FileText size={19} />
         <div>
@@ -731,6 +839,18 @@ function FileView({ node, updateAttributes }: NodeViewProps) {
             {sizeLabel(size || 0)} · {mime}
           </small>
         </div>
+        {app.admin && (
+          <button
+            className="small-button resource-settings"
+            title="Modifier la présentation du fichier"
+            aria-label="Modifier la présentation du fichier"
+            aria-expanded={editing}
+            onClick={() => setEditing(!editing)}
+          >
+            <Settings size={16} />
+            <span>Présentation</span>
+          </button>
+        )}
         {app.admin && (
           <button
             className="file-rename-button"
@@ -754,6 +874,49 @@ function FileView({ node, updateAttributes }: NodeViewProps) {
           <span>Télécharger</span>
         </a>
       </div>
+      {app.admin && editing && (
+        <div
+          className="resource-config"
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.stopPropagation();
+              setEditing(false);
+            }
+          }}
+        >
+          <label>
+            Présentation du fichier
+            <select
+              autoFocus
+              value={effectiveMode}
+              onChange={(event) =>
+                updateAttributes({ mode: event.target.value })
+              }
+            >
+              <option value="download">Fichier téléchargeable</option>
+              {supportedMode !== "download" && (
+                <option value={supportedMode}>
+                  {supportedMode === "pdf"
+                    ? "PDF affiché dans la page"
+                    : supportedMode === "audio"
+                      ? "Lecteur audio"
+                      : "Lecteur vidéo"}
+                </option>
+              )}
+            </select>
+          </label>
+          <small>
+            Le même fichier est conservé. Seul son affichage change.
+          </small>
+          <button
+            type="button"
+            className="small-button"
+            onClick={() => setEditing(false)}
+          >
+            Terminer
+          </button>
+        </div>
+      )}
     </NodeViewWrapper>
   );
 }
@@ -986,7 +1149,13 @@ function GalleryView({ node, updateAttributes }: NodeViewProps) {
           <div className="gallery-order-list">
             {pages.map((page, index) => (
               <div key={page.id}>
-                <span>{page.icon || "📄"}</span>
+                <span>
+                  <FeuilletIcon
+                    icon={page.icon}
+                    iconId={page.icon_id}
+                    size={16}
+                  />
+                </span>
                 <strong>{page.title || "Sans titre"}</strong>
                 <button
                   title="Monter cette page"
@@ -1039,7 +1208,8 @@ function GalleryView({ node, updateAttributes }: NodeViewProps) {
                 )
                 .map((page) => (
                   <option key={page.id} value={page.id}>
-                    {page.icon} {page.title || "Sans titre"}
+                    {page.icon?.startsWith("lucide:") ? "◇" : page.icon}{" "}
+                    {page.title || "Sans titre"}
                   </option>
                 ))}
             </select>
@@ -1095,25 +1265,21 @@ function GalleryView({ node, updateAttributes }: NodeViewProps) {
               ) : (
                 <div className="gallery-placeholder">
                   <span>
-                    {page.icon_id ? (
-                      <img src={fileUrl(page.icon_id)} alt="" />
-                    ) : (
-                      page.icon || "📄"
-                    )}
+                    <FeuilletIcon
+                      icon={page.icon}
+                      iconId={page.icon_id}
+                      size={30}
+                    />
                   </span>
                 </div>
               )}
               <div className="gallery-card-text">
                 <strong>
-                  {page.icon_id ? (
-                    <img
-                      className="gallery-inline-icon"
-                      src={fileUrl(page.icon_id)}
-                      alt=""
-                    />
-                  ) : (
-                    page.icon || "📄"
-                  )}{" "}
+                  <FeuilletIcon
+                    icon={page.icon}
+                    iconId={page.icon_id}
+                    size={13}
+                  />{" "}
                   {page.title || "Sans titre"}
                 </strong>
                 {page.description && <p>{page.description}</p>}
@@ -1557,13 +1723,17 @@ export const Quiz = Node.create({
   },
 });
 
-function DatabaseBlockView({ node }: NodeViewProps) {
+function DatabaseBlockView({ node, updateAttributes }: NodeViewProps) {
   return (
     <NodeViewWrapper
       contentEditable={false}
       className="embedded-database-block"
     >
-      <DatabaseView dbId={String(node.attrs.dbId || "")} />
+      <DatabaseView
+        dbId={String(node.attrs.dbId || "")}
+        viewConfig={node.attrs.viewConfig || undefined}
+        onViewConfigChange={(viewConfig) => updateAttributes({ viewConfig })}
+      />
     </NodeViewWrapper>
   );
 }
@@ -1579,7 +1749,7 @@ export const DatabaseEmbed = Node.create({
   group: "block",
   atom: true,
   addAttributes() {
-    return { dbId: { default: "" } };
+    return { dbId: { default: "" }, viewConfig: { default: null } };
   },
   parseHTML() {
     return [{ tag: "div[data-database-view]" }];
