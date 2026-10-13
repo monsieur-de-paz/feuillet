@@ -230,3 +230,28 @@ Captures : [utilisations](feuillet-v041-usages.jpg), [accent OLED](feuillet-v041
 Les limites sur OVH, PHP 8.3/8.4, MariaDB, Apache réel et les performances demeurent celles de la section 0.4.
 
 La distribution 0.4.1 a également été extraite dans un nouveau dossier : les 12 scénarios `workspace.py` passent depuis cette archive. Les audits npm complets et de production du verrouillage 0.4.1 indiquent chacun zéro vulnérabilité connue au moment du contrôle. Cela ne garantit pas l’absence de toute faille dans le logiciel ou l’hébergement.
+
+## Version 0.5.0 — 14 octobre 2026
+
+Les huit suites HTTP ont été rejouées sur copies jetables : smoke 20 réussites + 1 scénario réseau ignoré, customization 9, databases 12, homepage 6, security 13, autopublish 6, reader 5, workspace 12. **83 réussites et un scénario réseau ignoré par pilote**, SQLite et MySQL. Les suites reader et workspace ont également été rejouées après la modification des styles de thèmes ; reader après l’unification du symbole de thème. Ces suites automatiques n’ont pas utilisé la base réelle du carnet.
+
+`node tests/frontend.mjs` réussit **58 cas** : 42 cas existants et 16 cas d’interface (options groupées/désactivées, recherche sans accents, bornage de menus à 320/390/945/1280 px, ouverture au-dessus et viewport de clavier virtuel). Le groupe supplémentaire des **24 accents** réussit le contraste clair/sombre/OLED et la comparaison exacte PHP/JavaScript.
+
+Compilation TypeScript/Vite, Prettier et syntaxe des **19 fichiers PHP** réussies. Aucune nouvelle dépendance npm. Le bundle principal représente environ **969 Ko JS / 300 Ko gzip** ; l’avertissement Vite de taille de chunk reste présent. Les audits npm complets et de production du 14 octobre indiquent chacun **0 vulnérabilité connue**, ce qui ne garantit pas l’absence de faille dans le logiciel ou l’hébergement. SHA-256 de `frontend/package-lock.json` : `1be3ff38a76c7823983860d66b763f48a6fe854ea00b411cbe2f5377bedc0b56`.
+
+### Parcours du navigateur intégré
+
+- Liste longue des raccourcis : recherche B, Entrée change la valeur locale ; réglage non enregistré. Échap ferme la liste et restaure le focus du combobox. Tab rejoint le champ suivant « Taille maximale d’un fichier ».
+- Formulaire fictif relié à une base privée : le choix obligatoire vide affiche « Choisis une option » ; choisir « Objets connectés » puis Envoyer produit l’écran de succès. Aucune réponse réelle collectée pour ces essais.
+- Bloc de texte fictif : clic droit, duplication puis Annuler ; sélection, clic droit, Gras puis Annuler. La barre de sélection ne recouvre plus les outils fixes.
+- Galerie fictive : choix à la souris de trois colonnes, menu fermé et valeur affichée ; retour à deux colonnes sans modifier les cours existants.
+- Bouton de poignée : les mêmes actions que le clic droit. Menu de page : Début/Fin, flèches, Échap et groupes de commandes.
+- Action de sous-page sur mobile : « Renommer » ouvre réellement la sous-page cliquée, ferme le tiroir et focalise son titre.
+- Propriété de base : clic droit, focus automatique sur Renommer, flèche vers Modifier la propriété **sans forcer le focus par un locator**. Recherche « relation » dans les types ; Échap ferme la liste en laissant l’éditeur du champ ouvert. Cellule : clic droit ouvre sa valeur ; Échap ferme seulement sa liste ; annulation sans changement de la fiche.
+- Modes personnel Clair, Sombre et OLED : menu lisible, danger rose lisible en sombre, noir effectif `rgb(0,0,0)` en OLED. Lecture publique contrôlée avec la même fonte système et les symboles SVG de thème ; aucun menu d’administration injecté. Le choix personnel initial Clair a été restauré. Les réglages généraux et la publication des cours existants n’ont pas été changés.
+- Transition du symbole de thème contrôlée au ralenti à 10 % : override temporaire **dans la copie d’aperçu seulement**, de 150 à 1 500 ms ; états intermédiaires observés, arrivée à opacity/scale 1 et blur 0, changement de sens pendant la transition. CSS normal restauré après l’essai. Le panneau Animations n’a pas été utilisé.
+- App et formulaire à **390 × 844** et **320 × 740** : `document.documentElement.scrollWidth === innerWidth`. Menu de page à 320 : x 38, largeur 274 ; contrôles de menu 44 px ; barre supérieure et position sticky des outils à 104 px. Le menu reste dans le viewport. Overrides de viewport réinitialisés et onglets temporaires fermés.
+
+Les essais sont locaux sous PHP 8.5.11, MySQL local et Chromium intégré. Safari/iOS, Firefox, lecteur d’écran, clavier virtuel réel, préférence de réduction du mouvement activée au niveau du système et audit WCAG complet ne sont pas vérifiés. La règle CSS de réduction du mouvement est inspectée. Aucun déploiement ni test de charge OVH, Apache, MariaDB, PHP 8.3/8.4 ou écran OLED physique effectué. [Audit de l’interface](AUDIT-INTERFACE-0.5.md).
+
+La distribution précompilée a aussi été extraite dans un dossier indépendant : les 12 scénarios workspace passent depuis cette copie, et les styles communs de l’éditeur et du lecteur sont identiques dans le ZIP.

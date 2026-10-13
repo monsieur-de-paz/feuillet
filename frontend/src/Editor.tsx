@@ -1,4 +1,5 @@
 import { editableDocument } from "./types";
+import { ContextMenu, type MenuAction } from "./ContextMenu";
 import { useEditor, EditorContent } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
@@ -169,6 +170,10 @@ export default function CourseEditor({
     null,
   );
   const [blockMenu, setBlockMenu] = useState(false);
+  const [blockAnchor, setBlockAnchor] = useState<HTMLButtonElement | null>(
+    null,
+  );
+  const [context, setContext] = useState<{ x: number; y: number } | null>(null);
   const [help, setHelp] = useState(false);
   const [hoverBlock, setHoverBlock] = useState<{
     top: number;
@@ -234,6 +239,16 @@ export default function CourseEditor({
         "aria-label": admin ? "Contenu de la page" : "Contenu du cours",
       },
       handleKeyDown: (_view, event) => {
+        if (
+          admin &&
+          ((event.key === "F10" && event.shiftKey) ||
+            event.key === "ContextMenu")
+        ) {
+          const coords = _view.coordsAtPos(_view.state.selection.from);
+          event.preventDefault();
+          setContext({ x: coords.left, y: coords.bottom });
+          return true;
+        }
         const current = menuRef.current;
         if (current) {
           const options = commandsRef.current;
@@ -331,6 +346,54 @@ export default function CourseEditor({
       if (menuRef.current?.query !== query) setActive(0);
     } else if (!menuRef.current?.manual) setMenu(null);
   }
+  // Re-anchor after the browser scrolls on focus, instead of keeping stale coordinates.
+  useEffect(() => {
+    if (!editor || !admin) return;
+    let frame = 0;
+    const update = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const sel = editor.state.selection;
+        if (sel.empty || sel instanceof NodeSelection) {
+          setBubble(null);
+          return;
+        }
+        const start = editor.view.coordsAtPos(sel.from),
+          end = editor.view.coordsAtPos(sel.to);
+        const top = Math.min(start.top, end.top),
+          bottom = Math.max(start.bottom, end.bottom);
+        const toolbar = contentRef.current?.parentElement
+          ?.querySelector(".editor-toolbar")
+          ?.getBoundingClientRect();
+        const floor = Math.max(8, (toolbar?.bottom || 0) + 8);
+        const y =
+          top - 49 >= floor
+            ? top - 49
+            : bottom + 8 + 44 <= innerHeight
+              ? bottom + 8
+              : Math.min(innerHeight - 50, floor);
+        setBubble({
+          left: Math.max(
+            8,
+            Math.min(
+              innerWidth - Math.min(370, innerWidth - 16) - 8,
+              start.left,
+            ),
+          ),
+          top: Math.max(8, y),
+        });
+      });
+    };
+    editor.on("selectionUpdate", update);
+    document.addEventListener("scroll", update, true);
+    window.addEventListener("resize", update);
+    return () => {
+      cancelAnimationFrame(frame);
+      editor.off("selectionUpdate", update);
+      document.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", update);
+    };
+  }, [editor, admin]);
   const insertNode = (ed: Editor, node: any) =>
     ed
       .chain()
@@ -702,26 +765,6 @@ export default function CourseEditor({
     }
   }, [!!menu]);
   useEffect(() => {
-    if (!blockMenu) return;
-    const close = (event: MouseEvent) => {
-      if (
-        !(event.target as Element).closest(
-          ".block-control,.block-hover-rail,.block-dropdown",
-        )
-      )
-        setBlockMenu(false);
-    };
-    const escape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setBlockMenu(false);
-    };
-    document.addEventListener("mousedown", close);
-    document.addEventListener("keydown", escape);
-    return () => {
-      document.removeEventListener("mousedown", close);
-      document.removeEventListener("keydown", escape);
-    };
-  }, [blockMenu]);
-  useEffect(() => {
     if (menu)
       document
         .getElementById(`command-${filtered[active]?.id}`)
@@ -892,6 +935,178 @@ export default function CourseEditor({
     else if (type === "blockquote")
       chain.setParagraph().toggleBlockquote().run();
     setFormatMenu(null);
+  }
+  function blockContextActions(): MenuAction[] {
+    if (!editor) return [];
+    const index = Math.min(
+      editor.state.selection.$from.index(0),
+      editor.state.doc.childCount - 1,
+    );
+    const node = editor.state.doc.child(index);
+    const text =
+      node.isTextblock ||
+      node.type.name.endsWith("List") ||
+      node.type.name === "blockquote";
+    const items: MenuAction[] = [];
+    const formatSelection = (run: () => void) => {
+      if (
+        editor.state.selection.empty &&
+        editor.state.selection.$from.parent.isTextblock
+      ) {
+        const $from = editor.state.selection.$from;
+        editor.commands.setTextSelection({
+          from: $from.start(),
+          to: $from.end(),
+        });
+      }
+      run();
+    };
+    if (["buttonLink", "bookmark", "fileBlock"].includes(node.type.name))
+      items.push({
+        label: "Modifier la présentation",
+        icon: <Link />,
+        run: editCurrentBlock,
+        group: "edit",
+      });
+    if (node.type.name === "image") {
+      items.push({
+        label: "Agrandir l’image",
+        icon: <ImageIcon />,
+        run: () =>
+          app.zoomImage(
+            node.attrs.fileId ? fileUrl(node.attrs.fileId) : node.attrs.src,
+            node.attrs.alt,
+          ),
+        group: "edit",
+      });
+      for (const [align, label] of [
+        ["left", "Aligner à gauche"],
+        ["center", "Centrer"],
+        ["right", "Aligner à droite"],
+      ])
+        items.push({
+          label,
+          icon: <ImageIcon />,
+          run: () => {
+            editor.chain().focus().updateAttributes("image", { align }).run();
+          },
+          group: "edit",
+        });
+      items.push({
+        label: "Largeur complète",
+        icon: <Columns2 />,
+        run: () => {
+          editor
+            .chain()
+            .focus()
+            .updateAttributes("image", { width: 100 })
+            .run();
+        },
+        group: "edit",
+      });
+    }
+    if (text) {
+      items.push(
+        {
+          label: "Transformer en…",
+          icon: <Heading2 />,
+          run: () => {
+            editor.view.focus();
+            setFormatMenu("transform");
+          },
+          group: "edit",
+        },
+        {
+          label: "Couleur du texte et du fond",
+          icon: <Highlighter />,
+          run: () => {
+            editor.view.focus();
+            setFormatMenu("colors");
+          },
+          group: "edit",
+        },
+        {
+          label: "Gras",
+          icon: <Bold />,
+          run: () => {
+            formatSelection(() => {
+              editor.chain().focus().toggleBold().run();
+            });
+          },
+          group: "format",
+          shortcut: "⌘/Ctrl B",
+        },
+        {
+          label: "Italique",
+          icon: <Italic />,
+          run: () => {
+            formatSelection(() => {
+              editor.chain().focus().toggleItalic().run();
+            });
+          },
+          group: "format",
+          shortcut: "⌘/Ctrl I",
+        },
+        {
+          label: "Couleur par défaut",
+          icon: <FileText />,
+          run: () => {
+            formatSelection(() => {
+              editor.chain().focus().unsetMark("textStyle").run();
+            });
+          },
+          group: "format",
+        },
+      );
+    }
+    items.push(
+      {
+        label: "Ajouter un bloc après",
+        icon: <Plus />,
+        run: () => {
+          let pos = 0;
+          for (let i = 0; i <= index; i++)
+            pos += editor.state.doc.child(i).nodeSize;
+          const tr = editor.state.tr.insert(
+            pos,
+            editor.schema.nodes.paragraph.create(),
+          );
+          tr.setSelection(TextSelection.create(tr.doc, pos + 1));
+          editor.view.dispatch(tr);
+          editor.view.focus();
+          openInsert();
+        },
+        group: "organize",
+      },
+      {
+        label: "Monter",
+        icon: <ArrowUp />,
+        run: () => mutateBlock("up"),
+        disabled: index === 0,
+        group: "organize",
+      },
+      {
+        label: "Descendre",
+        icon: <ArrowDown />,
+        run: () => mutateBlock("down"),
+        disabled: index === editor.state.doc.childCount - 1,
+        group: "organize",
+      },
+      {
+        label: "Dupliquer le bloc",
+        icon: <Copy />,
+        run: () => mutateBlock("duplicate"),
+        group: "organize",
+      },
+      {
+        label: "Supprimer le bloc",
+        icon: <Trash2 />,
+        run: () => mutateBlock("delete"),
+        danger: true,
+        group: "delete",
+      },
+    );
+    return items;
   }
   const formattingControls = (
     <>
@@ -1164,60 +1379,21 @@ export default function CourseEditor({
               title="Actions sur le bloc courant"
               aria-expanded={blockMenu}
               onMouseDown={(e) => e.preventDefault()}
-              onClick={() => setBlockMenu(!blockMenu)}
+              onClick={(e) => {
+                setBlockAnchor(e.currentTarget);
+                setBlockMenu(!blockMenu);
+              }}
             >
               <GripVertical size={17} />
             </button>
             {blockMenu && (
-              <div className="dropdown block-dropdown">
-                <small>Bloc sélectionné</small>
-                {editor &&
-                  ["buttonLink", "bookmark", "fileBlock"].includes(
-                    editor.state.doc.child(
-                      Math.min(
-                        editor.state.selection.$from.index(0),
-                        editor.state.doc.childCount - 1,
-                      ),
-                    ).type.name,
-                  ) && (
-                    <button
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={editCurrentBlock}
-                    >
-                      <Link />
-                      Modifier la présentation
-                    </button>
-                  )}
-                <button
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => mutateBlock("up")}
-                >
-                  <ArrowUp />
-                  Monter
-                </button>
-                <button
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => mutateBlock("down")}
-                >
-                  <ArrowDown />
-                  Descendre
-                </button>
-                <button
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => mutateBlock("duplicate")}
-                >
-                  <Copy />
-                  Dupliquer
-                </button>
-                <button
-                  className="danger"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => mutateBlock("delete")}
-                >
-                  <Trash2 />
-                  Supprimer
-                </button>
-              </div>
+              <ContextMenu
+                anchor={blockAnchor}
+                title="Bloc sélectionné"
+                actions={blockContextActions()}
+                onClose={() => setBlockMenu(false)}
+                onRestoreFocus={() => editor?.view.focus()}
+              />
             )}
           </div>
           <button
@@ -1259,6 +1435,48 @@ export default function CourseEditor({
       <div
         ref={contentRef}
         className="editor-content-wrap"
+        onContextMenu={(event) => {
+          if (!admin || !editor || event.shiftKey) return;
+          if (
+            (event.target as HTMLElement).closest(
+              'input,textarea,select,[role="combobox"],.feuillet-floating',
+            )
+          )
+            return;
+          const top = Array.from(editor.view.dom.children).find((el) =>
+            el.contains(event.target as Node),
+          );
+          if (!top) return;
+          const index = Array.from(editor.view.dom.children).indexOf(top);
+          if (index >= editor.state.doc.childCount) return;
+          event.preventDefault();
+          event.stopPropagation();
+          let pos = 0;
+          for (let i = 0; i < index; i++)
+            pos += editor.state.doc.child(i).nodeSize;
+          const node = editor.state.doc.child(index);
+          const hit = editor.view.posAtCoords({
+            left: event.clientX,
+            top: event.clientY,
+          });
+          const sel = editor.state.selection;
+          if (!(
+            hit &&
+            !sel.empty &&
+            hit.pos >= sel.from &&
+            hit.pos <= sel.to
+          )) {
+            if (node.isAtom) editor.commands.setNodeSelection(pos);
+            else
+              editor.commands.setTextSelection(
+                Math.min(hit?.pos ?? pos + 1, editor.state.doc.content.size),
+              );
+          }
+          setBlockMenu(false);
+          setMenu(null);
+          setFormatMenu(null);
+          setContext({ x: event.clientX, y: event.clientY });
+        }}
         onMouseMove={(event) => {
           if (!admin || !editor || !contentRef.current) return;
           const top = Array.from(editor.view.dom.children).find((el) =>
@@ -1287,8 +1505,9 @@ export default function CourseEditor({
             <button
               title="Déplacer, dupliquer ou supprimer ce bloc"
               onMouseDown={(e) => e.preventDefault()}
-              onClick={() => {
+              onClick={(e) => {
                 focusHovered();
+                setBlockAnchor(e.currentTarget);
                 setBlockMenu(!blockMenu);
               }}
             >
@@ -1296,13 +1515,33 @@ export default function CourseEditor({
             </button>
           </div>
         )}
+        {context && (
+          <ContextMenu
+            point={context}
+            title={
+              editor?.state.selection.empty ? "Ce bloc" : "Sélection et bloc"
+            }
+            actions={blockContextActions()}
+            onClose={() => setContext(null)}
+            onRestoreFocus={() => editor?.view.focus()}
+          />
+        )}
         <EditorContent editor={editor} />
       </div>
       {admin &&
         bubble &&
+        !context &&
+        !blockMenu &&
         createPortal(
           <div
             className="selection-toolbar selection-toolbar-v2"
+            onContextMenu={(event) => {
+              if (!admin || event.shiftKey) return;
+              event.preventDefault();
+              event.stopPropagation();
+              setContext({ x: event.clientX, y: event.clientY });
+              setFormatMenu(null);
+            }}
             role="toolbar"
             aria-label="Mise en forme du texte sélectionné"
             style={{

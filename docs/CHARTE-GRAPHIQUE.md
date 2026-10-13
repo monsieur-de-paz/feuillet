@@ -1,0 +1,77 @@
+# Charte graphique et interactions de Feuillet
+
+Version 0.5.0, 14 octobre 2026. Cette charte concerne l’éditeur, sa navigation, ses réglages, les bases et la lecture publique. Feuillet est un carnet : les cours occupent le premier plan ; les outils restent proches du contenu. La référence est l’édition documentaire de Notion, avec une interface propre à Feuillet.
+
+## Principes
+
+Une page reste un document, sans décoration imposée sur les textes de l’auteur. Une seule couleur d’accent guide les actions ; les couleurs des états, emoji et images restent des informations choisies par l’auteur. La même page garde sa composition en édition et en lecture. Une interface lisible doit aussi fonctionner au clavier et au toucher.
+
+La modernité vient de détails cohérents : alignements, espacements, retours de sélection, menus qui restent dans l’écran, cibles utilisables et sauvegarde discrète. Pas de défilement détourné, de mouvements continus ou de dépendance externe pour une animation.
+
+## Couleurs et surfaces
+
+| Jeton | Clair | Sombre | OLED | Usage |
+|---|---|---|---|---|
+| `--surface` | `#FFFFFF` | `#17191D` | `#000000` | Menus et surfaces |
+| `--surface-muted` | `#F7F7F5` | `#202329` | `#080808` | Navigation, fonds secondaires |
+| `--surface-soft` | `#EEEFED` | `#2A2E35` | `#121212` | Survols et surfaces imbriquées |
+| `--line` | `#E4E5E2` | `#373A42` | `#373A42` | Séparation structurelle |
+| `--muted` | `#6F716D` | `#AFB3BD` | `#AFB3BD` | Légendes et aides |
+| `--danger` | `#B83D32` | `#F28E83` | `#F28E83` | Actions de retrait |
+| `--accent` | Choix de l’auteur | Variante calculée | Variante calculée | Focus, sélection, boutons |
+
+Le fond et le texte du document restent personnalisables. Les variantes de l’accent conservent la teinte et adaptent sa luminosité aux surfaces sombres, y compris au fond de sélection. Une couleur de texte explicite reste explicite ; « Défaut » hérite du thème. Ces règles ne garantissent pas le contraste de toute combinaison de couleurs créée manuellement.
+
+Les menus sont surélevés ; les tableaux et la navigation utilisent des bordures structurelles. Les documents ne reçoivent pas de grandes ombres. Les images du contenu ont une séparation neutre et discrète, noire en clair, blanche en sombre.
+
+## Typographie et rythme
+
+La police sans empattements utilise les fontes système, avec repli `-apple-system`, `BlinkMacSystemFont`, `Segoe UI`, sans-serif. Aucun chargement externe. Quicksand, Fraunces, Georgia et monospace restent disponibles. La police choisie dans le carnet ou la page reste respectée.
+
+Les titres ont un interlettrage légèrement resserré et un retour à la ligne équilibré. Les légendes sont moins présentes, mais restent lisibles. Les nombres des tableaux et indicateurs utilisent des chiffres tabulaires. Le texte libre n’est jamais tronqué pour respecter un modèle de vitrine.
+
+L’unité d’espacement est 4 px : 4, 8, 12, 16, 24. Les contrôles ont un rayon de 7 px, les panneaux et menus de 12 px, les dialogues de 16 px. Les options des menus ont un rayon de 7 px, entourées de 5 px : leur rayon extérieur est concentrique.
+
+## Navigation
+
+La barre latérale réserve son espace principal aux pages. La liste des espaces a une hauteur limitée et son propre défilement. Les filtres défilent horizontalement si nécessaire. Les utilitaires principaux restent visibles : Bibliothèque, Bases de données, Réglages & sauvegardes. **Plus d’outils** contient Accueil visiteur, Corbeille et Déconnexion.
+
+La page active est distinguée par son fond, son texte et un repère de couleur. Chaque ligne propose un bouton d’actions, visible au survol, au focus et en permanence sur mobile. Le masquage complet par raccourci ou bouton reste disponible ; sur mobile, la navigation reste un tiroir.
+
+## Sélecteurs
+
+Les listes simples de l’application React utilisent `Select.tsx`. Le contrôle fermé affiche la valeur et un chevron. La liste marque le choix courant avec une coche. Plus de six options : un champ de recherche filtre les libellés sans tenir compte des accents. Les états colorés ont un point de couleur dans leur sélecteur.
+
+Entrée ou Espace ouvre ; ↑/↓ parcourt ; Début/Fin rejoint une extrémité ; Entrée valide ; Échap ferme et restitue le focus. Tab conserve le parcours normal du formulaire. Les options désactivées sont exclues de la navigation. Les longues options peuvent revenir à la ligne dans la liste.
+
+Le `<select>` natif reste présent pour la valeur du formulaire, les événements React et la validation des champs obligatoires. Il est retiré du parcours visuel et du clavier. Un champ obligatoire vide indique une erreur au niveau du contrôle visible. L’installation PHP conserve ses contrôles natifs.
+
+## Menus contextuels
+
+Le clic droit dans l’interface d’administration ouvre des actions selon la cible : page, couverture, carnet, texte/bloc ou propriété de base. Sur une cellule de base, il ouvre directement l’édition de sa valeur. Les boutons ⋯ et la poignée de bloc donnent accès aux mêmes actions sans clic droit ; les propriétés conservent leur bouton de menu.
+
+**Maj + F10** ou la touche Menu ouvre les actions depuis un contrôle de navigation ou l’éditeur. ↑/↓, Début/Fin, Entrée et Échap fonctionnent dans les menus. Les menus ont un nom accessible, des groupes séparés et des actions dangereuses identifiables par leur libellé et leur couleur. Les actions de publication ouvrent la fenêtre de publication ; le clic droit ne publie pas une page à lui seul.
+
+Les champs de saisie gardent leur menu natif pour couper, coller et corriger l’orthographe. **Maj + clic droit** conserve le menu du navigateur ailleurs. Les visiteurs gardent le menu natif : les commandes de modification ne sont accessibles qu’à l’administrateur. Les blocs imbriqués sont organisés par leur bloc supérieur pour monter, descendre, dupliquer ou supprimer.
+
+Les menus utilisent le top layer de l’API Popover, en conservant le thème de leur contexte. Les menus de propriétés des blocs Tiptap sont portés dans le panneau de page, hors du DOM éditable, pour éviter que l’éditeur reprenne le focus. Leur position s’adapte au viewport et au clavier virtuel. Ils s’ouvrent au-dessus du contrôle si l’espace manque en dessous. Les vieux navigateurs dépourvus de Popover disposent d’un repli fixe ; celui-ci peut être limité par les conteneurs du site.
+
+## Mouvement et accessibilité
+
+Les transitions de couleurs durent environ 130 ms ; le changement de symbole de thème environ 150 ms. Les boutons ponctuels ont un retour de pression de `scale(.96)`. Les options, frappes et lignes n’ont pas d’animation d’entrée répétée. Les propriétés animées sont explicites ; aucun `transition: all` ajouté.
+
+`prefers-reduced-motion` supprime ces animations et le déplacement au clic. Les boutons principaux et menus visent 40 px sur ordinateur et 44 px sur mobile. Certains outils denses du texte et commandes secondaires restent plus petits : leur usage au toucher doit continuer d’être surveillé lors des prochaines évolutions. Les focus sont visibles et les menus rendent le focus à leur déclencheur.
+
+La barre de sélection recalcule sa position après un défilement ou un changement de focus. Elle évite la barre d’outils fixe. Une sélection n’est pas perdue lorsque le menu contextuel s’ouvre.
+
+## Sources et adaptations
+
+Skills lus intégralement pour cette évolution, dans des copies de travail séparées ; aucun script d’installation de ces dépôts exécuté, aucune dépendance runtime ajoutée :
+
+- [Make Interfaces Feel Better](https://github.com/jakubkrehel/make-interfaces-feel-better/blob/35545ea1512ad59fa463e6b1f95ca9c052981fe6/skills/make-interfaces-feel-better/SKILL.md), révision `35545ea` : typographie, surfaces, animations, icônes et performance, ainsi que ses cinq guides associés.
+- [Taste Skill — Redesign](https://github.com/Leonxlnx/taste-skill/blob/a60a36dc2bb3bb77ccf17f2f62041f5ca8a458b9/skills/redesign-skill/SKILL.md), révision `a60a36d` : audit de l’existant et améliorations ciblées.
+- [Taste Skill — Minimalist UI](https://github.com/Leonxlnx/taste-skill/blob/a60a36dc2bb3bb77ccf17f2f62041f5ca8a458b9/skills/minimalist-skill/SKILL.md) : hiérarchie documentaire, retenue des surfaces et du mouvement.
+
+Le brief Feuillet prime sur leurs prescriptions génériques : le noir OLED, les emoji, les polices choisies, Lucide déjà intégré et les galeries à colonnes configurables sont conservés. Les propositions de textures, effets cinématiques, fontes nouvelles ou grille asymétrique imposée ne conviennent pas à un carnet de cours. La fonte système évite d’ajouter une dépendance pour une simple finition.
+
+Implémentation : `frontend/src/interface.css`, `Select.tsx`, `FloatingSurface.tsx`, `ContextMenu.tsx`, `interface-geometry.ts`. Le CSS commun est copié dans `public/interface.css` pendant la compilation. [Audit et validation](AUDIT-INTERFACE-0.5.md), [guide des nouveautés](NOUVEAUTES-0.5.md).

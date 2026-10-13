@@ -1,6 +1,6 @@
 :root {
   font-family:
-    Inter,
+    system-ui,
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
@@ -12,9 +12,9 @@
   font-size: 15px;
   font-weight: 400;
   --ink: #343832;
-  --muted: #818778;
+  --muted: #6f716d;
   --soft: var(--surface-muted);
-  --line: #e4e6df;
+  --line: #e4e5e2;
   --green: var(--accent);
   --sidebar: 260px;
   --reading: 760px;

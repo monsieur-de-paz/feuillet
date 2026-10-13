@@ -5,6 +5,7 @@ import { api, defaultAppearance } from "./types";
 import { themeStyle } from "./Customization";
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import "./interface.css";
 import { PublicForm } from "./Database";
 function PublicFormScreen({ token }: { token: string }) {
   useEffect(() => {
@@ -19,6 +20,7 @@ function PublicFormScreen({ token }: { token: string }) {
         });
         document.documentElement.style.colorScheme =
           appearance.mode === "light" ? "light" : "dark";
+        document.documentElement.dataset.theme = appearance.mode;
       })
       .catch(() => {});
     return () => {

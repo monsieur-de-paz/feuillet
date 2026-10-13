@@ -9,3 +9,5 @@ const require=createRequire(new URL('../frontend/package.json',import.meta.url))
 const {buildSync}=require('esbuild');
 buildSync({entryPoints:[fileURLToPath(new URL('../frontend/src/theme-colors.ts',import.meta.url))],outfile:fileURLToPath(new URL('../public/theme-colors.js',import.meta.url)),bundle:true,format:'iife',globalName:'FeuilletThemeColors',target:'es2020',minify:true});
 console.log('Couleurs : algorithme partagé préparé pour le lecteur.');
+
+copyFileSync(fileURLToPath(new URL('../frontend/src/interface.css',import.meta.url)),fileURLToPath(new URL('../public/interface.css',import.meta.url)));

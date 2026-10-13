@@ -1,3 +1,4 @@
+import { Select } from "./Select";
 import {
   Node,
   mergeAttributes,
@@ -369,7 +370,7 @@ function CalloutView({ node, updateAttributes }: NodeViewProps) {
       </div>
       <NodeViewContent className="callout-content" />
       {admin && (
-        <select
+        <Select
           aria-label="Couleur de l’encadré"
           className="tone-select"
           contentEditable={false}
@@ -381,7 +382,7 @@ function CalloutView({ node, updateAttributes }: NodeViewProps) {
           <option value="amber">Jaune</option>
           <option value="red">Rose</option>
           <option value="gray">Gris</option>
-        </select>
+        </Select>
       )}
     </NodeViewWrapper>
   );
@@ -689,7 +690,7 @@ function LinkResourceView({ node, editor, getPos, selected }: NodeViewProps) {
         >
           <label>
             Présentation
-            <select
+            <Select
               value={mode}
               onChange={(event) =>
                 setMode(event.target.value as LinkPresentation)
@@ -698,7 +699,7 @@ function LinkResourceView({ node, editor, getPos, selected }: NodeViewProps) {
               <option value="inline">Lien dans le texte</option>
               <option value="button">Bouton</option>
               <option value="card">Carte avec aperçu</option>
-            </select>
+            </Select>
           </label>
           <label>
             Texte du lien
@@ -886,7 +887,7 @@ function FileView({ node, updateAttributes, getPos, selected }: NodeViewProps) {
         >
           <label>
             Présentation du fichier
-            <select
+            <Select
               autoFocus
               value={effectiveMode}
               onChange={(event) =>
@@ -903,7 +904,7 @@ function FileView({ node, updateAttributes, getPos, selected }: NodeViewProps) {
                       : "Lecteur vidéo"}
                 </option>
               )}
-            </select>
+            </Select>
           </label>
           <small>
             Le même fichier est conservé. Seul son affichage change.
@@ -1074,7 +1075,7 @@ function GalleryView({ node, updateAttributes }: NodeViewProps) {
           <div className="gallery-setting-row">
             <label>
               Disposition
-              <select
+              <Select
                 aria-label="Disposition de la galerie"
                 value={layout}
                 onChange={(event) =>
@@ -1083,11 +1084,11 @@ function GalleryView({ node, updateAttributes }: NodeViewProps) {
               >
                 <option value="grid">Galerie de cartes</option>
                 <option value="list">Liste</option>
-              </select>
+              </Select>
             </label>
             <label>
               Colonnes
-              <select
+              <Select
                 aria-label="Nombre de colonnes"
                 value={columns}
                 disabled={layout === "list"}
@@ -1101,11 +1102,11 @@ function GalleryView({ node, updateAttributes }: NodeViewProps) {
                     {n}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
             <label>
               Lignes visibles
-              <select
+              <Select
                 aria-label="Nombre de lignes visibles"
                 value={rows}
                 onChange={(event) => {
@@ -1119,11 +1120,11 @@ function GalleryView({ node, updateAttributes }: NodeViewProps) {
                     {n}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
             <label>
               Format d’image
-              <select
+              <Select
                 aria-label="Format des images de la galerie"
                 value={aspect}
                 onChange={(event) =>
@@ -1135,7 +1136,7 @@ function GalleryView({ node, updateAttributes }: NodeViewProps) {
                 <option value="1/1">Carré</option>
                 <option value="3/4">Portrait</option>
                 <option value="auto">Format original</option>
-              </select>
+              </Select>
             </label>
           </div>
           {!manual && (
@@ -1194,7 +1195,7 @@ function GalleryView({ node, updateAttributes }: NodeViewProps) {
         <div className="gallery-add-panel">
           <label>
             Ajouter une page existante
-            <select
+            <Select
               aria-label="Choisir une page pour la galerie"
               value=""
               onChange={(event) => addPage(event.target.value)}
@@ -1212,7 +1213,7 @@ function GalleryView({ node, updateAttributes }: NodeViewProps) {
                     {page.title || "Sans titre"}
                   </option>
                 ))}
-            </select>
+            </Select>
           </label>
           <div className="gallery-create-row">
             <input
@@ -1451,7 +1452,7 @@ function QuizView({ node, updateAttributes }: NodeViewProps) {
             <fieldset className="question-editor" key={q.id}>
               <legend>Question {i + 1}</legend>
               <div className="question-controls">
-                <select
+                <Select
                   aria-label="Type de question"
                   value={q.type}
                   onChange={(e) => {
@@ -1468,7 +1469,7 @@ function QuizView({ node, updateAttributes }: NodeViewProps) {
                   <option value="multiple">Plusieurs choix</option>
                   <option value="boolean">Vrai ou faux</option>
                   <option value="short">Réponse courte</option>
-                </select>
+                </Select>
                 <button
                   className="icon-button danger"
                   title="Supprimer cette question"

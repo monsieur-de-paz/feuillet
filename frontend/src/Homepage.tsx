@@ -1,3 +1,4 @@
+import { Select } from "./Select";
 import { useState } from "react";
 import { Home, Pencil, Plus, ExternalLink, Check } from "lucide-react";
 import { api, type Page } from "./types";
@@ -49,7 +50,7 @@ export function HomepageControls({
         </p>
         <label>
           Page utilisée comme accueil
-          <select
+          <Select
             value={selected}
             disabled={busy}
             onChange={(e) => setSelected(e.target.value)}
@@ -61,7 +62,7 @@ export function HomepageControls({
                 {p.visibility === "private" ? " · privée" : ""}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
         <div className="homepage-actions">
           <button

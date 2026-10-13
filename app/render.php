@@ -155,7 +155,10 @@ function render_gallery(array $attrs,string $pageId,bool $public): string {
 }
 
 function render_reader_theme_toggle(): string {
-    return '<div class="feuillet-theme-toggle"><button type="button" class="theme-main-button" data-theme-main aria-label="Activer le mode sombre"><span data-theme-symbol aria-hidden="true">☾</span></button><details class="theme-options"><summary aria-label="Choisir le thème">⌄</summary><div><button type="button" data-theme-value="light">Clair</button><button type="button" data-theme-value="dark">Sombre</button><button type="button" data-theme-value="oled">Noir OLED</button><button type="button" data-theme-value="inherit">Thème du carnet</button></div></details></div>';
+    $sun='<svg width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><use href="icons.svg#sun"/></svg>';
+    $moon='<svg width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><use href="icons.svg#moon"/></svg>';
+    $chevron='<svg width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><use href="icons.svg#chevron-down"/></svg>';
+    return '<div class="feuillet-theme-toggle"><button type="button" class="theme-main-button" data-theme-main aria-label="Activer le mode sombre"><span class="theme-symbols" aria-hidden="true">'.$sun.$moon.'</span></button><details class="theme-options"><summary aria-label="Choisir le thème">'.$chevron.'</summary><div><button type="button" data-theme-value="light">Clair</button><button type="button" data-theme-value="dark">Sombre</button><button type="button" data-theme-value="oled">Noir OLED</button><button type="button" data-theme-value="inherit">Thème du carnet</button></div></details></div>';
 }
 
 function render_status_tags(array $property,mixed $value): string {

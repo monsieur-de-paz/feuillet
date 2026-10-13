@@ -93,3 +93,9 @@ Les symboles Lucide sont recoupés avec le manifeste local, et le lecteur pério
 ## Ajouts vérifiés en 0.4.1
 
 L’inventaire `file_usage` exige l’administrateur avant de chercher le fichier ou ses titres privés. L’héritage des sous-pages est désactivé par défaut ; son activation publie explicitement les descendants des parents publics, sans publier de racines privées ni de réponses de formulaire. Les branches supprimées sont ignorées, et les brouillons déjà publiés ne sont pas remplacés. Les couleurs de choix sont limitées à `#RRGGBB`, échappées au rendu ; les variantes d’accent ne traitent que des couleurs validées. La nouvelle suite `tests/workspace.py` couvre ces frontières et les comportements de restauration.
+
+## Interface 0.5.0
+
+Les sélecteurs et menus contextuels n’ajoutent aucun endpoint, rôle ou permission. Ils appellent les commandes déjà protégées par session, CSRF et validation serveur. Le menu public ne reçoit pas les actions d’administration. Une action de page vérifie l’ID réellement ouvert avant sa mutation ; les conflits et formulaires non enregistrés peuvent bloquer le changement de page. Un menu de publication ouvre la fenêtre existante et ne publie rien à l’ouverture du clic droit.
+
+Les libellés, options et noms restent du texte rendu par React. Les couleurs d’état restent soumises à leur validation hexadécimale existante. Les dépôts de skills servent de références locales, sans scripts exécutés ni appel depuis le logiciel distribué. La mise à jour ne dispense pas de protéger l’installation PHP. Voir les résultats datés dans [TESTS.md](TESTS.md).

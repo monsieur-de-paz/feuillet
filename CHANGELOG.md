@@ -1,5 +1,9 @@
 # Historique des versions
 
+## 0.5.0 — 14 octobre 2026
+
+Charte graphique documentaire : fonte système, surfaces neutres, lisibilité et focus ; sélecteurs communs recherchables ; clic droit contextuel et boutons équivalents pour les pages, blocs, couvertures et propriétés ; navigation compacte avec Plus d’outils ; choix du thème accessible au clavier ; barre de sélection repositionnée après défilement. Pas de nouvelle dépendance runtime ni de migration de contenu. [Guide](docs/NOUVEAUTES-0.5.md), [charte](docs/CHARTE-GRAPHIQUE.md), [audit](docs/AUDIT-INTERFACE-0.5.md).
+
 ## 0.4.1 — 13 octobre 2026
 
 Navigation masquable par bouton ou raccourci configurable ; texte par défaut adapté aux thèmes ; variantes automatiques de l’accent pour sombre/OLED et contraste des boutons ; paramètre d’héritage public des sous-pages existantes et futures ; couleurs des choix d’état ; inventaire administrateur des utilisations de fichiers, y compris brouillons, publications et historique. URL des ressources versionnées pour les mises à jour. [Guide détaillé](docs/NOUVEAUTES-0.4.1.md).

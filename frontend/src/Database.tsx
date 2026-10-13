@@ -1,3 +1,5 @@
+import { ContextMenu, type MenuAction } from "./ContextMenu";
+import { Select } from "./Select";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -232,8 +234,9 @@ function Field({
     );
   else if (property.type === "select")
     input = (
-      <select
+      <Select
         id={id}
+        optionColors={property.config.option_colors}
         required={required}
         disabled={disabled}
         value={typeof value === "string" ? value : ""}
@@ -245,7 +248,7 @@ function Field({
             {option}
           </option>
         ))}
-      </select>
+      </Select>
     );
   else if (property.type === "multiselect")
     input = (
@@ -792,11 +795,14 @@ function InlineCell({
     document.body.classList.add("database-cell-open");
     requestAnimationFrame(() =>
       formRef.current
-        ?.querySelector<HTMLElement>("input:not([type=file]),textarea,select")
+        ?.querySelector<HTMLElement>(
+          'input:not([type=file]),textarea,button[role="combobox"],select:not([aria-hidden="true"])',
+        )
         ?.focus(),
     );
     const esc = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        if (document.querySelector(".feuillet-floating")) return;
         if ((event.target as Element)?.closest(".database-linked-dialog"))
           return;
         event.preventDefault();
@@ -841,6 +847,12 @@ function InlineCell({
       title={`Modifier ${property.name}`}
       aria-label={`Modifier ${property.name} de ${rowTitle(row, bundle.properties)}`}
       onClick={() => open()}
+      onContextMenu={(event) => {
+        if (event.shiftKey) return;
+        event.preventDefault();
+        event.stopPropagation();
+        open();
+      }}
     >
       {!["files", "url", "email", "phone"].includes(property.type) && (
         <Cell
@@ -1088,7 +1100,7 @@ function ViewControls({
             );
             return (
               <div className="database-filter-line" key={index}>
-                <select
+                <Select
                   aria-label={`Champ du filtre ${index + 1}`}
                   value={filter.propertyId}
                   onChange={(event) =>
@@ -1104,8 +1116,8 @@ function ViewControls({
                       {property.name}
                     </option>
                   ))}
-                </select>
-                <select
+                </Select>
+                <Select
                   aria-label={`Condition du filtre ${index + 1}`}
                   value={filter.operator}
                   onChange={(event) =>
@@ -1133,10 +1145,10 @@ function ViewControls({
                         <option value="lte">est au plus</option>
                       </>
                     )}
-                </select>
+                </Select>
                 {!["isEmpty", "isNotEmpty"].includes(filter.operator) &&
                   (property?.type === "checkbox" ? (
-                    <select
+                    <Select
                       aria-label={`Valeur du filtre ${index + 1}`}
                       value={String(filter.value === true)}
                       onChange={(event) =>
@@ -1147,9 +1159,9 @@ function ViewControls({
                     >
                       <option value="true">Coché</option>
                       <option value="false">Non coché</option>
-                    </select>
+                    </Select>
                   ) : property?.type === "select" ? (
-                    <select
+                    <Select
                       aria-label={`Valeur du filtre ${index + 1}`}
                       value={String(filter.value)}
                       onChange={(event) =>
@@ -1162,7 +1174,7 @@ function ViewControls({
                           {option}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   ) : (
                     <input
                       aria-label={`Valeur du filtre ${index + 1}`}
@@ -1235,7 +1247,7 @@ function ViewControls({
       {panel === "sort" && (
         <div className="database-view-panel">
           <div className="database-sort-line">
-            <select
+            <Select
               aria-label="Champ de tri"
               value={config.sort?.propertyId || ""}
               onChange={(event) =>
@@ -1256,8 +1268,8 @@ function ViewControls({
                   {property.name}
                 </option>
               ))}
-            </select>
-            <select
+            </Select>
+            <Select
               aria-label="Sens du tri"
               disabled={!config.sort}
               value={config.sort?.direction || "asc"}
@@ -1274,7 +1286,7 @@ function ViewControls({
             >
               <option value="asc">Croissant · A → Z</option>
               <option value="desc">Décroissant · Z → A</option>
-            </select>
+            </Select>
             {config.sort && (
               <button
                 className="text-button"
@@ -1397,30 +1409,11 @@ function Records({
     id: string;
     left: number;
     top: number;
+    host?: HTMLElement | null;
   } | null>(null);
   const columnProperty = columnMenu
     ? bundle.properties.find((property) => property.id === columnMenu.id)
     : null;
-  const menuRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!columnMenu) return;
-    const previous = document.activeElement as HTMLElement | null;
-    requestAnimationFrame(() =>
-      menuRef.current?.querySelector<HTMLButtonElement>("button")?.focus(),
-    );
-    const esc = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        event.stopPropagation();
-        setColumnMenu(null);
-      }
-    };
-    document.addEventListener("keydown", esc, true);
-    return () => {
-      document.removeEventListener("keydown", esc, true);
-      previous?.focus();
-    };
-  }, [columnMenu?.id]);
   function headerMenu(
     property: Property,
     event: React.MouseEvent<HTMLButtonElement>,
@@ -1428,137 +1421,105 @@ function Records({
     const rect = event.currentTarget.getBoundingClientRect();
     setColumnMenu({
       id: property.id,
+      host: event.currentTarget.closest(".course-content")
+        ? event.currentTarget.closest<HTMLElement>(".main-panel")
+        : null,
       left: Math.max(12, Math.min(innerWidth - 250, rect.left)),
       top: Math.max(12, Math.min(innerHeight - 320, rect.bottom + 6)),
     });
   }
+  const columnActions: MenuAction[] = [];
+  if (columnProperty) {
+    if (onPropertyRename)
+      columnActions.push({
+        label: "Renommer",
+        icon: <Pencil />,
+        run: () => onPropertyRename(columnProperty),
+        group: "property",
+      });
+    if (onPropertyEdit)
+      columnActions.push({
+        label: "Modifier la propriété",
+        icon: <Settings />,
+        run: () => onPropertyEdit(columnProperty),
+        group: "property",
+      });
+    if (onConfigChange)
+      columnActions.push(
+        {
+          label: "Trier par ordre croissant",
+          icon: <ArrowUp />,
+          run: () =>
+            onConfigChange({
+              ...effective,
+              sort: { propertyId: columnProperty.id, direction: "asc" },
+            }),
+          group: "view",
+        },
+        {
+          label: "Trier par ordre décroissant",
+          icon: <ArrowDown />,
+          run: () =>
+            onConfigChange({
+              ...effective,
+              sort: { propertyId: columnProperty.id, direction: "desc" },
+            }),
+          group: "view",
+        },
+        {
+          label: "Filtrer les valeurs remplies",
+          icon: <Filter />,
+          disabled: effective.filters.length >= 10,
+          run: () =>
+            onConfigChange({
+              ...effective,
+              filters: [
+                ...effective.filters,
+                {
+                  propertyId: columnProperty.id,
+                  operator: "isNotEmpty",
+                  value: "",
+                },
+              ],
+            }),
+          group: "view",
+        },
+        {
+          label: "Masquer dans cette vue",
+          icon: <EyeOff />,
+          run: () =>
+            onConfigChange({
+              ...effective,
+              hiddenPropertyIds: [
+                ...effective.hiddenPropertyIds,
+                columnProperty.id,
+              ],
+            }),
+          group: "view",
+        },
+      );
+    if (onPropertyDelete)
+      columnActions.push({
+        label: "Supprimer le champ",
+        icon: <Trash2 />,
+        danger: true,
+        run: () => onPropertyDelete(columnProperty),
+        group: "delete",
+      });
+  }
+  const menuContent = columnMenu && columnProperty && (
+    <ContextMenu
+      point={{ x: columnMenu.left, y: columnMenu.top }}
+      title={`${columnProperty.name} · ${propertyLabel(columnProperty.type)}`}
+      actions={columnActions}
+      onClose={() => setColumnMenu(null)}
+    />
+  );
+  // Keep interactive menus outside the editable node view so ProseMirror cannot steal focus.
   const menu =
-    columnMenu &&
-    columnProperty &&
-    createPortal(
-      <div
-        className="database-column-layer"
-        onMouseDown={(event) => {
-          if (event.target === event.currentTarget) setColumnMenu(null);
-        }}
-      >
-        <div
-          ref={menuRef}
-          className="database-column-menu"
-          style={{ left: columnMenu.left, top: columnMenu.top }}
-          role="menu"
-          aria-label={`Propriété ${columnProperty.name}`}
-        >
-          <strong>{columnProperty.name}</strong>
-          <small>{propertyLabel(columnProperty.type)}</small>
-          {onPropertyRename && (
-            <button
-              role="menuitem"
-              onClick={() => {
-                setColumnMenu(null);
-                onPropertyRename(columnProperty);
-              }}
-            >
-              <Pencil size={14} />
-              Renommer
-            </button>
-          )}
-          {onPropertyEdit && (
-            <button
-              role="menuitem"
-              onClick={() => {
-                setColumnMenu(null);
-                onPropertyEdit(columnProperty);
-              }}
-            >
-              <Settings size={14} />
-              Modifier la propriété
-            </button>
-          )}
-          {onConfigChange && (
-            <>
-              <button
-                role="menuitem"
-                onClick={() => {
-                  onConfigChange({
-                    ...effective,
-                    sort: { propertyId: columnProperty.id, direction: "asc" },
-                  });
-                  setColumnMenu(null);
-                }}
-              >
-                <ArrowUp size={14} />
-                Trier par ordre croissant
-              </button>
-              <button
-                role="menuitem"
-                onClick={() => {
-                  onConfigChange({
-                    ...effective,
-                    sort: { propertyId: columnProperty.id, direction: "desc" },
-                  });
-                  setColumnMenu(null);
-                }}
-              >
-                <ArrowDown size={14} />
-                Trier par ordre décroissant
-              </button>
-              <button
-                role="menuitem"
-                disabled={effective.filters.length >= 10}
-                onClick={() => {
-                  onConfigChange({
-                    ...effective,
-                    filters: [
-                      ...effective.filters,
-                      {
-                        propertyId: columnProperty.id,
-                        operator: "isNotEmpty",
-                        value: "",
-                      },
-                    ],
-                  });
-                  setColumnMenu(null);
-                }}
-              >
-                <Filter size={14} />
-                Filtrer les valeurs remplies
-              </button>
-              <button
-                role="menuitem"
-                onClick={() => {
-                  onConfigChange({
-                    ...effective,
-                    hiddenPropertyIds: [
-                      ...effective.hiddenPropertyIds,
-                      columnProperty.id,
-                    ],
-                  });
-                  setColumnMenu(null);
-                }}
-              >
-                <EyeOff size={14} />
-                Masquer dans cette vue
-              </button>
-            </>
-          )}
-          {onPropertyDelete && (
-            <button
-              role="menuitem"
-              className="danger"
-              onClick={() => {
-                setColumnMenu(null);
-                onPropertyDelete(columnProperty);
-              }}
-            >
-              <Trash2 size={14} />
-              Supprimer le champ
-            </button>
-          )}
-        </div>
-      </div>,
-      document.body,
-    );
+    columnMenu?.host && menuContent
+      ? createPortal(menuContent, columnMenu.host)
+      : menuContent;
   const [chartProperty, setChartProperty] = useState("");
   const numbers = bundle.properties.filter(
     (property) => property.type === "number" || isComputed(property),
@@ -1657,7 +1618,7 @@ function Records({
       <div className="database-chart">
         <label className="database-form-label">
           Champ numérique
-          <select
+          <Select
             value={numeric?.id || ""}
             onChange={(event) => setChartProperty(event.target.value)}
           >
@@ -1666,7 +1627,7 @@ function Records({
                 {property.name}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
         {!numbers.length ? (
           <p className="database-empty">
@@ -1722,6 +1683,12 @@ function Records({
                     className="database-column-heading"
                     aria-label={`Menu de la propriété ${property.name}`}
                     onClick={(event) => headerMenu(property, event)}
+                    onContextMenu={(event) => {
+                      if (event.shiftKey) return;
+                      event.preventDefault();
+                      event.stopPropagation();
+                      headerMenu(property, event);
+                    }}
                   >
                     {
                       propertyTypes.find((type) => type.type === property.type)
@@ -2062,7 +2029,7 @@ function RowEditor({
         ))}
         <label className="database-form-label">
           Visibilité de cette fiche
-          <select
+          <Select
             disabled={!!row?.from_form}
             value={row?.from_form ? "private" : visibility}
             onChange={(event) => {
@@ -2072,7 +2039,7 @@ function RowEditor({
           >
             <option value="public">Visible si cette base est publiée</option>
             <option value="private">Toujours privée</option>
-          </select>
+          </Select>
         </label>
         <p className="database-field-help">
           Les réponses envoyées depuis un formulaire restent privées. Leur
@@ -2310,7 +2277,7 @@ function PropertyEditor({
           )}
         <label>
           Type
-          <select
+          <Select
             aria-label="Type de champ"
             value={type}
             onChange={(event) =>
@@ -2322,7 +2289,7 @@ function PropertyEditor({
                 {item.symbol} {item.label}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
         {["select", "multiselect"].includes(type) && (
           <label>
@@ -2392,7 +2359,7 @@ function PropertyEditor({
         {type === "relation" && (
           <label>
             Base liée
-            <select
+            <Select
               required
               value={targetDb}
               onChange={(event) => change(setTargetDb, event.target.value)}
@@ -2403,7 +2370,7 @@ function PropertyEditor({
                   {database.name}
                 </option>
               ))}
-            </select>
+            </Select>
             <small className="database-field-help">
               La relation sélectionne de vraies fiches de cette base. Elle reste
               accessible à l’enseignant.
@@ -2432,7 +2399,7 @@ function PropertyEditor({
             </p>
             <label className="database-form-label">
               Fiche pour la prévisualisation
-              <select
+              <Select
                 value={previewRow}
                 onChange={(event) => setPreviewRow(event.target.value)}
               >
@@ -2442,7 +2409,7 @@ function PropertyEditor({
                     {rowTitle(row, bundle.properties)}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
             <button
               type="button"
@@ -2470,7 +2437,7 @@ function PropertyEditor({
           <>
             <label>
               Champ relation
-              <select
+              <Select
                 required
                 value={relationProperty}
                 onChange={(event) => {
@@ -2489,11 +2456,11 @@ function PropertyEditor({
                       {item.name}
                     </option>
                   ))}
-              </select>
+              </Select>
             </label>
             <label>
               Champ des fiches liées
-              <select
+              <Select
                 required
                 value={targetProperty}
                 onChange={(event) =>
@@ -2506,11 +2473,11 @@ function PropertyEditor({
                     {item.name}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
             <label>
               Calcul
-              <select
+              <Select
                 value={operation}
                 onChange={(event) => change(setOperation, event.target.value)}
               >
@@ -2519,7 +2486,7 @@ function PropertyEditor({
                 <option value="avg">Moyenne</option>
                 <option value="min">Minimum</option>
                 <option value="max">Maximum</option>
-              </select>
+              </Select>
             </label>
             <p className="database-field-help">
               Le résultat suit les fiches réellement liées à chaque
@@ -3501,6 +3468,7 @@ export function DatabaseManager({
       )
         return;
       if (event.key === "Escape") {
+        if (document.querySelector(".feuillet-floating")) return;
         event.preventDefault();
         event.stopPropagation();
         if (
@@ -3512,7 +3480,7 @@ export function DatabaseManager({
       }
       if (event.key === "Tab" && closeRef.current) {
         const controls = managerRef.current?.querySelectorAll<HTMLElement>(
-          "button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href]",
+          "button:not(:disabled),input:not(:disabled),select:not(:disabled):not([aria-hidden=true]),textarea:not(:disabled),a[href]",
         );
         if (!controls?.length) return;
         const first = controls[0],

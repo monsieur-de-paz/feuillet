@@ -139,3 +139,13 @@ Tester le bouton près de la recherche, le raccourci configuré dans un texte en
 Commande de régression supplémentaire : `python3 tests/workspace.py`, et `--mysql` pour le serveur jetable local. Aucun paquet npm ni extension PHP supplémentaire.
 
 Contrôler aussi les accents sombres dans l’éditeur et le lecteur. `tests/frontend/theme-colors.ts` vérifie 24 couleurs dans les trois modes, le contraste des premiers plans/survols et la parité exacte PHP/JavaScript ; ce groupe nécessite PHP CLI. Le verrouillage 0.4.1 n’introduit aucune dépendance nouvelle. Son SHA-256 est `1af67495f0100a813eccbd3d7dbc02e12a284465472c8e4e27a360d4f9d15cc9`.
+
+## Vérifier les interactions après une mise à jour 0.5
+
+Transférer `public/interface.css` avec tous les assets de la version. Recharger les onglets ouverts ; ne pas remplacer `config.php` ou `storage/`. Aucune migration de contenu spécifique à 0.5.0. Les URL statiques incluent le numéro de version pour le cache.
+
+Tester une liste courte et une longue : recherche, flèches, Entrée, Échap, Tab, champ obligatoire vide et option désactivée. Un sélecteur dans une fiche de base doit se fermer avec Échap sans fermer la fiche. Vérifier le clic droit sur une sélection de texte, une autre page de la navigation et une propriété de base ; vérifier aussi les boutons équivalents sur mobile. Le menu natif reste accessible avec Maj + clic droit.
+
+Les menus utilisent Popover sur les navigateurs modernes. Contrôler les versions effectivement utilisées par les lecteurs ; le repli fixe des navigateurs anciens peut être contraint par des conteneurs. Vérifier clair, sombre, OLED, `prefers-reduced-motion` et le focus visible. La charte et son audit ne constituent pas une certification d’accessibilité.
+
+Les composants 0.5 n’ajoutent aucun paquet npm et ne transmettent pas de données aux dépôts de skills. `node tests/frontend.mjs` inclut les cas de géométrie de menus et d’options groupées/désactivées. Les résultats datés et le verrouillage de la distribution sont dans [TESTS.md](TESTS.md).

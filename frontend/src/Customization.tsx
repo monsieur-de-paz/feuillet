@@ -1,3 +1,4 @@
+import { Select } from "./Select";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   ArrowUp,
@@ -36,7 +37,7 @@ export const accentColors = [
   "#16a34a",
 ];
 const fonts: Record<string, string> = {
-  sans: "Inter,system-ui,sans-serif",
+  sans: 'system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
   serif: "Georgia,serif",
   mono: "ui-monospace,monospace",
   quicksand: "Quicksand,system-ui,sans-serif",
@@ -51,12 +52,12 @@ export function themeStyle(a: Appearance): CSSProperties {
     "--ui-font": fonts[a.font] || fonts.sans,
     "--surface": surface,
     "--surface-muted":
-      mode === "oled" ? "#080808" : dark ? "#202329" : "#f7f8f4",
+      mode === "oled" ? "#080808" : dark ? "#202329" : "#f7f7f5",
     "--surface-soft":
-      mode === "oled" ? "#121212" : dark ? "#2a2e35" : "#eef0eb",
+      mode === "oled" ? "#121212" : dark ? "#2a2e35" : "#eeefed",
     "--ink": a.text,
-    "--muted": dark ? "#afb3bd" : "#818778",
-    "--line": dark ? "#373a42" : "#e4e6df",
+    "--muted": dark ? "#afb3bd" : "#6f716d",
+    "--line": dark ? "#373a42" : "#e4e5e2",
     "--green": accent,
     "--accent": accent,
     "--accent-base": a.accent,
@@ -81,7 +82,7 @@ export function ThemeControls({
     <>
       <label>
         Mode d’affichage
-        <select
+        <Select
           aria-label="Mode d’affichage"
           value={value.mode || "light"}
           onChange={(e) => {
@@ -101,7 +102,7 @@ export function ThemeControls({
           <option value="light">Blanc</option>
           <option value="dark">Sombre</option>
           <option value="oled">Noir OLED</option>
-        </select>
+        </Select>
       </label>
       <div
         className="accent-variants"
@@ -379,7 +380,7 @@ export function NotebookControls({
         Raccourci pour masquer ou afficher la navigation
         <span className="shortcut-settings">
           Ctrl/Cmd + Maj +
-          <select
+          <Select
             aria-label="Touche du raccourci de navigation"
             value={
               draft.sidebar_shortcut === ""
@@ -401,7 +402,7 @@ export function NotebookControls({
                 {key}
               </option>
             ))}
-          </select>
+          </Select>
         </span>
       </label>
       <label>
@@ -485,6 +486,16 @@ export function CoverTools({
     if (img.current) observer.observe(img.current);
     return () => observer.disconnect();
   }, [id]);
+  useEffect(() => {
+    if (!admin) return;
+    const reposition = () => {
+      initial.current = position;
+      setEditing(true);
+    };
+    document.addEventListener("feuillet-reposition-cover", reposition);
+    return () =>
+      document.removeEventListener("feuillet-reposition-cover", reposition);
+  }, [admin, position]);
   const clamp = (n: number) => Math.max(0, Math.min(100, n));
   return (
     <>

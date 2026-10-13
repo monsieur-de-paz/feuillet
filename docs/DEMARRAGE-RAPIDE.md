@@ -27,3 +27,7 @@ Ouvrir **Accueil visiteur** dans la barre latérale. Créer une page d’accueil
 Cliquer sur une cellule pour modifier son champ ; les calculs restent en lecture seule. Les menus des colonnes et les outils de vue permettent de choisir les propriétés affichées, le tri et les filtres. Une même base peut être intégrée à plusieurs pages avec des présentations différentes. Voir [Bases : interface 0.4](BASES-UX-0.4.md).
 
 La navigation se replie avec le bouton près de la recherche ou Ctrl/Cmd + Maj + L, configurable dans les réglages. Le menu de couleur **Défaut** suit le thème. Les couleurs d’état se règlent via le menu de colonne, et la bibliothèque affiche **Utilisations** pour chaque média. L’héritage public des sous-pages possède un réglage général, désactivé par défaut : [guide 0.4.1](NOUVEAUTES-0.4.1.md).
+
+## Les nouveaux menus
+
+Un clic droit dans l’administration propose les actions de la page, du bloc ou de la propriété visée. Les boutons ⋯ et la poignée du bloc donnent le même accès sur mobile. Les longues listes ont une recherche. **Plus d’outils**, en bas de la navigation, contient l’accueil visiteur, la corbeille et la déconnexion. Voir [les nouveautés 0.5](NOUVEAUTES-0.5.md).

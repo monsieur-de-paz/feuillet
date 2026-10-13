@@ -105,3 +105,7 @@ Sur un hébergement neuf, ouvrir `setup.php` crée `storage/installation-key.txt
 ## Réglages de navigation et publication (0.4.1)
 
 Dans **Réglages & sauvegardes → Mon carnet**, personnaliser le raccourci de navigation. Pour rendre publiques automatiquement les sous-pages existantes et futures d’un parent public, activer l’option dédiée puis enregistrer. Cette option est désactivée par défaut ; sa désactivation laisse publiques les pages déjà publiées. Le bouton **Utilisations** de la bibliothèque aide à vérifier les références et l’accessibilité d’un fichier avant de partager son lien. [Guide 0.4.1](NOUVEAUTES-0.4.1.md).
+
+## Distribution 0.5.0
+
+L’interface est précompilée dans la distribution. Transférer également `public/interface.css` ; l’installation mutualisée ne nécessite ni package de skills, ni dépendance Node, ni abonnement. Pour une mise à jour, suivre [MAINTENANCE.md](MAINTENANCE.md), conserver configuration et stockage, puis recharger les pages. [Guide des contrôles 0.5](NOUVEAUTES-0.5.md).

@@ -1,3 +1,5 @@
+import { ContextMenu, type MenuAction } from "./ContextMenu";
+import { Select } from "./Select";
 import {
   useEffect,
   useRef,
@@ -116,7 +118,7 @@ function Modal({
       if (e.key === "Escape") onClose();
       if (e.key === "Tab") {
         const nodes = ref.current?.querySelectorAll<HTMLElement>(
-          'button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href],[tabindex="0"]',
+          'button:not(:disabled),input:not(:disabled),select:not(:disabled):not([aria-hidden="true"]),textarea:not(:disabled),a[href],[tabindex="0"]',
         );
         if (!nodes?.length) return;
         const first = nodes[0],
@@ -380,7 +382,17 @@ export default function App() {
   const [fileLoading, setFileLoading] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
   const [health, setHealth] = useState<any>(null);
-  const [more, setMore] = useState(false);
+  const [utilityAnchor, setUtilityAnchor] = useState<HTMLButtonElement | null>(
+    null,
+  );
+  const [pageContext, setPageContext] = useState<{
+    id: string;
+    point?: { x: number; y: number };
+    anchor?: HTMLElement;
+    cover?: boolean;
+    notebook?: boolean;
+  } | null>(null);
+
   const [linkForm, setLinkForm] = useState({
     href: "",
     title: "",
@@ -582,7 +594,7 @@ export default function App() {
       notify("La page doit être enregistrée avant de la quitter.");
       return;
     }
-    setMore(false);
+    setPageContext(null);
     setSidebar(false);
     setPageLoading(true);
     setSaveError("");
@@ -684,7 +696,7 @@ export default function App() {
   function showModal(name: string) {
     setModalError("");
     setModal(name);
-    setMore(false);
+    setPageContext(null);
   }
   useEffect(() => {
     setKind("");
@@ -1250,11 +1262,11 @@ export default function App() {
     a.href = `api.php?action=export_markdown&id=${encodeURIComponent(draftRef.current.id)}`;
     a.download = "";
     a.click();
-    setMore(false);
+    setPageContext(null);
   }
   async function downloadPdf() {
     if (!(await save()) || !draftRef.current) return;
-    setMore(false);
+    setPageContext(null);
     setBusy(true);
     try {
       const { exportPdf } = await import("./pdf-export");
@@ -1374,21 +1386,6 @@ export default function App() {
     return () => window.removeEventListener("resize", resizeTitle);
   }, []);
   useEffect(() => {
-    if (!more) return;
-    const close = (event: MouseEvent) => {
-      if (!(event.target as Element).closest(".more-wrapper")) setMore(false);
-    };
-    const escape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMore(false);
-    };
-    document.addEventListener("mousedown", close);
-    document.addEventListener("keydown", escape);
-    return () => {
-      document.removeEventListener("mousedown", close);
-      document.removeEventListener("keydown", escape);
-    };
-  }, [more]);
-  useEffect(() => {
     if (!admin) return;
     const shortcut = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
@@ -1439,6 +1436,179 @@ export default function App() {
           .toLocaleLowerCase("fr")
           .includes(search.toLocaleLowerCase("fr"))),
   );
+  function contextActions(target: Page): MenuAction[] {
+    const action = (run: () => void | Promise<void>) => () => {
+      void (async () => {
+        if (String(draftRef.current?.id) !== String(target.id))
+          await openPage(String(target.id));
+        if (String(draftRef.current?.id) === String(target.id)) await run();
+      })();
+    };
+    if (pageContext?.notebook)
+      return [
+        {
+          label: "Changer l’icône du carnet",
+          icon: <ImageIcon />,
+          run: showNotebookIcon,
+          group: "carnet",
+        },
+        {
+          label: "Titre, thème et réglages",
+          icon: <Settings />,
+          run: () => void showSettings(),
+          group: "carnet",
+        },
+        {
+          label: "Masquer la navigation",
+          icon: <PanelLeftClose />,
+          run: toggleNavigation,
+          group: "navigation",
+        },
+      ];
+    if (pageContext?.cover)
+      return [
+        {
+          label: "Changer la couverture",
+          icon: <ImageIcon />,
+          run: action(() => chooseImage("cover")),
+        },
+        {
+          label: "Repositionner la couverture",
+          icon: <Move />,
+          run: () =>
+            document.dispatchEvent(new Event("feuillet-reposition-cover")),
+        },
+        {
+          label: "Retirer la couverture",
+          icon: <X />,
+          run: action(() => updateDraft({ cover_id: null })),
+          group: "remove",
+        },
+      ];
+    return [
+      {
+        label: "Renommer",
+        icon: <Pencil />,
+        run: action(() => {
+          requestAnimationFrame(() => {
+            const title =
+              document.querySelector<HTMLTextAreaElement>(".page-title-input");
+            title?.focus();
+            title?.select();
+          });
+        }),
+        group: "edit",
+      },
+      {
+        label: "Changer l’icône",
+        icon: <ImageIcon />,
+        run: action(() => {
+          setIconTarget("page");
+          showModal("icon");
+        }),
+        group: "edit",
+      },
+      {
+        label: "Apparence de la page",
+        icon: <Palette />,
+        run: action(() => {
+          setAppearanceScope("page");
+          showModal("appearance");
+        }),
+        group: "edit",
+      },
+      {
+        label: "Propriétés",
+        icon: <Settings />,
+        run: action(() => showModal("metadata")),
+        group: "edit",
+      },
+      {
+        label: "Ajouter une sous-page",
+        icon: <Plus />,
+        run: action(() => createPage(String(target.id)).then(() => {})),
+        group: "organize",
+      },
+      {
+        label: "Dupliquer",
+        icon: <Copy />,
+        run: action(duplicate),
+        group: "organize",
+      },
+      {
+        label: "Déplacer",
+        icon: <Move />,
+        run: action(() => {
+          setMoveParent(draftRef.current?.parent_id || "");
+          setMoveSpace(draftRef.current?.space_id || "");
+          showModal("move");
+        }),
+        group: "organize",
+      },
+      {
+        label:
+          target.visibility === "public"
+            ? "Publication et accès"
+            : "Publier la page",
+        icon: <Globe />,
+        run: action(() => showModal("publish")),
+        group: "share",
+      },
+      ...(target.visibility === "public"
+        ? [
+            {
+              label: "Copier le lien public",
+              icon: <LinkIcon />,
+              run: () => {
+                void navigator.clipboard
+                  ?.writeText(
+                    new URL(
+                      `${pageUrl(target.slug || target.id)}&read=1`,
+                      location.href,
+                    ).href,
+                  )
+                  .then(() => notify("Le lien public a été copié."))
+                  .catch(() =>
+                    notify("Copie le lien depuis la fenêtre Publication."),
+                  );
+              },
+              group: "share",
+            },
+          ]
+        : []),
+      {
+        label: "Exporter en Markdown",
+        icon: <Download />,
+        run: action(exportMarkdown),
+        group: "export",
+      },
+      {
+        label: "Télécharger le PDF",
+        icon: <Download />,
+        run: action(downloadPdf),
+        group: "export",
+      },
+      {
+        label: "Historique",
+        icon: <History />,
+        run: action(showHistory),
+        group: "export",
+      },
+      {
+        label: "Plein écran",
+        icon: <Maximize />,
+        run: action(() => setFocus(true)),
+        group: "view",
+      },
+      {
+        label: "Mettre à la corbeille",
+        icon: <Trash2 />,
+        run: action(() => showModal("delete")),
+        danger: true,
+        group: "delete",
+      },
+    ].map((item) => ({ ...item, disabled: busy || saveStatus === "conflict" }));
+  }
   function renderPageRow(
     p: Page,
     depth = 0,
@@ -1454,7 +1624,8 @@ export default function App() {
       <div key={p.id} className="tree-item">
         <div
           className={`page-row ${String(draft?.id) === String(p.id) ? "active" : ""}`}
-          style={{ paddingLeft: 12 + depth * 15 }}
+          data-page-id={String(p.id)}
+          style={{ paddingLeft: 4 + depth * 12 }}
         >
           <button
             className={`tree-toggle ${!children.length ? "invisible" : ""}`}
@@ -1482,11 +1653,14 @@ export default function App() {
           </button>
           {admin && (
             <button
-              className="row-add"
-              title="Ajouter une sous-page"
-              onClick={() => void createPage(String(p.id))}
+              className="row-context"
+              aria-label={`Actions · ${titleOf(p)}`}
+              aria-haspopup="menu"
+              onClick={(e) =>
+                setPageContext({ id: String(p.id), anchor: e.currentTarget })
+              }
             >
-              <Plus size={14} />
+              <MoreHorizontal size={16} />
             </button>
           )}
           {admin && p.visibility === "private" && (
@@ -1580,6 +1754,49 @@ export default function App() {
       }}
     >
       <div
+        onKeyDown={(e) => {
+          if (
+            !admin ||
+            !draft ||
+            !((e.key === "F10" && e.shiftKey) || e.key === "ContextMenu")
+          )
+            return;
+          const target = e.target as HTMLElement;
+          if (
+            target.closest(
+              'input,textarea,select,[contenteditable="true"],.modal,.database-modal,.feuillet-floating',
+            )
+          )
+            return;
+          e.preventDefault();
+          setPageContext({
+            id:
+              target.closest<HTMLElement>("[data-page-id]")?.dataset.pageId ||
+              String(draft.id),
+            anchor: target,
+          });
+        }}
+        onContextMenu={(e) => {
+          if (!admin || e.shiftKey || e.defaultPrevented) return;
+          const target = e.target as HTMLElement;
+          if (
+            target.closest(
+              'input,textarea,select,[role="combobox"],.modal,.database-modal,.feuillet-floating',
+            )
+          )
+            return;
+          const id =
+            target.closest<HTMLElement>("[data-page-id]")?.dataset.pageId ||
+            draft?.id;
+          if (!id) return;
+          e.preventDefault();
+          setPageContext({
+            id: String(id),
+            point: { x: e.clientX, y: e.clientY },
+            cover: !!target.closest(".cover.with-image"),
+            notebook: !!target.closest(".workspace-heading"),
+          });
+        }}
         style={themeStyle(displayAppearance)}
         data-theme={displayAppearance.mode || "light"}
         className={`app-shell ${focus ? "focus-mode" : ""} ${sidebarHidden ? "sidebar-collapsed" : ""} ${sidebar ? "sidebar-open" : ""} ${admin ? "admin-mode" : "public-mode"}`}
@@ -1842,12 +2059,6 @@ export default function App() {
                 <button onClick={() => void showFiles()}>
                   <Folder size={16} /> Bibliothèque
                 </button>
-                <button onClick={() => showModal("trash")}>
-                  <Trash2 size={16} /> Corbeille{" "}
-                  {trash.length > 0 && (
-                    <span className="count">{trash.length}</span>
-                  )}
-                </button>
                 <button
                   onClick={() => {
                     setDatabaseMode("manage");
@@ -1858,15 +2069,46 @@ export default function App() {
                 >
                   <TableIcon size={16} /> Bases de données
                 </button>
-                <button onClick={() => void showHomepage()}>
-                  <Home size={16} /> Accueil visiteur
-                </button>
                 <button onClick={() => void showSettings()}>
                   <Settings size={16} /> Réglages & sauvegardes
                 </button>
-                <button onClick={() => void logout()}>
-                  <LogOut size={16} /> Se déconnecter
+                <button
+                  aria-label="Plus d’outils"
+                  aria-haspopup="menu"
+                  aria-expanded={!!utilityAnchor}
+                  onClick={(e) =>
+                    setUtilityAnchor(utilityAnchor ? null : e.currentTarget)
+                  }
+                >
+                  <MoreHorizontal size={16} /> Plus d’outils
                 </button>
+                {utilityAnchor && (
+                  <ContextMenu
+                    anchor={utilityAnchor}
+                    title="Outils du carnet"
+                    onClose={() => setUtilityAnchor(null)}
+                    actions={[
+                      {
+                        label: "Accueil visiteur",
+                        icon: <Home />,
+                        run: () => void showHomepage(),
+                        group: "tools",
+                      },
+                      {
+                        label: `Corbeille${trash.length ? ` (${trash.length})` : ""}`,
+                        icon: <Trash2 />,
+                        run: () => showModal("trash"),
+                        group: "tools",
+                      },
+                      {
+                        label: "Se déconnecter",
+                        icon: <LogOut />,
+                        run: () => void logout(),
+                        group: "session",
+                      },
+                    ]}
+                  />
+                )}
               </>
             ) : (
               <button onClick={() => showModal("login")}>
@@ -1878,6 +2120,28 @@ export default function App() {
             </div>
           </div>
         </aside>
+        {admin &&
+          pageContext &&
+          (() => {
+            const target = pages.find((p) => String(p.id) === pageContext.id);
+            return (
+              target && (
+                <ContextMenu
+                  point={pageContext.point}
+                  anchor={pageContext.anchor}
+                  title={
+                    pageContext.notebook
+                      ? "Ce carnet"
+                      : pageContext.cover
+                        ? "Couverture"
+                        : titleOf(target)
+                  }
+                  actions={contextActions(target)}
+                  onClose={() => setPageContext(null)}
+                />
+              )
+            );
+          })()}
         <ThemeToggle
           mode={effectiveAppearance.mode}
           onChange={changeTheme}
@@ -2007,135 +2271,22 @@ export default function App() {
                       : "Publier"}
                   </span>
                 </button>
-                <div className="more-wrapper">
-                  <button
-                    className="icon-button"
-                    title="Actions sur la page"
-                    aria-expanded={more}
-                    onClick={() => setMore(!more)}
-                  >
-                    <MoreHorizontal size={20} />
-                  </button>
-                  {more && (
-                    <>
-                      <button
-                        className="menu-dismiss"
-                        aria-label="Fermer les actions"
-                        onClick={() => setMore(false)}
-                      />
-                      <div className="dropdown page-dropdown">
-                        <small>Cette page</small>
-                        <button onClick={() => void duplicate()}>
-                          <Copy />
-                          Dupliquer
-                        </button>
-                        <button
-                          onClick={() => {
-                            setMoveParent(draft.parent_id || "");
-                            setMoveSpace(draft.space_id || "");
-                            showModal("move");
-                          }}
-                        >
-                          <Move />
-                          Déplacer
-                        </button>
-                        <button onClick={() => void showHistory()}>
-                          <History />
-                          Historique
-                        </button>
-                        <button
-                          onClick={() => {
-                            setAppearanceScope("page");
-                            showModal("appearance");
-                          }}
-                        >
-                          <Palette /> Apparence de cette page
-                        </button>
-                        <button
-                          onClick={() => {
-                            setFocus(true);
-                            setMore(false);
-                          }}
-                        >
-                          <Maximize /> Plein écran
-                        </button>
-                        <button onClick={() => void exportMarkdown()}>
-                          <Download /> Exporter en Markdown
-                        </button>
-                        <button
-                          onClick={() => void downloadPdf()}
-                          disabled={busy}
-                        >
-                          <Download /> Télécharger le PDF
-                        </button>
-                        <button onClick={() => showModal("metadata")}>
-                          <Settings />
-                          Propriétés
-                        </button>
-                        {draft.visibility === "public" && (
-                          <>
-                            <a
-                              href={`${pageUrl(draft.slug || draft.id)}&read=1`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <ExternalLink />
-                              Version publiée
-                            </a>
-                            <button
-                              onClick={() => {
-                                void navigator.clipboard
-                                  ?.writeText(
-                                    new URL(
-                                      pageUrl(draft.slug || draft.id),
-                                      location.href,
-                                    ).href,
-                                  )
-                                  .then(() =>
-                                    notify("Le lien public a été copié."),
-                                  )
-                                  .catch(() =>
-                                    notify(
-                                      "Copie le lien dans la barre d’adresse.",
-                                    ),
-                                  );
-                                setMore(false);
-                              }}
-                            >
-                              <LinkIcon />
-                              Copier le lien public
-                            </button>
-                            <button
-                              disabled={inheritsPublic}
-                              title={
-                                inheritsPublic
-                                  ? "Cette page hérite de l’accès public de son parent."
-                                  : undefined
-                              }
-                              onClick={() => void unpublish()}
-                            >
-                              <Lock />
-                              Rendre privée
-                            </button>
-                          </>
-                        )}
-                        <button
-                          onClick={() => void createPage(String(draft.id))}
-                        >
-                          <Plus />
-                          Ajouter une sous-page
-                        </button>
-                        <button
-                          className="danger"
-                          onClick={() => showModal("delete")}
-                        >
-                          <Trash2 />
-                          Mettre à la corbeille
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
+                <button
+                  className="icon-button"
+                  title="Actions sur la page"
+                  aria-label="Actions sur la page"
+                  aria-haspopup="menu"
+                  aria-expanded={!!pageContext}
+                  onClick={(e) =>
+                    setPageContext(
+                      pageContext
+                        ? null
+                        : { id: String(draft.id), anchor: e.currentTarget },
+                    )
+                  }
+                >
+                  <MoreHorizontal size={20} />
+                </button>
               </div>
             )}
             {!admin && hasPage && (
@@ -2551,7 +2702,7 @@ export default function App() {
             </p>
             <label>
               Police
-              <select
+              <Select
                 value={editAppearance.font}
                 onChange={(e) =>
                   void setAppearanceValues({
@@ -2564,7 +2715,7 @@ export default function App() {
                 <option value="mono">Monospace</option>
                 <option value="quicksand">Quicksand</option>
                 <option value="fraunces">Fraunces</option>
-              </select>
+              </Select>
             </label>
             <ThemeControls
               value={editAppearance}
@@ -2612,7 +2763,7 @@ export default function App() {
             </div>
             <label>
               Largeur de lecture
-              <select
+              <Select
                 value={editAppearance.width}
                 onChange={(e) =>
                   void setAppearanceValues({
@@ -2622,7 +2773,7 @@ export default function App() {
               >
                 <option value="normal">Confortable</option>
                 <option value="wide">Large</option>
-              </select>
+              </Select>
             </label>
             <label className="appearance-checkbox">
               <input
@@ -3207,7 +3358,7 @@ export default function App() {
           <div className="modal-form">
             <label>
               Catégorie de cette page
-              <select
+              <Select
                 aria-label="Catégorie de cette page"
                 value={draft.category_id || ""}
                 onChange={(e) =>
@@ -3232,11 +3383,11 @@ export default function App() {
                   ) && (
                     <option value={draft.category_id}>Catégorie retirée</option>
                   )}
-              </select>
+              </Select>
             </label>
             <label>
               Type de ressource
-              <select
+              <Select
                 value={draft.kind}
                 onChange={(e) =>
                   updateDraft({ kind: e.target.value as Page["kind"] })
@@ -3245,7 +3396,7 @@ export default function App() {
                 <option value="page">Page</option>
                 <option value="class">Classe</option>
                 <option value="article">Article</option>
-              </select>
+              </Select>
             </label>
             <label>
               Description
@@ -3313,7 +3464,7 @@ export default function App() {
           <div className="modal-form">
             <label>
               Espace
-              <select
+              <Select
                 value={moveSpace}
                 onChange={(e) => {
                   setMoveSpace(e.target.value);
@@ -3326,11 +3477,11 @@ export default function App() {
                     {space.icon} {space.name}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
             <label>
               Placer dans
-              <select
+              <Select
                 value={moveParent}
                 onChange={(e) => setMoveParent(e.target.value)}
               >
@@ -3351,7 +3502,7 @@ export default function App() {
                       {titleOf(p)}
                     </option>
                   ))}
-              </select>
+              </Select>
             </label>
             <p className="muted">Les sous-pages suivent leur page parente.</p>
             {modalError && <p className="form-error">{modalError}</p>}

@@ -4,14 +4,14 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.4.1-2563eb" alt="Version 0.4.1">
+  <img src="https://img.shields.io/badge/version-0.5.0-2563eb" alt="Version 0.5.0">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour rédiger, organiser et partager ses ressources.** Inspiré de l’édition par blocs, il permet de préparer des cours, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
 
 Il fonctionne sur un hébergement **PHP + MySQL/MariaDB**, y compris un mutualisé compatible. Un seul compte rédige ; les lecteurs consultent les pages et répondent aux formulaires depuis leur navigateur, sur ordinateur ou mobile. Aucun VPS ni abonnement n’est nécessaire. Node.js sert uniquement à développer l’interface ; les fichiers compilés sont fournis.
 
-<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.4.md">Nouveautés</a></p>
+<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.5.md">Nouveautés</a></p>
 
 ## Ce que vous pouvez faire
 
@@ -32,6 +32,12 @@ Il fonctionne sur un hébergement **PHP + MySQL/MariaDB**, y compris un mutualis
 
 Le cœur libre de **Tiptap** est utilisé pour l’édition. Les menus, blocs et fonctions de Feuillet sont développés dans ce dépôt ; aucun template commercial ou composant Tiptap Pro n’est requis. Feuillet est indépendant de Notion.
 
+## Une interface de carnet
+
+![Feuillet 0.5 — menus et rédaction sur une page de démonstration](docs/feuillet-v05-interface.jpg)
+
+Sélecteurs avec recherche, menus d’actions au clic droit ou par bouton, navigation compacte et thème personnel clair/sombre/OLED. Les menus restent utilisables au clavier et s’adaptent aux petits écrans. [Nouveautés 0.5](docs/NOUVEAUTES-0.5.md) · [Charte graphique](docs/CHARTE-GRAPHIQUE.md).
+
 ## Installer sur un hébergement
 
 ### 1. Vérifier les prérequis
@@ -49,7 +55,7 @@ SQLite est aussi disponible avec `pdo_sqlite` pour une installation locale ou un
 
 ### 2. Télécharger et transférer le logiciel
 
-Télécharger **`Feuillet-0.4.1.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
+Télécharger **`Feuillet-0.5.0.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
 
 Le ZIP de GitHub, accessible par **Code → Download ZIP**, convient également : renommer le dossier extrait `feuillet` si nécessaire. Il contient lui aussi l’interface compilée.
 
