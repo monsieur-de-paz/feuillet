@@ -1,0 +1,77 @@
+{
+  "evidence_id": "ev_939df9a2739d1f05e8663140fc0de61f21888376dba18ca7628f8dcd69c68aba",
+  "provider": {
+    "id": "rea-playwright-browser-scenario",
+    "name": "REA Playwright browser scenario capture provider",
+    "version": "1"
+  },
+  "operation": "capture_browser_scenario",
+  "confidence": "observed",
+  "authority": "controlled-replay",
+  "limitations": [
+    "Artifact identity is unavailable for this observation.",
+    "Event sequence records provider receipt order; simultaneous browser causality is not inferred.",
+    "Network content is retained only when selected; response bytes are browser-decoded, not compressed wire bytes.",
+    "Request bytes are limited to what Playwright exposes; not_exposed does not establish body absence or multipart file coverage.",
+    "Network content reads settle within 5 seconds each and never wait for unfinished responses or refetch them.",
+    "Playwright scenario events do not expose request initiator stacks; receipt order does not prove causality.",
+    "Storage values are hashed only after declared-secret redaction.",
+    "Browser host platform and architecture were not observed."
+  ],
+  "scenario": {
+    "browser": {
+      "mode": "launch",
+      "executable_path": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      "headless": true
+    },
+    "start_url": {
+      "url": "https://www.notion.com/help/writing-and-editing-basics",
+      "query": []
+    },
+    "environment": {
+      "viewport": {
+        "width": 1200,
+        "height": 1400,
+        "device_scale_factor": 1
+      },
+      "locale": "fr-FR",
+      "timezone": "Europe/Paris",
+      "color_scheme": "light",
+      "reduced_motion": "reduce",
+      "service_workers": "block"
+    },
+    "actions": [
+      {
+        "step_id": "settle-help",
+        "action": "wait_for_timeout",
+        "duration_ms": 1500
+      }
+    ],
+    "storage": {
+      "cookies": [],
+      "local_storage": [],
+      "session_storage": []
+    },
+    "secrets": [],
+    "capture": {
+      "after_each_step": [],
+      "at_end": [
+        "url",
+        "screenshot",
+        "accessibility"
+      ],
+      "events": [
+        "page-errors"
+      ],
+      "network": {
+        "request_body": false,
+        "response_body": false,
+        "header_values": false
+      }
+    },
+    "scenario_sha256": "8c9632d4ed06c5aea366512249d08376f94c03d8e5007f5367fa0108973aa4a2"
+  },
+  "accessibility_sha256": "aac288b39210d8337e0d6eb120a75cd239269287245953f6c7b07860e69a49de",
+  "screenshot_sha256": "3bb51e38b2f42a2d8647a84ca4db9b974d3791fbd7603020eae5f40afb99e365",
+  "interpretation": "Observation de la documentation publique Notion, pas de manipulation de son éditeur privé."
+}

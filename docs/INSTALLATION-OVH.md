@@ -1,0 +1,93 @@
+# Installation sur le mutualisé OVH
+
+Ce guide prépare une installation sur un hébergement mutualisé OVHcloud. Remplacer **`cours.exemple.fr`** par votre domaine ou sous-domaine. Une base SQL et un dossier suffisent ; la compatibilité de l’offre exacte et les limites PHP se vérifient dans l’installateur. Ce guide ne constitue pas une validation sur votre compte OVH réel.
+
+## 1. Préparer le dossier et la base
+
+Créer une base MySQL/MariaDB dédiée depuis l'espace client OVH. Conserver son nom, son utilisateur, son mot de passe et **son nom d'hôte exact** ; sur un mutualisé OVH, ce nom n'est généralement pas `localhost`. L'application ne requiert qu'une base.
+
+Décompresser l'archive de distribution sur l'ordinateur puis envoyer **tout le dossier** `feuillet` par FTP/SFTP. Activer l'affichage des fichiers cachés afin de transférer aussi `.htaccess`. Exemple de disposition :
+
+```text
+racine FTP/
+└── feuillet/
+    ├── app/              code PHP interne
+    ├── public/           seule racine web
+    │   ├── assets/       interface compilée
+    │   ├── index.php
+    │   ├── api.php
+    │   ├── media.php
+    │   └── setup.php
+    ├── storage/          fichiers et stockage privés
+    └── config.php        créé lors de l'installation
+```
+
+Ne choisir ni `feuillet` ni `feuillet/storage` comme racine web. Seul `feuillet/public` doit être exposé. Les protections `.htaccess` complètent cette disposition ; elles ne remplacent pas le choix de la bonne racine.
+
+Le compte FTP doit pouvoir créer `config.php` et écrire dans `storage/`. Utiliser les droits suffisants pour le propriétaire de l'hébergement ; ne pas rendre les fichiers inscriptibles par tous avec `777`.
+
+## 2. Relier le sous-domaine
+
+Dans l'espace client OVH, ouvrir l'hébergement puis **Multisite**. Ajouter `cours.exemple.fr` en pointant le dossier racine vers **`feuillet/public`** (ou son chemin relatif réel depuis la racine FTP).
+
+Configurer l'entrée DNS pour qu'elle pointe vers l'hébergement. Si OVH gère la zone, suivre les valeurs proposées par l'espace client, sans recopier une adresse IP d'exemple. Activer le certificat SSL pour ce sous-domaine et attendre qu'il soit opérationnel avant l'installation.
+
+[Guide OVH pour le multisite](https://docs.ovhcloud.com/fr/guides/web-cloud/web-hosting/multisites-configure-multisite).
+
+## 3. Vérifier PHP
+
+Choisir PHP **8.3 ou plus récent** parmi les versions proposées pour l'offre. L'installation vérifie les extensions nécessaires : `PDO`, `pdo_mysql`, `mbstring`, `fileinfo`, `zip`, ainsi que le stockage et les sessions. SQLite nécessite `pdo_sqlite` uniquement si ce mode est choisi ; MySQL/MariaDB est recommandé pour cette installation OVH.
+
+La version PHP et l'environnement peuvent se régler dans l'espace client ou par `.ovhconfig`, selon la configuration existante. Si une modification globale affecte d'autres sites, utiliser la configuration propre au sous-domaine prévue par OVH. Ne pas écraser aveuglément le fichier de l'hébergement.
+
+[Documentation OVH de `.ovhconfig`](https://docs.ovhcloud.com/fr/guides/web-cloud/web-hosting/configure-your-web-hosting).
+
+## 4. Terminer dans le navigateur
+
+Ouvrir `https://cours.exemple.fr/setup.php`. Compléter les paramètres de la base et choisir son nom et un mot de passe personnel robuste. L'installation prépare les tables et la configuration. Une fois installée, elle doit refuser une seconde installation.
+
+Se connecter, créer une page privée, envoyer un petit PDF, puis publier la page. Dans un navigateur privé, vérifier la lecture et le téléchargement. Repasser la page en privé et vérifier que **le lien direct du PDF** n'est plus accessible, sauf si le même fichier est également utilisé dans une autre page publique.
+
+Vérifier aussi qu'une modification enregistrée dans un cours déjà publié reste en brouillon jusqu'à « Publier ». Une page publique n'a pas besoin de compte élève ; un lien peut donc être partagé au-delà de la classe.
+
+## 5. Quotas et médias
+
+Les 200 Go concernent le stockage de l'hébergement. Les bases disposent de quotas distincts. Les limites PHP d'envoi et le temps d'exécution restent indépendants de l'espace disque disponible. Consulter le diagnostic de l'application pour connaître les limites réellement actives et essayer d'abord des fichiers modestes.
+
+Les PDF, l'audio et les vidéos compatibles avec le navigateur sont consultables en ligne. Les autres formats sont téléchargeables. La vidéo n'est ni transcodée ni recompressée. Préparer un format adapté et une taille raisonnable avant l'envoi ; pour de grandes vidéos, utiliser un hébergement externe intégré par lien.
+
+OVH décrit les limites des bases et du mutualisé dans [ses spécificités techniques](https://docs.ovhcloud.com/fr/guides/web-cloud/web-hosting/hosting-technical-specificities). La validation locale ne mesure pas la capacité de l'hébergement à diffuser plusieurs grandes vidéos simultanément.
+
+## 6. Sauvegarder et restaurer
+
+Conserver régulièrement un export ZIP de l'application **hors du serveur**, dans un espace privé. Pour une reprise complète, sauvegarder également la base via OVH, `config.php` et le dossier `storage/` via FTP. La base, le stockage et la configuration doivent provenir d'une même sauvegarde cohérente.
+
+L'export contient les brouillons actuels, les pièces jointes, des versions HTML de secours et les snapshots publiés comme données de récupération. Il exclut la configuration, le compte et l'historique des révisions. L'import restaure les brouillons en **copies privées**, sans écraser les pages existantes et sans republier automatiquement les anciens snapshots. Les HTML de secours ne remplacent pas le logiciel pour les quiz ou les liens internes.
+
+Pour une restauration de contenus, installer d'abord le logiciel sur une copie séparée et utiliser l'import ZIP. Vérifier les pages, documents et états de publication avant de basculer le sous-domaine. Le mot de passe administrateur de la nouvelle installation n'est pas celui de l'export de contenus.
+
+Ne publier sur GitHub que le code et la documentation. Exclure `config.php`, les bases SQLite, les fichiers envoyés, les exports, les logs et les données personnelles.
+
+## Si une étape échoue
+
+- Connexion à la base : vérifier le nom d'hôte, les identifiants et la création effective de la base ; le serveur SQL peut refuser les connexions depuis l'extérieur d'OVH.
+- Écriture impossible : vérifier le propriétaire et les droits de `storage/` et du dossier de configuration.
+- Interface vide : vérifier que `public/assets` a été transféré entièrement et consulter les journaux PHP OVH.
+- Envoi refusé : consulter le diagnostic, la taille du fichier et son format. Un gros fichier peut dépasser la limite de la requête avant que PHP ne le reçoive.
+- Certificat invalide : finir l'activation SSL et la propagation DNS dans OVH avant de saisir ses identifiants.
+
+Aucune commande SSH, installation Composer ou compilation Node.js n'est nécessaire à ces opérations.
+
+## Mot de passe oublié
+
+Le logiciel ne dépend pas d'un service e-mail pour récupérer le compte. Si un accès SSH est disponible, exécuter `php tools/reset-password.php` depuis le dossier Feuillet, puis saisir le nouveau mot de passe sur l'entrée standard. Il n'est pas passé en argument de commande. L'outil ferme les anciennes sessions.
+
+Sans SSH, exécuter localement `php tools/create-password-hash.php` avec un PHP installé, puis remplacer uniquement la valeur `password_hash` dans une copie privée de `config.php` et la renvoyer par FTP. Ne pas envoyer ce fichier à un service de génération de mots de passe en ligne. Après remplacement, supprimer les fichiers de session de `storage/sessions/` pour fermer les anciennes connexions, sans supprimer les cours ni les pièces jointes.
+
+## Lecteur PDF
+
+Le lecteur PDF.js est fourni dans `public/vendor/pdfjs/` avec ses licences. Il fonctionne sans CDN et propose changement de page, zoom, sélection du texte et téléchargement. Les PDF scannés restent des images : aucune reconnaissance de caractères n'est effectuée. L'accès au lecteur et au fichier original est soumis à la visibilité du document.
+
+La limite d'envoi effective est la plus petite des limites PHP et de `max_upload` dans `config.php` (100 Mo par défaut pour le logiciel). L'écran Réglages affiche cette limite. La version 0.1 ne propose pas l'envoi par morceaux ni l'import de médias par FTP ; réduire les fichiers trop gros ou relever les limites autorisées lorsque l'hébergement le permet.
+
+Fonctions ajoutées et procédure de mise à jour : [NOUVEAUTES-0.2.md](NOUVEAUTES-0.2.md). La recherche Commons nécessite cURL et une connexion HTTPS sortante, sans clé API.

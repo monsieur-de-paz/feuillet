@@ -1,0 +1,265 @@
+/* Personalisation et espaces : styles propres à Feuillet 0.2. */
+.spaces-navigation {
+  padding: 4px 10px 8px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 8px;
+}
+.spaces-navigation .nav-label {
+  padding: 7px 4px;
+}
+.space-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 5px;
+  min-height: 32px;
+  padding: 4px 8px;
+  font-size: 13px;
+  text-align: left;
+}
+.space-row.active {
+  background: var(--surface-muted);
+  color: var(--accent);
+}
+.space-row > button:first-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+.space-row > button:first-child > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.space-edit {
+  padding: 4px;
+  opacity: 0.5;
+}
+.space-row:hover .space-edit {
+  opacity: 1;
+}
+.main-panel[style] {
+  background: var(--page-background, var(--surface));
+  color: var(--page-text, var(--ink));
+  min-height: 100vh;
+}
+.main-panel .course-page {
+  color: var(--page-text);
+}
+.main-panel .course-page .page-body a:not(.button-link),
+.main-panel .course-page .tiptap a {
+  color: var(--page-accent);
+}
+.main-panel .course-page .page-title-input,
+.main-panel .course-page .page-title {
+  color: var(--page-text);
+  font-family: inherit;
+}
+.main-panel .page-font-serif {
+  font-family: Georgia, "Times New Roman", serif;
+}
+.main-panel .page-font-mono {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+.main-panel .page-font-sans {
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+.main-panel .course-page.page-wide .page-body {
+  max-width: 1300px;
+}
+.main-panel .cover.with-image {
+  height: 240px;
+  flex-shrink: 0;
+}
+.main-panel .cover.with-image > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.uploaded-page-icon {
+  display: block;
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+.inline-page-icon {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+.focus-mode .sidebar,
+.focus-mode .topbar,
+.focus-mode .sidebar-scrim {
+  display: none;
+}
+.focus-mode .main-panel {
+  margin-left: 0;
+  width: 100%;
+}
+.focus-exit {
+  position: fixed;
+  right: 16px;
+  top: 12px;
+  z-index: 45;
+  background: var(--surface) !important;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  box-shadow: 0 2px 10px #0001;
+}
+.reader-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.picker-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--surface-muted);
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+}
+.picker-tabs button {
+  padding: 8px 10px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+.picker-tabs .selected {
+  background: var(--surface-muted);
+  color: var(--accent);
+}
+.internet-search {
+  display: flex;
+  gap: 8px;
+}
+.internet-search input {
+  flex: 1;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 9px;
+  min-width: 0;
+}
+.internet-results {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  max-height: 430px;
+  overflow: auto;
+  margin: 16px 0;
+}
+.internet-result {
+  border: 1px solid var(--surface-muted);
+  border-radius: 7px;
+  overflow: hidden;
+  font-size: 11px;
+}
+.internet-result > button {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: left;
+  gap: 5px;
+}
+.internet-result img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  background: #f6f6f3;
+}
+.internet-result strong,
+.internet-result small,
+.internet-result > a {
+  display: block;
+  padding: 3px 8px;
+  overflow-wrap: anywhere;
+}
+.internet-result strong {
+  font-size: 11px;
+}
+.internet-result > a {
+  color: var(--accent);
+  padding-bottom: 8px;
+}
+.appearance-colors {
+  display: flex;
+  gap: 16px;
+}
+.appearance-colors label {
+  flex: 1;
+}
+.appearance-colors input {
+  width: 100%;
+  height: 38px;
+  padding: 3px !important;
+}
+.modal-form .appearance-checkbox {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 9px;
+}
+.appearance-checkbox input {
+  width: auto;
+}
+.file-library [hidden] {
+  display: none !important;
+}
+@media (max-width: 760px) {
+  .main-panel .cover.with-image {
+    height: 170px;
+  }
+  .internet-results {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .reader-actions .reading-link span {
+    display: none;
+  }
+  .internet-search {
+    flex-wrap: wrap;
+  }
+  .internet-search input {
+    min-width: 180px;
+  }
+  .main-panel .course-page.page-wide .page-body {
+    padding: 0 22px;
+  }
+  .focus-exit {
+    font-size: 11px;
+  }
+  .appearance-colors {
+    gap: 9px;
+  }
+}
+.media-credit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.media-credit a {
+  font-size: 10px;
+  text-decoration: underline;
+}
+.page-media-credits {
+  display: grid;
+  gap: 3px;
+  margin: 8px 0 15px;
+}
+.library-file-name .media-credit {
+  margin: 4px 0;
+}

@@ -1,0 +1,50 @@
+{
+  "rea_version": "6.4.0",
+  "date": "2026-10-12",
+  "target_url": "https://sandrodepaz.notion.site/Les-ressources-de-Bessi-res-a38ab429987082aba2780183e4ad3957",
+  "operation": "capture_browser_scenario",
+  "evidence_id": "ev_4b0bfddbc1d81de05c242874743e688ace27a1af14d0b5670a8118232dfed035",
+  "browser": {
+    "mode": "launch",
+    "process_ownership": "provider-owned",
+    "cleanup": "terminated-owned-process",
+    "product": "Chromium",
+    "version": "155.0.8059.39"
+  },
+  "actions": [
+    {
+      "step_id": "scenario_start",
+      "action": "goto_start",
+      "status": "completed"
+    },
+    {
+      "step_id": "load-page",
+      "action": "wait_for",
+      "status": "completed"
+    },
+    {
+      "step_id": "settle-public",
+      "action": "wait_for_timeout",
+      "status": "completed"
+    }
+  ],
+  "screenshot_sha256": "042ed1ddd579fb0bd255a6bd28a68355e04d9ad2103f6cc10f40394bf53924ef",
+  "accessibility_sha256": "45e6e0fc55441ea74e76a1fccc48b38e2c52fda9cadf90a98d5941cc3de56b73",
+  "accessibility_text": "- document:\n  - link \"Aller au contenu\":\n    - /url: \"#main\"\n  - banner:\n    - button \"👔 Les ressources de Bessières\" [disabled]\n    - button \"Fermer le volet\"\n    - button\n    - button \"Partager le site sur les réseaux sociaux\"\n    - button \"Plus d’actions\"\n    - button \"Démarrer sur Notion maintenant\"\n  - main:\n    - img \"Icône de la page\": 👔\n    - heading \"Les ressources de Bessières\" [level=1]\n    - heading \"Les classes\" [level=2]\n    - tablist:\n      - tab [selected]\n    - button \"Filtrer\"\n    - button \"Trier\"\n    - button \"Chercher\"\n    - link \"4️⃣ Les 4ème\":\n      - /url: /Les-4-me-dedab42998708235aabc018a13aab6ba?pvs=25\n      - button\n      - text: 4️⃣ Les 4ème\n    - link \"3️⃣ Les 3ème\":\n      - /url: /Les-3-me-b0fab429987082f49a3501c974d8a4dc?pvs=25\n      - button\n      - text: 3️⃣ Les 3ème\n    - heading \"Les outils utiles\" [level=2]\n    - link \"⌨️ Raccourcis clavier Windows\":\n      - /url: /Raccourcis-clavier-Windows-3beab429987081409a6cc08383b43ae5?pvs=25\n    - button \"EDUBlocks, pour programmer et tester votre site web rapidement\"\n    - button \"JSFiddle, pour programmer un site web à plusieurs et voir en temps réel les résultats\"\n    - button \"Diagrams, pour faire des algorigrammes facilement, gratuitement et sans compte utilisateur\"\n    - button \"Microsoft 365 en ligne, pour créer des documents à plusieurs et en temps réel\"\n    - button \"AppInventor, pour créer des applications pour smartphones Android en reprenant la logique de Scratch\"\n    - button \"Thunkable, aussi pour créer des applications facilement sans programmer\"\n    - button \"VSCode, le logiciel pour programmer dans tous les langages\"\n    - button \"GitHub, le portfolio de tes réalisations informatiques\"\n    - button \"Chaine YouTube qui fournit pleins d'outils supers utiles pour ordinateurs (en anglais, sous-titres français)\"\n    - 'button \"Framework : L''ordinateur portable 100% modulable\"'\n    - heading \"Les innovations chaque semaines\" [level=2]\n    - tablist:\n      - tab [selected]\n    - button \"Filtrer\"\n    - button \"Trier\"\n    - button \"Chercher\"\n    - 'link \"🚖 Cybercab : le taxi sans conducteur, ni volant, ni pédales !\"':\n      - /url: /Cybercab-le-taxi-sans-conducteur-ni-volant-ni-p-dales-3d4ab4299870803faf88d8373cea4b5a?pvs=25\n      - button\n      - text: \"🚖 Cybercab : le taxi sans conducteur, ni volant, ni pédales !\"\n    - 'link \"🧠 Neuralink : brancher le cerveau à un robot pour retrouver de l’autonomie !\"':\n      - /url: /Neuralink-brancher-le-cerveau-un-robot-pour-retrouver-de-l-autonomie-3dbab4299870802ba1a0f944a217b1d4?pvs=25\n      - button\n      - text: \"🧠 Neuralink : brancher le cerveau à un robot pour retrouver de l’autonomie !\"\n    - 'link \"🛌 Covette : la housse de couette qui se met en place sans se battre avec sa couette\"':\n      - /url: /Covette-la-housse-de-couette-qui-se-met-en-place-sans-se-battre-avec-sa-couette-3e2ab429987080c091fac7d22dba6696?pvs=25\n      - button\n      - text: \"🛌 Covette : la housse de couette qui se met en place sans se battre avec sa couette\"\n    - 'link \"👓 Ray-Ban Meta Audio : les lunettes intelligentes qui gardent tout sauf la caméra !\"':\n      - /url: /Ray-Ban-Meta-Audio-les-lunettes-intelligentes-qui-gardent-tout-sauf-la-cam-ra-3e9ab429987080b68e09cd6cb4129c58?pvs=25\n      - button\n      - text: \"👓 Ray-Ban Meta Audio : les lunettes intelligentes qui gardent tout sauf la caméra !\"\n    - 'link \"🏠 OTO : la maison qui fait venir les pièces jusqu’à son habitant !\"':\n      - /url: /OTO-la-maison-qui-fait-venir-les-pi-ces-jusqu-son-habitant-3f0ab42998708088a459c0046dc5a45f?pvs=25\n      - button\n      - text: \"🏠 OTO : la maison qui fait venir les pièces jusqu’à son habitant !\"\n    - 'link \"Revolut Pay with Smile : payer ses achats avec son visage, sans carte bancaire ni smartphone !\"':\n      - /url: /Revolut-Pay-with-Smile-payer-ses-achats-avec-son-visage-sans-carte-bancaire-ni-smartphone-3f6ab4299870804e85dfd055d456d933?pvs=25\n      - button\n      - text: \"Revolut Pay with Smile : payer ses achats avec son visage, sans carte bancaire ni smartphone !\"\n  - text: Notion utilise des cookies. Consultez notre\n  - link \"Politique en matière de cookies\":\n    - /url: https://www.notion.com/trust/cookie-notice\n  - text: pour en savoir plus.\n  - button \"Tout accepter\"\n  - button \"Tout refuser\"\n  - button\n  - status\n  - alert",
+  "limitations": [
+    "Artifact identity is unavailable for this observation.",
+    "Event sequence records provider receipt order; simultaneous browser causality is not inferred.",
+    "Network content is retained only when selected; response bytes are browser-decoded, not compressed wire bytes.",
+    "Request bytes are limited to what Playwright exposes; not_exposed does not establish body absence or multipart file coverage.",
+    "Network content reads settle within 5 seconds each and never wait for unfinished responses or refetch them.",
+    "Playwright scenario events do not expose request initiator stacks; receipt order does not prove causality.",
+    "Storage values are hashed only after declared-secret redaction.",
+    "Browser host platform and architecture were not observed.",
+    "Event sequence records provider receipt order; simultaneous browser causality is not inferred.",
+    "Network content is retained only when selected; response bytes are browser-decoded, not compressed wire bytes.",
+    "Request bytes are limited to what Playwright exposes; not_exposed does not establish body absence or multipart file coverage.",
+    "Network content reads settle within 5 seconds each and never wait for unfinished responses or refetch them.",
+    "Playwright scenario events do not expose request initiator stacks; receipt order does not prove causality.",
+    "Storage values are hashed only after declared-secret redaction."
+  ]
+}

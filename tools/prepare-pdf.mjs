@@ -1,0 +1,11 @@
+import {cp,mkdir} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import path from 'node:path';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const source=path.join(root,'frontend/node_modules/pdfjs-dist');
+const output=path.join(root,'public/vendor/pdfjs');
+await mkdir(output,{recursive:true});
+for(const file of ['pdf.min.mjs','pdf.worker.min.mjs']) await cp(path.join(source,'build',file),path.join(output,file));
+await cp(path.join(source,'LICENSE'),path.join(output,'LICENSE'));
+for(const directory of ['cmaps','standard_fonts','wasm'])await cp(path.join(source,directory),path.join(output,directory),{recursive:true});
+console.log('PDF.js : lecteur et licences préparés.');

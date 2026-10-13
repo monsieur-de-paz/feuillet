@@ -1,0 +1,334 @@
+@font-face {
+  font-family: Quicksand;
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url("../../public/fonts/Quicksand.ttf") format("truetype");
+}
+@font-face {
+  font-family: Fraunces;
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../../public/fonts/Fraunces.ttf") format("truetype");
+}
+:root {
+  --surface: #fff;
+  --surface-muted: #f7f8f4;
+  --surface-soft: #eef0eb;
+  --ink: #343832;
+  --muted: #818778;
+  --line: #e4e6df;
+  --accent: #38795d;
+  --green: var(--accent);
+  --accent-soft: color-mix(in srgb, var(--accent) 11%, var(--surface));
+  --accent-contrast: #fff;
+  --ui-font: Inter, system-ui, sans-serif;
+  --shadow: 0 14px 50px #0002;
+}
+html,
+body,
+#root {
+  background: var(--surface);
+  color: var(--ink);
+}
+.app-shell,
+.modal,
+.command-menu,
+.selection-toolbar,
+.format-popover {
+  font-family: var(--ui-font);
+  color: var(--ink);
+}
+.main-panel .page-font-quicksand {
+  font-family: Quicksand, system-ui, sans-serif;
+}
+.main-panel .page-font-fraunces {
+  font-family: Fraunces, Georgia, serif;
+}
+.sidebar,
+.spaces-navigation {
+  background: var(--surface-muted);
+}
+.topbar {
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+  color: var(--ink);
+}
+.modal,
+.more-menu,
+.command-menu,
+.format-popover,
+.selection-toolbar,
+.editor-toolbar,
+.table-tools,
+.block-dropdown {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.space-row.active,
+.sidebar-filters .selected,
+.page-row.active,
+.favorite-row.active,
+.picker-tabs .selected {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.sidebar-search {
+  background: var(--surface);
+  border-color: var(--line);
+}
+.space-row {
+  color: var(--ink);
+}
+.nav-label,
+.muted,
+.sidebar-footer {
+  color: var(--muted);
+}
+.modal-backdrop {
+  background: #0007;
+}
+.modal input,
+.modal select,
+.modal textarea {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.primary-button,
+.button-link {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-color: var(--accent);
+}
+.primary-button:hover,
+.button-link:hover {
+  background: color-mix(in srgb, var(--accent) 85%, #000);
+}
+.notebook-controls {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+.notebook-controls h3 {
+  margin-top: 0;
+}
+.theme-palette {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+}
+.theme-palette button {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  outline: 1px solid transparent;
+  outline-offset: 2px;
+}
+.theme-palette button[aria-pressed="true"] {
+  outline-color: var(--ink);
+}
+.category-filters-wrap {
+  padding: 8px 0;
+}
+.category-filters-wrap .sidebar-filters {
+  flex-wrap: wrap;
+  margin: 0;
+  gap: 4px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.category-settings-button {
+  margin-left: auto;
+  min-width: 26px;
+}
+.categories-editor {
+  display: grid;
+  gap: 14px;
+}
+.category-edit-row,
+.category-add,
+.category-archived {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.category-edit-row input,
+.category-add input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 8px;
+  border-radius: 5px;
+  color: var(--ink);
+}
+.category-edit-row > button {
+  padding: 7px;
+  border-radius: 5px;
+  color: var(--muted);
+}
+.category-archived {
+  justify-content: space-between;
+  margin: 9px 0;
+}
+.categories-editor p {
+  font-size: 13px;
+  line-height: 1.6;
+}
+.database-modal {
+  max-width: 1150px;
+  width: min(1150px, 95vw);
+  max-height: 94vh;
+  overflow: auto;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+.breadcrumbs {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  flex: 1;
+  min-width: 0;
+  padding: 4px 0;
+}
+.breadcrumb-parent,
+.breadcrumbs .breadcrumb-parent {
+  display: inline-flex !important;
+  flex-shrink: 0;
+}
+.breadcrumb-current {
+  flex-shrink: 0;
+  max-width: 260px;
+}
+.breadcrumb-home {
+  padding: 4px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.breadcrumbs button:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.cover-reposition-tools {
+  flex-wrap: wrap;
+  max-width: calc(100% - 28px);
+  padding: 10px;
+  background: var(--surface);
+  border-radius: 8px;
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+.cover-reposition-tools span {
+  width: 100%;
+  font-size: 11px;
+}
+.cover-reposition-tools label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+}
+.cover-reposition-tools input {
+  width: 90px;
+  accent-color: var(--accent);
+}
+.cover-reposition-tools button {
+  background: var(--surface-soft) !important;
+  color: var(--ink);
+}
+@media (max-width: 760px) {
+  .topbar {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 54px;
+    gap: 3px;
+    padding: 8px 12px;
+  }
+  .breadcrumbs {
+    width: 100%;
+    order: 2;
+    font-size: 11px;
+  }
+  .topbar-actions {
+    margin-left: auto;
+    order: 1;
+  }
+  .breadcrumbs .mobile-menu {
+    flex-shrink: 0;
+  }
+  .breadcrumb-parent button {
+    max-width: 125px;
+  }
+  .breadcrumb-current {
+    max-width: 180px;
+  }
+  .editor-toolbar {
+    top: 86px;
+  }
+  .theme-palette {
+    gap: 5px;
+  }
+  .theme-palette button {
+    width: 27px;
+    height: 27px;
+  }
+  .database-modal {
+    width: calc(100vw - 16px);
+    max-height: 96vh;
+  }
+  .cover-reposition-tools {
+    right: 10px;
+    bottom: 10px;
+  }
+  .cover-reposition-tools input {
+    width: 65px;
+  }
+  .cover-reposition-tools label {
+    font-size: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+  }
+}
+
+html {
+  font-family: var(--ui-font);
+}
+
+.breadcrumbs > svg,
+.breadcrumb-parent > svg {
+  flex-shrink: 0;
+}
+@media (max-width: 760px) {
+  .app-shell .topbar {
+    height: auto;
+    min-height: 86px;
+    padding: 6px 12px;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-content: center;
+  }
+  .app-shell .topbar .breadcrumbs {
+    flex: 0 0 100%;
+    width: 100%;
+    order: 2;
+    min-height: 30px;
+  }
+  .app-shell .topbar .topbar-actions {
+    order: 1;
+    margin-left: auto;
+  }
+  .app-shell .editor-toolbar {
+    top: 86px;
+  }
+}

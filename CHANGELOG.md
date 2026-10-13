@@ -1,0 +1,28 @@
+# Historique des versions
+
+## 0.3.0 — 2026-10-13
+
+- Bases de données persistantes : champs typés, relations, formules, agrégations et vues tableau/galerie/graphique.
+- Formulaires liés aux bases, envois de fichiers et réponses privées.
+- Catégories personnalisées par espace, avec migration des anciennes catégories et retrait réversible.
+- Couvertures repositionnables ; réglages limités aux axes recadrés et enregistrement immédiat avec Terminer.
+- Fil d’Ariane horizontal dans l’éditeur et le lecteur public, sans titre d’ancêtre privé ou de brouillon.
+- Focus du titre à la création d’une page, thèmes blanc/sombre/OLED, palette d’accents et polices locales Quicksand/Fraunces.
+- Visionneuse d’images et modification des boutons dans l’éditeur.
+- Nom, sous-titre et taille maximale des fichiers configurables ; intitulé initial Feuillet.
+- Publication et retrait en privé de toute l’arborescence d’une page.
+- Sauvegardes ZIP format 3 : catégories, bases, relations, formulaires et réglages ; imports privés avec nouveaux IDs et tokens.
+- Exports Markdown/PDF des blocs de bases et formulaires, valeurs calculées et noms de fichiers lisibles.
+- README d’installation sur mutualisé et distribution précompilée sous licence MIT.
+
+## 0.2.0 — 2026-10-12
+
+- Création de sous-pages par `/page`, outils de sélection, couleurs et transformation des blocs.
+- Redimensionnement des images, renommage des médias, icônes importées et recherche Wikimedia Commons.
+- Galeries composables, espaces, styles globaux et individuels.
+- Import/export Markdown, export PDF et sauvegardes enrichies.
+
+## 0.1.0 — 2026-10-12
+
+- Premier carnet web auto-hébergé : éditeur par blocs, pages, médias, publication, galeries et quiz.
+- Backend PHP avec MySQL/SQLite et interface compilée utilisant le cœur libre de Tiptap.
