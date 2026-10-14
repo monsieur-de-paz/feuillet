@@ -137,3 +137,7 @@ Les styles historiques restent en place. Les jetons et composants communs s’aj
 Les carnets utilisent la table historique `spaces` et le champ `pages.space_id`. La migration `notebooks_migrated` se fait une seule fois dans une transaction, conserve IDs de pages et catégories et leurs versions, et remplit les snapshots publiés avec le même carnet. L’identifiant du carnet migré est stable pour éviter les doublons lors de requêtes concurrentes. La création d’une page sans carnet choisit un carnet réel ; la sous-page hérite du carnet parent. Supprimer un carnet déplace pages, catégories et snapshots dans un carnet conservé, sans supprimer le contenu. La suppression du dernier carnet crée une destination. Les anciens `homepage_id` restent inactifs dans les installations historiques et sont ignorés à l’import ; aucun écran d’accueil configurable n’existe plus.
 
 `PoweredBy.tsx` et `render_powered_by()` produisent la signature et le même lien GitHub. Leurs styles appartiennent à la feuille commune `interface.css`, à l’exception du lecteur PDF autonome qui utilise sa feuille locale.
+
+## Ajustements 0.5.2
+
+Le choix du carnet et les filtres restent pilotés par activeSpace/kind ; leurs boutons portent aria-pressed. IconPicker accepte emojiOnly pour réutiliser le catalogue du carnet sans afficher les outils de fichiers non disponibles à cet endroit. La sélection reste locale au formulaire jusqu’au POST save_space. ColorControl partage le rendu des champs natifs Fond/Texte/Accent. Aucun endpoint ou schéma supplémentaire.

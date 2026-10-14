@@ -4,14 +4,14 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.5.1-2563eb" alt="Version 0.5.1">
+  <img src="https://img.shields.io/badge/version-0.5.2-2563eb" alt="Version 0.5.2">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour rédiger, organiser et partager ses ressources.** Inspiré de l’édition par blocs, il permet de préparer des cours, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
 
 Il fonctionne sur un hébergement **PHP + MySQL/MariaDB**, y compris un mutualisé compatible. Un seul compte rédige ; les lecteurs consultent les pages et répondent aux formulaires depuis leur navigateur, sur ordinateur ou mobile. Aucun VPS ni abonnement n’est nécessaire. Node.js sert uniquement à développer l’interface ; les fichiers compilés sont fournis.
 
-<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.5.1.md">Nouveautés</a></p>
+<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.5.2.md">Nouveautés</a></p>
 
 ## Ce que vous pouvez faire
 
@@ -55,7 +55,7 @@ SQLite est aussi disponible avec `pdo_sqlite` pour une installation locale ou un
 
 ### 2. Télécharger et transférer le logiciel
 
-Télécharger **`Feuillet-0.5.1.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
+Télécharger **`Feuillet-0.5.2.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
 
 Le ZIP de GitHub, accessible par **Code → Download ZIP**, convient également : renommer le dossier extrait `feuillet` si nécessaire. Il contient lui aussi l’interface compilée.
 
@@ -197,3 +197,5 @@ Les idées et signalements sont bienvenus dans [Issues](https://github.com/monsi
 Feuillet est distribué sous [licence MIT](LICENSE) : usage, modification et redistribution sont autorisés, y compris gratuitement. Les dépendances, polices et images conservent leurs licences propres ; leurs textes sont fournis dans [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
 Les références de conception et le relevé réalisé avec [REA](https://github.com/morluto/rea) sont documentés dans [l’analyse Notion](docs/ANALYSE-NOTION.md). Aucun code de Notion ni template commercial n’est embarqué.
+
+Les repères du carnet et de la catégorie actifs, la palette générale et le choix d’émoji du carnet ont été précisés en [0.5.2](docs/NOUVEAUTES-0.5.2.md).

@@ -81,3 +81,7 @@ Implémentation : `frontend/src/interface.css`, `Select.tsx`, `FloatingSurface.t
 Les modales sont des sœurs de `.app-shell` : leurs règles sont globales, leurs corps partagent une gouttière de 24 px sur ordinateur et 16 px sur mobile. Les actions sans texte ont une taille commune 40/44 px. Les noms de catégories restent sur une ligne entière lorsque les commandes doivent se répartir dessous. La sélection d’une ressource n’altère pas sa taille : elle montre un fond d’accent de 120 ms et, pour les images, une ombre et les poignées. Les champs et commandes gardent un repère clavier. La signature d’auteur est centrée, en 11 px, avec un lien discret souligné. [Audit et vérifications](AUDIT-INTERFACE-0.5.1.md).
 
 Les champs de titre et de description directement dans la page constituent une exception aux outlines des formulaires : ils n’ont ni cadre ni ombre au focus. Un fond d’accent à 5 % et le curseur de saisie indiquent l’édition, avec transition de 120 ms. Les champs des dialogues conservent leur repère clavier partagé.
+
+## Ajustements 0.5.2
+
+Le carnet actif ajoute une coche et un fond d’accent ; la catégorie active est soulignée en 2 px, sans animation supplémentaire. Les échantillons de couleur restent des cercles de 28 px dans une cible ≥44 px. La coche donne une information indépendante de la couleur. Un formulaire imbriqué dans les réglages ne reçoit pas une seconde gouttière.

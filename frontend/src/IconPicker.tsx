@@ -24,6 +24,7 @@ export type IconPickerProps = {
   onRemove?: () => void;
   busy?: boolean;
   defaultTab?: "emoji" | "web" | "image";
+  emojiOnly?: boolean;
 };
 const spriteUrl = new URL("../../public/icons.svg", import.meta.url).href;
 const iconNames = new Set(manifest.names);
@@ -271,8 +272,17 @@ export function IconPicker({
   onRemove,
   busy = false,
   defaultTab = "emoji",
+  emojiOnly = false,
 }: IconPickerProps) {
-  const [tab, setTab] = useState(defaultTab);
+  const availableTabs: (readonly ["emoji" | "web" | "image", string])[] =
+    emojiOnly
+      ? [["emoji", "Émojis"]]
+      : [
+          ["emoji", "Émojis"],
+          ["web", "Icônes"],
+          ["image", "Image"],
+        ];
+  const [tab, setTab] = useState(emojiOnly ? "emoji" : defaultTab);
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState("");
   const [webGroup, setWebGroup] = useState("");
@@ -402,13 +412,7 @@ export function IconPicker({
         role="tablist"
         aria-label="Type d’icône"
       >
-        {(
-          [
-            ["emoji", "Émojis"],
-            ["web", "Icônes"],
-            ["image", "Image"],
-          ] as const
-        ).map(([id, name]) => (
+        {availableTabs.map(([id, name]) => (
           <button
             type="button"
             key={id}
@@ -422,10 +426,12 @@ export function IconPicker({
               if (event.key !== "ArrowLeft" && event.key !== "ArrowRight")
                 return;
               event.preventDefault();
-              const tabs = ["emoji", "web", "image"] as const;
+              const tabs = availableTabs.map(([id]) => id);
               const next =
                 tabs[
-                  (tabs.indexOf(tab) + (event.key === "ArrowRight" ? 1 : 2)) % 3
+                  (tabs.indexOf(tab) +
+                    (event.key === "ArrowRight" ? 1 : tabs.length - 1)) %
+                    tabs.length
                 ];
               changeTab(next);
               requestAnimationFrame(() =>

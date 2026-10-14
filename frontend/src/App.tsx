@@ -72,6 +72,7 @@ import { DatabaseManager } from "./Database";
 import {
   CategoriesEditor,
   ThemeControls,
+  ColorControl,
   NotebookControls,
   CoverTools,
   themeStyle,
@@ -1899,13 +1900,21 @@ export default function App() {
                 key={space.id}
               >
                 <button
+                  aria-pressed={activeSpace === String(space.id)}
                   onClick={() => {
                     setActiveSpace(String(space.id));
                     setSearch("");
                   }}
                 >
-                  <span>{space.icon}</span>
-                  <span>{space.name}</span>
+                  <FeuilletIcon icon={space.icon} size={18} />
+                  <span className="space-name">{space.name}</span>
+                  {activeSpace === String(space.id) && (
+                    <Check
+                      className="space-selected-check"
+                      size={15}
+                      aria-hidden="true"
+                    />
+                  )}
                 </button>
                 {admin && (
                   <button
@@ -1933,6 +1942,7 @@ export default function App() {
             >
               <button
                 className={!kind ? "selected" : ""}
+                aria-pressed={!kind}
                 onClick={() => setKind("")}
               >
                 Tout
@@ -1946,6 +1956,7 @@ export default function App() {
                   <button
                     key={c.id}
                     className={kind === c.id ? "selected" : ""}
+                    aria-pressed={kind === c.id}
                     onClick={() => setKind(c.id)}
                   >
                     {c.name}
@@ -2601,16 +2612,27 @@ export default function App() {
                 }
               />
             </label>
-            <label>
-              Icône (emoji)
-              <input
-                value={spaceForm.icon}
-                maxLength={16}
-                onChange={(e) =>
-                  setSpaceForm({ ...spaceForm, icon: e.target.value })
-                }
+            <details
+              className="notebook-emoji-chooser"
+              onKeyDown={(event) => {
+                if (
+                  event.key === "Enter" &&
+                  (event.target as HTMLElement).matches('input[type="search"]')
+                )
+                  event.preventDefault();
+              }}
+            >
+              <summary>
+                <FeuilletIcon icon={spaceForm.icon} size={24} />
+                <span>Choisir un émoji pour ce carnet</span>
+              </summary>
+              <IconPicker
+                emojiOnly
+                value={{ emoji: spaceForm.icon, webIcon: null, iconId: null }}
+                onEmoji={(icon) => setSpaceForm({ ...spaceForm, icon })}
+                onWebIcon={() => {}}
               />
-            </label>
+            </details>
             {modalError && (
               <p role="alert" className="form-error">
                 {modalError}
@@ -2673,7 +2695,7 @@ export default function App() {
           }
           onClose={() => setModal(null)}
         >
-          <div className="modal-form">
+          <div className="modal-form appearance-form">
             <p className="muted">
               {appearanceScope === "global"
                 ? "Ces réglages s’appliquent à toutes les pages, sauf celles personnalisées individuellement."
@@ -2709,36 +2731,23 @@ export default function App() {
               }
             />
             <div className="appearance-colors">
-              <label>
-                Fond
-                <input
-                  type="color"
-                  value={editAppearance.background}
-                  onChange={(e) =>
-                    void setAppearanceValues({ background: e.target.value })
-                  }
-                />
-              </label>
-              <label>
-                Texte
-                <input
-                  type="color"
-                  value={editAppearance.text}
-                  onChange={(e) =>
-                    void setAppearanceValues({ text: e.target.value })
-                  }
-                />
-              </label>
-              <label>
-                Accent
-                <input
-                  type="color"
-                  value={editAppearance.accent}
-                  onChange={(e) =>
-                    void setAppearanceValues({ accent: e.target.value })
-                  }
-                />
-              </label>
+              <ColorControl
+                label="Fond"
+                value={editAppearance.background}
+                onChange={(background) =>
+                  void setAppearanceValues({ background })
+                }
+              />
+              <ColorControl
+                label="Texte"
+                value={editAppearance.text}
+                onChange={(text) => void setAppearanceValues({ text })}
+              />
+              <ColorControl
+                label="Accent"
+                value={editAppearance.accent}
+                onChange={(accent) => void setAppearanceValues({ accent })}
+              />
             </div>
             <label>
               Largeur de lecture
@@ -3629,7 +3638,7 @@ export default function App() {
       )}
       {modal === "settings" && (
         <Modal title="Réglages & sauvegardes" onClose={() => setModal(null)}>
-          <div className="modal-form">
+          <div className="modal-form settings-form">
             <NotebookControls
               value={notebook}
               serverLimit={serverLimit}

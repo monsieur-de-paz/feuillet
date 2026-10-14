@@ -1098,3 +1098,195 @@ button.feuillet-select-trigger {
     font-size: 11px;
   }
 }
+
+/* Persistent navigation cues do not rely on accent color alone. */
+.app-shell .space-row.active {
+  background: var(--accent-soft);
+  color: var(--ink);
+  box-shadow: inset 2px 0 var(--accent);
+}
+.app-shell .space-row.active > button:first-child {
+  font-weight: 600;
+}
+.app-shell .space-row .space-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.space-selected-check {
+  margin-left: auto;
+  flex: 0 0 15px;
+  color: var(--ink);
+}
+.app-shell .sidebar-filters button.selected {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+  background: var(--accent-soft);
+}
+.modal .modal-form .notebook-controls {
+  padding: 0 0 24px;
+  margin: 0 0 24px;
+}
+.settings-form > .settings-card {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.appearance-form > .small-button {
+  margin: 8px 0 22px;
+}
+.modal .theme-palette {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+  gap: 6px;
+  margin: 16px 0;
+}
+.modal .theme-palette button {
+  width: 100%;
+  height: 44px;
+  min-height: 44px;
+  padding: 6px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  outline: none;
+}
+.modal .theme-palette button:is(:hover, [aria-pressed="true"]) {
+  background: var(--surface-soft);
+}
+.modal .theme-palette button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.theme-color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
+}
+.modal .appearance-colors {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 24px;
+}
+.appearance-color-control {
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 0;
+}
+.appearance-color-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+}
+.modal .appearance-color-field input[type="color"] {
+  width: 40px;
+  min-width: 40px;
+  height: 32px;
+  margin: 0;
+  padding: 0 !important;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  cursor: pointer;
+}
+.appearance-color-field input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.appearance-color-field input::-webkit-color-swatch {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+.appearance-color-field input::-moz-color-swatch {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+.appearance-color-field code {
+  font-size: 11px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.notebook-emoji-chooser {
+  margin: 0 0 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+}
+.notebook-emoji-chooser > summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  min-height: 44px;
+  font-size: 13px;
+  cursor: pointer;
+  list-style: none;
+}
+.notebook-emoji-chooser > summary::after {
+  content: "⌄";
+  margin-left: auto;
+}
+.notebook-emoji-chooser .icon-picker {
+  padding: 12px;
+  border-top: 1px solid var(--line);
+}
+@media (max-width: 480px) {
+  .modal .appearance-colors {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .appearance-color-field {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+  }
+}
+
+.app-shell .space-edit {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: var(--radius-control);
+}
+@media (max-width: 760px) {
+  .app-shell .space-edit {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+  }
+}
+.modal .modal-form :is(.appearance-checkbox, .notebook-auto-publish) {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.5;
+}
+.modal
+  .modal-form
+  :is(.appearance-checkbox, .notebook-auto-publish)
+  input[type="checkbox"] {
+  width: 18px;
+  min-width: 18px;
+  height: 18px;
+  min-height: 18px;
+  flex: 0 0 18px;
+  padding: 0;
+  margin: 2px 0 0;
+}

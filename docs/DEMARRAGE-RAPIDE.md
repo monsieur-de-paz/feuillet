@@ -31,3 +31,7 @@ La navigation se replie avec le bouton près de la recherche ou Ctrl/Cmd + Maj +
 ## Les nouveaux menus
 
 Un clic droit dans l’administration propose les actions de la page, du bloc ou de la propriété visée. Les boutons ⋯ et la poignée du bloc donnent le même accès sur mobile. Les longues listes ont une recherche. **Plus d’outils**, en bas de la navigation, contient la corbeille et la déconnexion. Voir [les nouveautés 0.5](NOUVEAUTES-0.5.md).
+
+## Ajustements 0.5.2
+
+Le carnet actif affiche une coche ; la catégorie active est soulignée. Dans Modifier le carnet, développer Choisir un émoji pour ce carnet, rechercher ou parcourir les catégories, puis Enregistrer. Les choix de couleur sont dans Réglages & sauvegardes → Apparence générale du carnet.

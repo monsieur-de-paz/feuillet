@@ -1,5 +1,12 @@
 # Historique des versions
 
+## 0.5.2 — 2026-10-14
+
+- Carnet actif marqué par fond, coche et état accessible ; catégorie sélectionnée soulignée.
+- Palette de couleurs régulière, cases personnalisées lisibles et marges des réglages corrigées.
+- Catalogue d’émojis avec recherche et variantes pour les carnets, validé à l’enregistrement.
+
+
 ## 0.5.1 — 2026-10-14
 
 - Sélection des blocs et images sans cadre noir, accent doux animé et focus clavier préservé.

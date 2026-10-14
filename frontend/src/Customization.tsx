@@ -69,6 +69,30 @@ export function themeStyle(a: Appearance): CSSProperties {
     colorScheme: dark ? "dark" : "light",
   } as CSSProperties;
 }
+export function ColorControl({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="appearance-color-control">
+      <span>{label}</span>
+      <span className="appearance-color-field">
+        <input
+          type="color"
+          aria-label={`Couleur ${label.toLowerCase()}`}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+        />
+        <code>{value.toUpperCase()}</code>
+      </span>
+    </label>
+  );
+}
 export function ThemeControls({
   value,
   onChange,
@@ -142,9 +166,18 @@ export function ThemeControls({
             title={color}
             aria-label={`Accent ${color}`}
             aria-pressed={value.accent.toLowerCase() === color}
-            style={{ background: color }}
             onClick={() => onChange({ accent: color })}
-          />
+          >
+            <span className="theme-color-swatch" style={{ background: color }}>
+              {value.accent.toLowerCase() === color && (
+                <Check
+                  size={16}
+                  color={accentForeground(color)}
+                  aria-hidden="true"
+                />
+              )}
+            </span>
+          </button>
         ))}
       </div>
       <button type="button" className="small-button" onClick={onReset}>

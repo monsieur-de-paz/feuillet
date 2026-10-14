@@ -280,3 +280,7 @@ Essais Chromium intégré : catégories desktop avec marges 24 px et actions 40 
 Non vérifiés sur ce correctif : Safari/iOS, Firefox, lecteur d’écran, clavier virtuel physique, préférence reduced motion du système, PHP 8.3/8.4, MariaDB et déploiement Apache/OVH réel. La racine de navigation n’est pas un dispositif de comptes élèves : une page publique reste accessible par son lien direct.
 
 Dernier contrôle après la capture du titre : exception CSS pour les champs de titre et de description du canevas, avec `outline:none`, bordure 0, ombre absente et fond d’accent à 5 % animé en 120 ms. Focus vérifié dans Chromium en clair et OLED ; la préférence Clair a été restaurée. Construction TypeScript/Vite et formatage relancés après ce correctif. La suite sharing (15 tests) a aussi réussi depuis une copie extraite de l’archive de distribution.
+
+## Ajustements 0.5.2
+
+TypeScript/Vite, Prettier et 58 contrôles frontend réussis, plus contraste/parité de 24 accents. La suite customization (9 tests) réussit sur une copie SQLite jetable. Les 92 contrôles HTTP par pilote de 0.5.1 restent la référence du backend ; ils ne sont pas présentés comme tous rejoués pour ce correctif de présentation. Chromium : carnet actif visible après clic sans changer de page, Classes soulignée, palette mesurée (cercles 28 px, cibles 44 px), réglages sans double marge et 320/390 px sans débordement ; sélection et sauvegarde robot puis restauration 📖 du carnet fictif. Catalogue mobile testé. Les réglages généraux existants sont conservés. Voir AUDIT-INTERFACE-0.5.2.md pour les limites.

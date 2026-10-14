@@ -157,3 +157,7 @@ Sauvegarder l’ensemble base/configuration/médias et transférer l’interface
 Le choix historique de page d’accueil n’est plus utilisé. Cette page reste disponible dans l’administration. Remplacer les anciens liens sans `page` par les liens directs des pages à partager. Vérifier une branche, puis une sous-page et le retour par fil d’Ariane, dans une fenêtre privée. Les galeries ne montreront plus les cartes extérieures à la branche. La documentation 0.4 et 0.5 reste historique ; utiliser le [guide actuel](NOUVEAUTES-0.5.1.md).
 
 Pour revenir à une version antérieure, restaurer son code et la sauvegarde de base correspondante : revenir uniquement aux anciens assets ne défait pas la migration des carnets. La sauvegarde portable conserve les anciens accueils comme pages ordinaires et ne contient plus `homepage_id`.
+
+## Ajustements 0.5.2
+
+Remplacer les fichiers compilés et public/interface.css, garder config.php et storage/, puis recharger les onglets. Aucun changement SQL supplémentaire. Vérifier carnet actif, catégorie soulignée, Apparence générale et Modifier le carnet → Choisir un émoji. Le contrôle de couleur natif peut avoir une présentation différente selon le navigateur.
