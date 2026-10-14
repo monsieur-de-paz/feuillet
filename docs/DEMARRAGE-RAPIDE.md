@@ -35,3 +35,5 @@ Un clic droit dans l’administration propose les actions de la page, du bloc ou
 ## Ajustements 0.5.2
 
 Le carnet actif affiche une coche ; la catégorie active est soulignée. Dans Modifier le carnet, développer Choisir un émoji pour ce carnet, rechercher ou parcourir les catégories, puis Enregistrer. Les choix de couleur sont dans Réglages & sauvegardes → Apparence générale du carnet.
+
+Le carnet actif et la catégorie sont soulignés de la même couleur. Sur ordinateur, glisser le bord droit de la navigation pour changer sa largeur. La poignée accepte les flèches gauche/droite au clavier ; double-clic ou Entrée remet la largeur habituelle. [Guide 0.5.4](NOUVEAUTES-0.5.4.md).

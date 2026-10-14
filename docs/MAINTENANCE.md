@@ -161,3 +161,7 @@ Pour revenir à une version antérieure, restaurer son code et la sauvegarde de 
 ## Ajustements 0.5.2
 
 Remplacer les fichiers compilés et public/interface.css, garder config.php et storage/, puis recharger les onglets. Aucun changement SQL supplémentaire. Vérifier carnet actif, catégorie soulignée, Apparence générale et Modifier le carnet → Choisir un émoji. Le contrôle de couleur natif peut avoir une présentation différente selon le navigateur.
+
+## Mise à jour 0.5.4
+
+Transférer le code et les assets comme pour 0.5.3, conserver configuration et stockage privés. Recharger les onglets pour voir le nouveau soulignement et la poignée de largeur. Double-clic sur la poignée ou Entrée rétablit la largeur responsive par défaut. La préférence de largeur est locale au navigateur ; elle n’est pas dans les exports de cours et peut être différente sur un autre appareil. Aucun changement de schéma SQL.

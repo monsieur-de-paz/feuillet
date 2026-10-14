@@ -169,7 +169,7 @@ body[data-theme="oled"] {
 }
 .app-shell .page-row.active {
   color: var(--ink);
-  box-shadow: inset 2px 0 var(--accent);
+  box-shadow: none;
 }
 .app-shell .page-row-main {
   min-height: 40px;
@@ -1103,9 +1103,10 @@ button.feuillet-select-trigger {
 .app-shell .space-row.active {
   background: transparent;
   color: var(--ink);
-  box-shadow: inset 2px 0 var(--accent);
+  box-shadow: none;
 }
 .app-shell .space-row.active > button:first-child {
+  color: var(--accent);
   font-weight: 600;
 }
 .app-shell .space-row .space-name {
@@ -1113,17 +1114,15 @@ button.feuillet-select-trigger {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.space-selected-check {
-  margin-left: auto;
-  flex: 0 0 15px;
-  color: var(--ink);
-}
+.app-shell .space-row.active .space-name,
 .app-shell .sidebar-filters button.selected {
-  color: var(--ink);
+  color: var(--accent);
   font-weight: 600;
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-underline-offset: 6px;
+}
+.app-shell .sidebar-filters button.selected {
   background: var(--accent-soft);
 }
 .modal .modal-form .notebook-controls {
@@ -1289,4 +1288,66 @@ button.feuillet-select-trigger {
   flex: 0 0 18px;
   padding: 0;
   margin: 2px 0 0;
+}
+.sidebar-resize-handle {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--sidebar) - 5px);
+  width: 10px;
+  z-index: 36;
+  cursor: col-resize;
+  touch-action: none;
+}
+.sidebar-resize-handle::before {
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 28px;
+  top: calc(50% - 14px);
+  left: 3px;
+  border-radius: 4px;
+  background: var(--muted);
+  opacity: 0.4;
+  transition: opacity 120ms var(--ease-interface);
+}
+.sidebar-resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 4px;
+  width: 2px;
+  background: var(--accent);
+  opacity: 0;
+}
+.sidebar-resize-handle:is(:hover, :focus-visible)::before {
+  opacity: 1;
+}
+.sidebar-resize-handle:focus-visible {
+  outline: none;
+}
+.sidebar-resize-handle:is(:hover, :focus-visible)::after,
+.sidebar-resizing .sidebar-resize-handle::after {
+  opacity: 1;
+}
+.sidebar-resizing,
+.sidebar-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-resize-handle::before {
+    transition: none;
+  }
+}
+@media print {
+  .sidebar-resize-handle {
+    display: none;
+  }
+}
+/* Keep the underline visible when long notebook names are ellipsized. */
+.app-shell .space-row.active .space-name {
+  padding-bottom: 7px;
+  margin-bottom: -7px;
 }

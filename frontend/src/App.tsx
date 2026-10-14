@@ -56,6 +56,7 @@ import {
   Minimize,
   Pencil,
 } from "lucide-react";
+import { SidebarResizer } from "./SidebarResizer";
 import { IconPicker, FeuilletIcon } from "./IconPicker";
 import {
   ThemeToggle,
@@ -1372,17 +1373,38 @@ export default function App() {
     }
   }, [draft?.title, draft?.id, session?.name]);
   useEffect(() => {
+    let frame = 0;
     const resizeTitle = () => {
-      const title =
-        document.querySelector<HTMLTextAreaElement>(".page-title-input");
-      if (title) {
-        title.style.height = "auto";
-        title.style.height = title.scrollHeight + "px";
-      }
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const title =
+          document.querySelector<HTMLTextAreaElement>(".page-title-input");
+        if (title) {
+          title.style.height = "auto";
+          title.style.height = title.scrollHeight + "px";
+        }
+      });
     };
+    let previousWidth = -1;
+    const observer =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver((entries) => {
+            const width = entries[0]?.contentRect.width ?? 0;
+            if (Math.abs(width - previousWidth) > 0.5) {
+              previousWidth = width;
+              resizeTitle();
+            }
+          });
+    const panel = document.querySelector(".main-panel");
+    if (panel) observer?.observe(panel);
     window.addEventListener("resize", resizeTitle);
-    return () => window.removeEventListener("resize", resizeTitle);
-  }, []);
+    return () => {
+      observer?.disconnect();
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", resizeTitle);
+    };
+  }, [draft?.id, loading]);
   useEffect(() => {
     if (!admin) return;
     const shortcut = (event: KeyboardEvent) => {
@@ -1908,13 +1930,6 @@ export default function App() {
                 >
                   <FeuilletIcon icon={space.icon} size={18} />
                   <span className="space-name">{space.name}</span>
-                  {activeSpace === String(space.id) && (
-                    <Check
-                      className="space-selected-check"
-                      size={15}
-                      aria-hidden="true"
-                    />
-                  )}
                 </button>
                 {admin && (
                   <button
@@ -2115,6 +2130,7 @@ export default function App() {
             </div>
           </div>
         </aside>
+        {admin && !mobile && !sidebarHidden && !focus && <SidebarResizer />}
         {admin &&
           pageContext &&
           (() => {

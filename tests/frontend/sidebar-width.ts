@@ -1,0 +1,15 @@
+import { strict as assert } from 'node:assert';
+import { clampSidebarWidth, sidebarMax, storedSidebarWidth } from '../../frontend/src/sidebar-width';
+assert.equal(storedSidebarWidth(null),null);
+assert.equal(storedSidebarWidth('abc'),null);
+assert.equal(storedSidebarWidth('NaN'),null);
+assert.equal(storedSidebarWidth('-230'),null);
+assert.equal(storedSidebarWidth('320'),320);
+assert.equal(storedSidebarWidth('9999'),480);
+assert.equal(clampSidebarWidth(-10,1280),220);
+assert.equal(clampSidebarWidth(1000,1280),480);
+assert.equal(clampSidebarWidth(480,800),320);
+assert.equal(sidebarMax(761),281);
+assert.equal(clampSidebarWidth(NaN,1280),260);
+assert.equal(clampSidebarWidth(300.7,1280),301);
+console.log('12 sidebar width checks passed: stored values, bounds and space left for content');

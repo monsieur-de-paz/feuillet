@@ -84,4 +84,8 @@ Les champs de titre et de description directement dans la page constituent une e
 
 ## Ajustements 0.5.2
 
-Le carnet actif ajoute une coche et un repère latéral, sans fond de surlignage ; la catégorie active est soulignée en 2 px, sans animation supplémentaire. Les échantillons de couleur restent des cercles de 28 px dans une cible ≥44 px. La coche donne une information indépendante de la couleur. Un formulaire imbriqué dans les réglages ne reçoit pas une seconde gouttière.
+Le carnet actif utilise le même soulignement et la même couleur d’accent que la catégorie, sans coche ni fond de surlignage ; la catégorie active est soulignée en 2 px, sans animation supplémentaire. Les échantillons de couleur restent des cercles de 28 px dans une cible ≥44 px. La coche donne une information indépendante de la couleur. Un formulaire imbriqué dans les réglages ne reçoit pas une seconde gouttière.
+
+## Navigation réglable — 0.5.4
+
+Le repère de sélection repose sur un soulignement de 2 px et le poids 600, en couleur d’accent. Le nom tronqué conserve une réserve verticale pour ne pas couper son trait. La poignée de largeur apparaît sur le bord commun navigation/contenu ; le curseur change en col-resize, la ligne d’accent indique survol/focus/glissement. Le mouvement suit directement le pointeur, sans animation de largeur ni déplacement du contenu par transform. Le clavier offre une alternative.

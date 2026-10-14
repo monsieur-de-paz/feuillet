@@ -1,5 +1,13 @@
 # Historique des versions
 
+## 0.5.4 — 2026-10-14
+
+- Carnet actif souligné et coloré comme la catégorie ; coche, repère latéral et fond retirés.
+- Largeur de navigation réglable à la souris et au clavier, bornée et mémorisée par navigateur.
+- Rétablissement par double-clic/Entrée ; tiroir mobile et navigation masquée préservés.
+- Hauteur du titre recalculée lorsque la zone de rédaction change de largeur.
+
+
 ## 0.5.3 — 2026-10-14
 
 - Fond du carnet actif retiré à la demande de l’utilisateur ; coche, repère latéral et texte plus marqué conservés.

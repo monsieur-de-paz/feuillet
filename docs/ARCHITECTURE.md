@@ -141,3 +141,9 @@ Les carnets utilisent la table historique `spaces` et le champ `pages.space_id`.
 ## Ajustements 0.5.2
 
 Le choix du carnet et les filtres restent pilotés par activeSpace/kind ; leurs boutons portent aria-pressed. IconPicker accepte emojiOnly pour réutiliser le catalogue du carnet sans afficher les outils de fichiers non disponibles à cet endroit. La sélection reste locale au formulaire jusqu’au POST save_space. ColorControl partage le rendu des champs natifs Fond/Texte/Accent. Aucun endpoint ou schéma supplémentaire.
+
+## Largeur de navigation — 0.5.4
+
+`SidebarResizer.tsx` est un composant isolé, monté uniquement dans la navigation d’administration visible sur ordinateur. Il ajuste la variable CSS `--sidebar` de `.app-shell` : barre et marge de la zone principale se recalculent ensemble. Le composant possède son état de glissement pour ne pas faire rerendre App/Tiptap à chaque mouvement. Pointer capture, annulation, perte de capture, blur et démontage nettoient les classes temporaires. Le démontage enlève la variable propre au desktop pour conserver la largeur mobile.
+
+`sidebar-width.ts` borne la largeur et valide le stockage ; `feuillet.sidebar-width` dans localStorage conserve la préférence. L’événement storage synchronise les onglets. Aucun endpoint ou champ SQL. Un ResizeObserver de la zone principale recalcule la hauteur du titre uniquement si sa largeur a changé, via requestAnimationFrame, et est nettoyé au changement de page.

@@ -288,3 +288,11 @@ TypeScript/Vite, Prettier et 58 contrôles frontend réussis, plus contraste/par
 ### Ajustement 0.5.3
 
 Correctif CSS ciblé du fond du carnet actif : transparent, repère latéral et coche conservés. TypeScript/Vite relancé et état visuel contrôlé dans Chromium. Les autres parcours et règles du backend ne sont pas modifiés.
+
+## Validation 0.5.4
+
+Construction TypeScript/Vite et formatage réussis. `node tests/frontend.mjs` : **70 contrôles** (58 précédents + 12 sur lecture de préférence, données invalides, minimum/maximum, viewport étroit et arrondi), plus les 24 accents et leur parité PHP/JavaScript. Aucune nouvelle dépendance. Le backend ne change que de numéro de version ; ses 92 tests HTTP par pilote de 0.5.1 restent la référence historique, sans les présenter comme rejoués ici.
+
+Chromium intégré : nom du carnet souligné et sans coche, couleur exactement égale à celle de la catégorie ; glissement 230→330 px, marge principale 330 px et aucun débordement ; largeur 330 retrouvée après reload ; flèche droite→340 ; Fin→465 sur viewport 945 ; titre hauteur/scrollHeight 83/83 à cette largeur ; changement de catégorie conserve la largeur ; masquage supprime poignée et marge, puis réaffichage restitue la préférence ; Entrée et double-clic remettent 230 px. À 320 px, aucune poignée, variable desktop supprimée, tiroir 270 px et scrollWidth 320. La largeur 265 px observée avant les essais a été rétablie à la fin.
+
+Les règles de nettoyage de perte de capture et blur sont inspectées ; une interruption physique de drag par changement d’application n’a pas été reproduite. Safari/iOS, Firefox, lecteurs d’écran, préférence OS reduced motion et installation OVH réelle ne sont pas vérifiés ici. Aucun contenu ou réglage de publication modifié dans les essais.
