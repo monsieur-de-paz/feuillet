@@ -171,3 +171,7 @@ Transférer le code et les assets comme pour 0.5.3, conserver configuration et s
 Sauvegarder la base et les médias, remplacer le code et les bundles 0.6 ensemble, conserver `config.php` et `storage/`, puis recharger les éditeurs. Aucune migration SQL ou nouvelle dépendance. Le nouveau bloc `toggleHeading` exige une version 0.6 ou ultérieure ; un retour au code 0.5 après création de ces blocs nécessite d’abord leur conversion en titres ordinaires, ou la restauration de la sauvegarde antérieure. Les préférences de publication restent inchangées.
 
 Contrôler le parcours nouvelle page → titre → Tab → contenu, la sélection/désélection de texte, les trois niveaux de titres dépliables et leurs exports. `tests/editor.py` vérifie les blocs sur une copie jetable ; `node tests/frontend.mjs` teste les transactions réelles Tiptap. Rejouer la suite HTTP SQLite et MySQL après évolution de la normalisation ou du rendu.
+
+### Ajustement 0.6.1
+
+Même procédure de mise à jour ; Entrée depuis le titre utilise le même focus vers le contenu que Tab. Aucune migration ou modification des règles de partage. Recharger les onglets après remplacement des bundles.

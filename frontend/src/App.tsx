@@ -2457,8 +2457,9 @@ export default function App() {
                     }}
                     onKeyDown={(event) => {
                       if (
-                        event.key === "Tab" &&
+                        (event.key === "Tab" || event.key === "Enter") &&
                         !event.shiftKey &&
+                        !event.nativeEvent.isComposing &&
                         editorRef.current
                       ) {
                         event.preventDefault();

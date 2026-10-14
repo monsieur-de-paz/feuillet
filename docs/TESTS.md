@@ -306,3 +306,7 @@ Toutes les suites HTTP sont rejouées sur des installations jetables **SQLite et
 Chromium intégré : création d’une page avec focus titre, Tab dans la rédaction ; `/titre 2 dépliable`, saisie du titre et Tab vers le contenu ; absence de menu avec un simple curseur, apparition sur sélection, gras et annulation, disparition après désélection ; repli masquant réellement le contenu (`display:none`) et réouverture. À 320×740 : scrollWidth 320, bouton « + » 48×48, menu de sélection 278 px restant dans l’écran. Lecture publique vérifiée : section initialement repliée, ouverture au clic et contenu affiché. Génération d’un PDF de 132 Ko confirmée par le dialogue ; récupération du téléchargement via l’outil navigateur non confirmée. Les tests Markdown conservent exactement le JSON des titres dépliables.
 
 Le téléchargement PDF dans un navigateur ordinaire, les claviers mobiles réels, Safari/iOS, Firefox, lecteur d’écran et hébergement OVH réel restent à vérifier. La préférence de publication des sous-pages n’est pas modifiée par cette version.
+
+### Ajustement 0.6.1
+
+Compilation et formatage rejoués. Dans Chromium intégré : nouvelle page, titre saisi, Entrée → focus « Contenu de la page », titre sans caractère de saut de ligne ; saisie immédiate d’un paragraphe dans le contenu, sans bandeau de texte affiché. Le backend hors numéro de version est identique à 0.6 ; les 98 tests par pilote ci-dessus restent sa validation.

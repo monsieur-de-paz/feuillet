@@ -150,7 +150,7 @@ Le choix du carnet et les filtres restent pilotés par activeSpace/kind ; leurs 
 
 ## Rédaction contextuelle — 0.6
 
-`Editor.tsx` remplace la barre permanente par l’historique et un bouton d’insertion. Un portail positionne les contrôles au-dessus du bloc sélectionné ; une sélection vide, un nœud média ou un champ extérieur les masque. Focus, transactions, défilement et redimensionnement recalculent l’ancrage par animation frame. `App.tsx` route Tab du textarea de titre vers `editor.commands.focus("start")`.
+`Editor.tsx` remplace la barre permanente par l’historique et un bouton d’insertion. Un portail positionne les contrôles au-dessus du bloc sélectionné ; une sélection vide, un nœud média ou un champ extérieur les masque. Focus, transactions, défilement et redimensionnement recalculent l’ancrage par animation frame. `App.tsx` route Entrée ou Tab du textarea de titre vers `editor.commands.focus("start")`.
 
 `ToggleHeading.tsx` définit `toggleHeading`, de contenu `heading block+`. Une NodeView React fournit la flèche et un seul domaine éditable ; le wrapper interne Tiptap est explicitement pris en compte par les styles de repli. La première heading garde ses marques et son niveau ; une transformation en titre ordinaire retire le conteneur sans supprimer les blocs suivants. L’état ouvert est local à la NodeView. Tab/Entrée en fin de titre passent au premier contenu.
 

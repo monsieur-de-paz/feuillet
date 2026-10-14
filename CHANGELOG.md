@@ -1,5 +1,10 @@
 # Historique des versions
 
+## 0.6.1 — 2026-10-14
+
+- Entrée depuis le titre mène directement au contenu, comme Tab, sans insérer un saut de ligne.
+- Composition de texte au clavier préservée ; Maj + Entrée reste disponible pour un saut volontaire.
+
 ## 0.6.0 — 2026-10-14
 
 - Tab du titre vers la rédaction ; retrait du bandeau permanent.

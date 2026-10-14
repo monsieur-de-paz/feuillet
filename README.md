@@ -4,7 +4,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.6.0-2563eb" alt="Version 0.6.0">
+  <img src="https://img.shields.io/badge/version-0.6.1-2563eb" alt="Version 0.6.1">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour rédiger, organiser et partager ses ressources.** Inspiré de l’édition par blocs, il permet de préparer des cours, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
@@ -55,7 +55,7 @@ SQLite est aussi disponible avec `pdo_sqlite` pour une installation locale ou un
 
 ### 2. Télécharger et transférer le logiciel
 
-Télécharger **`Feuillet-0.6.0.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
+Télécharger **`Feuillet-0.6.1.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
 
 Le ZIP de GitHub, accessible par **Code → Download ZIP**, convient également : renommer le dossier extrait `feuillet` si nécessaire. Il contient lui aussi l’interface compilée.
 
@@ -202,4 +202,4 @@ Les repères du carnet et de la catégorie actifs, la palette générale et le c
 
 La largeur de la navigation se règle en glissant son bord droit, avec mémorisation dans le navigateur. Le carnet et la catégorie actifs utilisent le même soulignement d’accent. [Guide 0.5.4](docs/NOUVEAUTES-0.5.4.md).
 
-La rédaction 0.6 remplace le bandeau permanent par un ajout flottant et des outils visibles pendant la sélection de texte. Tab mène du titre au contenu ; les titres 1, 2 et 3 peuvent se déplier. [Guide 0.6](docs/NOUVEAUTES-0.6.md).
+La rédaction 0.6 remplace le bandeau permanent par un ajout flottant et des outils visibles pendant la sélection de texte. Entrée ou Tab mène du titre au contenu ; les titres 1, 2 et 3 peuvent se déplier. [Guide 0.6](docs/NOUVEAUTES-0.6.md).
