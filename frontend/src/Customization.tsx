@@ -210,7 +210,7 @@ export function CategoriesEditor({
     <div className="categories-editor">
       <p>
         Ces catégories appartiennent à <strong>{spaceName}</strong>. Les pages
-        d’un autre espace peuvent utiliser des catégories différentes.
+        d’un autre carnet peuvent utiliser leurs propres catégories.
       </p>
       {active.map((c, i) => (
         <div className="category-edit-row" key={c.id}>

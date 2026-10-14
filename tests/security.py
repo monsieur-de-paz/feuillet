@@ -111,7 +111,7 @@ class Security(unittest.TestCase):
         expression='count(concat('+','.join(['prop("Texte")']*11)+'))'
         result=self.ok(self.admin.api('formula_preview',{'db_id':db['id'],'expression':expression}));self.assertIn('error',result)
         result=self.ok(self.admin.api('formula_preview',{'db_id':db['id'],'expression':'system("touch /tmp/feuillet-owned")'}));self.assertIn('error',result)
-    def test_09_archive_preflight_rollback_and_homepage_remap(self):
+    def test_09_archive_preflight_rollback_and_ordinary_page_restore(self):
         def archive(manifest,files=None,extra=None,duplicate=False):
             result=io.BytesIO()
             with warnings.catch_warnings():
@@ -130,9 +130,9 @@ class Security(unittest.TestCase):
         self.invalid(self.admin.upload('import','archive.zip',archive(malformed),'application/zip'))
         fid=str(uuid.uuid4());php={**empty,'files':[{'id':fid,'name':'php.txt','entry':'files/'+fid}]};self.invalid(self.admin.upload('import','archive.zip',archive(php,{'files/'+fid:b'<?php echo "active"; ?>'}),'application/zip'))
         self.assertEqual(len(self.ok(self.admin.api('pages'))['pages']),len(before));self.assertEqual(len(self.ok(self.admin.api('files'))['files']),len(beforefiles))
-        home=self.page(title='Accueil audit');self.ok(self.admin.api('homepage',{'id':home['id']}))
-        _,raw,_=self.admin.api('export');manifest=json.loads(zipfile.ZipFile(io.BytesIO(raw)).read('manifest.json'));self.assertEqual(manifest['settings']['homepage_id'],home['id'])
-        self.ok(self.admin.upload('import','restauration.zip',raw,'application/zip',{'apply_settings':'1'}));newhome=self.ok(self.admin.api('settings'))['homepage'];self.assertNotEqual(newhome['id'],home['id']);self.assertFalse(newhome['published'])
+        page=self.page(title='Ancien accueil conservé')
+        _,raw,_=self.admin.api('export');manifest=json.loads(zipfile.ZipFile(io.BytesIO(raw)).read('manifest.json'));self.assertNotIn('homepage_id',manifest['settings'])
+        self.ok(self.admin.upload('import','restauration.zip',raw,'application/zip',{'apply_settings':'1'}));copies=[p for p in self.ok(self.admin.api('pages'))['pages'] if p['title']==page['title'] and p['id']!=page['id']];self.assertTrue(copies);self.assertTrue(all(p['visibility']=='private' for p in copies))
     def test_10_expired_uploads_cleanup_preserves_reused_files(self):
         db=self.db();field=self.prop(db,'Fichiers','files');form=self.ok(self.admin.api('form_save',{'db_id':db['id'],'name':'Expiration audit','public':True,'fields':[field['id']]}))['form']
         client=harness.Client(self.admin.base);client.session()

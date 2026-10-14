@@ -255,3 +255,28 @@ Compilation TypeScript/Vite, Prettier et syntaxe des **19 fichiers PHP** réussi
 Les essais sont locaux sous PHP 8.5.11, MySQL local et Chromium intégré. Safari/iOS, Firefox, lecteur d’écran, clavier virtuel réel, préférence de réduction du mouvement activée au niveau du système et audit WCAG complet ne sont pas vérifiés. La règle CSS de réduction du mouvement est inspectée. Aucun déploiement ni test de charge OVH, Apache, MariaDB, PHP 8.3/8.4 ou écran OLED physique effectué. [Audit de l’interface](AUDIT-INTERFACE-0.5.md).
 
 La distribution précompilée a aussi été extraite dans un dossier indépendant : les 12 scénarios workspace passent depuis cette copie, et les styles communs de l’éditeur et du lecteur sont identiques dans le ZIP.
+
+## Validation 0.5.1 — 14 octobre 2026
+
+| Suite HTTP actuelle | SQLite | MySQL local |
+|---|---:|---:|
+| smoke | 20 réussis, 1 réseau ignoré | 20 réussis, 1 réseau ignoré |
+| customization | 9 réussis | 9 réussis |
+| databases | 12 réussis | 12 réussis |
+| sharing (remplace homepage) | 15 réussis | 15 réussis |
+| security | 13 réussis | 13 réussis |
+| autopublish | 6 réussis | 6 réussis |
+| reader | 5 réussis | 5 réussis |
+| workspace | 12 réussis | 12 réussis |
+
+**92 réussites et un scénario réseau ignoré par pilote.** Installations et bases jetables ; les tests ne touchent pas les cours de la prévisualisation. Les assertions des anciennes galeries ont été adaptées à la nouvelle règle de branche, en créant leurs cartes comme sous-pages. Les tests de sauvegarde conservent les anciens accueils comme pages ordinaires privées ; l’endpoint historique reçoit 410. Les tests de filtrage/tri des bases de l’ancienne suite homepage sont conservés dans sharing. Cette suite vérifie aussi la suppression du dernier carnet et la non-traversée d’un parent privé.
+
+`node tests/frontend.mjs` : 58 contrôles réussis, plus 24 accents en clair/sombre/OLED et parité PHP/JavaScript. Prettier, TypeScript/Vite et syntaxe des 19 fichiers PHP réussis. Bundle principal environ 966 Ko JS / 299 Ko gzip ; l’avertissement de chunk Vite demeure. Aucun nouveau paquet ; audit npm du 14 octobre : 0 vulnérabilité connue.
+
+Prévisualisation : copie SQLite privée faite avant migration ; comparaison des 27 pages préexistantes montre IDs, titres et versions identiques. Un carnet et des ressources fictives ont ensuite été ajoutés pour les essais de menus et de navigation ; les pages déjà à la corbeille ne sont pas restaurées. Les contenus, titres et versions des cours existants restent identiques ; seul leur rattachement à un carnet a changé dans les métadonnées et snapshots.
+
+Essais Chromium intégré : catégories desktop avec marges 24 px et actions 40 px ; 320/390 px sans débordement et actions 44 px ; bibliothèque, icônes, panneau de fichier, clic droit image et sortie clavier ; sélection sans outline ; mouvement ralenti à 10 % puis CSS normal restauré ; dialogue OLED lisible puis Clair restauré ; galerie publique → sous-page avec racine conservée et fil d’Ariane limité. Signature visible dans l’administration et le lecteur, fournie aussi dans formulaires/installateur/PDF. Voir [audit des menus](AUDIT-INTERFACE-0.5.1.md) pour les mesures et limites.
+
+Non vérifiés sur ce correctif : Safari/iOS, Firefox, lecteur d’écran, clavier virtuel physique, préférence reduced motion du système, PHP 8.3/8.4, MariaDB et déploiement Apache/OVH réel. La racine de navigation n’est pas un dispositif de comptes élèves : une page publique reste accessible par son lien direct.
+
+Dernier contrôle après la capture du titre : exception CSS pour les champs de titre et de description du canevas, avec `outline:none`, bordure 0, ombre absente et fond d’accent à 5 % animé en 120 ms. Focus vérifié dans Chromium en clair et OLED ; la préférence Clair a été restaurée. Construction TypeScript/Vite et formatage relancés après ce correctif. La suite sharing (15 tests) a aussi réussi depuis une copie extraite de l’archive de distribution.

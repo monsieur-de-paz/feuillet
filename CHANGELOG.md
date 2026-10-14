@@ -1,5 +1,15 @@
 # Historique des versions
 
+## 0.5.1 — 2026-10-14
+
+- Sélection des blocs et images sans cadre noir, accent doux animé et focus clavier préservé.
+- Marges des vrais dialogues corrigées, actions symétriques et menus adaptatifs.
+- Carnets avec leurs pages et catégories ; migration sans perte du pseudo-dossier « Mon carnet ».
+- Partage indépendant par branche, liens conservant la racine, filtres serveur sur navigation et recherche ; retrait de l’accueil configurable.
+- Signature Feuillet / Sandro de PAZ et lien GitHub au bas des interfaces.
+- Sauvegardes compatibles avec les anciennes pages d’accueil, restaurées comme pages privées ordinaires.
+
+
 ## 0.5.0 — 14 octobre 2026
 
 Charte graphique documentaire : fonte système, surfaces neutres, lisibilité et focus ; sélecteurs communs recherchables ; clic droit contextuel et boutons équivalents pour les pages, blocs, couvertures et propriétés ; navigation compacte avec Plus d’outils ; choix du thème accessible au clavier ; barre de sélection repositionnée après défilement. Pas de nouvelle dépendance runtime ni de migration de contenu. [Guide](docs/NOUVEAUTES-0.5.md), [charte](docs/CHARTE-GRAPHIQUE.md), [audit](docs/AUDIT-INTERFACE-0.5.md).

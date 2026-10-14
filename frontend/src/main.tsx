@@ -6,6 +6,7 @@ import { themeStyle } from "./Customization";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./interface.css";
+import { PoweredBy } from "./PoweredBy";
 import { PublicForm } from "./Database";
 function PublicFormScreen({ token }: { token: string }) {
   useEffect(() => {
@@ -27,7 +28,12 @@ function PublicFormScreen({ token }: { token: string }) {
       alive = false;
     };
   }, []);
-  return <PublicForm token={token} />;
+  return (
+    <>
+      <PublicForm token={token} />
+      <PoweredBy />
+    </>
+  );
 }
 const target =
   document.getElementById("root") || document.getElementById("app");

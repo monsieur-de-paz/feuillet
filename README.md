@@ -4,24 +4,24 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.5.0-2563eb" alt="Version 0.5.0">
+  <img src="https://img.shields.io/badge/version-0.5.1-2563eb" alt="Version 0.5.1">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour rédiger, organiser et partager ses ressources.** Inspiré de l’édition par blocs, il permet de préparer des cours, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
 
 Il fonctionne sur un hébergement **PHP + MySQL/MariaDB**, y compris un mutualisé compatible. Un seul compte rédige ; les lecteurs consultent les pages et répondent aux formulaires depuis leur navigateur, sur ordinateur ou mobile. Aucun VPS ni abonnement n’est nécessaire. Node.js sert uniquement à développer l’interface ; les fichiers compilés sont fournis.
 
-<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.5.md">Nouveautés</a></p>
+<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.5.1.md">Nouveautés</a></p>
 
 ## Ce que vous pouvez faire
 
 | Écrire | Organiser | Transmettre |
 |---|---|---|
-| Éditeur par blocs, commandes `/`, titres, listes, tableaux, colonnes et encadrés | Espaces, catégories personnalisées, pages et sous-pages, fil d’Ariane | Publication d’une page et de ses sous-pages |
+| Éditeur par blocs, commandes `/`, titres, listes, tableaux, colonnes et encadrés | Carnets, catégories personnalisées, pages et sous-pages, fil d’Ariane | Publication d’une page et de ses sous-pages |
 | Couleur du texte et du fond, liens, boutons modifiables | Galeries de pages et bases avec champs typés | PDF, audio, vidéo et fichiers à télécharger |
 | Couvertures repositionnables, icônes importées, images redimensionnables et agrandissables dans l’éditeur | Relations entre bases, formules et agrégations | Exercices avec correction immédiate |
 | Thèmes blanc, sombre et OLED ; polices Quicksand et Fraunces | Notes privées, recherche et historique | Formulaires : texte, e-mail, téléphone, URL, fichiers… |
-| Import et export Markdown, export PDF | Accueil visiteur éditable, sauvegarde et restauration ZIP | Réponses aux formulaires consultables uniquement par l’administrateur |
+| Import et export Markdown, export PDF | Partage par branche, sauvegarde et restauration ZIP | Réponses aux formulaires consultables uniquement par l’administrateur |
 
 <details>
 <summary>Voir un exemple de lecture publique</summary>
@@ -36,7 +36,7 @@ Le cœur libre de **Tiptap** est utilisé pour l’édition. Les menus, blocs et
 
 ![Feuillet 0.5 — menus et rédaction sur une page de démonstration](docs/feuillet-v05-interface.jpg)
 
-Sélecteurs avec recherche, menus d’actions au clic droit ou par bouton, navigation compacte et thème personnel clair/sombre/OLED. Les menus restent utilisables au clavier et s’adaptent aux petits écrans. [Nouveautés 0.5](docs/NOUVEAUTES-0.5.md) · [Charte graphique](docs/CHARTE-GRAPHIQUE.md).
+Sélecteurs avec recherche, menus d’actions au clic droit ou par bouton, navigation compacte et thème personnel clair/sombre/OLED. Les menus restent utilisables au clavier et s’adaptent aux petits écrans. La version 0.5.1 harmonise les marges des dialogues, remplace les cadres de sélection par un accent doux et permet un partage sans accueil général. [Nouveautés 0.5](docs/NOUVEAUTES-0.5.1.md) · [Charte graphique](docs/CHARTE-GRAPHIQUE.md).
 
 ## Installer sur un hébergement
 
@@ -55,7 +55,7 @@ SQLite est aussi disponible avec `pdo_sqlite` pour une installation locale ou un
 
 ### 2. Télécharger et transférer le logiciel
 
-Télécharger **`Feuillet-0.5.0.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
+Télécharger **`Feuillet-0.5.1.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
 
 Le ZIP de GitHub, accessible par **Code → Download ZIP**, convient également : renommer le dossier extrait `feuillet` si nécessaire. Il contient lui aussi l’interface compilée.
 
@@ -96,9 +96,9 @@ Ouvrir `https://cours.exemple.fr/setup.php`, puis :
 
 La configuration est créée automatiquement. Il n’y a aucun compte ou mot de passe prédéfini. Le carnet démarre sans les cours et données de démonstration du développement. Aucune commande SSH, installation Composer ou compilation n’est nécessaire pour cette installation.
 
-### 5. Composer l’accueil et essayer avant de partager
+### 5. Préparer ses carnets et essayer avant de partager
 
-Ouvrir **Accueil visiteur** dans la barre latérale, créer une page d’accueil ou en choisir une, puis modifier son contenu avec l’éditeur. Dans une galerie, choisir les pages et leur ordre. Publier l’accueil pour qu’il apparaisse à `index.php?read=1`. Les visiteurs ne reçoivent que du contenu publié. Le réglage d’héritage des sous-pages décrit plus bas peut aussi publier les enfants de cet accueil. [Guide de la version 0.4](docs/NOUVEAUTES-0.4.md).
+Créer des **Carnets** pour organiser les pages et leurs catégories. Pour partager un cours, publier sa page puis copier son lien public. Cette page devient la première de la navigation du visiteur ; ses liens et galeries restent dans sa branche. Une sous-page partagée directement devient sa propre racine. L’adresse `index.php?read=1` ne liste aucun cours. Les pages publiques restent consultables par toute personne possédant leur lien : cette navigation ne constitue pas un accès protégé par groupe. [Guide de partage 0.5.1](docs/NOUVEAUTES-0.5.1.md).
 
 Créer une page, y déposer un petit PDF, puis cliquer sur **Publier**. Dans une fenêtre privée du navigateur, vérifier la lecture et le téléchargement. Repasser la page en privé et vérifier l’accès au lien du fichier. Un média réutilisé dans une autre page publique reste accessible.
 
@@ -181,7 +181,7 @@ Les tests utilisent des installations jetables et ne modifient aucun carnet exis
 ```sh
 python3 tests/smoke.py
 python3 tests/customization.py
-python3 tests/homepage.py
+python3 tests/sharing.py
 python3 tests/security.py
 python3 tests/autopublish.py
 python3 tests/reader.py

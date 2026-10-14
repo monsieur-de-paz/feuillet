@@ -91,7 +91,13 @@ export async function api<T = any>(
   body?: any,
   query: Record<string, string> = {},
 ): Promise<T> {
-  const qs = new URLSearchParams({ action, ...query });
+  const scope = new URLSearchParams(location.search);
+  const root = scope.get("root") || scope.get("page");
+  const qs = new URLSearchParams({
+    action,
+    ...(root ? { root } : {}),
+    ...query,
+  });
   const headers: Record<string, string> = {};
   if (body !== undefined) {
     headers["X-CSRF-Token"] = csrf;

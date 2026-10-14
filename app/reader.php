@@ -4,12 +4,12 @@ require_once __DIR__.'/render.php';
 
 /** Cheap polling token; never load or hash private form answers. */
 function reader_token(?array $page): string {
-    $state=['home'=>homepage_id(),'notebook'=>notebook_settings(),'appearance'=>global_appearance()];
+    $state=['root'=>reader_root_id(),'notebook'=>notebook_settings(),'appearance'=>global_appearance()];
     if(!$page)return hash('sha256',encoded($state));
     $state['page']=$page;$state['ancestors']=array_map(fn($p)=>[$p['id'],$p['title'],$p['version']],reader_ancestors($page));
     $dbs=[];$forms=[];$files=files_in($page['content']);foreach(['cover_id','icon_id'] as $key)if($page[$key]??null)$files[]=$page[$key];if(notebook_settings()['icon_id']??null)$files[]=notebook_settings()['icon_id'];
     $walk=function(array $node)use(&$walk,&$dbs,&$forms){$attrs=$node['attrs']??[];if(($node['type']??'')==='databaseView'&&!empty($attrs['dbId']))$dbs[$attrs['dbId']]=true;if(($node['type']??'')==='formView'&&!empty($attrs['formId']))$forms[$attrs['formId']]=true;foreach($node['content']??[] as $child)$walk($child);};$walk($page['content']);
-    $all=page_rows();$visible=[];foreach($all as $row)if(!$row['deleted_at']&&$row['visibility']==='public'&&$row['published']&&ancestors_active($row,$all)){$p=row_page($row,true);$visible[$p['id']]=[$p['id'],$p['title'],$p['description'],$p['icon'],$p['icon_id'],$p['cover_id'],$p['cover_position'],$p['kind'],$p['source_name'],$p['parent_id'],$p['sort_order'],$p['cover_attribution']??null,$p['icon_attribution']??null];}
+    $all=page_rows();$visible=[];foreach($all as $row)if(!$row['deleted_at']&&$row['visibility']==='public'&&$row['published']&&ancestors_active($row,$all)&&reader_page_allowed($row['id'])){$p=row_page($row,true);$visible[$p['id']]=[$p['id'],$p['title'],$p['description'],$p['icon'],$p['icon_id'],$p['cover_id'],$p['cover_position'],$p['kind'],$p['source_name'],$p['parent_id'],$p['sort_order'],$p['cover_attribution']??null,$p['icon_attribution']??null];}
     $state['public_page_cards']=$visible;
     $pending=array_keys($dbs);$seen=[];$count=0;
     while($pending&&$count++<64){$id=array_shift($pending);if(isset($seen[$id]))continue;$seen[$id]=true;
@@ -27,6 +27,6 @@ function render_reader_page(array $page,bool $public=true): string {
     return $cover.'<main class="reader-page" style="'.h($style).'"><div class="page-emoji">'.render_page_icon($page).'</div>'.render_credit($page['cover_attribution']??null).render_credit($page['icon_attribution']??null).'<h1>'.h($page['title']).'</h1>'.($page['description']?'<p class="page-description">'.h($page['description']).'</p>':'').render_document($page['content'],$page['id'],$public).'</main>';
 }
 function render_reader_empty(bool $unavailable=false): string {
-    if($unavailable)return '<main class="reader-page"><h1>Page indisponible</h1><p>Cette page est privée ou a été retirée.</p><a href="index.php?read=1">Revenir à l’accueil</a></main>';
-    $notebook=notebook_settings();return '<main class="reader-page"><h1>'.h($notebook['title']).'</h1><p>'.h($notebook['subtitle']).'</p><p>La page d’accueil n’est pas encore publiée.</p></main>';
+    if($unavailable)return '<main class="reader-page"><h1>Page indisponible</h1><p>Cette page est privée, retirée ou ne fait pas partie de ce partage.</p></main>';
+    return '<main class="reader-page reader-empty"><div class="page-emoji">'.render_reader_brand().'</div><h1>Ouvrir une page partagée</h1><p>Utilise le lien transmis par ton enseignant pour consulter ses cours et leurs sous-pages.</p><a class="resource-button" href="index.php?edit=1">Espace enseignant</a></main>';
 }

@@ -13,7 +13,7 @@ function category_seed(PDO $pdo, ?string $space): void {
 function categories_list(bool $public=false, bool $includeArchived=false): array {
     $items=query('SELECT * FROM categories ORDER BY sort_order,name')->fetchAll();
     if(!$includeArchived)$items=array_values(array_filter($items,fn($c)=>!$c['deleted_at']));
-    if($public){$ids=[];$all=page_rows();foreach($all as $row){if($row['deleted_at']||$row['visibility']!=='public'||!$row['published']||!ancestors_active($row,$all))continue;$snapshot=json_decode($row['published'],true);if(!empty($snapshot['category_id']))$ids[]=$snapshot['category_id'];}$items=array_values(array_filter($items,fn($c)=>in_array($c['id'],$ids,true)));}
+    if($public){$ids=[];$all=page_rows();foreach($all as $row){if($row['deleted_at']||$row['visibility']!=='public'||!$row['published']||!ancestors_active($row,$all)||!reader_page_allowed($row['id']))continue;$snapshot=json_decode($row['published'],true);if(!empty($snapshot['category_id']))$ids[]=$snapshot['category_id'];}$items=array_values(array_filter($items,fn($c)=>in_array($c['id'],$ids,true)));}
     foreach($items as &$item)$item['sort_order']=(int)$item['sort_order'];unset($item);return $items;
 }
 function category_for_kind(?string $space,string $kind): ?string {
@@ -21,15 +21,15 @@ function category_for_kind(?string $space,string $kind): ?string {
 }
 function category_validate(?string $id, ?string $space): void {
     if(!$id)return;$category=query('SELECT * FROM categories WHERE id=?',[$id])->fetch();
-    if(!$category||($category['space_id']?:null)!==$space)fail('Cette catégorie ne fait pas partie de cet espace.');
+    if(!$category||($category['space_id']?:null)!==$space)fail('Cette catégorie ne fait pas partie de ce carnet.');
 }
 function categories_mutate(string $action,array $input): array {
     $id=!empty($input['id'])?str_limit($input['id'],36):uuid();$old=!empty($input['id'])?query('SELECT * FROM categories WHERE id=?',[$id])->fetch():null;
     if(!empty($input['id'])&&!$old)fail('Catégorie introuvable.',404);
     if($action==='delete_category'||$action==='restore_category')query('UPDATE categories SET deleted_at=? WHERE id=?',[$action==='delete_category'?now():null,$id]);
     else{
-        $space=($input['space_id']??$old['space_id']??null)?:null;check_space($space);$name=str_limit($input['name']??'',60);if(!$name)fail('Donne un nom à la catégorie.');
-        if($old&&($old['space_id']?:null)!==$space)fail('Une catégorie reste dans son espace.');
+        $space=($input['space_id']??$old['space_id']??null)?:ensure_default_notebook();check_space($space);$name=str_limit($input['name']??'',60);if(!$name)fail('Donne un nom à la catégorie.');
+        if($old&&($old['space_id']?:null)!==$space)fail('Une catégorie reste dans son carnet.');
         $order=(int)($input['sort_order']??$old['sort_order']??0);
         if($old)query('UPDATE categories SET name=?,sort_order=? WHERE id=?',[$name,$order,$id]);
         else query('INSERT INTO categories (id,space_id,name,legacy_kind,sort_order) VALUES (?,?,?,?,?)',[$id,$space,$name,null,$order]);
@@ -96,7 +96,7 @@ function publish_tree(array $page): array {
     return ['page'=>get_page($page['id']),'pages'=>list_pages()['pages'],'published_count'=>$count];
 }
 
-require_once __DIR__.'/homepage.php';
+
 
 /** Inside a transaction. Do not overwrite unpublished drafts of already public children. */
 function publish_inherited_children(?string $parentId=null): int {

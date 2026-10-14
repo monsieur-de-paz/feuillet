@@ -98,7 +98,7 @@ Puis, depuis le dossier du projet :
 python3 tests/smoke.py
 python3 tests/customization.py
 python3 tests/databases.py
-python3 tests/homepage.py
+python3 tests/sharing.py
 python3 tests/security.py
 ```
 
@@ -149,3 +149,11 @@ Tester une liste courte et une longue : recherche, flèches, Entrée, Échap, Ta
 Les menus utilisent Popover sur les navigateurs modernes. Contrôler les versions effectivement utilisées par les lecteurs ; le repli fixe des navigateurs anciens peut être contraint par des conteneurs. Vérifier clair, sombre, OLED, `prefers-reduced-motion` et le focus visible. La charte et son audit ne constituent pas une certification d’accessibilité.
 
 Les composants 0.5 n’ajoutent aucun paquet npm et ne transmettent pas de données aux dépôts de skills. `node tests/frontend.mjs` inclut les cas de géométrie de menus et d’options groupées/désactivées. Les résultats datés et le verrouillage de la distribution sont dans [TESTS.md](TESTS.md).
+
+## Mise à jour vers 0.5.1
+
+Sauvegarder l’ensemble base/configuration/médias et transférer l’interface compilée, notamment `public/interface.css`. Le premier chargement transforme les pages et catégories sans carnet en un carnet réel et renommable. La migration conserve le contenu et les versions ; elle met à jour les IDs de carnets des snapshots publiés. Vérifier les anciens cours, leurs médias et les carnets avant de partager de nouveaux liens.
+
+Le choix historique de page d’accueil n’est plus utilisé. Cette page reste disponible dans l’administration. Remplacer les anciens liens sans `page` par les liens directs des pages à partager. Vérifier une branche, puis une sous-page et le retour par fil d’Ariane, dans une fenêtre privée. Les galeries ne montreront plus les cartes extérieures à la branche. La documentation 0.4 et 0.5 reste historique ; utiliser le [guide actuel](NOUVEAUTES-0.5.1.md).
+
+Pour revenir à une version antérieure, restaurer son code et la sauvegarde de base correspondante : revenir uniquement aux anciens assets ne défait pas la migration des carnets. La sauvegarde portable conserve les anciens accueils comme pages ordinaires et ne contient plus `homepage_id`.

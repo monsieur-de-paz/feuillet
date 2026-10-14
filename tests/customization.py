@@ -49,7 +49,8 @@ class Customization(unittest.TestCase):
     def test_02_scoped_categories_rename_order_archive_restore(self):
         a=self.space('Sciences 0.3');b=self.space('Documentation 0.3')
         all_categories=self.ok(self.admin.api('categories'))['categories']
-        for scope in [None,a,b]:self.assertEqual({x['legacy_kind'] for x in all_categories if x['space_id']==scope and x['legacy_kind']},{'class','article'})
+        default=self.ok(self.admin.api('spaces'))['spaces'][0]['id']
+        for scope in [default,a,b]:self.assertEqual({x['legacy_kind'] for x in all_categories if x['space_id']==scope and x['legacy_kind']},{'class','article'})
         cat=self.category('Travaux pratiques',a,sort_order=42);other=self.category('Archives de presse',b,sort_order=5)
         self.assertNotIn(cat,json.dumps(self.ok(self.visitor.api('categories'))))
         p=self.save(title='TP partagé',space_id=a,category_id=cat)
@@ -58,14 +59,14 @@ class Customization(unittest.TestCase):
         self.ok(self.admin.api('save_category',{'id':cat,'space_id':a,'name':'Expériences','sort_order':-1}))
         listing=self.ok(self.admin.api('categories'))['categories'];updated=next(c for c in listing if c['id']==cat)
         self.assertEqual((updated['name'],updated['sort_order']),('Expériences',-1))
-        p=self.publish(p);self.assertIn(cat,[c['id'] for c in self.ok(self.visitor.api('categories'))['categories']])
+        p=self.publish(p);self.assertIn(cat,[c['id'] for c in self.ok(self.visitor.api('categories',query='&root='+p['id']))['categories']])
         self.ok(self.admin.api('delete_category',{'id':cat}))
         archived=next(c for c in self.ok(self.admin.api('categories'))['categories'] if c['id']==cat);self.assertTrue(archived['deleted_at'])
         self.assertEqual(self.get(p)['category_id'],cat);self.assertEqual(self.get(p,True)['category_id'],cat)
-        self.assertNotIn(cat,[c['id'] for c in self.ok(self.visitor.api('categories'))['categories']])
+        self.assertNotIn(cat,[c['id'] for c in self.ok(self.visitor.api('categories',query='&root='+p['id']))['categories']])
         self.ok(self.admin.api('restore_category',{'id':cat}))
         self.assertFalse(next(c for c in self.ok(self.admin.api('categories'))['categories'] if c['id']==cat)['deleted_at'])
-        self.assertIn(cat,[c['id'] for c in self.ok(self.visitor.api('categories'))['categories']])
+        self.assertIn(cat,[c['id'] for c in self.ok(self.visitor.api('categories',query='&root='+p['id']))['categories']])
         self.ok(self.visitor.api('save_category',{'name':'Intrusion'}),401)
     def test_03_scope_move_rebinds_categories_and_descendants(self):
         a=self.space('Origine 0.3');b=self.space('Destination 0.3')
@@ -79,7 +80,7 @@ class Customization(unittest.TestCase):
         self.assertNotEqual(moved['category_id'],category_a)
         for page in [moved,child]:self.assertEqual(categories[page['category_id']]['space_id'],b)
         self.ok(self.admin.api('delete_space',{'id':b}))
-        for page in [moved,child]:self.assertIsNone(self.get(page)['space_id'])
+        for page in [moved,child]:self.assertTrue(self.get(page)['space_id']);self.assertNotEqual(self.get(page)['space_id'],b)
     def test_04_cover_position_theme_fonts_and_snapshot(self):
         image=base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=')
         f=self.ok(self.admin.upload('upload','position.png',image,'image/png'))['file']
@@ -134,21 +135,21 @@ class Customization(unittest.TestCase):
     def test_08_reader_breadcrumbs_published_titles_and_links(self):
         parent=self.save(title='Parent de référence');child=self.save(title='Enfant de référence',parent_id=parent['id']);leaf=self.save(title='Page visitée',parent_id=child['id'])
         self.publish(parent)
-        status,html,_=self.visitor.request('index.php?page='+leaf['slug']+'&read=1');self.assertEqual(status,200);html=html.decode()
+        status,html,_=self.visitor.request('index.php?page='+leaf['slug']+'&read=1&root='+parent['id']);self.assertEqual(status,200);html=html.decode()
         self.assertIn('aria-label="Fil d’Ariane"',html);self.assertIn('aria-current="page"',html)
         self.assertIn('index.php?page='+parent['slug']+'&amp;read=1',html);self.assertIn('index.php?page='+child['slug']+'&amp;read=1',html)
         self.assertLess(html.index('Parent de référence'),html.index('Enfant de référence'))
         parent=self.save(self.get(parent),title='TITRE_BROUILLON_PARENT_CACHE')
-        status,html,_=self.visitor.request('index.php?page='+leaf['slug']+'&read=1');self.assertEqual(status,200);self.assertNotIn('TITRE_BROUILLON_PARENT_CACHE',html.decode())
+        status,html,_=self.visitor.request('index.php?page='+leaf['slug']+'&read=1&root='+parent['id']);self.assertEqual(status,200);self.assertNotIn('TITRE_BROUILLON_PARENT_CACHE',html.decode())
         self.ok(self.admin.api('visibility',{'id':parent['id'],'version':parent['version'],'visibility':'private'}))
         self.publish(self.get(leaf))
         status,html,_=self.visitor.request('index.php?page='+leaf['slug']+'&read=1');self.assertEqual(status,200);self.assertNotIn('Parent de référence',html.decode());self.assertNotIn('Enfant de référence',html.decode());self.assertNotIn('TITRE_BROUILLON_PARENT_CACHE',html.decode())
 
     def test_09_reader_index_never_contains_admin_private_titles(self):
         p=self.save(title='INDEX_NE_DOIT_PAS_REVELER_LE_PRIVE')
-        self.ok(self.admin.api('homepage',{'id':p['id']}))
+        self.ok(self.admin.api('homepage',{'id':p['id']}),410)
         status,html,_=self.admin.request('index.php?read=1');self.assertEqual(status,200);self.assertNotIn(p['title'],html.decode())
         p=self.publish(p);p=self.save(p,title='TITRE_BROUILLON_INDEX_CACHE')
-        status,html,_=self.admin.request('index.php?read=1');self.assertEqual(status,200);self.assertIn('INDEX_NE_DOIT_PAS_REVELER_LE_PRIVE',html.decode());self.assertNotIn('TITRE_BROUILLON_INDEX_CACHE',html.decode())
+        status,html,_=self.admin.request('index.php?page='+p['id']+'&read=1');self.assertEqual(status,200);self.assertIn('INDEX_NE_DOIT_PAS_REVELER_LE_PRIVE',html.decode());self.assertNotIn('TITRE_BROUILLON_INDEX_CACHE',html.decode())
 
 if __name__=='__main__':unittest.main(argv=[__file__]+harness.REMAINING,verbosity=2)

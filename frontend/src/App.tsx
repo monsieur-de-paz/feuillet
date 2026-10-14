@@ -64,7 +64,7 @@ import {
   applyThemePreference,
   type ThemePreference,
 } from "./ThemeToggle";
-import { HomepageControls, type HomepageSetting } from "./Homepage";
+import { PoweredBy } from "./PoweredBy";
 import CourseEditor, { type EditorRequest } from "./Editor";
 import { AppContext } from "./context";
 import { ImageLightbox, type ZoomImage } from "./MediaLightbox";
@@ -255,11 +255,6 @@ export default function App() {
     auto_publish: true,
     icon: "f.",
     icon_id: null,
-  });
-  const [homepage, setHomepage] = useState<HomepageSetting>({
-    id: null,
-    title: null,
-    published: false,
   });
   const [serverLimit, setServerLimit] = useState(104857600);
   const [zoomedImage, setZoomedImage] = useState<ZoomImage | null>(null);
@@ -502,6 +497,12 @@ export default function App() {
   async function loadList() {
     const result = await api("pages");
     setPages(result.pages || []);
+    if (result.spaces?.length)
+      setActiveSpace((current) =>
+        result.spaces.some((s: Space) => s.id === current)
+          ? current
+          : result.spaces[0].id,
+      );
     setTrash(result.trash || []);
     if (result.spaces) setSpaces(result.spaces);
     if (result.categories) setCategories(result.categories);
@@ -632,6 +633,13 @@ export default function App() {
           setLoading(false);
           return;
         }
+        if (
+          !s.authenticated &&
+          new URLSearchParams(location.search).has("edit")
+        ) {
+          setModal("login");
+          return;
+        }
         const list = await loadList();
         const settings = await api("settings");
         appearanceRef.current = {
@@ -666,21 +674,6 @@ export default function App() {
     window.addEventListener("popstate", pop);
     return () => window.removeEventListener("popstate", pop);
   }, []);
-  async function editHomepage(id: string, created = false) {
-    if (created) focusNewTitle.current = id;
-    await loadList();
-    setModal(null);
-    await openPage(id);
-  }
-  async function showHomepage() {
-    try {
-      const r = await api("settings");
-      if (r.homepage) setHomepage(r.homepage);
-      showModal("homepage");
-    } catch (e) {
-      notify((e as Error).message);
-    }
-  }
   async function perform(fn: () => Promise<void>) {
     setBusy(true);
     setModalError("");
@@ -706,7 +699,6 @@ export default function App() {
     void api("settings")
       .then((result) => {
         if (result.notebook) setNotebook(result.notebook);
-        if (result.homepage) setHomepage(result.homepage);
         if (result.server_upload_limit)
           setServerLimit(result.server_upload_limit);
       })
@@ -902,8 +894,14 @@ export default function App() {
       setCsrf(s.csrf);
       setSession(s);
       adminRef.current = true;
+      setFatal("");
       const list = await loadList();
-      if (draftRef.current)
+      const requested = new URLSearchParams(location.search).get("page");
+      const selected = list.find(
+        (p) => String(p.id) === requested || p.slug === requested,
+      );
+      if (selected) await openPage(String(selected.id), true, true);
+      else if (draftRef.current)
         await openPage(String(draftRef.current.id), true, true);
       else if (list.length) await openPage(String(list[0].id), true, true);
       setModal(null);
@@ -918,15 +916,12 @@ export default function App() {
       setCsrf(s.csrf);
       setSession(s);
       adminRef.current = false;
-      const current = draftRef.current?.id;
-      const list = await loadList();
-      draftRef.current = null;
-      setDraft(null);
-      const next =
-        list.find((p) => String(p.id) === String(current)) || list[0];
-      if (next) await openPage(String(next.id), true, true);
-      else window.history.replaceState({}, "", "index.php");
-      notify("Tu es déconnecté.");
+      const current = draftRef.current;
+      window.location.assign(
+        current?.visibility === "public"
+          ? `index.php?page=${encodeURIComponent(current.slug || current.id)}&read=1`
+          : "index.php?read=1",
+      );
     });
   }
   function toggleFavorite(id: string) {
@@ -1221,7 +1216,7 @@ export default function App() {
       if (result.id || result.space?.id)
         setActiveSpace(String(result.id || result.space.id));
       setModal(null);
-      notify("Espace enregistré.");
+      notify("Carnet enregistré.");
     });
   }
   async function deleteSpace() {
@@ -1233,7 +1228,9 @@ export default function App() {
       if (draftRef.current)
         await openPage(String(draftRef.current.id), true, true);
       setModal(null);
-      notify("L’espace a été supprimé. Ses pages restent dans le carnet.");
+      notify(
+        "Le carnet a été supprimé. Ses pages et catégories ont été conservées.",
+      );
     });
   }
   async function setAppearanceValues(patch: Partial<Appearance>) {
@@ -1733,7 +1730,7 @@ export default function App() {
         <h1>Bienvenue dans Feuillet</h1>
         <p>Quelques réglages suffisent pour ouvrir ton carnet.</p>
         <a className="primary-button" href="setup.php">
-          Configurer mon espace <ArrowUpRight size={17} />
+          Configurer Feuillet <ArrowUpRight size={17} />
         </a>
       </div>
     );
@@ -1883,10 +1880,10 @@ export default function App() {
           </div>
           <div className="spaces-navigation">
             <div className="nav-label">
-              <span>Espaces</span>
+              <span>Carnets</span>
               {admin && (
                 <button
-                  title="Créer un espace"
+                  title="Créer un carnet"
                   onClick={() => {
                     setSpaceForm({ id: "", name: "", icon: "📚" });
                     showModal("space");
@@ -1896,13 +1893,6 @@ export default function App() {
                 </button>
               )}
             </div>
-            <button
-              className={`space-row ${!activeSpace ? "active" : ""}`}
-              onClick={() => setActiveSpace("")}
-            >
-              <Folder size={15} />
-              <span>Mon carnet</span>
-            </button>
             {spaces.map((space) => (
               <div
                 className={`space-row ${activeSpace === String(space.id) ? "active" : ""}`}
@@ -1939,7 +1929,7 @@ export default function App() {
           <div className="category-filters-wrap">
             <div
               className="sidebar-filters"
-              aria-label="Catégories de cet espace"
+              aria-label="Catégories de ce carnet"
             >
               <button
                 className={!kind ? "selected" : ""}
@@ -1964,8 +1954,8 @@ export default function App() {
               {admin && (
                 <button
                   className="category-settings-button"
-                  aria-label="Personnaliser les catégories de cet espace"
-                  title="Personnaliser les catégories de cet espace"
+                  aria-label="Personnaliser les catégories de ce carnet"
+                  title="Personnaliser les catégories de ce carnet"
                   onClick={() => showModal("categories")}
                 >
                   <Settings size={14} />
@@ -2010,7 +2000,7 @@ export default function App() {
                     : kind
                       ? categories.find((c) => c.id === kind)?.name || "Pages"
                       : admin
-                        ? "Pages de mon espace"
+                        ? "Pages de ce carnet"
                         : "Ressources disponibles"}
                 </span>
                 {admin && (
@@ -2088,12 +2078,6 @@ export default function App() {
                     title="Outils du carnet"
                     onClose={() => setUtilityAnchor(null)}
                     actions={[
-                      {
-                        label: "Accueil visiteur",
-                        icon: <Home />,
-                        run: () => void showHomepage(),
-                        group: "tools",
-                      },
                       {
                         label: `Corbeille${trash.length ? ` (${trash.length})` : ""}`,
                         icon: <Trash2 />,
@@ -2202,7 +2186,7 @@ export default function App() {
                   iconId={draft?.icon_id}
                   size={16}
                 />{" "}
-                {draft ? titleOf(draft) : "Ton espace"}
+                {draft ? titleOf(draft) : "Ton carnet"}
               </span>
             </nav>
             {admin && hasPage && (
@@ -2562,14 +2546,6 @@ export default function App() {
                       ))}
                   </section>
                 )}
-                <footer className="page-footer">
-                  <span>{session?.name || "Feuillet"}</span>
-                  <span>
-                    {admin
-                      ? "Ton travail s’enregistre automatiquement."
-                      : "Cours, découvertes et ressources à partager."}
-                  </span>
-                </footer>
               </div>
             </article>
           ) : (
@@ -2578,7 +2554,7 @@ export default function App() {
               <h1>
                 {admin
                   ? "Tout commence par une page."
-                  : "Bienvenue dans cet espace de cours."}
+                  : "Ouvrir une page partagée."}
               </h1>
               <p>
                 {admin
@@ -2596,6 +2572,7 @@ export default function App() {
               )}
             </div>
           )}
+          <PoweredBy />
         </main>
       </div>
       {toast && (
@@ -2609,12 +2586,12 @@ export default function App() {
       )}
       {modal === "space" && (
         <Modal
-          title={spaceForm.id ? "Modifier l’espace" : "Créer un espace"}
+          title={spaceForm.id ? "Modifier le carnet" : "Créer un carnet"}
           onClose={() => setModal(null)}
         >
           <form className="modal-form" onSubmit={saveSpace}>
             <label>
-              Nom de l’espace
+              Nom du carnet
               <input
                 required
                 value={spaceForm.name}
@@ -2647,7 +2624,7 @@ export default function App() {
                   disabled={busy}
                   onClick={() => void deleteSpace()}
                 >
-                  Supprimer l’espace
+                  Supprimer le carnet
                 </button>
               )}
               <button className="primary-button" disabled={busy}>
@@ -2656,7 +2633,9 @@ export default function App() {
             </div>
             {spaceForm.id && (
               <p className="muted">
-                Supprimer un espace conserve ses pages dans « Mon carnet ».
+                Les pages et catégories seront déplacées dans un autre carnet.
+                Si c’est le dernier, un nouveau carnet sera créé pour les
+                conserver.
               </p>
             )}
           </form>
@@ -2837,7 +2816,7 @@ export default function App() {
 
       <ImageLightbox image={zoomedImage} onClose={() => setZoomedImage(null)} />
       {modal === "categories" && (
-        <Modal title="Catégories de cet espace" onClose={() => setModal(null)}>
+        <Modal title="Catégories de ce carnet" onClose={() => setModal(null)}>
           <CategoriesEditor
             categories={categories}
             spaceId={activeSpace}
@@ -3332,7 +3311,7 @@ export default function App() {
       )}
       {modal === "pageLink" && (
         <Modal
-          title="Lier une page de ton espace"
+          title="Lier une page de ton carnet"
           onClose={() => setModal(null)}
         >
           <div className="modal-page-list">
@@ -3463,7 +3442,7 @@ export default function App() {
         <Modal title="Déplacer la page" onClose={() => setModal(null)}>
           <div className="modal-form">
             <label>
-              Espace
+              Carnet
               <Select
                 value={moveSpace}
                 onChange={(e) => {
@@ -3471,7 +3450,6 @@ export default function App() {
                   setMoveParent("");
                 }}
               >
-                <option value="">Mon carnet</option>
                 {spaces.map((space) => (
                   <option key={space.id} value={space.id}>
                     {space.icon} {space.name}
@@ -3485,7 +3463,7 @@ export default function App() {
                 value={moveParent}
                 onChange={(e) => setMoveParent(e.target.value)}
               >
-                <option value="">Racine de mon espace</option>
+                <option value="">Racine du carnet</option>
                 {pages
                   .filter(
                     (p) =>
@@ -3649,25 +3627,9 @@ export default function App() {
           </div>
         </Modal>
       )}
-      {modal === "homepage" && (
-        <Modal title="Accueil visiteur" onClose={() => setModal(null)}>
-          <HomepageControls
-            value={homepage}
-            pages={pages}
-            onChange={setHomepage}
-            onEdit={editHomepage}
-          />
-        </Modal>
-      )}
       {modal === "settings" && (
         <Modal title="Réglages & sauvegardes" onClose={() => setModal(null)}>
           <div className="modal-form">
-            <HomepageControls
-              value={homepage}
-              pages={pages}
-              onChange={setHomepage}
-              onEdit={editHomepage}
-            />
             <NotebookControls
               value={notebook}
               serverLimit={serverLimit}
@@ -3687,7 +3649,7 @@ export default function App() {
               <div>
                 <h3>Importer un document Markdown</h3>
                 <p>
-                  Un fichier .md devient une page privée dans l’espace actif.
+                  Un fichier .md devient une page privée dans le carnet actif.
                 </p>
                 <label className="small-button import-button">
                   Choisir un fichier .md
@@ -3723,7 +3685,7 @@ export default function App() {
                 <h3>Restaurer une sauvegarde</h3>
                 <p>
                   Les pages de l’archive sont importées en privé. Conserve une
-                  sauvegarde de ton espace avant l’import.
+                  sauvegarde de tes carnets avant l’import.
                 </p>
                 <label className="small-button import-button">
                   {busy ? "Import en cours…" : "Choisir une archive ZIP"}

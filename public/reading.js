@@ -9,7 +9,7 @@
  }
  function offer(result){pending=result;let notice=document.querySelector('.reader-update-notice');if(!notice){notice=document.createElement('div');notice.className='reader-update-notice';notice.setAttribute('role','status');const text=document.createElement('span');text.textContent='Une nouvelle version est disponible.';const button=document.createElement('button');button.type='button';button.textContent='Afficher la nouvelle version';button.addEventListener('click',()=>{if(pending)replace(pending)});notice.append(text,button);document.body.append(notice);}}
  async function check(){if(busy||document.hidden)return;const root=document.querySelector('#root');if(!root?.hasAttribute('data-reader-token'))return;busy=true;
-  try{const qs=new URLSearchParams({page:root.dataset.readerPage||'',token});const response=await fetch('reader-state.php?'+qs,{credentials:'same-origin',cache:'no-store'});if(!response.ok)return;const result=await response.json();if(result.html){if(result.unavailable||!userBusy())replace(result);else offer(result);}}
+  try{const qs=new URLSearchParams({page:root.dataset.readerPage||'',root:root.dataset.readerRoot||root.dataset.readerPage||'',token});const response=await fetch('reader-state.php?'+qs,{credentials:'same-origin',cache:'no-store'});if(!response.ok)return;const result=await response.json();if(result.html){if(result.unavailable||!userBusy())replace(result);else offer(result);}}
   catch{}finally{busy=false;}
  }
  function schedule(){clearTimeout(timer);timer=setTimeout(async()=>{await check();schedule()},15000)}

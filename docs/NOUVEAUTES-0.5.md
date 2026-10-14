@@ -1,5 +1,7 @@
 # Feuillet 0.5.0 — les détails de l’interface
 
+> Document historique. Depuis 0.5.1, le partage se fait directement depuis une page, sans accueil général ; la section Espaces est devenue Carnets. Voir [le guide actuel](NOUVEAUTES-0.5.1.md).
+
 14 octobre 2026. Cette version modernise les contrôles et harmonise l’éditeur, la navigation, les réglages et les bases, en conservant les documents et droits d’accès existants.
 
 ## Choisir dans une liste

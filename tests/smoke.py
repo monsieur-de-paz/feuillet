@@ -237,7 +237,7 @@ class Integration(unittest.TestCase):
         def paragraph(text): return {'type':'doc','content':[{'type':'paragraph','content':[{'type':'text','text':text}]}]}
         p=self.publish(self.page_save(title='Recherche publique',content=paragraph('PHOTOVOLTAIQUE_VISIBLE_913')))
         p=self.page_save(p,title='Titre confidentiel nouveau',content=paragraph('NOCTURNE_BROUILLON_914'))
-        visible=self.ok(self.visitor.api('search',query='&q=PHOTOVOLTAIQUE_VISIBLE_913'))['pages']
+        visible=self.ok(self.visitor.api('search',query='&root='+p['id']+'&q=PHOTOVOLTAIQUE_VISIBLE_913'))['pages']
         self.assertIn(p['id'],[item['id'] for item in visible])
         self.assertNotIn('Titre confidentiel nouveau',json.dumps(visible))
         self.assertNotIn('NOCTURNE_BROUILLON_914',json.dumps(visible))
@@ -257,7 +257,7 @@ class Integration(unittest.TestCase):
             self.assertNotIn(forbidden,json.dumps(visible)); self.assertNotIn(forbidden,rendered)
         for term in ['LABEL_CONFIDENTIEL_916','SOLUTION_RESERVEE_918','EXPLICATION_RESERVEE_919']:
             self.assertEqual(self.ok(self.visitor.api('search',query='&q='+term))['pages'],[])
-        matched=self.ok(self.visitor.api('search',query='&q=QUESTION_VISIBLE_917'))['pages']
+        matched=self.ok(self.visitor.api('search',query='&root='+p['id']+'&q=QUESTION_VISIBLE_917'))['pages']
         self.assertIn(p['id'],[item['id'] for item in matched])
     def test_11_pdf_viewer_obeys_file_visibility(self):
         viewer='pdf-viewer.php?id='+self.file['id']
@@ -279,10 +279,10 @@ class Integration(unittest.TestCase):
         moved=self.ok(self.admin.api('move',{'id':parent['id'],'version':parent['version'],'parent_id':None,'space_id':b,'sort_order':0}))['page']
         child=self.ok(self.admin.api('page',query='&id='+child['id']))['page'];self.assertEqual(moved['space_id'],b);self.assertEqual(child['space_id'],b)
         moved=self.publish(moved)
-        public=self.ok(self.visitor.api('pages'));self.assertIn(b,[s['id'] for s in public['spaces']]);self.assertNotIn(a,[s['id'] for s in public['spaces']])
+        public=self.ok(self.visitor.api('pages',query='&root='+moved['id']));self.assertIn(b,[s['id'] for s in public['spaces']]);self.assertNotIn(a,[s['id'] for s in public['spaces']])
         self.ok(self.admin.api('delete_space',{'id':b}))
-        self.assertIsNone(self.ok(self.admin.api('page',query='&id='+moved['id']))['page']['space_id'])
-        self.assertIsNone(self.ok(self.visitor.api('page',query='&id='+moved['id']))['page']['space_id'])
+        self.assertNotEqual(self.ok(self.admin.api('page',query='&id='+moved['id']))['page']['space_id'],b)
+        self.assertTrue(self.ok(self.visitor.api('page',query='&id='+moved['id']))['page']['space_id'])
         type(self).test_space=a
     def test_13_styles_icon_and_cover_persistence(self):
         import base64
@@ -309,6 +309,7 @@ class Integration(unittest.TestCase):
         formatted={'type':'paragraph','content':[{'type':'text','text':'Texte coloré','marks':[{'type':'textStyle','attrs':{'color':'#D44C47'}},{'type':'highlight','attrs':{'color':'#EDF3EC'}}]}]}
         image={'type':'image','attrs':{'fileId':self.icon_file['id'],'src':self.icon_file['url'],'width':45,'align':'right','alt':'Illustration'}}
         p=self.publish(self.page_save(title='Galerie manuelle',content={'type':'doc','content':[gallery,formatted,image]}))
+        public=self.ok(self.admin.api('move',{'id':public['id'],'version':public['version'],'parent_id':p['id']}))['page']
         doc=self.ok(self.visitor.api('page',query='&id='+p['id']))['page']['content'];self.assertEqual(doc['content'][0]['attrs']['pageIds'],[public['id']]);self.assertNotIn(private['id'],json.dumps(doc))
         html=self.ok(self.visitor.api('render',query='&id='+p['id']))['html'];self.assertIn('Carte publique',html);self.assertNotIn('Carte secrète',html);self.assertIn('layout-list',html);self.assertIn('width:45%',html);self.assertIn('#D44C47',html);self.assertIn('#EDF3EC',html)
         empty=self.publish(self.page_save(title='Galerie vide',content={'type':'doc','content':[{'type':'gallery','attrs':{'manual':True,'pageIds':[]}}]}))
@@ -408,7 +409,7 @@ Du **texte gras** et [une source](https://example.org).
             with sqlite3.connect(self.install/'storage'/'feuillet.sqlite') as connection: connection.executescript(sql)
         for _ in range(2):
             current=self.ok(self.admin.api('pages'))['pages'];self.assertEqual({p['id']:(p['title'],p['version'],p['cover_id']) for p in current},saved)
-            self.assertTrue(all(p['space_id'] is None and p['icon_id'] is None for p in current))
+            self.assertTrue(all(p['space_id'] is not None and p['icon_id'] is None for p in current))
             self.assertEqual(self.ok(self.admin.api('settings'))['appearance']['font'],'sans')
 
     def test_21_publication_cascades_and_private_revokes_tree(self):

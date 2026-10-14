@@ -27,7 +27,7 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
     if($t==='details')return '<details><summary>'.h($a['summary']??'En savoir plus').'</summary>'.$children.'</details>';
     if($t==='pageLink'){
         try{$p=get_page(str_limit($a['pageId']??'',36),$public);}catch(Throwable){return '';}
-        return '<a class="page-link" href="index.php?page='.rawurlencode($p['slug']).($public?'&read=1':'').'"><span>'.render_page_icon($p).'</span> '.h(($a['label']??'')?:$p['title']).'</a>';
+        return '<a class="page-link" href="'.h($public?reader_page_url($p):'index.php?page='.rawurlencode($p['slug'])).'"><span>'.render_page_icon($p).'</span> '.h(($a['label']??'')?:$p['title']).'</a>';
     }
     if($t==='buttonLink'||$t==='bookmark'){
         $url=safe_url($a['href']??'');if(!$url)return '';
@@ -121,7 +121,7 @@ function render_form_view(string $id,bool $public): string {
 function reader_ancestors(array $page): array {
     $all=page_rows();$chain=[];$seen=[$page['id']=>true];$id=$page['parent_id']??null;
     while($id){
-        if(isset($seen[$id]))break;$seen[$id]=true;$row=$all[$id]??null;
+        if(!reader_page_allowed($id)||$page['id']===reader_root_id()||isset($seen[$id]))break;$seen[$id]=true;$row=$all[$id]??null;
         if(!$row||$row['deleted_at']||!ancestors_active($row,$all))break;
         if($row['visibility']!=='public'||!$row['published'])break;
         $ancestor=row_page($row,true);array_unshift($chain,$ancestor);$id=$row['parent_id'];
@@ -129,13 +129,16 @@ function reader_ancestors(array $page): array {
     return $chain;
 }
 function render_reader_breadcrumbs(array $page): string {
-    $html='<nav class="reader-breadcrumbs" aria-label="Fil d’Ariane"><ol><li><a href="index.php?read=1">'.render_reader_brand().'</a></li>';
-    foreach(reader_ancestors($page) as $ancestor)$html.='<li><span class="breadcrumb-separator" aria-hidden="true">›</span><a href="index.php?page='.rawurlencode($ancestor['slug']).'&amp;read=1">'.h($ancestor['title']).'</a></li>';
-    return $html.'<li><span class="breadcrumb-separator" aria-hidden="true">›</span><span aria-current="page">'.h($page['title']).'</span></li></ol></nav>';
+    $chain=[...reader_ancestors($page),$page];
+    $html='<nav class="reader-breadcrumbs" aria-label="Fil d’Ariane"><ol>';
+    foreach($chain as $i=>$entry){$html.='<li>'.($i?'<span class="breadcrumb-separator" aria-hidden="true">›</span>':'<span class="reader-brand-icon">'.render_page_icon(['icon'=>notebook_settings()['icon']??'f.','icon_id'=>notebook_settings()['icon_id']??null]).'</span>');
+        $html.=$entry['id']===$page['id']?'<span aria-current="page">'.h($entry['title']).'</span>':'<a href="'.h(reader_page_url($entry)).'">'.h($entry['title']).'</a>';$html.='</li>';
+    }
+    return $html.'</ol></nav>';
 }
 
 function list_public_pages(): array {
-    $pages=[];$all=page_rows();foreach($all as $row){if($row['deleted_at']||$row['visibility']!=='public'||!$row['published']||!ancestors_active($row,$all))continue;$p=row_page($row,true);unset($p['content']);$pages[]=$p;}return $pages;
+    $pages=[];$all=page_rows();foreach($all as $row){if($row['deleted_at']||$row['visibility']!=='public'||!$row['published']||!ancestors_active($row,$all)||!reader_page_allowed($row['id']))continue;$p=row_page($row,true);unset($p['content']);$pages[]=$p;}return $pages;
 }
 
 function render_reader_brand(): string { $n=notebook_settings();return '<span class="reader-brand-icon">'.render_page_icon(['icon'=>$n['icon']??'f.','icon_id'=>$n['icon_id']??null]).'</span><span>'.h($n['title']).'</span>'; }
@@ -144,10 +147,10 @@ function render_gallery(array $attrs,string $pageId,bool $public): string {
     $all=page_rows();$manual=!empty($attrs['manual']);$selection=$manual?array_values(array_intersect($attrs['pageIds']??[],array_keys($all))):array_keys($all);
     $columns=max(1,min(6,(int)($attrs['columns']??2)));$rows=max(0,min(12,(int)($attrs['rows']??2)));$layout=($attrs['layout']??'grid')==='list'?'list':'grid';
     $aspect=in_array($attrs['aspect']??'', ['16/9','4/3','1/1','3/4','auto'],true)?$attrs['aspect']:'16/9';$limit=$rows?$rows*($layout==='list'?1:$columns):500;$count=0;$cards='';
-    foreach($selection as $id){$row=$all[$id];if($id===$pageId||$row['deleted_at']||!ancestors_active($row,$all)||($public&&($row['visibility']!=='public'||!$row['published'])))continue;$p=row_page($row,$public);
+    foreach($selection as $id){$row=$all[$id];if($id===$pageId||$row['deleted_at']||!ancestors_active($row,$all)||($public&&($row['visibility']!=='public'||!$row['published']||!reader_page_allowed($id))))continue;$p=row_page($row,$public);
         if(!$manual&&!empty($attrs['parentId'])&&$p['parent_id']!==$attrs['parentId'])continue;if(!$manual&&!empty($attrs['kind'])&&$p['kind']!==$attrs['kind'])continue;
         if($count>=500)break;$hidden=$count++ >= $limit;$icon=render_page_icon($p);$preview=$p['cover_id']?'<img loading="lazy" style="object-position:'.h(($p['cover_position']['x']??50).'% '.($p['cover_position']['y']??50).'%').'" src="media.php?id='.rawurlencode($p['cover_id']).'" alt="">':'<div class="gallery-placeholder"><span>'.$icon.'</span></div>';
-        $cards.='<div class="gallery-card"'.($hidden?' hidden data-gallery-extra="1"':'').'><a class="gallery-card-main" href="index.php?page='.rawurlencode($p['slug']).($public?'&amp;read=1':'').'">'.$preview.'<div class="gallery-card-text"><strong>'.$icon.' '.h($p['title']).'</strong>'.($p['description']?'<p>'.h($p['description']).'</p>':'').($p['kind']==='article'&&$p['source_name']?'<small>'.h($p['source_name']).'</small>':'').'</div></a>';
+        $cards.='<div class="gallery-card"'.($hidden?' hidden data-gallery-extra="1"':'').'><a class="gallery-card-main" href="'.h($public?reader_page_url($p):'index.php?page='.rawurlencode($p['slug'])).'">'.$preview.'<div class="gallery-card-text"><strong>'.$icon.' '.h($p['title']).'</strong>'.($p['description']?'<p>'.h($p['description']).'</p>':'').($p['kind']==='article'&&$p['source_name']?'<small>'.h($p['source_name']).'</small>':'').'</div></a>';
         foreach(['cover_attribution','icon_attribution'] as $key)if(!empty($p[$key]))$cards.=str_replace('class="image-attribution"','class="image-attribution compact"',render_credit($p[$key]));$cards.='</div>';
     }
     $styles='--gallery-columns:'.$columns.';--gallery-mobile-columns:'.min(2,$columns).';--gallery-aspect:'.h($aspect).';';

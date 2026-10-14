@@ -1,5 +1,7 @@
 # Feuillet 0.4 — un accueil à composer et des bases plus simples à utiliser
 
+> Document historique. Depuis 0.5.1, le partage se fait directement depuis une page, sans accueil général ; la section Espaces est devenue Carnets. Voir [le guide actuel](NOUVEAUTES-0.5.1.md).
+
 Ce guide décrit les nouveautés 0.4. Les options supplémentaires de navigation, héritage et accent sont dans [le guide 0.4.1](NOUVEAUTES-0.4.1.md).
 
 ## Un accueil visiteur entièrement éditable

@@ -18,9 +18,9 @@ Guide complet : [INSTALLATION-OVH.md](INSTALLATION-OVH.md). Documentation du log
 
 Fonctions ajoutées et procédure de mise à jour : [NOUVEAUTES-0.4.md](NOUVEAUTES-0.4.md). La recherche Commons nécessite cURL et une connexion HTTPS sortante, sans clé API.
 
-## Composer l’accueil visiteur
+## Créer un carnet et partager une branche
 
-Ouvrir **Accueil visiteur** dans la barre latérale. Créer une page d’accueil, la modifier comme une page de cours et composer ses galeries avec les seules ressources souhaitées. Les titres, descriptions, sections et blocs sont éditables. Publier, puis consulter `index.php?read=1`. Le choix de l’accueil ne publie pas les pages liées.
+Dans **Carnets → +**, créer un carnet puis ses pages et catégories. Publier une page et copier son lien public. Les visiteurs commencent leur navigation sur cette page et consultent ses sous-pages ; les autres branches ne sont pas listées. Une sous-page partagée directement est sa propre racine. Il n’y a plus d’accueil à composer. Les contenus publics restent accessibles à qui possède leur lien. [Guide 0.5.1](NOUVEAUTES-0.5.1.md).
 
 ## Modifier une base depuis une page
 
@@ -30,4 +30,4 @@ La navigation se replie avec le bouton près de la recherche ou Ctrl/Cmd + Maj +
 
 ## Les nouveaux menus
 
-Un clic droit dans l’administration propose les actions de la page, du bloc ou de la propriété visée. Les boutons ⋯ et la poignée du bloc donnent le même accès sur mobile. Les longues listes ont une recherche. **Plus d’outils**, en bas de la navigation, contient l’accueil visiteur, la corbeille et la déconnexion. Voir [les nouveautés 0.5](NOUVEAUTES-0.5.md).
+Un clic droit dans l’administration propose les actions de la page, du bloc ou de la propriété visée. Les boutons ⋯ et la poignée du bloc donnent le même accès sur mobile. Les longues listes ont une recherche. **Plus d’outils**, en bas de la navigation, contient la corbeille et la déconnexion. Voir [les nouveautés 0.5](NOUVEAUTES-0.5.md).

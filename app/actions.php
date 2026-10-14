@@ -17,10 +17,11 @@ function api_dispatch(string $action): never {
         json_out(['authenticated'=>true,'csrf'=>$_SESSION['csrf'],'name'=>notebook_settings()['title']]);
     }
     if($action==='logout'){$_SESSION=[];session_regenerate_id(true);$_SESSION['csrf']=bin2hex(random_bytes(32));json_out(['authenticated'=>false,'csrf'=>$_SESSION['csrf']]);}
+    if(!admin()&&in_array($action,['pages','spaces','categories','search','page','render'],true))reader_scope_request(str_limit($_GET['id']??'',190));
     if($action==='pages')json_out(list_pages());
     if($action==='categories')json_out(['categories'=>categories_list(!admin(),admin())]);
     if($action==='spaces'&&$method==='GET')json_out(['spaces'=>list_spaces(!admin())]);
-    if($action==='settings'&&$method==='GET')json_out(['appearance'=>global_appearance(),'notebook'=>notebook_settings(),'server_upload_limit'=>server_upload_limit()]+(admin()?['homepage'=>homepage_settings()]:[]));
+    if($action==='settings'&&$method==='GET')json_out(['appearance'=>global_appearance(),'notebook'=>notebook_settings(),'server_upload_limit'=>server_upload_limit()]);
     if($action==='search'){
         $search=search_normalize(str_limit($_GET['q']??'',120));$found=[];
         foreach(list_pages()['pages'] as $metadata){
@@ -51,7 +52,7 @@ function api_dispatch(string $action): never {
         json_out(['score'=>$score,'total'=>count($results),'results'=>$results]);
     }
     need_admin();
-    if($action==='homepage')json_out(homepage_mutate(json_in()));
+    if($action==='homepage')fail('Le partage se fait désormais directement depuis chaque page.',410,'removed_feature');
     if(in_array($action,['save_category','delete_category','restore_category'],true))json_out(categories_mutate($action,json_in()));
     if(in_array($action,['spaces','save_space','delete_space'],true))json_out(spaces_mutate(json_in(),$action==='delete_space'));
     if($action==='settings'){$in=json_in();$values=[];if(array_key_exists('appearance',$in))$values['appearance']=validate_appearance($in['appearance']);if(array_key_exists('notebook',$in))$values['notebook']=notebook_validate($in['notebook']);$pdo=db();$pdo->beginTransaction();try{foreach($values as $name=>$value){query('DELETE FROM app_settings WHERE name=?',[$name]);query('INSERT INTO app_settings (name,value) VALUES (?,?)',[$name,encoded($value)]);}if(isset($values['notebook'])&&$values['notebook']['auto_publish_children'])publish_inherited_children();$pdo->commit();}catch(Throwable $e){$pdo->rollBack();throw $e;}json_out(['appearance'=>global_appearance(),'notebook'=>notebook_settings(),'server_upload_limit'=>server_upload_limit()]);}
@@ -93,7 +94,7 @@ function api_dispatch(string $action): never {
     }
     if($action==='move'){
         $parent=!empty($in['parent_id'])?str_limit($in['parent_id'],36):null;check_parent($parent,$id);
-        $space=array_key_exists('space_id',$in)?($in['space_id']?:null):($parent?query('SELECT space_id FROM pages WHERE id=?',[$parent])->fetchColumn():$p['space_id']);check_space($space);
+        $space=array_key_exists('space_id',$in)?($in['space_id']?:null):($parent?query('SELECT space_id FROM pages WHERE id=?',[$parent])->fetchColumn():$p['space_id']);$space=$parent?(query('SELECT space_id FROM pages WHERE id=?',[$parent])->fetchColumn()?:ensure_default_notebook()):($space?:ensure_default_notebook());check_space($space);
         $category=$space!==($p['space_id']??null)?category_for_kind($space,$p['kind']):($p['category_id']??null);$pdo=db();$pdo->beginTransaction();try{$q=query('UPDATE pages SET parent_id=?,sort_order=?,space_id=?,category_id=?,version=version+1,updated_at=? WHERE id=? AND version=?',[$parent,(int)($in['sort_order']??0),$space,$category,now(),$id,$p['version']]);if($q->rowCount()!==1)fail('Conflit de modification.',409,'conflict');foreach(descendants($id) as $child)if($child!==$id){$row=query('SELECT * FROM pages WHERE id=?',[$child])->fetch();$category=($row['space_id']?:null)!==$space?category_for_kind($space,$row['kind']):($row['category_id']??null);query('UPDATE pages SET space_id=?,category_id=?,version=version+1,updated_at=? WHERE id=?',[$space,$category,now(),$child]);auto_publish_page($child);}if($parent)publish_inherited_children($parent);auto_publish_page($id);$pdo->commit();}catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}json_out(['page'=>get_page($id),'pages'=>list_pages()['pages']]);
     }
     if($action==='restore_revision'){

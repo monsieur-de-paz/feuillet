@@ -6,6 +6,8 @@
   --ease-interface: cubic-bezier(0.2, 0, 0, 1);
   --layer-floating: 120;
   --image-outline: rgb(0 0 0 / 0.1);
+  --dialog-gutter: 24px;
+  --menu-action-size: 40px;
   --danger: #b83d32;
 }
 html {
@@ -22,7 +24,15 @@ body[data-theme="oled"] {
 :is(.app-shell, .reader-page, .public-database-form) {
   accent-color: var(--accent);
 }
-:is(.app-shell, .reader-header, .reader-page, .public-database-form)
+:is(
+    .app-shell,
+    .reader-header,
+    .reader-page,
+    .public-database-form,
+    .modal,
+    .database-modal,
+    .feuillet-floating
+  )
   :is(button, a, input, textarea, summary):focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
@@ -42,7 +52,15 @@ body[data-theme="oled"] {
 :is(.save-state, .count, .database-table, .database-chart, .size-label) {
   font-variant-numeric: tabular-nums;
 }
-:is(.app-shell, .reader-header, .reader-page) button {
+:is(
+    .app-shell,
+    .reader-header,
+    .reader-page,
+    .modal,
+    .database-modal,
+    .feuillet-floating
+  )
+  button {
   transition:
     background-color 130ms var(--ease-interface),
     color 130ms var(--ease-interface),
@@ -230,22 +248,20 @@ body[data-theme="oled"] {
 :is(.dropdown, .command-menu, .format-popover) button {
   border-radius: 6px;
 }
-.app-shell .modal {
+.modal {
   border-radius: 16px;
 }
-.app-shell .modal-heading h2 {
+.modal-heading h2 {
   font-size: 22px;
   font-weight: 600;
   letter-spacing: -0.03em;
 }
-.app-shell
-  .modal
-  input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
-.app-shell .modal textarea {
+.modal input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+.modal textarea {
   border-radius: var(--radius-control);
   padding: 10px 12px;
 }
-.app-shell .modal-heading {
+.modal-heading {
   gap: 12px;
 }
 .app-shell .database-view-tabs {
@@ -630,6 +646,312 @@ button.feuillet-select-trigger {
   min-width: 28px;
   min-height: 40px;
 }
+/* Dialogs are siblings of .app-shell: share spacing at their actual root. */
+.modal-heading {
+  padding: 18px var(--dialog-gutter);
+}
+.modal-heading h2 {
+  min-width: 0;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.modal-heading .icon-button,
+.database-manager-header .icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--menu-action-size);
+  height: var(--menu-action-size);
+  flex: 0 0 var(--menu-action-size);
+  padding: 0;
+  border-radius: var(--radius-control);
+}
+.modal
+  > :is(
+    .modal-form,
+    .file-library,
+    .modal-list,
+    .modal-page-list,
+    .categories-editor,
+    .icon-picker
+  ) {
+  padding: 22px var(--dialog-gutter) 26px;
+}
+.modal :is(.modal-form, .categories-editor, .file-library, .modal-list) > p {
+  overflow-wrap: anywhere;
+}
+.modal-actions {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.modal :is(.primary-button, .small-button) {
+  min-height: var(--menu-action-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 12px;
+  line-height: 1.4;
+}
+.modal :is(input, textarea):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.modal :is(.library-search, .internet-search) input {
+  min-width: 0;
+}
+.modal :is(.library-search, .internet-search) {
+  min-width: 0;
+}
+.modal .icon-picker {
+  max-width: none;
+  color: var(--ink);
+}
+.modal-list :is(.history-info, strong) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.modal .library-search input {
+  padding: 0;
+}
+.modal .library-file .icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--menu-action-size);
+  height: var(--menu-action-size);
+  flex: 0 0 var(--menu-action-size);
+  padding: 0;
+  border-radius: var(--radius-control);
+}
+.categories-editor {
+  gap: 12px;
+}
+.categories-editor > p {
+  margin: 0 0 4px;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.category-edit-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) repeat(3, var(--menu-action-size));
+  gap: 8px;
+}
+:is(.category-edit-row, .category-add) input {
+  width: 100%;
+  min-height: var(--menu-action-size);
+  margin: 0;
+  font-size: 14px;
+}
+.category-edit-row > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--menu-action-size);
+  height: var(--menu-action-size);
+  padding: 0;
+  color: var(--muted);
+  border-radius: var(--radius-control);
+}
+.category-edit-row > button:hover:not(:disabled),
+.modal-heading .icon-button:hover,
+.modal .library-file .icon-button:hover,
+.gallery-order-list button:hover:not(:disabled) {
+  background: var(--surface-soft);
+  color: var(--ink);
+}
+.category-edit-row > button:disabled {
+  opacity: 0.35;
+}
+.category-edit-row > button:last-child:hover:not(:disabled) {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 9%, var(--surface));
+}
+.category-add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  padding-top: 8px;
+}
+.category-archived {
+  gap: 12px;
+}
+.category-archived > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.categories-editor > details {
+  margin-top: 4px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+.categories-editor summary {
+  min-height: var(--menu-action-size);
+  display: list-item;
+  padding: 9px 0;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+}
+:is(.dropdown, .format-popover, .database-column-menu) {
+  padding: 5px;
+}
+:is(.dropdown, .format-popover, .database-column-menu) > :is(button, a) {
+  min-height: var(--menu-action-size);
+  padding: 9px 10px;
+  line-height: 1.45;
+  gap: 10px;
+  border-radius: 7px;
+}
+.format-popover > button {
+  padding: 9px 10px !important;
+}
+.command-list > button {
+  min-height: var(--menu-action-size);
+}
+.picker-tabs {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.picker-tabs > button {
+  min-height: var(--menu-action-size);
+  padding: 9px 12px;
+  border-radius: var(--radius-control);
+}
+.gallery-setting-row {
+  gap: 12px;
+}
+.gallery-setting-row label {
+  min-width: 0;
+}
+.gallery-order-list > div {
+  gap: 8px;
+  padding: 8px 0;
+}
+.gallery-order-list button {
+  width: var(--menu-action-size);
+  min-width: var(--menu-action-size);
+  height: var(--menu-action-size);
+  flex-shrink: 0;
+  border-radius: var(--radius-control);
+}
+.resource-config:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+}
+/* Inline page fields are part of the canvas, not bordered form controls. */
+.app-shell :is(.page-title-input, .page-description-input) {
+  border-radius: var(--radius-control);
+  transition: background-color 120ms var(--ease-interface);
+}
+.app-shell
+  :is(.page-title-input, .page-description-input):is(:focus, :focus-visible) {
+  outline: none;
+  box-shadow: none;
+  background-color: color-mix(in srgb, var(--accent) 5%, var(--surface));
+}
+/* Selected content keeps its geometry. A soft accent replaces the hard frame. */
+.course-content[contenteditable],
+.course-content[contenteditable]:is(:focus, :focus-visible),
+.course-content.ProseMirror-focused {
+  outline: none;
+}
+.course-content :is(.ProseMirror-selectednode, .resource-selected) {
+  outline: none;
+  background-color: var(--accent-soft);
+  border-radius: var(--radius-control);
+}
+.course-content :is([data-node-view-wrapper], .resource-selected) {
+  transition: background-color 120ms var(--ease-interface);
+}
+.course-content .resizable-image-node {
+  background: transparent;
+}
+.image-resize-frame {
+  transition: box-shadow 120ms var(--ease-interface);
+}
+.resizable-image-node.is-selected .image-resize-frame {
+  box-shadow: 0 4px 18px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.course-content .image-resize-handle:focus-visible {
+  outline-color: var(--accent);
+}
+:is(.color-palette, .theme-palette) button[aria-pressed="true"] {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+@media (max-width: 760px) {
+  :root {
+    --dialog-gutter: 16px;
+    --menu-action-size: 44px;
+  }
+  .modal-heading {
+    padding: 14px var(--dialog-gutter);
+  }
+  .modal-heading h2 {
+    font-size: 20px;
+  }
+  .modal
+    > :is(
+      .modal-form,
+      .file-library,
+      .modal-list,
+      .modal-page-list,
+      .categories-editor,
+      .icon-picker
+    ) {
+    padding: 18px var(--dialog-gutter) 22px;
+  }
+  .modal .library-file {
+    gap: 8px;
+  }
+  .gallery-setting-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  .category-edit-row {
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-panel);
+  }
+  .category-edit-row > input {
+    grid-column: 1 / -1;
+  }
+  .category-edit-row > button:nth-of-type(1) {
+    grid-column: 2;
+  }
+  .category-edit-row > button:nth-of-type(2) {
+    grid-column: 3;
+  }
+  .category-edit-row > button:nth-of-type(3) {
+    grid-column: 4;
+  }
+  .modal .library-file {
+    flex-wrap: wrap;
+  }
+  .modal .library-file-name {
+    flex-basis: calc(100% - 48px);
+  }
+  .category-add,
+  .gallery-create-row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .category-add > input,
+  .gallery-create-row > input {
+    flex: 1 0 100%;
+  }
+  .category-add > button,
+  .gallery-create-row > button {
+    margin-left: auto;
+  }
+  .gallery-order-list > div {
+    flex-wrap: wrap;
+  }
+  .gallery-order-list strong {
+    flex-basis: 100%;
+  }
+}
 @media (max-width: 760px) {
   .app-shell .topbar {
     height: 104px;
@@ -693,7 +1015,15 @@ button.feuillet-select-trigger {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  :is(.app-shell, .reader-header, .reader-page, .feuillet-floating) *,
+  :is(
+      .app-shell,
+      .reader-header,
+      .reader-page,
+      .feuillet-floating,
+      .modal,
+      .database-modal
+    )
+    *,
   .feuillet-select-trigger > svg {
     transition: none !important;
     animation: none !important;
@@ -713,5 +1043,58 @@ button.feuillet-select-trigger {
   .feuillet-floating,
   .row-context {
     display: none !important;
+  }
+}
+
+/* Discreet authorship shared by the editor, reader and public forms. */
+.feuillet-credit {
+  margin-top: auto;
+  padding: 28px 20px 20px;
+  color: var(--muted, #6f716d);
+  font:
+    400 11px/1.6 system-ui,
+    sans-serif;
+  text-align: center;
+  text-wrap: pretty;
+}
+.feuillet-credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.feuillet-credit a:hover {
+  color: var(--accent, #38795d);
+}
+.reader-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.reader-edit-link {
+  color: var(--muted);
+  font-size: 12px;
+  padding: 10px 4px;
+  text-decoration: none;
+}
+.reader-edit-link:hover {
+  color: var(--accent);
+}
+.reader-empty .page-emoji {
+  font-size: 18px;
+}
+.reader-breadcrumbs li:first-child {
+  gap: 10px;
+}
+@media (max-width: 480px) {
+  .reader-header {
+    gap: 8px;
+    padding: 12px;
+  }
+  .reader-header-actions {
+    gap: 4px;
+  }
+  .reader-edit-link {
+    max-width: 70px;
+    font-size: 11px;
   }
 }

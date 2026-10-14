@@ -32,13 +32,13 @@ Lecture : le frontend utilise le JSON nettoyé en lecture seule ou `GET action=r
 
 Migrations idempotentes SQLite/MySQL au premier accès, sans supprimer les pages/fichiers existants. Tables `spaces`, `app_settings` ; colonnes `pages.space_id`, `pages.icon_id`, `pages.appearance`, `files.attribution`. La configuration et le stockage existants sont conservés.
 
-### Espaces, icônes et styles
+### Carnets, icônes et styles
 
-`GET action=pages` inclut maintenant `{spaces:[{id,name,icon,sort_order}]}`. Les visiteurs ne reçoivent que les espaces contenant une page publiée active : un espace vide ou entièrement privé ne dévoile pas son nom. `GET action=spaces` renvoie la même liste selon l'authentification.
+`GET action=pages` inclut maintenant `{spaces:[{id,name,icon,sort_order}]}`. Les visiteurs ne reçoivent que les carnets contenant une page publiée de leur branche, désignée par `root` ; sans racine, la liste publique est vide. `GET action=spaces` renvoie la même liste selon l'authentification.
 
-`POST action=save_space {id?,name,icon,sort_order?}` crée/modifie ; réponse `{spaces,id}`. `POST action=delete_space {id}` supprime l'espace en réaffectant ses pages à l'espace général, sans supprimer les pages. Alias `POST action=spaces` avec les mêmes champs et éventuellement `delete:true`.
+`POST action=save_space {id?,name,icon,sort_order?}` crée/modifie ; réponse `{spaces,id}`. `POST action=delete_space {id,target_id?}` supprime le carnet en réaffectant pages, catégories et snapshots dans une destination réelle. En l’absence de `target_id`, le premier autre carnet est choisi ; si c’est le dernier, une destination Mes pages est créée. Les pages restent conservées. Alias `POST action=spaces` avec les mêmes champs et éventuellement `delete:true`.
 
-Une page ajoute `space_id:string|null`, `icon_id:string|null`, `appearance:<Partial Appearance>`, `cover_attribution`, `icon_attribution`. `save` accepte ces champs. `icon_id` et `cover_id` doivent référencer un fichier image. Omettre ces champs lors d'une sauvegarde les conserve ; envoyer explicitement `null` les retire. Une nouvelle sous-page hérite de l'espace de son parent si `space_id` n'est pas fourni. `move` accepte `space_id` et déplace également les descendants ; réponse `{page,pages}` pour rafraîchir les versions.
+Une page ajoute `space_id:string|null`, `icon_id:string|null`, `appearance:<Partial Appearance>`, `cover_attribution`, `icon_attribution`. `save` accepte ces champs. `icon_id` et `cover_id` doivent référencer un fichier image. Omettre ces champs lors d'une sauvegarde les conserve ; envoyer explicitement `null` les retire. La sous-page hérite toujours du carnet de son parent ; une page racine sans `space_id` est placée dans un carnet réel. `move` accepte `space_id` et déplace également les descendants ; réponse `{page,pages}` pour rafraîchir les versions.
 
 `Appearance={font:'sans'|'serif'|'mono',background:'#RRGGBB',text:'#RRGGBB',accent:'#RRGGBB',width:'normal'|'wide',focus:boolean}`. Couleurs hexadécimales strictes, valeurs de police/largeur fermées. `GET action=settings` public renvoie `{appearance:<Appearance>}` ; `POST action=settings {appearance}` administrateur modifie les styles globaux. Les champs d'apparence de la page remplacent les styles globaux ; sa version publiée utilise son propre snapshot.
 
@@ -93,10 +93,8 @@ Pour les champs, limites et exemples de formules : [BASES-ET-FORMULAIRES.md](doc
 
 ## Complément 0.4 : accueil et vues liées
 
-- `GET settings` renvoie `homepage: {id,title,published}` uniquement à l’administrateur. Un lecteur ne reçoit pas l’identifiant d’un accueil privé.
-- `POST homepage {create:true}` crée une page privée avec galerie manuelle vide et la choisit comme accueil. Réponse `{homepage,page}`.
-- `POST homepage {id: PAGE_ID|null}` sélectionne une page existante ou efface le choix. Authentification et CSRF obligatoires ; cette action ne publie pas de page.
-- `index.php?read=1` utilise exclusivement la version publiée de l’accueil choisi, y compris si le lecteur est connecté comme administrateur.
+- Depuis 0.5.1, `GET settings` ne renvoie plus `homepage`. `POST homepage` reste un alias historique renvoyant HTTP 410 après les vérifications d’authentification et CSRF.
+- `index.php?read=1` sans page ne choisit aucun accueil et n’affiche aucun annuaire. Le lecteur utilise `index.php?page=…&read=1&root=…`, avec une racine facultative à l’entrée ; à défaut, la page demandée est sa propre racine.
 - `databaseView.attrs.viewConfig` conserve `{layout,filters,sort,hiddenPropertyIds}` par bloc. `layout`: `table`, `gallery`, `chart`. Filtres ET, dix maximum ; opérateurs `contains`, `equals`, `notEquals`, `isEmpty`, `isNotEmpty`, `gt`, `gte`, `lt`, `lte`. Le tri utilise `{propertyId,direction:'asc'|'desc'}` ou `null`. Les identifiants de propriétés appartiennent à la base du bloc.
 - `POST row_patch {id,version,property_id,value}` modifie un seul champ de la fiche, sans effacer les autres ni sa provenance. Réponse `{row}` ; HTTP 409 en cas de conflit. Champs calculés non modifiables. Authentification et CSRF obligatoires.
 - Les vues sont de la présentation, pas une politique d’accès. L’API publique renvoie les fiches publiques autorisées ; un filtre ne les rend pas privées.
@@ -106,7 +104,7 @@ Pour les champs, limites et exemples de formules : [BASES-ET-FORMULAIRES.md](doc
 - `notebook.auto_publish`: booléen, actif par défaut. Seules les pages déjà publiques sont synchronisées après `save`, dans la transaction de l’écriture. Une nouvelle page reste privée.
 - `notebook.icon`: émoji, `f.` ou `lucide:slug[:#RRGGBB]` validé dans le manifeste ; `notebook.icon_id`: image existante ou `null`. Une image choisie pour la marque du carnet est publique.
 - `GET page&id=...&published=1` force le snapshot publié, même pour un administrateur.
-- `GET reader-state.php?page=...&token=...` force également la visibilité publique. Le champ `page` vide suit l’accueil sélectionné. Une réponse inchangée contient uniquement `{token}` ; une modification ajoute `html`, `breadcrumbs`, `title`, `appearance`, `mode` et `unavailable`. Ce jeton est une empreinte de contenu, pas un secret d’authentification.
+- `GET reader-state.php?page=...&token=...` force également la visibilité publique. Le champ `page` vide laisse le lecteur sans contenu de cours. Le paramètre `root` conserve la branche du partage ; à défaut la page demandée est sa propre racine. Une réponse inchangée contient uniquement `{token}` ; une modification ajoute `html`, `breadcrumbs`, `title`, `appearance`, `mode` et `unavailable`. Ce jeton est une empreinte de contenu, pas un secret d’authentification.
 - Un lien transformé utilise les types existants `buttonLink`, `bookmark` ou un paragraphe avec marque `link`. `fileBlock.mode` choisit téléchargement ou lecteur compatible, sans changer `fileId`.
 
 ## Ajouts 0.4.1
@@ -118,3 +116,11 @@ Les réglages `notebook.sidebar_shortcut` (`Mod+Shift+L` par défaut, `Mod+Shift
 Pour `select` et `multiselect`, `config.option_colors` associe les libellés connus à une couleur `#RRGGBB`. Les clés hors catalogue sont retirées ; une couleur malformée est refusée. Le champ est exporté, validé à l’import et transmis à la vue publique comme métadonnée de présentation. Les marques `textStyle` vides ou égales à l’ancien défaut `#37352F` ne sont plus conservées ; les autres mises en forme demeurent intactes.
 
 La propriété `appearance.accent` reste la couleur source, y compris lorsque `mode` est `dark` ou `oled`. Les variantes sont calculées au rendu, sans réécrire les réglages ni modifier le format des exports. Le premier rendu PHP et le thème personnel du lecteur produisent les mêmes variables CSS.
+
+## Partage par branche et carnets — 0.5.1
+
+Pour un lecteur anonyme, `pages`, `spaces`, `categories` et `search` utilisent `root=<UUID ou slug publié>`. Sans `root` ou `page`, leurs listes sont vides. `page` et `render` prennent la page demandée comme racine si aucune autre n’est fournie. Une racine privée/inexistante reçoit 404 ; une page extérieure à la branche reçoit également 404 dans ce contexte. L’API d’administration garde l’ensemble des pages et brouillons.
+
+`reader-state.php?page=…&root=…&token=…` et l’index en lecture forcent la visibilité publique même avec une session admin. Les liens de sous-pages et galeries ajoutent la racine aux URLs. Les références `/page` et galeries manuelles sont nettoyées de leurs IDs hors branche dans le JSON public. Le fil d’Ariane commence sur la racine, sans lien vers un accueil ni parent extérieur. Un lien public direct vers une autre page peut toutefois établir une autre racine : ce paramètre n’est pas une autorisation secrète ou un accès par groupe. Les bases explicitement publiques et les médias continuent à suivre leur propre politique de visibilité.
+
+La table `spaces` et `space_id` conservent leur nom pour la compatibilité, l’interface affiche Carnets. La migration `notebooks_migrated` conserve les pages, catégories et versions en remplaçant les scopes NULL par un carnet réel. Les exports ne contiennent plus `settings.homepage_id` ; le champ d’une ancienne sauvegarde est ignoré et ses pages sont importées comme pages ordinaires privées.

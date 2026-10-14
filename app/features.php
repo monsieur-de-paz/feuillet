@@ -5,7 +5,7 @@ require_once __DIR__."/customization.php";
 if(is_file(__DIR__."/databases.php"))require_once __DIR__."/databases.php";
 
 function migrate_schema(PDO $pdo): void {
-    try { if($pdo->query("SELECT value FROM app_settings WHERE name='schema_version'")->fetchColumn()==='3'){if(function_exists('databases_schema'))databases_schema($pdo);return;} } catch(PDOException) {}
+    try { if($pdo->query("SELECT value FROM app_settings WHERE name='schema_version'")->fetchColumn()==='3'){if(function_exists('databases_schema'))databases_schema($pdo);migrate_notebooks($pdo);return;} } catch(PDOException) {}
     $mysql=$pdo->getAttribute(PDO::ATTR_DRIVER_NAME)==='mysql';$suffix=$mysql?' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4':'';
     $pdo->exec("CREATE TABLE IF NOT EXISTS spaces (id VARCHAR(36) PRIMARY KEY,name VARCHAR(120) NOT NULL,icon VARCHAR(64) NOT NULL,sort_order INTEGER NOT NULL DEFAULT 0)$suffix");
     $pdo->exec("CREATE TABLE IF NOT EXISTS app_settings (name VARCHAR(80) PRIMARY KEY,value TEXT NOT NULL)$suffix");
@@ -24,7 +24,24 @@ function migrate_schema(PDO $pdo): void {
         $pdo->prepare('UPDATE pages SET category_id=?,published=? WHERE id=?')->execute([$category,$published?encoded($published):null,$page['id']]);
     }
     if(function_exists('databases_schema'))databases_schema($pdo);
+    migrate_notebooks($pdo);
     $pdo->exec($mysql?"INSERT INTO app_settings (name,value) VALUES ('schema_version','3') ON DUPLICATE KEY UPDATE value='3'":"INSERT INTO app_settings (name,value) VALUES ('schema_version','3') ON CONFLICT(name) DO UPDATE SET value='3'");
+}
+/** One-time, lossless conversion of unassigned pages into a real, renameable notebook. */
+function migrate_notebooks(PDO $pdo): void {
+    if($pdo->query("SELECT value FROM app_settings WHERE name='notebooks_migrated'")->fetchColumn()==='1')return;
+    $pdo->beginTransaction();
+    try{
+        $id='995c7e2a-d8fb-4703-a13f-e4fb694335fc';$sql=$pdo->getAttribute(PDO::ATTR_DRIVER_NAME)==='mysql'?'INSERT IGNORE INTO spaces (id,name,icon,sort_order) VALUES (?,?,?,?)':'INSERT INTO spaces (id,name,icon,sort_order) VALUES (?,?,?,?) ON CONFLICT(id) DO NOTHING';$pdo->prepare($sql)->execute([$id,'Mes pages','📚',-1]);
+        $pdo->prepare('UPDATE pages SET space_id=? WHERE space_id IS NULL')->execute([$id]);
+        $pdo->prepare('UPDATE categories SET space_id=? WHERE space_id IS NULL')->execute([$id]);
+        foreach($pdo->query('SELECT id,published FROM pages WHERE published IS NOT NULL')->fetchAll() as $row){$p=json_decode($row['published'],true);if(is_array($p)&&empty($p['space_id'])){$p['space_id']=$id;$pdo->prepare('UPDATE pages SET published=? WHERE id=?')->execute([encoded($p),$row['id']]);}}
+        $pdo->exec("DELETE FROM app_settings WHERE name='notebooks_migrated'");$pdo->exec("INSERT INTO app_settings (name,value) VALUES ('notebooks_migrated','1')");$pdo->commit();
+    }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}
+}
+function ensure_default_notebook(?PDO $pdo=null): string {
+    $pdo??=db();$id=$pdo->query('SELECT id FROM spaces ORDER BY sort_order,name')->fetchColumn();if($id)return $id;
+    $id=uuid();$pdo->prepare('INSERT INTO spaces (id,name,icon,sort_order) VALUES (?,?,?,?)')->execute([$id,'Mes pages','📚',0]);return $id;
 }
 function appearance_defaults(): array { return ['font'=>'sans','background'=>'#FFFFFF','text'=>'#37352F','accent'=>'#38795D','width'=>'normal','focus'=>false,'mode'=>'light']; }
 function css_color(mixed $value): string { return is_string($value)&&preg_match('/^#[a-fA-F0-9]{6}$/D',$value)?strtoupper($value):''; }
@@ -44,16 +61,26 @@ function appearance_css(array $appearance): string {
     $variables='--accent-base:'.$a['accent'].';--accent-contrast:'.accent_foreground($accent).';--accent-hover:'.accent_hover($accent).';--surface-soft:'.($a['mode']==='oled'?'#121212':($dark?'#2A2E35':'#EEEFED')).';--surface:'.$surface.';--surface-muted:'.($a['mode']==='oled'?'#080808':($dark?'#202329':'#F7F7F5')).';--ink:'.$a['text'].';--muted:'.($dark?'#AFB3BD':'#6f716d').';--line:'.($dark?'#373A42':'#E4E5E2').';--accent:'.$accent.';--green:'.$accent.';color-scheme:'.($dark?'dark':'light').';';
     return $variables.'--page-background:' .$a['background'].';--page-text:'.$a['text'].';--page-accent:'.$accent.';background:'.$a['background'].';color:'.$a['text'].';font-family:'.$font.';';
 }
-function check_space(?string $id): void { if($id&&!query('SELECT id FROM spaces WHERE id=?',[$id])->fetch())fail('Espace introuvable.'); }
+function check_space(?string $id): void { if($id&&!query('SELECT id FROM spaces WHERE id=?',[$id])->fetch())fail('Carnet introuvable.'); }
 function list_spaces(bool $public=false): array {
     $spaces=query('SELECT * FROM spaces ORDER BY sort_order,name')->fetchAll();foreach($spaces as &$s)$s['sort_order']=(int)$s['sort_order'];unset($s);
-    if(!$public)return $spaces;$ids=[];foreach(page_rows() as $row)if(!$row['deleted_at']&&$row['visibility']==='public'&&$row['published']&&ancestors_active($row,page_rows())){$p=json_decode($row['published'],true);if(!empty($p['space_id']))$ids[]=$p['space_id'];}
+    if(!$public)return $spaces;$ids=[];foreach(page_rows() as $row)if(!$row['deleted_at']&&$row['visibility']==='public'&&$row['published']&&ancestors_active($row,page_rows())&&reader_page_allowed($row['id'])){$p=json_decode($row['published'],true);if(!empty($p['space_id']))$ids[]=$p['space_id'];}
     return array_values(array_filter($spaces,fn($s)=>in_array($s['id'],$ids,true)));
 }
 function spaces_mutate(array $in,bool $delete=false): array {
     $id=!empty($in['id'])?str_limit($in['id'],36):uuid();if(!empty($in['id']))check_space($id);
-    if($delete||!empty($in['delete'])){query('UPDATE pages SET space_id=NULL WHERE space_id=?',[$id]);foreach(query('SELECT id,published FROM pages WHERE published IS NOT NULL')->fetchAll() as $r){$p=json_decode($r['published'],true);if(($p['space_id']??null)===$id){$p['space_id']=null;query('UPDATE pages SET published=? WHERE id=?',[encoded($p),$r['id']]);}}query('UPDATE categories SET space_id=NULL,legacy_kind=NULL WHERE space_id=?',[$id]);query('DELETE FROM spaces WHERE id=?',[$id]);}
-    else{$name=str_limit($in['name']??'',120);if(!$name)fail('Donne un nom à cet espace.');$icon=str_limit($in['icon']??'📚',64);$order=(int)($in['sort_order']??0);if(query('SELECT id FROM spaces WHERE id=?',[$id])->fetch())query('UPDATE spaces SET name=?,icon=?,sort_order=? WHERE id=?',[$name,$icon,$order,$id]);else query('INSERT INTO spaces (id,name,icon,sort_order) VALUES (?,?,?,?)',[$id,$name,$icon,$order]);}
+    if($delete||!empty($in['delete'])){
+        $target=!empty($in['target_id'])?str_limit($in['target_id'],36):null;
+        if($target){check_space($target);if($target===$id)fail('Choisis un autre carnet pour conserver les pages.');}
+        else $target=query('SELECT id FROM spaces WHERE id<>? ORDER BY sort_order,name',[$id])->fetchColumn()?:null;
+        $pdo=db();$pdo->beginTransaction();try{
+            if(!$target){$target=uuid();query('INSERT INTO spaces (id,name,icon,sort_order) VALUES (?,?,?,?)',[$target,'Mes pages','📚',0]);}
+            query('UPDATE pages SET space_id=? WHERE space_id=?',[$target,$id]);
+            foreach(query('SELECT id,published FROM pages WHERE published IS NOT NULL')->fetchAll() as $r){$p=json_decode($r['published'],true);if(($p['space_id']??null)===$id){$p['space_id']=$target;query('UPDATE pages SET published=? WHERE id=?',[encoded($p),$r['id']]);}}
+            query('UPDATE categories SET space_id=?,legacy_kind=NULL WHERE space_id=?',[$target,$id]);query('DELETE FROM spaces WHERE id=?',[$id]);$pdo->commit();
+        }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}
+    }
+    else{$name=str_limit($in['name']??'',120);if(!$name)fail('Donne un nom à ce carnet.');$icon=str_limit($in['icon']??'📚',64);$order=(int)($in['sort_order']??0);if(query('SELECT id FROM spaces WHERE id=?',[$id])->fetch())query('UPDATE spaces SET name=?,icon=?,sort_order=? WHERE id=?',[$name,$icon,$order,$id]);else query('INSERT INTO spaces (id,name,icon,sort_order) VALUES (?,?,?,?)',[$id,$name,$icon,$order]);}
     if(!$delete&&empty($in['delete']))category_seed(db(),$id);
     return ['spaces'=>list_spaces(),'id'=>$id];
 }

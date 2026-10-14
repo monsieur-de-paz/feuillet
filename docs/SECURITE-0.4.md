@@ -99,3 +99,11 @@ L’inventaire `file_usage` exige l’administrateur avant de chercher le fichie
 Les sélecteurs et menus contextuels n’ajoutent aucun endpoint, rôle ou permission. Ils appellent les commandes déjà protégées par session, CSRF et validation serveur. Le menu public ne reçoit pas les actions d’administration. Une action de page vérifie l’ID réellement ouvert avant sa mutation ; les conflits et formulaires non enregistrés peuvent bloquer le changement de page. Un menu de publication ouvre la fenêtre existante et ne publie rien à l’ouverture du clic droit.
 
 Les libellés, options et noms restent du texte rendu par React. Les couleurs d’état restent soumises à leur validation hexadécimale existante. Les dépôts de skills servent de références locales, sans scripts exécutés ni appel depuis le logiciel distribué. La mise à jour ne dispense pas de protéger l’installation PHP. Voir les résultats datés dans [TESTS.md](TESTS.md).
+
+## Vérifications du partage — 0.5.1
+
+La racine d’un lien est validée côté PHP ; elle doit être une page publiée active. L’index, les listes anonymes, recherches, catégories, carnets, liens de page et galeries n’affichent que sa branche publiée. Les enfants d’un parent privé ne sont pas traversés dans cette branche. Le fil d’Ariane ne révèle pas les parents extérieurs, même si le lecteur a une session administrateur. Sans racine, les listes anonymes sont vides. Les jetons de lecture ne recencent pas les cartes d’autres branches.
+
+La suite `tests/sharing.py` reproduit les racines falsifiées/privées, les références vers une autre branche, le partage direct d’une sous-page, la conservation des racines et la révocation. Le paramètre root n’est pas un secret : une autre page déjà publique reste consultable par son lien direct. Les bases communes explicitement publiques et les médias publiés conservent leurs règles d’accès ; cette fonction n’isole pas les élèves par compte ou mot de passe. Les permissions admin, CSRF, protections médias et réponses privées restent testées par les suites existantes.
+
+La conversion des anciens scopes NULL est transactionnelle et idempotente. Elle ne supprime ni fichier ni document. Les anciens accueils sont gardés et les imports restaurent toujours des copies privées. Aucun secret, cours réel, média privé ou configuration locale n’entre dans la distribution.

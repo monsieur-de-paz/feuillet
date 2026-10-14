@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.5.0';
+const FEUILLET_VERSION = '0.5.1';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -180,9 +180,9 @@ function public_doc(array $doc): array {
     if(($doc['type']??'')==='pageLink') {
         $id=$doc['attrs']['pageId']??'';
         $r=is_string($id)?query('SELECT * FROM pages WHERE id=?',[$id])->fetch():false;
-        if(!$r||$r['deleted_at']||$r['visibility']!=='public'||!$r['published']||!ancestors_active($r,page_rows())) return ['type'=>'paragraph'];
+        if(!$r||$r['deleted_at']||$r['visibility']!=='public'||!$r['published']||!ancestors_active($r,page_rows())||!reader_page_allowed($r['id'])) return ['type'=>'paragraph'];
     }
-    if(($doc['type']??'')==='gallery'&&!empty($doc['attrs']['manual'])) { $doc['attrs']['pageIds']=array_values(array_filter($doc['attrs']['pageIds']??[],function($id){$r=is_string($id)?query('SELECT * FROM pages WHERE id=?',[$id])->fetch():false;return $r&&!$r['deleted_at']&&$r['visibility']==='public'&&$r['published']&&ancestors_active($r,page_rows());})); }
+    if(($doc['type']??'')==='gallery'&&!empty($doc['attrs']['manual'])) { $doc['attrs']['pageIds']=array_values(array_filter($doc['attrs']['pageIds']??[],function($id){$r=is_string($id)?query('SELECT * FROM pages WHERE id=?',[$id])->fetch():false;return $r&&!$r['deleted_at']&&$r['visibility']==='public'&&$r['published']&&ancestors_active($r,page_rows())&&reader_page_allowed($r['id']);})); }
     if(($doc['type']??'')==='quiz') foreach($doc['attrs']['questions']??[] as $i=>$q){unset($q['correct'],$q['answers'],$q['explanation']);$doc['attrs']['questions'][$i]=$q;}
     foreach($doc['content']??[] as $i=>$child) $doc['content'][$i]=public_doc($child);
     return $doc;
@@ -203,14 +203,15 @@ function get_page(string $id, bool $forcePublic=false): array {
     if(!$row||$row['deleted_at']||!ancestors_active($row,page_rows())) fail('Page introuvable.',404,'not_found');
     $public=$forcePublic||!admin();
     if($public && ($row['visibility']!=='public'||empty($row['published']))) fail('Page introuvable.',404,'not_found');
-    return row_page($row,$public);
+    if($public&&!reader_page_allowed($row['id']))fail('Page introuvable.',404,'not_found');
+    $page=row_page($row,$public);if($public&&reader_scope_active()&&$page['id']===reader_root_id())$page['parent_id']=null;return $page;
 }
 function list_pages(): array {
     $all=page_rows();$isAdmin=admin();$pages=[];$trash=[];
     foreach($all as $row){
         if($row['deleted_at']){if($isAdmin){$p=row_page($row);unset($p['content']);$trash[]=$p;}continue;}
         if(!ancestors_active($row,$all))continue;
-        if(!$isAdmin&&($row['visibility']!=='public'||empty($row['published'])))continue;
+        if(!$isAdmin&&($row['visibility']!=='public'||empty($row['published'])||!reader_page_allowed($row['id'])))continue;
         $p=row_page($row,!$isAdmin);unset($p['content']);
         $pages[]=$p;
     }
@@ -236,7 +237,7 @@ function save_page(array $input): array {
     $cover=$coverValue?str_limit($coverValue,36):null;
     $iconValue=array_key_exists('icon_id',$input)?$input['icon_id']:($existing['icon_id']??null);$iconId=$iconValue?str_limit($iconValue,36):null;
     if($iconId){$f=query('SELECT mime FROM files WHERE id=?',[$iconId])->fetch();if(!$f||!str_starts_with($f['mime'],'image/'))fail('L’icône doit être une image.');}
-    $spaceValue=array_key_exists('space_id',$input)?$input['space_id']:($existing['space_id']??($parent?query('SELECT space_id FROM pages WHERE id=?',[$parent])->fetchColumn():null));$spaceId=$spaceValue?str_limit($spaceValue,36):null;check_space($spaceId);
+    $spaceValue=array_key_exists('space_id',$input)?$input['space_id']:($existing['space_id']??($parent?query('SELECT space_id FROM pages WHERE id=?',[$parent])->fetchColumn():null));$spaceId=$spaceValue?str_limit($spaceValue,36):ensure_default_notebook();if($parent)$spaceId=query('SELECT space_id FROM pages WHERE id=?',[$parent])->fetchColumn()?:$spaceId;check_space($spaceId);
     $appearance=validate_appearance($input['appearance']??($existing['appearance']??[]),true);
     if($cover){$f=query('SELECT mime FROM files WHERE id=?',[$cover])->fetch();if(!$f||!str_starts_with($f['mime'],'image/'))fail('La couverture doit être une image.');}
     $content=normalize_doc($input['content']??['type'=>'doc','content'=>[['type'=>'paragraph']]]);
@@ -300,3 +301,5 @@ function descendants(string $id): array {
 }
 
 require_once __DIR__.'/features.php';
+
+require_once __DIR__.'/sharing.php';

@@ -92,11 +92,11 @@ La limite d'envoi effective est la plus petite des limites PHP et de `max_upload
 
 Fonctions ajoutées et procédure de mise à jour : [NOUVEAUTES-0.2.md](NOUVEAUTES-0.2.md). La recherche Commons nécessite cURL et une connexion HTTPS sortante, sans clé API.
 
-## Préparer l’accueil visiteur (0.4)
+## Préparer les carnets et liens publics (0.5.1)
 
-Après connexion, ouvrir **Accueil visiteur**. Créer une page d’accueil, modifier les titres et sections, puis choisir et ordonner les pages de ses galeries. Publier cette page, puis tester `index.php?read=1` dans une fenêtre privée. Le choix d’une page privée ne la rend pas publique ; l’accueil ne liste plus automatiquement tous les documents. Le logo Feuillet est commun aux deux interfaces.
+Créer les carnets, puis leurs pages et catégories. Publier chaque page destinée à un groupe et copier son lien public. Tester ce lien dans une fenêtre privée : la page partagée doit être la première du fil d’Ariane, ses sous-pages doivent y revenir, et les autres branches ne doivent pas être listées. `index.php?read=1` affiche seulement une invitation à utiliser un lien partagé. `index.php?edit=1` ouvre la connexion enseignant.
 
-Pour une mise à jour de 0.3 vers 0.4, conserver `config.php` et `storage/`, sauvegarder SQL et médias, remplacer le code et les assets, puis configurer cet accueil. Voir [Maintenance](MAINTENANCE.md) pour sauvegarde, vérification et retour arrière.
+Lors d’une mise à jour, les pages autrefois hors espace sont déplacées automatiquement dans un vrai carnet « Mes pages », renommable. Les anciens accueils restent des pages ordinaires. Sauvegarder SQL, configuration et médias avant de transférer le code, et conserver `config.php` et `storage/`. Voir [Maintenance](MAINTENANCE.md) et [les nouveautés 0.5.1](NOUVEAUTES-0.5.1.md).
 
 ## Clé privée de première installation
 

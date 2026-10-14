@@ -33,7 +33,7 @@ flowchart LR
 | `app/databases.php` | Propriétés typées, lignes, relations, agrégations, formulaires et leurs droits |
 | `app/formulas.php` | Analyse et calcul borné des formules, sans `eval` |
 | `app/render.php` | Production HTML sûre des blocs pour la lecture serveur |
-| `app/homepage.php` | Choix de la page d’accueil ; elle conserve les règles de brouillon et publication des pages ordinaires |
+| `app/sharing.php` | Racine de navigation publique, filtrage de branche, liens conservant la racine et signature Feuillet |
 | `app/database-views.php` | Tri et filtres de présentation appliqués aux lignes déjà autorisées |
 | `app/backup.php` | ZIP portable, validation des imports et remappage des identifiants |
 
@@ -53,11 +53,11 @@ En développement, Vite peut transmettre les routes PHP à `FEUILLET_PHP_URL`, p
 
 | Table | Contenu |
 |---|---|
-| `pages` | Métadonnées, arborescence, espace/catégorie, document Tiptap JSON, version et snapshot publié |
+| `pages` | Métadonnées, arborescence, carnet/catégorie, document Tiptap JSON, version et snapshot publié |
 | `revisions` | Historique limité des pages avec snapshots de brouillons |
 | `files` | ID, nom, MIME, taille, nom physique aléatoire et attribution éventuelle |
 | `spaces`, `categories` | Organisation du carnet ; catégories actives ou archivées |
-| `app_settings` | Apparence, paramètres du carnet, page d’accueil et marqueurs de migration |
+| `app_settings` | Apparence, paramètres généraux et marqueurs de migration |
 | `collections` | Bases structurées, noms et visibilité |
 | `collection_properties` | Types, options, relations, formules et agrégations |
 | `collection_rows` | Valeurs JSON, visibilité, version et provenance des réponses |
@@ -76,7 +76,7 @@ Publier copie le brouillon dans un snapshot, puis publie les sous-pages actuelle
 
 Les titres d'ancêtres privés, la corbeille et les brouillons n'apparaissent pas dans la consultation publique. Les quiz transmis aux visiteurs perdent leurs solutions et explications ; la correction récupère le snapshot serveur après soumission. Ces réponses de quiz ne sont pas conservées.
 
-La page d’accueil est une page ordinaire choisie dans les réglages ; sa désignation n’équivaut pas à sa publication.
+Chaque URL partagée établit une racine de navigation. `reader_scope_request()` valide la publication de cette racine et parcourt ses enfants publiés avec un index parent/enfants. Les listes publiques, recherches, catégories, carnets, galeries, liens de pages et fils d’Ariane respectent cette branche. Les requêtes `reader-state.php` portent la même racine ; leur jeton ne recense pas les cartes des autres branches. Aucun annuaire général n’est affiché. Le paramètre `root` est validé côté serveur, mais n’est pas un secret ou une autorisation d’accès par groupe. Les bases publiques restent régies par leur propre visibilité. Les fichiers publiés restent accessibles par leurs identifiants selon les règles de médias.
 
 La visibilité d'une base structurée reste distincte : sa consultation anonyme demande une base publique **et** une référence dans une page publiée active. Ses lignes privées et réponses de formulaires sont exclues. Les relations et agrégations publiques ne lisent pas les données de cibles privées.
 
@@ -131,3 +131,9 @@ Les commandes de page réutilisent `openPage`, la sauvegarde et les actions exis
 `interface.css` porte les finitions partagées ; `tools/prepare-shared-styles.mjs` le copie vers `public/interface.css`, chargé après les styles de lecture. Il ne modifie pas les ratios ni dimensions des galeries. Le sélecteur et les menus d’administration ne sont pas injectés dans le lecteur public HTML. Les formulaires publics React utilisent le sélecteur commun. Le lecteur conserve des contrôles de thème légers en JavaScript autonome.
 
 Les styles historiques restent en place. Les jetons et composants communs s’ajoutent dans le système CSS existant ; une extraction progressive des règles historiques peut réduire les doublons lors d’une évolution future. [Charte graphique](CHARTE-GRAPHIQUE.md).
+
+## Carnets — 0.5.1
+
+Les carnets utilisent la table historique `spaces` et le champ `pages.space_id`. La migration `notebooks_migrated` se fait une seule fois dans une transaction, conserve IDs de pages et catégories et leurs versions, et remplit les snapshots publiés avec le même carnet. L’identifiant du carnet migré est stable pour éviter les doublons lors de requêtes concurrentes. La création d’une page sans carnet choisit un carnet réel ; la sous-page hérite du carnet parent. Supprimer un carnet déplace pages, catégories et snapshots dans un carnet conservé, sans supprimer le contenu. La suppression du dernier carnet crée une destination. Les anciens `homepage_id` restent inactifs dans les installations historiques et sont ignorés à l’import ; aucun écran d’accueil configurable n’existe plus.
+
+`PoweredBy.tsx` et `render_powered_by()` produisent la signature et le même lien GitHub. Leurs styles appartiennent à la feuille commune `interface.css`, à l’exception du lecteur PDF autonome qui utilise sa feuille locale.

@@ -1,5 +1,7 @@
 # Publication automatique, galeries et thème de lecture
 
+> Document historique. Depuis 0.5.1, le partage se fait directement depuis une page, sans accueil général ; la section Espaces est devenue Carnets. Voir [le guide actuel](NOUVEAUTES-0.5.1.md).
+
 ## Écrire une fois, afficher les changements aux visiteurs
 
 Une nouvelle page reste privée, sauf sous un parent public lorsque l’héritage des sous-pages est activé en 0.4.1. **Publier** rend publics cette page et ses sous-pages actuelles. Ensuite, par défaut, chaque enregistrement d’une page déjà publique actualise aussi sa version publique : texte, ajout de bloc, média, icône, cadrage de couverture et disposition de galerie. Il n’est plus nécessaire de cliquer sur **Mettre à jour** après chaque modification.
