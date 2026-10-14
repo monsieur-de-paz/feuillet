@@ -310,3 +310,13 @@ Le téléchargement PDF dans un navigateur ordinaire, les claviers mobiles réel
 ### Ajustement 0.6.1
 
 Compilation et formatage rejoués. Dans Chromium intégré : nouvelle page, titre saisi, Entrée → focus « Contenu de la page », titre sans caractère de saut de ligne ; saisie immédiate d’un paragraphe dans le contenu, sans bandeau de texte affiché. Le backend hors numéro de version est identique à 0.6 ; les 98 tests par pilote ci-dessus restent sa validation.
+
+## Validation 0.7 — 14 octobre 2026
+
+Compilation TypeScript/Vite, formatage, syntaxe PHP et contrôle du diff réussis. **125 contrôles frontend**, plus les 24 accents et leur parité PHP/JavaScript. Les 25 contrôles de `block-moving` utilisent les vraies transactions ProseMirror : ordre, entrée/sortie de section, dernière ligne avec placeholder, imbrication, refus de cycle, fichiers/images/cartes et conservation exacte des marques/attributs.
+
+Toutes les suites HTTP ont été rejouées sur copies jetables **SQLite et MySQL** : **105 succès et 1 scénario réseau ignoré par pilote** (98 existants + 7 imports/lieux/accueil). `tests/imports-places.py` contrôle TXT UTF-8/UTF-16, Markdown, styles RTF et Unicode, exclusion d’objets/texte caché, formats refusés, limite de taille, authentification, cartes publiques, URL Google contrôlée et roundtrip Markdown. Cette suite a aussi été rejouée après le refus supplémentaire des paramètres de clé/jeton. L’accueil anonyme n’expose aucune liste de pages privées.
+
+Chromium intégré : déplacement d’un paragraphe sous un autre, entrée dans un titre dépliable et sortie ; fichier placé dans la section ; dépôt dans une section fermée qui s’ouvre ; annuler/rétablir retrouve les positions. À **320×740**, accueil en une colonne, scrollWidth 320, navigation avec un seul bouton à droite du titre (44×44), poignée de bloc à droite (44×44) et déplacement du paragraphe hors de la section. Vue ordinateur et largeur de navigation rétablies après les essais. Import RTF via le menu ⋯ : nouvelle page privée, gras/italique conservés ; clic sur le logo ouvre l’accueil avec cette activité récente. La carte Google charge son interface intégrée sans clé API. PNG du logo : 1024×1024, alpha nul aux coins et 6058 pixels anticrénelés.
+
+L’observation REA porte sur la documentation publique Notion, pas sur les gestes d’un éditeur authentifié. [Preuves et limites](REA-BLOCS-0.7.md). Safari/iOS, Firefox, gestes sur téléphone réel et hébergement OVH réel restent à vérifier. Le téléchargement PDF dans un navigateur ordinaire garde la limite indiquée en 0.6 ; les exports de contenu et les adresses/liens restent contrôlés par les tests et le code.

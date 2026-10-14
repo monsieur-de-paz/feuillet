@@ -2,7 +2,7 @@
 <title id="title">Feuillet. Un carnet ouvert.</title><desc id="desc">Carnet web libre et auto-hébergé pour écrire, organiser et transmettre.</desc>
 <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#f8faf5"/><stop offset="1" stop-color="#e8efe8"/></linearGradient></defs>
 <rect width="1200" height="360" rx="28" fill="url(#bg)"/>
-<rect x="64" y="65" width="74" height="74" rx="19" fill="#38795d"/><text x="86" y="119" font-family="Georgia,serif" font-size="62" font-weight="bold" fill="#fff">f.</text>
+<g transform="translate(66 58) scale(.8)"><path fill="#38795d" fill-rule="evenodd" d="M11 49 39 17q4-4 8 0l16 19 8-8q3-3 6 1l12 19q4 6-3 6H14q-7 0-3-5Zm23-9 9-11 11 13-10-5-4 6-6-3Z"/><path stroke="#38795d" stroke-width="5.5" stroke-linecap="round" fill="none" d="M16 65q16-6 32 0t32 0M25 76q12-4 23 0t23 0M37 86q11-4 22 0"/></g>
 <text x="163" y="124" font-family="Arial,sans-serif" font-size="62" font-weight="bold" fill="#26362d">Feuillet.</text>
 <text x="66" y="199" font-family="Arial,sans-serif" font-size="30" fill="#425b4b">Écrire. Organiser. Transmettre.</text>
 <text x="67" y="244" font-family="Arial,sans-serif" font-size="19" fill="#607168">Un carnet web libre, hébergé chez vous.</text>

@@ -1,3 +1,5 @@
+import { FeuilletLogo } from "./FeuilletLogo";
+import { AdminHome } from "./AdminHome";
 import { ContextMenu, type MenuAction } from "./ContextMenu";
 import { Select } from "./Select";
 import {
@@ -248,6 +250,7 @@ function titleOf(p: Page) {
 export default function App() {
   const [editorEpoch, setEditorEpoch] = useState(0);
   const [spaces, setSpaces] = useState<Space[]>([]);
+  const [dashboard, setDashboard] = useState(false);
   const [activeSpace, setActiveSpace] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [notebook, setNotebook] = useState<Notebook>({
@@ -597,6 +600,7 @@ export default function App() {
       notify("La page doit être enregistrée avant de la quitter.");
       return;
     }
+    setDashboard(false);
     setPageContext(null);
     setSidebar(false);
     setPageLoading(true);
@@ -624,6 +628,28 @@ export default function App() {
     } finally {
       setPageLoading(false);
     }
+  }
+  async function openDashboard(replace = false) {
+    if (!adminRef.current || !(await save())) return;
+    if (
+      !document.dispatchEvent(
+        new Event("feuillet:before-page-change", { cancelable: true }),
+      )
+    )
+      return;
+    setPageContext(null);
+    setSidebar(false);
+    setFocus(false);
+    setDashboard(true);
+    setDraft(null);
+    draftRef.current = null;
+    editorRef.current = null;
+    dirtyRef.current = false;
+    setFatal("");
+    await loadList();
+    if (replace) window.history.replaceState({}, "", "index.php?dashboard=1");
+    else window.history.pushState({}, "", "index.php?dashboard=1");
+    window.scrollTo(0, 0);
   }
   useEffect(() => {
     (async () => {
@@ -659,6 +685,8 @@ export default function App() {
             setFatal(
               "Cette page n’est pas disponible. Elle est peut-être privée ou a été retirée.",
             );
+        } else if (s.authenticated) {
+          setDashboard(true);
         } else if (list.length) {
           const first = list.find((p) => !p.parent_id) || list[0];
           await openPage(String(first.id), true, true);
@@ -672,6 +700,7 @@ export default function App() {
     const pop = () => {
       const id = new URLSearchParams(location.search).get("page");
       if (id) void openPage(id, true);
+      else if (adminRef.current) void openDashboard(true);
     };
     window.addEventListener("popstate", pop);
     return () => window.removeEventListener("popstate", pop);
@@ -1292,17 +1321,17 @@ export default function App() {
       setBusy(false);
     }
   }
-  async function importMarkdown(file: File) {
+  async function importDocument(file: File) {
     if (!(await save())) return;
     await perform(async () => {
       const fd = new FormData();
       fd.append("file", file);
       fd.append("space_id", activeSpace);
-      const { page } = await api("import_markdown", fd);
+      const { page } = await api("import_document", fd);
       await loadList();
       await openPage(String(page.id));
       setModal(null);
-      notify("Le document Markdown est devenu une page privée.");
+      notify("Le document est devenu une page privée.");
     });
   }
   modalRef.current = modal;
@@ -1597,6 +1626,12 @@ export default function App() {
           ]
         : []),
       {
+        label: "Importer une page",
+        icon: <Upload />,
+        run: action(() => showModal("import-document")),
+        group: "export",
+      },
+      {
         label: "Exporter en Markdown",
         icon: <Download />,
         run: action(exportMarkdown),
@@ -1737,11 +1772,11 @@ export default function App() {
         String(p.id) === String(draft.parent_id) && p.visibility === "public",
     )
   );
-  const hasPage = !!draft;
+  const hasPage = !!draft && !dashboard;
   if (loading)
     return (
       <div className="boot-screen">
-        <span className="brand-symbol">f.</span>
+        <FeuilletLogo size={64} />
         <Spinner />
         <p>Ouverture de ton carnet…</p>
       </div>
@@ -1749,7 +1784,7 @@ export default function App() {
   if (session?.installed === false)
     return (
       <div className="boot-screen">
-        <span className="brand-symbol">f.</span>
+        <FeuilletLogo size={64} />
         <h1>Bienvenue dans Feuillet</h1>
         <p>Quelques réglages suffisent pour ouvrir ton carnet.</p>
         <a className="primary-button" href="setup.php">
@@ -1838,9 +1873,9 @@ export default function App() {
               className="brand-icon-change"
               type="button"
               disabled={!admin}
-              title="Changer l’icône du carnet"
-              aria-label="Changer l’icône du carnet"
-              onClick={showNotebookIcon}
+              title="Accueil de Feuillet"
+              aria-label="Accueil de Feuillet"
+              onClick={() => void openDashboard()}
             >
               <FeuilletIcon
                 icon={notebook.icon || "f."}
@@ -1853,10 +1888,7 @@ export default function App() {
               className="workspace-name"
               onClick={(e) => {
                 e.preventDefault();
-                if (pages[0])
-                  void openPage(
-                    String((pages.find((p) => !p.parent_id) || pages[0]).id),
-                  );
+                if (admin) void openDashboard();
               }}
             >
               <span>
@@ -1864,15 +1896,6 @@ export default function App() {
                 <small>{notebook.subtitle}</small>
               </span>
             </a>
-            <button
-              className="sidebar-close icon-button"
-              aria-label="Fermer le menu"
-              onClick={() => setSidebar(false)}
-            >
-              <PanelLeftClose size={18} />
-            </button>
-          </div>
-          <div className="sidebar-search">
             {admin && (
               <button
                 className="sidebar-toggle"
@@ -1884,6 +1907,17 @@ export default function App() {
                 <PanelLeftClose size={17} />
               </button>
             )}
+            {!admin && (
+              <button
+                className="sidebar-close icon-button"
+                aria-label="Fermer le menu"
+                onClick={() => setSidebar(false)}
+              >
+                <PanelLeftClose size={18} />
+              </button>
+            )}
+          </div>
+          <div className="sidebar-search">
             <Search size={16} />
             <input
               aria-label="Rechercher une page"
@@ -2213,7 +2247,7 @@ export default function App() {
                   iconId={draft?.icon_id}
                   size={16}
                 />{" "}
-                {draft ? titleOf(draft) : "Ton carnet"}
+                {dashboard ? "Accueil" : draft ? titleOf(draft) : "Ton carnet"}
               </span>
             </nav>
             {admin && hasPage && (
@@ -2300,6 +2334,30 @@ export default function App() {
                 </button>
               </div>
             )}
+            {admin && dashboard && (
+              <div className="topbar-actions">
+                <ThemeToggle
+                  mode={displayAppearance.mode}
+                  onChange={changeTheme}
+                  className="desktop-theme-control"
+                />
+                <button
+                  className="icon-button"
+                  aria-label="Importer une page"
+                  title="Importer une page"
+                  onClick={() => showModal("import-document")}
+                >
+                  <Upload size={19} />
+                </button>
+                <button
+                  className="icon-button"
+                  aria-label="Réglages généraux"
+                  onClick={() => void showSettings()}
+                >
+                  <Settings size={19} />
+                </button>
+              </div>
+            )}
             {!admin && hasPage && (
               <div className="reader-actions">
                 <button
@@ -2372,6 +2430,14 @@ export default function App() {
             <div className="page-loading">
               <Spinner /> Ouverture de la page…
             </div>
+          ) : admin && dashboard ? (
+            <AdminHome
+              pages={pages}
+              spaces={spaces}
+              onOpen={(id) => void openPage(id)}
+              onCreate={() => void createPage()}
+              onImport={() => showModal("import-document")}
+            />
           ) : draft ? (
             <article
               className={`course-page page-font-${effectiveAppearance.font} ${effectiveAppearance.width === "wide" ? "page-wide" : ""} ${draft.cover_id ? "has-cover" : ""}`}
@@ -3663,9 +3729,42 @@ export default function App() {
           </div>
         </Modal>
       )}
+      {modal === "import-document" && (
+        <Modal title="Importer une page" onClose={() => setModal(null)}>
+          <div className="modal-form">
+            <p>
+              Un document .txt, .md ou .rtf devient une nouvelle page privée
+              dans le carnet actif. Le Markdown et les styles de texte courants
+              du RTF sont conservés.
+            </p>
+            <label className="primary-button import-button">
+              Choisir un document
+              <input
+                type="file"
+                accept=".txt,.md,.markdown,.rtf"
+                disabled={busy}
+                onChange={(event) => {
+                  if (event.target.files?.[0])
+                    void importDocument(event.target.files[0]);
+                  event.target.value = "";
+                }}
+              />
+            </label>
+            <p className="muted">
+              2 Mo maximum. Les images et objets incorporés au RTF ne sont pas
+              importés.
+            </p>
+            {modalError && <p className="form-error">{modalError}</p>}
+          </div>
+        </Modal>
+      )}
       {modal === "settings" && (
         <Modal title="Réglages & sauvegardes" onClose={() => setModal(null)}>
           <div className="modal-form settings-form">
+            <button className="small-button" onClick={showNotebookIcon}>
+              <ImageIcon size={17} />
+              Changer le logo du site
+            </button>
             <NotebookControls
               value={notebook}
               serverLimit={serverLimit}
@@ -3683,19 +3782,20 @@ export default function App() {
             <div className="settings-card">
               <FileText size={25} />
               <div>
-                <h3>Importer un document Markdown</h3>
+                <h3>Importer un document</h3>
                 <p>
-                  Un fichier .md devient une page privée dans le carnet actif.
+                  Un fichier .txt, .md ou .rtf devient une page dans le carnet
+                  actif.
                 </p>
                 <label className="small-button import-button">
-                  Choisir un fichier .md
+                  Choisir un document
                   <input
                     type="file"
-                    accept=".md,.markdown,text/markdown,text/plain"
+                    accept=".txt,.md,.markdown,.rtf,text/plain,text/markdown,application/rtf,text/rtf"
                     disabled={busy}
                     onChange={(e) => {
                       if (e.target.files?.[0])
-                        void importMarkdown(e.target.files[0]);
+                        void importDocument(e.target.files[0]);
                       e.target.value = "";
                     }}
                   />

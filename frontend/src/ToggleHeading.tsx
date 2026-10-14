@@ -11,15 +11,23 @@ import {
 } from "@tiptap/react";
 import { TextSelection } from "@tiptap/pm/state";
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useApp } from "./context";
 
 function ToggleHeadingView({ node, editor, getPos }: NodeViewProps) {
   const { admin } = useApp();
   const [open, setOpen] = useState(admin);
+  const wrapper = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const element = wrapper.current;
+    const unfold = () => setOpen(true);
+    element?.addEventListener("feuillet:unfold", unfold);
+    return () => element?.removeEventListener("feuillet:unfold", unfold);
+  }, []);
   const title = node.firstChild?.textContent || "Titre dépliable";
   return (
     <NodeViewWrapper
+      ref={wrapper}
       className={`toggle-heading-editor ${open ? "is-open" : ""}`}
     >
       <button

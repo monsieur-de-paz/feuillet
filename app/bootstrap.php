@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.6.1';
+const FEUILLET_VERSION = '0.7.0';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -94,7 +94,7 @@ function headers_secure(): void {
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('X-Frame-Options: SAMEORIGIN');
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; media-src 'self' https: blob:; frame-src 'self' https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self'; font-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'");
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; media-src 'self' https: blob:; frame-src 'self' https://www.youtube-nocookie.com https://player.vimeo.com https://www.google.com https://maps.google.com; connect-src 'self'; font-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'");
     header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
     header('Cache-Control: no-store');
 }
@@ -111,7 +111,7 @@ function normalize_doc(mixed $doc): array {
     if (!is_array($doc) || ($doc['type']??'') !== 'doc') fail('Document invalide.');
     $count=0; $walk=function($node,$depth) use (&$walk,&$count): array {
         if (!is_array($node) || ++$count>12000 || $depth>32) fail('Document trop complexe.');
-        $types=['doc','paragraph','text','heading','bulletList','orderedList','listItem','taskList','taskItem','blockquote','horizontalRule','hardBreak','codeBlock','table','tableRow','tableCell','tableHeader','callout','columns','column','details','toggleHeading','pageLink','buttonLink','bookmark','fileBlock','image','gallery','quiz','databaseView','formView'];
+        $types=['doc','paragraph','text','heading','bulletList','orderedList','listItem','taskList','taskItem','blockquote','horizontalRule','hardBreak','codeBlock','table','tableRow','tableCell','tableHeader','callout','columns','column','details','toggleHeading','mapBlock','pageLink','buttonLink','bookmark','fileBlock','image','gallery','quiz','databaseView','formView'];
         if(!in_array($node['type']??'', $types, true)) fail('Type de bloc inconnu : '.str_limit($node['type']??'',40));
         $out=['type'=>$node['type']];
         if($node['type']==='text'){if(!is_string($node['text']??null))fail('Texte de bloc invalide.');$out['text']=$node['text'];}
@@ -119,6 +119,7 @@ function normalize_doc(mixed $doc): array {
             if(!is_array($node['attrs'])) fail('Attributs de bloc invalides.');
             $out['attrs']=$node['attrs'];
             if(strlen(encoded($out['attrs']))>250000) fail('Bloc trop volumineux.');
+            if($node['type']==='mapBlock')$out['attrs']=['address'=>str_limit($out['attrs']['address']??'',500),'embedUrl'=>map_embed_url($out['attrs']['embedUrl']??'')];
             if($node['type']==='quiz') validate_quiz($out['attrs']);
             foreach(['href','src'] as $key)if(isset($out['attrs'][$key]))$out['attrs'][$key]=safe_url($out['attrs'][$key]);
             if($node['type']==='databaseView'){$id=str_limit($out['attrs']['dbId']??'',36);database_record($id);$out['attrs']=['dbId'=>$id,'viewConfig'=>database_view_config($id,$out['attrs']['viewConfig']??[])];}
@@ -309,3 +310,9 @@ function descendants(string $id): array {
 require_once __DIR__.'/features.php';
 
 require_once __DIR__.'/sharing.php';
+
+function map_embed_url(mixed $value): string {
+    if(!is_string($value)||strlen($value)>6000)return '';
+    $p=parse_url($value);if(!$p||($p['scheme']??'')!=='https'||!in_array($p['host']??'', ['www.google.com','maps.google.com'],true)||isset($p['user'])||isset($p['pass'])||isset($p['port'])||($p['path']??'')!=='/maps/embed')return '';
+    parse_str($p['query']??'',$query);foreach(array_keys($query) as $key)if(in_array(strtolower($key),['key','api_key','signature','token'],true))return '';return is_string($query['pb']??null)&&$query['pb']!==''?safe_url($value):'';
+}

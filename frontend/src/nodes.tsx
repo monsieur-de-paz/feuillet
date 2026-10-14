@@ -438,8 +438,18 @@ export const Column = Node.create({
 function DetailsView({ node, updateAttributes }: NodeViewProps) {
   const { admin } = useApp();
   const [open, setOpen] = useState(admin);
+  const wrapper = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const element = wrapper.current;
+    const unfold = () => setOpen(true);
+    element?.addEventListener("feuillet:unfold", unfold);
+    return () => element?.removeEventListener("feuillet:unfold", unfold);
+  }, []);
   return (
-    <NodeViewWrapper className={`details-block ${open ? "is-open" : ""}`}>
+    <NodeViewWrapper
+      ref={wrapper}
+      className={`details-block ${open ? "is-open" : ""}`}
+    >
       <div className="details-heading" contentEditable={false}>
         <button
           className="details-toggle"

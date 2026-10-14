@@ -39,6 +39,11 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
         if($t==='buttonLink')return '<a class="resource-button" href="'.h($url).'" target="_blank" rel="noopener noreferrer">↗ '.h($a['label']??$url).'</a>';
         return '<a class="bookmark" href="'.h($url).'" target="_blank" rel="noopener noreferrer"><strong>'.h($a['title']??$url).'</strong><p>'.h($a['description']??'').'</p><small>'.h($a['source']??parse_url($url,PHP_URL_HOST)).' ↗</small></a>';
     }
+    if($t==='mapBlock'){
+        $address=str_limit($a['address']??'',500);if(!$address)return '';
+        $src=map_embed_url($a['embedUrl']??'')?:'https://maps.google.com/maps?q='.rawurlencode($address).'&z=14&output=embed';
+        return '<section class="map-block"><header><span aria-hidden="true">⌖</span><strong>'.h($address).'</strong></header><iframe title="'.h('Carte : '.$address).'" src="'.h($src).'" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe><a href="'.h('https://www.google.com/maps/search/?api=1&query='.rawurlencode($address)).'" target="_blank" rel="noopener noreferrer">Ouvrir dans Google Maps ↗</a></section>';
+    }
     if($t==='image'){
         $src=!empty($a['fileId'])?'media.php?id='.rawurlencode($a['fileId']):safe_url($a['src']??'');if(!$src)return '';
          $width=max(10,min(100,(int)($a['width']??100)));$align=in_array($a['align']??'',['left','center','right'],true)?$a['align']:'center';$margin=match($align){'left'=>'0 auto 0 0','right'=>'0 0 0 auto',default=>'0 auto'};$caption='';if(!empty($a['fileId'])){$file=query('SELECT attribution FROM files WHERE id=?',[$a['fileId']])->fetch();$attr=json_decode($file['attribution']??'null',true);if($attr)$caption='<figcaption class="image-attribution">'.h($attr['author']??'').' · '.h($attr['license']??'').(safe_url($attr['source_url']??'')?' · <a href="'.h(safe_url($attr['source_url'])).'" rel="noopener noreferrer" target="_blank">Wikimedia Commons</a>':'').'</figcaption>';}return '<figure class="image-align-'.$align.'" style="width:'.$width.'%;margin:'.$margin.'"><img loading="lazy" src="'.h($src).'" alt="'.h($a['alt']??'').'">'.$caption.'</figure>';
@@ -71,7 +76,7 @@ function render_page_icon(array $page): string {
     return render_feuillet_icon($page['icon']??'📄');
 }
 function render_feuillet_icon(string $value): string {
-    if($value==='f.')return '<span class="brand-symbol" aria-hidden="true">f.</span>';
+    if(in_array($value,['f.','feuillet'],true))return str_replace(['#263A35','<svg '],['currentColor','<svg class="feuillet-logo" aria-hidden="true" '],trim(file_get_contents(FEUILLET_ROOT.'/public/feuillet-logo.svg')));
     if(preg_match('/^lucide:([a-z0-9-]{1,60})(:#[a-fA-F0-9]{6})?$/D',$value,$match)){
         $color=isset($match[2])?' style="color:'.h(substr($match[2],1)).'"':'';
         return '<svg viewBox="0 0 24 24" class="feuillet-icon feuillet-web-icon" width="1em" height="1em" aria-hidden="true"'.$color.'><use href="icons.svg#'.h($match[1]).'"></use></svg>';

@@ -39,7 +39,7 @@ function categories_mutate(string $action,array $input): array {
 function notebook_settings(): array {
     $old=cfg()['name']??'Feuillet.';
     $title=in_array($old,['Le carnet de Sandro','Mon carnet','Mon carnet de cours'],true)?'Feuillet.':$old;
-    $defaults=['title'=>$title,'subtitle'=>'Mon carnet pédagogique','icon'=>'f.','icon_id'=>null,'auto_publish'=>true,'auto_publish_children'=>false,'sidebar_shortcut'=>'Mod+Shift+L','max_upload'=>(int)(cfg()['max_upload']??104857600)];
+    $defaults=['title'=>$title,'subtitle'=>'Mon carnet pédagogique','icon'=>'feuillet','icon_id'=>null,'auto_publish'=>true,'auto_publish_children'=>false,'sidebar_shortcut'=>'Mod+Shift+L','max_upload'=>(int)(cfg()['max_upload']??104857600)];
     $raw=query("SELECT value FROM app_settings WHERE name='notebook'")->fetchColumn();
     return array_replace($defaults,$raw?json_decode($raw,true):[]);
 }

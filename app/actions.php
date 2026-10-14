@@ -6,7 +6,7 @@ function api_dispatch(string $action): never {
     start_session();
     $method=$_SERVER['REQUEST_METHOD']??'GET';
     if(function_exists('database_dispatch'))database_dispatch($action,$method);
-    $postActions=['login','logout','save','publish','visibility','duplicate','trash','restore','move','restore_revision','upload','import','quiz','spaces','save_space','delete_space','settings','rename_file','image_import','import_markdown','save_category','delete_category','restore_category','homepage'];
+    $postActions=['login','logout','save','publish','visibility','duplicate','trash','restore','move','restore_revision','upload','import','quiz','spaces','save_space','delete_space','settings','rename_file','image_import','import_markdown','import_document','save_category','delete_category','restore_category','homepage'];
     if(in_array($action,$postActions,true)&&!(in_array($action,['spaces','settings'],true)&&$method==='GET')) {if($method!=='POST')fail('Méthode non autorisée.',405);csrf();}
     elseif($method!=='GET')fail('Méthode non autorisée.',405);
     if($action==='session')json_out(['authenticated'=>admin(),'csrf'=>$_SESSION['csrf'],'name'=>notebook_settings()['title'],'installed'=>true,'version'=>FEUILLET_VERSION]);
@@ -59,6 +59,7 @@ function api_dispatch(string $action): never {
     if($action==='rename_file')json_out(rename_file(json_in()));
     if($action==='image_search'){$images=image_search(str_limit($_GET['q']??'',120));json_out(['images'=>$images,'results'=>$images]);}
     if($action==='image_import')json_out(['file'=>image_import(json_in())]);
+    if($action==='import_document'){require_once __DIR__.'/document-import.php';json_out(['page'=>import_document()]);}
     if($action==='import_markdown')json_out(['page'=>import_markdown()]);
     if($action==='export_markdown')export_markdown(get_page(str_limit($_GET['id']??'',190)));
     if($action==='health')json_out(['php'=>PHP_VERSION,'driver'=>db()->getAttribute(PDO::ATTR_DRIVER_NAME),'upload_limit'=>upload_limit(),'configured_upload_limit'=>notebook_settings()['max_upload'],'server_upload_limit'=>server_upload_limit(),'storage_writable'=>is_writable(storage()),'version'=>FEUILLET_VERSION]);

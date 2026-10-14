@@ -95,3 +95,9 @@ Le repère de sélection repose sur un soulignement de 2 px et le poids 600, en 
 Les commandes permanentes se limitent à l’ajout flottant et à l’historique. La mise en forme apparaît uniquement lorsqu’un texte est sélectionné : la présence du curseur ne suffit pas. Le bandeau s’ancre au-dessus du paragraphe ; sa légère apparition dure 120 ms et disparaît en réduction des mouvements. Le bouton d’ajout devient rond sur mobile. Les thèmes existants fournissent surface, texte et accent ; aucune couleur fixe de menu n’est introduite.
 
 Les titres dépliables gardent la typographie du niveau 1/2/3 et une flèche neutre. Leur contenu est indenté de 28 px, sans cadre de carte. L’ouverture est signalée par la rotation de la flèche et `aria-expanded`. La lecture publique utilise la même hiérarchie typographique.
+
+## Composer et retrouver — 0.7
+
+La poignée ⋮⋮ est une action réelle : cliquer ouvre le menu, glisser déplace le bloc. Le dépôt est indiqué par une ligne d’accent, avec une indentation et le libellé « Dans la section » pour une destination imbriquée. Un aperçu léger accompagne le pointeur. Les titres dépliables gardent leur composition sans cadre supplémentaire. Sur mobile, la poignée active se place à droite avec une cible de 44 px ; le contenu garde sa largeur.
+
+L’accueil admin reprend les surfaces, accents, rayons et typographies du carnet. Cartes récentes et liste d’activité partagent les mêmes noms, icônes et statuts. Le bouton de navigation est près du titre, et la recherche reste consacrée à la saisie. L’accueil est réservé à l’administration. Le nouveau symbole montagne/lac est décrit dans [l’identité visuelle](IDENTITE-VISUELLE.md).

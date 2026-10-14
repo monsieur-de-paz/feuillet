@@ -37,3 +37,7 @@ Un clic droit dans l’administration propose les actions de la page, du bloc ou
 Le carnet actif affiche une coche ; la catégorie active est soulignée. Dans Modifier le carnet, développer Choisir un émoji pour ce carnet, rechercher ou parcourir les catégories, puis Enregistrer. Les choix de couleur sont dans Réglages & sauvegardes → Apparence générale du carnet.
 
 Le carnet actif et la catégorie sont soulignés de la même couleur. Sur ordinateur, glisser le bord droit de la navigation pour changer sa largeur. La poignée accepte les flèches gauche/droite au clavier ; double-clic ou Entrée remet la largeur habituelle. [Guide 0.5.4](NOUVEAUTES-0.5.4.md).
+
+## Retrouver et composer ses pages — 0.7
+
+Cliquer le logo pour retrouver les dernières pages modifiées dans l’accueil admin. Importer un TXT/Markdown/RTF depuis le menu ⋯ ; la nouvelle page reste privée. Déplacer un bloc par sa poignée ⋮⋮ et suivre la ligne de dépôt : « Dans la section » l’insère dans un titre dépliable. `/lieu` ajoute une adresse et sa carte Google Maps sans clé API. Les détails et limites sont dans [le guide 0.7](NOUVEAUTES-0.7.md).

@@ -175,3 +175,11 @@ Contrôler le parcours nouvelle page → titre → Tab → contenu, la sélectio
 ### Ajustement 0.6.1
 
 Même procédure de mise à jour ; Entrée depuis le titre utilise le même focus vers le contenu que Tab. Aucune migration ou modification des règles de partage. Recharger les onglets après remplacement des bundles.
+
+## Mise à jour 0.7
+
+Sauvegarder base, médias et configuration ; remplacer le code et tous les assets 0.7 ensemble, conserver `config.php` et `storage/`, puis recharger les onglets. Aucune migration SQL. Les préférences, pages et logos personnalisés restent conservés ; le logo intégré utilise désormais le dessin montagne/lac. La personnalisation du logo est dans les réglages.
+
+Le JSON `mapBlock` exige une version 0.7 ou ultérieure. Avant tout retour à une version ancienne, retirer/convertir les blocs inconnus ou restaurer une sauvegarde antérieure. Les mouvements de blocs utilisent uniquement les types existants et une transaction annulable.
+
+Rejouer `node tests/frontend.mjs` pour les mouvements et `python3 tests/imports-places.py` avec puis sans `--mysql` pour l’import et les cartes. Vérifier les domaines CSP, l’absence de requête serveur vers Google et le repli/chemin de dépôt lorsqu’on modifie ces fonctionnalités. L’iframe dépend du service Google ; le lien externe est le secours. Ne jamais accepter un HTML d’intégration arbitraire.

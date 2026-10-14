@@ -366,6 +366,16 @@ export async function exportPdf(
         line(n.type === "callout" ? "À retenir" : "Citation", 9, true, indent);
         for (const item of c) await node(item, indent + 5);
         break;
+      case "mapBlock":
+        line("Lieu : " + (a.address || ""), 10, true, indent);
+        line(
+          "https://www.google.com/maps/search/?api=1&query=" +
+            encodeURIComponent(a.address || ""),
+          9,
+          false,
+          indent,
+        );
+        break;
       case "toggleHeading":
         for (const item of c) await node(item, indent);
         break;

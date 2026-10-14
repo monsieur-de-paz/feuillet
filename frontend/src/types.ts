@@ -36,6 +36,8 @@ export type Page = {
   has_unpublished_changes: boolean;
   published_at: string | null;
   content?: Doc;
+  created_at?: string;
+  updated_at?: string;
 };
 export type FileRecord = {
   id: string;

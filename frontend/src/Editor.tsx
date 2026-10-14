@@ -1,3 +1,10 @@
+import { MapBlock } from "./MapBlock";
+import { BlockMover, blockAtElement } from "./BlockMover";
+import {
+  selectedBlock,
+  moveBlock,
+  blockSiblingDestination,
+} from "./block-moving";
 import { editableDocument } from "./types";
 import { ContextMenu, type MenuAction } from "./ContextMenu";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -180,10 +187,7 @@ export default function CourseEditor({
   );
   const [context, setContext] = useState<{ x: number; y: number } | null>(null);
   const [help, setHelp] = useState(false);
-  const [hoverBlock, setHoverBlock] = useState<{
-    top: number;
-    index: number;
-  } | null>(null);
+  const activeBlockRef = useRef<number | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef(menu);
   const activeRef = useRef(active);
@@ -226,6 +230,7 @@ export default function CourseEditor({
       Column,
       Details,
       ToggleHeading,
+      MapBlock,
       PageLink,
       ButtonLink,
       Bookmark,
@@ -252,6 +257,7 @@ export default function CourseEditor({
         ) {
           const coords = _view.coordsAtPos(_view.state.selection.from);
           event.preventDefault();
+          activeBlockRef.current = null;
           setContext({ x: coords.left, y: coords.bottom });
           return true;
         }
@@ -688,6 +694,18 @@ export default function CourseEditor({
         }),
     },
     {
+      id: "map",
+      label: "Lieu / Google Maps",
+      description: "Une adresse et sa carte interactive",
+      keywords: "lieu carte adresse maps plan",
+      icon: <span>⌖</span>,
+      run: (ed) =>
+        insertNode(ed, {
+          type: "mapBlock",
+          attrs: { address: "", embedUrl: "" },
+        }),
+    },
+    {
       id: "gallery",
       label: "Galerie",
       description: "Une collection de pages en cartes",
@@ -803,49 +821,31 @@ export default function CourseEditor({
         .getElementById(`command-${filtered[active]?.id}`)
         ?.scrollIntoView({ block: "nearest" });
   }, [active, menu?.query]);
-  function hoveredPosition() {
-    if (!editor || !hoverBlock) return null;
-    let pos = 0;
-    for (
-      let i = 0;
-      i < hoverBlock.index && i < editor.state.doc.childCount;
-      i++
-    )
-      pos += editor.state.doc.child(i).nodeSize;
-    const node = editor.state.doc.child(hoverBlock.index);
-    return { pos, node };
+  function currentBlock() {
+    if (!editor) return null;
+    const pos = activeBlockRef.current;
+    const node = pos !== null ? editor.state.doc.nodeAt(pos) : null;
+    return node && pos !== null ? { pos, node } : selectedBlock(editor.state);
   }
-  function focusHovered() {
+  function insertAfter(pos: number) {
     if (!editor) return;
-    const found = hoveredPosition();
-    if (!found) return;
-    if (found.node.isAtom) editor.commands.setNodeSelection(found.pos);
-    else
-      editor.commands.setTextSelection(
-        Math.min(found.pos + 1, editor.state.doc.content.size),
-      );
-  }
-  function addAfterHovered() {
-    if (!editor) return;
-    const found = hoveredPosition();
-    if (!found) return;
-    const pos = found.pos + found.node.nodeSize;
+    const node = editor.state.doc.nodeAt(pos);
+    if (!node) return;
+    const after = pos + node.nodeSize;
     const tr = editor.state.tr.insert(
-      pos,
+      after,
       editor.schema.nodes.paragraph.create(),
     );
-    tr.setSelection(TextSelection.create(tr.doc, pos + 1));
+    tr.setSelection(TextSelection.near(tr.doc.resolve(after + 1)));
     editor.view.dispatch(tr);
     editor.view.focus();
     openInsert();
   }
   function editCurrentBlock() {
     if (!editor) return;
-    const index = editor.state.selection.$from.index(0);
-    if (index >= editor.state.doc.childCount) return;
-    const node = editor.state.doc.child(index);
-    let pos = 0;
-    for (let i = 0; i < index; i++) pos += editor.state.doc.child(i).nodeSize;
+    const found = currentBlock();
+    if (!found) return;
+    const { pos, node } = found;
     if (["buttonLink", "bookmark", "fileBlock"].includes(node.type.name)) {
       document.dispatchEvent(
         new CustomEvent("feuillet-edit-resource", { detail: { pos } }),
@@ -856,37 +856,35 @@ export default function CourseEditor({
 
   const mutateBlock = (action: "up" | "down" | "duplicate" | "delete") => {
     if (!editor) return;
-    const { state } = editor;
-    const index = state.selection.$from.index(0);
-    let pos = 0;
-    for (let i = 0; i < index; i++) pos += state.doc.child(i).nodeSize;
-    const node = state.doc.child(index);
+    const found = currentBlock();
+    if (!found) return;
+    const { pos, node } = found;
+    const state = editor.state,
+      $pos = state.doc.resolve(pos),
+      parent = $pos.parent,
+      index = $pos.index();
     let tr = state.tr;
     if (action === "delete") {
-      tr = tr.delete(pos, pos + node.nodeSize);
-      if (!tr.doc.childCount)
-        tr.insert(0, state.schema.nodes.paragraph.create());
+      if (parent.canReplace(index, index + 1))
+        tr.delete(pos, pos + node.nodeSize);
+      else
+        tr.replaceWith(
+          pos,
+          pos + node.nodeSize,
+          state.schema.nodes.paragraph.create(),
+        );
     } else if (action === "duplicate") {
-      tr = tr.insert(pos + node.nodeSize, node.copy(node.content));
-    } else if (action === "up" && index > 0) {
-      const previous = state.doc.child(index - 1);
-      tr = tr
-        .delete(pos, pos + node.nodeSize)
-        .insert(pos - previous.nodeSize, node);
-      tr = tr.setSelection(
-        TextSelection.near(tr.doc.resolve(pos - previous.nodeSize + 1)),
-      );
-    } else if (action === "down" && index < state.doc.childCount - 1) {
-      const next = state.doc.child(index + 1);
-      tr = tr
-        .delete(pos, pos + node.nodeSize)
-        .insert(pos + next.nodeSize, node);
-      tr = tr.setSelection(
-        TextSelection.near(tr.doc.resolve(pos + next.nodeSize + 1)),
-      );
+      tr.insert(pos + node.nodeSize, node);
+    } else {
+      const to = blockSiblingDestination(state, pos, action);
+      if (to === null) return;
+      const moved = moveBlock(state, pos, to);
+      if (!moved) return;
+      tr = moved;
     }
     editor.view.dispatch(tr);
     editor.view.focus();
+    activeBlockRef.current = null;
     setBlockMenu(false);
   };
   function setLink() {
@@ -976,17 +974,23 @@ export default function CourseEditor({
   }
   function blockContextActions(): MenuAction[] {
     if (!editor) return [];
-    const index = Math.min(
-      editor.state.selection.$from.index(0),
-      editor.state.doc.childCount - 1,
-    );
-    const node = editor.state.doc.child(index);
+    const found = currentBlock();
+    if (!found) return [];
+    const { pos, node } = found;
+    const $pos = editor.state.doc.resolve(pos),
+      index = $pos.index(),
+      parent = $pos.parent;
     const text =
       node.isTextblock ||
       node.type.name.endsWith("List") ||
       node.type.name === "blockquote";
     const items: MenuAction[] = [];
     const formatSelection = (run: () => void) => {
+      if (editor.state.selection instanceof NodeSelection && node.isTextblock)
+        editor.commands.setTextSelection({
+          from: pos + 1,
+          to: pos + 1 + node.content.size,
+        });
       if (
         editor.state.selection.empty &&
         editor.state.selection.$from.parent.isTextblock
@@ -1102,17 +1106,7 @@ export default function CourseEditor({
         label: "Ajouter un bloc après",
         icon: <Plus />,
         run: () => {
-          let pos = 0;
-          for (let i = 0; i <= index; i++)
-            pos += editor.state.doc.child(i).nodeSize;
-          const tr = editor.state.tr.insert(
-            pos,
-            editor.schema.nodes.paragraph.create(),
-          );
-          tr.setSelection(TextSelection.create(tr.doc, pos + 1));
-          editor.view.dispatch(tr);
-          editor.view.focus();
-          openInsert();
+          insertAfter(pos);
         },
         group: "organize",
       },
@@ -1127,7 +1121,7 @@ export default function CourseEditor({
         label: "Descendre",
         icon: <ArrowDown />,
         run: () => mutateBlock("down"),
-        disabled: index === editor.state.doc.childCount - 1,
+        disabled: index === parent.childCount - 1,
         group: "organize",
       },
       {
@@ -1468,18 +1462,12 @@ export default function CourseEditor({
             )
           )
             return;
-          const top = Array.from(editor.view.dom.children).find((el) =>
-            el.contains(event.target as Node),
-          );
-          if (!top) return;
-          const index = Array.from(editor.view.dom.children).indexOf(top);
-          if (index >= editor.state.doc.childCount) return;
+          const found = blockAtElement(editor, event.target as Element);
+          if (!found) return;
           event.preventDefault();
           event.stopPropagation();
-          let pos = 0;
-          for (let i = 0; i < index; i++)
-            pos += editor.state.doc.child(i).nodeSize;
-          const node = editor.state.doc.child(index);
+          const { pos, node } = found;
+          activeBlockRef.current = pos;
           const hit = editor.view.posAtCoords({
             left: event.clientX,
             top: event.clientY,
@@ -1502,43 +1490,23 @@ export default function CourseEditor({
           setFormatMenu(null);
           setContext({ x: event.clientX, y: event.clientY });
         }}
-        onMouseMove={(event) => {
-          if (!admin || !editor || !contentRef.current) return;
-          const top = Array.from(editor.view.dom.children).find((el) =>
-            el.contains(event.target as HTMLElement),
-          );
-          if (!top) return;
-          const index = Array.from(editor.view.dom.children).indexOf(top);
-          if (index >= editor.state.doc.childCount) return;
-          setHoverBlock({
-            index,
-            top:
-              top.getBoundingClientRect().top -
-              contentRef.current.getBoundingClientRect().top,
-          });
-        }}
       >
-        {admin && hoverBlock && (
-          <div className="block-hover-rail" style={{ top: hoverBlock.top }}>
-            <button
-              title="Ajouter un bloc ici"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={addAfterHovered}
-            >
-              <Plus size={15} />
-            </button>
-            <button
-              title="Déplacer, dupliquer ou supprimer ce bloc"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={(e) => {
-                focusHovered();
-                setBlockAnchor(e.currentTarget);
-                setBlockMenu(!blockMenu);
-              }}
-            >
-              <GripVertical size={15} />
-            </button>
-          </div>
+        {admin && editor && (
+          <BlockMover
+            editor={editor}
+            wrap={contentRef}
+            onInsert={insertAfter}
+            onMenu={(pos, anchor) => {
+              activeBlockRef.current = pos;
+              editor.commands.setNodeSelection(pos);
+              setBlockAnchor(anchor);
+              setBlockMenu(true);
+            }}
+            onMoved={() => {
+              activeBlockRef.current = null;
+              app.notify("Bloc déplacé.");
+            }}
+          />
         )}
         {blockMenu && (
           <ContextMenu
@@ -1574,6 +1542,7 @@ export default function CourseEditor({
               if (!admin || event.shiftKey) return;
               event.preventDefault();
               event.stopPropagation();
+              activeBlockRef.current = null;
               setContext({ x: event.clientX, y: event.clientY });
               setFormatMenu(null);
             }}

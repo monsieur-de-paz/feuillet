@@ -1,5 +1,15 @@
 # Historique des versions
 
+## 0.7.0 — 2026-10-14
+
+- Poignée de déplacement fonctionnelle pour les blocs, repères de dépôt et entrée/sortie des sections dépliables.
+- Contenu, médias et attributs conservés ; déplacement annulable et compatible avec la sauvegarde automatique.
+- Accueil admin : pages récentes, activité de création/modification, reprise de rédaction.
+- Logo/nom ouvrent cet accueil ; bouton de navigation déplacé près du titre.
+- Import TXT, Markdown et RTF depuis le menu de page, l’accueil et les réglages.
+- Bloc de lieu avec intégration publique Google Maps sans clé API ; URLs contrôlées.
+- Nouveau logo vectoriel montagne/lac, PNG transparent et favicon.
+
 ## 0.6.1 — 2026-10-14
 
 - Entrée depuis le titre mène directement au contenu, comme Tab, sans insérer un saut de ligne.

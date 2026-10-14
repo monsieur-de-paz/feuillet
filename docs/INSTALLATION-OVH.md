@@ -109,3 +109,9 @@ Dans **Réglages & sauvegardes → Mon carnet**, personnaliser le raccourci de n
 ## Distribution 0.5.0
 
 L’interface est précompilée dans la distribution. Transférer également `public/interface.css` ; l’installation mutualisée ne nécessite ni package de skills, ni dépendance Node, ni abonnement. Pour une mise à jour, suivre [MAINTENANCE.md](MAINTENANCE.md), conserver configuration et stockage, puis recharger les pages. [Guide des contrôles 0.5](NOUVEAUTES-0.5.md).
+
+## Après installation de Feuillet 0.7
+
+Connecté, cliquer le logo/nom pour ouvrir l’accueil admin. Le menu ⋯ d’une page permet l’import TXT, Markdown ou RTF (2 Mo maximum) ; l’import crée une racine privée du carnet actif. Les cartes Google utilisent une intégration publique depuis le navigateur, sans clé API ni compte de facturation à configurer. Le serveur ne contacte pas Google pour cette fonction.
+
+Pour mettre à jour, conserver `config.php` et `storage/`, remplacer le code et les assets ensemble, puis recharger les onglets. Aucune nouvelle table SQL ni extension PHP supplémentaire. Ne pas revenir à une version antérieure à 0.7 après création de blocs de carte sans conversion des blocs ou restauration d’une sauvegarde. [Nouveautés et usages](NOUVEAUTES-0.7.md).

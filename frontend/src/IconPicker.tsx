@@ -6,6 +6,7 @@ import {
   type CSSProperties,
 } from "react";
 import manifest from "../../public/icons.json";
+import { FeuilletLogo } from "./FeuilletLogo";
 import { fileUrl } from "./types";
 import type { EmojiEntry } from "./emoji-data";
 import "./IconPicker.css";
@@ -86,8 +87,8 @@ export function FeuilletIcon({
         >
           <use href={`${spriteUrl}#${parsed.slug}`} />
         </svg>
-      ) : stored === "f." ? (
-        <span className="brand-symbol">f.</span>
+      ) : stored === "f." || stored === "feuillet" ? (
+        <FeuilletLogo size={size} />
       ) : (
         <span className="feuillet-icon-emoji">
           {stored.startsWith("lucide:") ? "📄" : stored || "📄"}
