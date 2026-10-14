@@ -165,3 +165,9 @@ Remplacer les fichiers compilés et public/interface.css, garder config.php et s
 ## Mise à jour 0.5.4
 
 Transférer le code et les assets comme pour 0.5.3, conserver configuration et stockage privés. Recharger les onglets pour voir le nouveau soulignement et la poignée de largeur. Double-clic sur la poignée ou Entrée rétablit la largeur responsive par défaut. La préférence de largeur est locale au navigateur ; elle n’est pas dans les exports de cours et peut être différente sur un autre appareil. Aucun changement de schéma SQL.
+
+## Mise à jour 0.6
+
+Sauvegarder la base et les médias, remplacer le code et les bundles 0.6 ensemble, conserver `config.php` et `storage/`, puis recharger les éditeurs. Aucune migration SQL ou nouvelle dépendance. Le nouveau bloc `toggleHeading` exige une version 0.6 ou ultérieure ; un retour au code 0.5 après création de ces blocs nécessite d’abord leur conversion en titres ordinaires, ou la restauration de la sauvegarde antérieure. Les préférences de publication restent inchangées.
+
+Contrôler le parcours nouvelle page → titre → Tab → contenu, la sélection/désélection de texte, les trois niveaux de titres dépliables et leurs exports. `tests/editor.py` vérifie les blocs sur une copie jetable ; `node tests/frontend.mjs` teste les transactions réelles Tiptap. Rejouer la suite HTTP SQLite et MySQL après évolution de la normalisation ou du rendu.

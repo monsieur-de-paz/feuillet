@@ -366,6 +366,9 @@ export async function exportPdf(
         line(n.type === "callout" ? "À retenir" : "Citation", 9, true, indent);
         for (const item of c) await node(item, indent + 5);
         break;
+      case "toggleHeading":
+        for (const item of c) await node(item, indent);
+        break;
       case "details":
         if (a.summary || a.title) line(a.summary || a.title, 11, true, indent);
         for (const item of c) await node(item, indent);

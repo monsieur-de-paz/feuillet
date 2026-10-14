@@ -2455,6 +2455,16 @@ export default function App() {
                       e.target.style.height = e.target.scrollHeight + "px";
                       updateDraft({ title: e.target.value });
                     }}
+                    onKeyDown={(event) => {
+                      if (
+                        event.key === "Tab" &&
+                        !event.shiftKey &&
+                        editorRef.current
+                      ) {
+                        event.preventDefault();
+                        editorRef.current.commands.focus("start");
+                      }
+                    }}
                     onBlur={() => {
                       if (!draftRef.current?.title)
                         updateDraft({ title: "Sans titre" });

@@ -3,7 +3,12 @@ declare(strict_types=1);
 require_once __DIR__.'/database-views.php';
 function h(mixed $s): string { return htmlspecialchars(is_scalar($s)?(string)$s:'',ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8'); }
 function render_document(array $node,string $pageId='',bool $public=true): string {
-    $t=$node['type']??'';$a=$node['attrs']??[];$children='';foreach($node['content']??[] as $child)$children.=render_document($child,$pageId,$public);
+    $t=$node['type']??'';$a=$node['attrs']??[];$children='';
+    if($t==='toggleHeading'){
+        $parts=$node['content']??[];$title=array_shift($parts);
+        return '<details class="toggle-heading"><summary>'.render_document($title??['type'=>'heading','attrs'=>['level'=>2]],$pageId,$public).'</summary><div class="toggle-heading-body">'.implode('',array_map(fn($n)=>render_document($n,$pageId,$public),$parts)).'</div></details>';
+    }
+    foreach($node['content']??[] as $child)$children.=render_document($child,$pageId,$public);
     if($t==='text'){
         $v=h($node['text']??'');foreach($node['marks']??[] as $m){$v=match($m['type']??''){'bold'=>'<strong>'.$v.'</strong>','italic'=>'<em>'.$v.'</em>','underline'=>'<u>'.$v.'</u>','strike'=>'<s>'.$v.'</s>','code'=>'<code>'.$v.'</code>','highlight'=>'<mark'.(css_color($m['attrs']['color']??'')?' style="background-color:'.h(css_color($m['attrs']['color'])).'"':'').'>'.$v.'</mark>','textStyle'=>strtolower($m['attrs']['color']??'')!=='#37352f'&&css_color($m['attrs']['color']??'')?'<span style="color:'.h(css_color($m['attrs']['color'])).'">'.$v.'</span>':$v,'subscript'=>'<sub>'.$v.'</sub>','superscript'=>'<sup>'.$v.'</sup>','link'=>safe_url($m['attrs']['href']??'')?'<a href="'.h(safe_url($m['attrs']['href'])).'" target="_blank" rel="noopener noreferrer">'.$v.'</a>':$v,default=>$v};}return $v;
     }

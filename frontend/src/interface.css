@@ -1351,3 +1351,191 @@ button.feuillet-select-trigger {
   padding-bottom: 7px;
   margin-bottom: -7px;
 }
+
+/* Contextual writing tools: the document keeps its space. */
+.editor-history {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin: 0 0 12px;
+}
+.editor-history button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-control);
+  color: var(--muted);
+}
+.editor-history button:hover:not(:disabled) {
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+.editor-history button:disabled {
+  opacity: 0.35;
+}
+.floating-insert {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: 0 4px 18px rgb(0 0 0 / 0.12);
+  transition:
+    transform 120ms var(--ease-interface),
+    background 120ms;
+}
+.floating-insert:hover {
+  background: var(--accent-soft);
+  transform: translateY(-2px);
+}
+.selection-toolbar-v2 {
+  animation: writing-tools-in 120ms var(--ease-interface);
+}
+.selection-toolbar-v2 > button {
+  height: 36px;
+  min-width: 32px;
+}
+@keyframes writing-tools-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Same typography and unfolding affordance in the editor and PHP reader. */
+.toggle-heading-editor,
+.toggle-heading {
+  position: relative;
+  margin: 20px 0;
+}
+.toggle-heading-editor {
+  padding-left: 28px;
+}
+.toggle-heading-content > [data-node-view-content-react] > :first-child {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+.toggle-heading-content > [data-node-view-content-react] > :not(:first-child) {
+  margin-left: 0;
+}
+.toggle-heading-editor:not(.is-open)
+  .toggle-heading-content
+  > [data-node-view-content-react]
+  > :not(:first-child) {
+  display: none;
+}
+.toggle-heading-arrow {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 24px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  border-radius: 5px;
+}
+.toggle-heading-arrow:hover {
+  background: var(--surface-muted);
+  color: var(--accent);
+}
+.toggle-heading-arrow svg {
+  transform: rotate(-90deg);
+  transition: transform 150ms var(--ease-interface);
+}
+.toggle-heading-editor.is-open .toggle-heading-arrow svg {
+  transform: rotate(0);
+}
+.toggle-heading {
+  border: 0;
+  padding: 0;
+}
+.toggle-heading > summary {
+  position: relative;
+  cursor: pointer;
+  list-style: none;
+  padding: 0 0 0 28px;
+}
+.toggle-heading > summary::-webkit-details-marker {
+  display: none;
+}
+.toggle-heading > summary::before {
+  content: "›";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  color: var(--muted);
+  font-size: 24px;
+  line-height: 28px;
+  transition: transform 150ms;
+}
+.toggle-heading[open] > summary::before {
+  transform: rotate(90deg);
+}
+.toggle-heading > summary > :is(h1, h2, h3) {
+  margin: 0 0 10px;
+}
+.toggle-heading-body {
+  padding-left: 28px;
+}
+@media (max-width: 600px) {
+  .floating-insert {
+    right: 16px;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    padding: 0;
+    width: 48px;
+    height: 48px;
+    justify-content: center;
+  }
+  .floating-insert span {
+    display: none;
+  }
+  .selection-toolbar-v2 > button {
+    height: 32px;
+    min-width: 27px;
+  }
+  .editor-history button {
+    width: 44px;
+    height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .selection-toolbar-v2 {
+    animation: none;
+  }
+  .floating-insert,
+  .toggle-heading-arrow svg,
+  .toggle-heading > summary::before {
+    transition: none;
+  }
+}
+@media print {
+  .editor-history,
+  .floating-insert,
+  .selection-toolbar {
+    display: none !important;
+  }
+  .toggle-heading-editor
+    .toggle-heading-content
+    > [data-node-view-content-react]
+    > :not(:first-child) {
+    display: block !important;
+  }
+  .toggle-heading > .toggle-heading-body {
+    display: block !important;
+  }
+}

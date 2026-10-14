@@ -4,20 +4,20 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.5.4-2563eb" alt="Version 0.5.4">
+  <img src="https://img.shields.io/badge/version-0.6.0-2563eb" alt="Version 0.6.0">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour rédiger, organiser et partager ses ressources.** Inspiré de l’édition par blocs, il permet de préparer des cours, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
 
 Il fonctionne sur un hébergement **PHP + MySQL/MariaDB**, y compris un mutualisé compatible. Un seul compte rédige ; les lecteurs consultent les pages et répondent aux formulaires depuis leur navigateur, sur ordinateur ou mobile. Aucun VPS ni abonnement n’est nécessaire. Node.js sert uniquement à développer l’interface ; les fichiers compilés sont fournis.
 
-<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.5.4.md">Nouveautés</a></p>
+<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.6.md">Nouveautés</a></p>
 
 ## Ce que vous pouvez faire
 
 | Écrire | Organiser | Transmettre |
 |---|---|---|
-| Éditeur par blocs, commandes `/`, titres, listes, tableaux, colonnes et encadrés | Carnets, catégories personnalisées, pages et sous-pages, fil d’Ariane | Publication d’une page et de ses sous-pages |
+| Éditeur par blocs, commandes `/`, titres dépliables, listes, tableaux, colonnes et encadrés | Carnets, catégories personnalisées, pages et sous-pages, fil d’Ariane | Publication d’une page et de ses sous-pages |
 | Couleur du texte et du fond, liens, boutons modifiables | Galeries de pages et bases avec champs typés | PDF, audio, vidéo et fichiers à télécharger |
 | Couvertures repositionnables, icônes importées, images redimensionnables et agrandissables dans l’éditeur | Relations entre bases, formules et agrégations | Exercices avec correction immédiate |
 | Thèmes blanc, sombre et OLED ; polices Quicksand et Fraunces | Notes privées, recherche et historique | Formulaires : texte, e-mail, téléphone, URL, fichiers… |
@@ -55,7 +55,7 @@ SQLite est aussi disponible avec `pdo_sqlite` pour une installation locale ou un
 
 ### 2. Télécharger et transférer le logiciel
 
-Télécharger **`Feuillet-0.5.4.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
+Télécharger **`Feuillet-0.6.0.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
 
 Le ZIP de GitHub, accessible par **Code → Download ZIP**, convient également : renommer le dossier extrait `feuillet` si nécessaire. Il contient lui aussi l’interface compilée.
 
@@ -201,3 +201,5 @@ Les références de conception et le relevé réalisé avec [REA](https://github
 Les repères du carnet et de la catégorie actifs, la palette générale et le choix d’émoji du carnet ont été précisés en [0.5.2](docs/NOUVEAUTES-0.5.2.md).
 
 La largeur de la navigation se règle en glissant son bord droit, avec mémorisation dans le navigateur. Le carnet et la catégorie actifs utilisent le même soulignement d’accent. [Guide 0.5.4](docs/NOUVEAUTES-0.5.4.md).
+
+La rédaction 0.6 remplace le bandeau permanent par un ajout flottant et des outils visibles pendant la sélection de texte. Tab mène du titre au contenu ; les titres 1, 2 et 3 peuvent se déplier. [Guide 0.6](docs/NOUVEAUTES-0.6.md).

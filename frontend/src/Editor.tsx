@@ -4,6 +4,11 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
+import {
+  ToggleHeading,
+  setToggleHeading,
+  unwrapToggleHeading,
+} from "./ToggleHeading";
 import { Mark, mergeAttributes } from "@tiptap/core";
 import Placeholder from "@tiptap/extension-placeholder";
 import TaskList from "@tiptap/extension-task-list";
@@ -220,6 +225,7 @@ export default function CourseEditor({
       Columns,
       Column,
       Details,
+      ToggleHeading,
       PageLink,
       ButtonLink,
       Bookmark,
@@ -287,27 +293,6 @@ export default function CourseEditor({
     onSelectionUpdate: ({ editor: ed }) => {
       checkSlash(ed);
       setSelection((n) => n + 1);
-      if (
-        admin &&
-        !ed.state.selection.empty &&
-        !(ed.state.selection instanceof NodeSelection)
-      ) {
-        const rect = window
-          .getSelection()
-          ?.getRangeAt(0)
-          .getBoundingClientRect();
-        if (rect)
-          setBubble({
-            left: Math.max(
-              8,
-              Math.min(innerWidth - 300, rect.left + rect.width / 2 - 130),
-            ),
-            top: Math.max(8, rect.top - 49),
-          });
-      } else {
-        setBubble(null);
-        setFormatMenu(null);
-      }
     },
   });
   function checkSlash(ed: Editor) {
@@ -354,30 +339,40 @@ export default function CourseEditor({
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         const sel = editor.state.selection;
-        if (sel.empty || sel instanceof NodeSelection) {
+        const focused = document.activeElement;
+        if (
+          sel.empty ||
+          sel instanceof NodeSelection ||
+          !sel.$from.parent.isTextblock ||
+          (!editor.view.dom.contains(focused) &&
+            !(
+              focused instanceof Element &&
+              focused.closest(".selection-toolbar")
+            ))
+        ) {
+          setBubble(null);
+          setFormatMenu(null);
+          return;
+        }
+        const start = editor.view.coordsAtPos(sel.from);
+        const dom = editor.view.domAtPos(sel.from).node;
+        const block = (
+          dom instanceof Element ? dom : dom.parentElement
+        )?.closest("p,h1,h2,h3,pre,li");
+        const rect = block?.getBoundingClientRect();
+        const top = rect?.top ?? start.top;
+        // Stay above the active paragraph; hide when it scrolls out of view.
+        if (top < 64 || top > innerHeight) {
           setBubble(null);
           return;
         }
-        const start = editor.view.coordsAtPos(sel.from),
-          end = editor.view.coordsAtPos(sel.to);
-        const top = Math.min(start.top, end.top),
-          bottom = Math.max(start.bottom, end.bottom);
-        const toolbar = contentRef.current?.parentElement
-          ?.querySelector(".editor-toolbar")
-          ?.getBoundingClientRect();
-        const floor = Math.max(8, (toolbar?.bottom || 0) + 8);
-        const y =
-          top - 49 >= floor
-            ? top - 49
-            : bottom + 8 + 44 <= innerHeight
-              ? bottom + 8
-              : Math.min(innerHeight - 50, floor);
+        const y = Math.max(8, top - 54);
         setBubble({
           left: Math.max(
             8,
             Math.min(
-              innerWidth - Math.min(370, innerWidth - 16) - 8,
-              start.left,
+              innerWidth - Math.min(480, innerWidth - 16) - 8,
+              rect?.left ?? start.left,
             ),
           ),
           top: Math.max(8, y),
@@ -385,11 +380,19 @@ export default function CourseEditor({
       });
     };
     editor.on("selectionUpdate", update);
+    editor.on("transaction", update);
+    editor.on("focus", update);
+    editor.on("blur", update);
+    document.addEventListener("focusin", update);
     document.addEventListener("scroll", update, true);
     window.addEventListener("resize", update);
     return () => {
       cancelAnimationFrame(frame);
       editor.off("selectionUpdate", update);
+      editor.off("transaction", update);
+      editor.off("focus", update);
+      editor.off("blur", update);
+      document.removeEventListener("focusin", update);
       document.removeEventListener("scroll", update, true);
       window.removeEventListener("resize", update);
     };
@@ -407,7 +410,8 @@ export default function CourseEditor({
       description: "Un paragraphe simple",
       keywords: "paragraphe texte",
       icon: <FileText />,
-      run: (ed) => ed.chain().focus().setParagraph().run(),
+      run: (ed) =>
+        ed.chain().focus().command(unwrapToggleHeading).setParagraph().run(),
     },
     ...[1, 2, 3].map((level) => ({
       id: `h${level}`,
@@ -425,8 +429,17 @@ export default function CourseEditor({
         ed
           .chain()
           .focus()
+          .command(unwrapToggleHeading)
           .setHeading({ level: level as 1 | 2 | 3 })
           .run(),
+    })),
+    ...[1, 2, 3].map((level) => ({
+      id: `toggle-h${level}`,
+      label: `Titre ${level} dépliable`,
+      description: "Un titre et son contenu à ouvrir ou refermer",
+      keywords: "titre depliable repliable toggle section",
+      icon: <ChevronDown />,
+      run: (ed: Editor) => setToggleHeading(ed, level as 1 | 2 | 3),
     })),
     {
       id: "bullet",
@@ -735,6 +748,26 @@ export default function CourseEditor({
     setActive(0);
     command.run(editor);
   }
+  function addBlock() {
+    if (!editor) return;
+    const selection = editor.state.selection;
+    if (
+      !selection.$from.parent.isTextblock ||
+      selection.$from.parent.content.size > 0
+    ) {
+      const pos =
+        selection instanceof NodeSelection || selection.$from.depth === 0
+          ? selection.to
+          : selection.$from.after();
+      const tr = editor.state.tr.insert(
+        pos,
+        editor.schema.nodes.paragraph.create(),
+      );
+      tr.setSelection(TextSelection.near(tr.doc.resolve(pos + 1)));
+      editor.view.dispatch(tr);
+    }
+    openInsert();
+  }
   function openInsert() {
     if (!editor) return;
     const coords = editor.view.coordsAtPos(editor.state.selection.from);
@@ -908,7 +941,12 @@ export default function CourseEditor({
                 : "Texte";
   function transform(type: string) {
     if (!editor) return;
-    const chain = editor.chain().focus();
+    if (type.startsWith("toggle-h")) {
+      setToggleHeading(editor, Number(type.slice(-1)) as 1 | 2 | 3);
+      setFormatMenu(null);
+      return;
+    }
+    const chain = editor.chain().focus().command(unwrapToggleHeading);
     const lists = ["bulletList", "orderedList", "taskList"];
     if (
       (lists.includes(type) && editor.isActive(type)) ||
@@ -1190,6 +1228,11 @@ export default function CourseEditor({
             { type: "h1", label: "Titre 1", icon: <Heading1 size={16} /> },
             { type: "h2", label: "Titre 2", icon: <Heading2 size={16} /> },
             { type: "h3", label: "Titre 3", icon: <Heading3 size={16} /> },
+            ...[1, 2, 3].map((level) => ({
+              type: `toggle-h${level}`,
+              label: `Titre ${level} dépliable`,
+              icon: <ChevronDown size={16} />,
+            })),
             {
               type: "bulletList",
               label: "Liste à puces",
@@ -1343,67 +1386,49 @@ export default function CourseEditor({
     >
       {admin && (
         <div
-          className="editor-toolbar"
+          className="editor-history"
           role="toolbar"
-          aria-label="Outils de rédaction"
+          aria-label="Historique de rédaction"
         >
           <button
-            className="insert-button"
-            aria-label="Ajouter un bloc"
-            onClick={openInsert}
-          >
-            <Plus size={17} />
-            <span>Ajouter</span>
-          </button>
-          <div className="toolbar-divider" />
-          {formattingControls}
-          {toolbar}
-          {!bubble && formatPopover}
-          <div className="toolbar-divider" />
-          <button
             title="Annuler"
+            aria-label="Annuler"
             disabled={!editor?.can().undo()}
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => editor?.chain().focus().undo().run()}
           >
             <Undo2 size={17} />
           </button>
           <button
             title="Rétablir"
+            aria-label="Rétablir"
             disabled={!editor?.can().redo()}
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => editor?.chain().focus().redo().run()}
           >
             <Redo2 size={17} />
           </button>
-          <div className="block-control">
-            <button
-              title="Actions sur le bloc courant"
-              aria-expanded={blockMenu}
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={(e) => {
-                setBlockAnchor(e.currentTarget);
-                setBlockMenu(!blockMenu);
-              }}
-            >
-              <GripVertical size={17} />
-            </button>
-            {blockMenu && (
-              <ContextMenu
-                anchor={blockAnchor}
-                title="Bloc sélectionné"
-                actions={blockContextActions()}
-                onClose={() => setBlockMenu(false)}
-                onRestoreFocus={() => editor?.view.focus()}
-              />
-            )}
-          </div>
           <button
             className="editor-help"
             aria-label="Aide à la rédaction"
+            aria-expanded={help}
             onClick={() => setHelp(!help)}
           >
             ?
           </button>
         </div>
+      )}
+      {admin && (
+        <button
+          className="insert-button floating-insert"
+          aria-label="Ajouter un bloc"
+          aria-expanded={!!menu}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={addBlock}
+        >
+          <Plus size={20} />
+          <span>Ajouter un bloc</span>
+        </button>
       )}
       {help && (
         <div className="editor-tips">
@@ -1515,6 +1540,15 @@ export default function CourseEditor({
             </button>
           </div>
         )}
+        {blockMenu && (
+          <ContextMenu
+            anchor={blockAnchor}
+            title="Bloc sélectionné"
+            actions={blockContextActions()}
+            onClose={() => setBlockMenu(false)}
+            onRestoreFocus={() => editor?.view.focus()}
+          />
+        )}
         {context && (
           <ContextMenu
             point={context}
@@ -1530,6 +1564,7 @@ export default function CourseEditor({
       </div>
       {admin &&
         bubble &&
+        !menu &&
         !context &&
         !blockMenu &&
         createPortal(
@@ -1548,7 +1583,7 @@ export default function CourseEditor({
               left: Math.max(
                 8,
                 Math.min(
-                  innerWidth - Math.min(370, innerWidth - 16) - 8,
+                  innerWidth - Math.min(480, innerWidth - 16) - 8,
                   bubble.left,
                 ),
               ),
@@ -1581,7 +1616,10 @@ export default function CourseEditor({
                   setActive(0);
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === "Escape") setMenu(null);
+                  if (e.key === "Escape") {
+                    setMenu(null);
+                    editor?.commands.focus();
+                  }
                   if (e.key === "ArrowDown") {
                     e.preventDefault();
                     setActive((active + 1) % Math.max(filtered.length, 1));

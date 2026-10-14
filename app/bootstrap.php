@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.5.4';
+const FEUILLET_VERSION = '0.6.0';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -111,7 +111,7 @@ function normalize_doc(mixed $doc): array {
     if (!is_array($doc) || ($doc['type']??'') !== 'doc') fail('Document invalide.');
     $count=0; $walk=function($node,$depth) use (&$walk,&$count): array {
         if (!is_array($node) || ++$count>12000 || $depth>32) fail('Document trop complexe.');
-        $types=['doc','paragraph','text','heading','bulletList','orderedList','listItem','taskList','taskItem','blockquote','horizontalRule','hardBreak','codeBlock','table','tableRow','tableCell','tableHeader','callout','columns','column','details','pageLink','buttonLink','bookmark','fileBlock','image','gallery','quiz','databaseView','formView'];
+        $types=['doc','paragraph','text','heading','bulletList','orderedList','listItem','taskList','taskItem','blockquote','horizontalRule','hardBreak','codeBlock','table','tableRow','tableCell','tableHeader','callout','columns','column','details','toggleHeading','pageLink','buttonLink','bookmark','fileBlock','image','gallery','quiz','databaseView','formView'];
         if(!in_array($node['type']??'', $types, true)) fail('Type de bloc inconnu : '.str_limit($node['type']??'',40));
         $out=['type'=>$node['type']];
         if($node['type']==='text'){if(!is_string($node['text']??null))fail('Texte de bloc invalide.');$out['text']=$node['text'];}
@@ -145,6 +145,12 @@ function normalize_doc(mixed $doc): array {
         if(isset($node['content'])) {
             if(!is_array($node['content'])) fail('Contenu de bloc invalide.');
             $out['content']=array_values(array_filter(array_map(fn($n)=>$walk($n,$depth+1),$node['content']),fn($n)=>$n['type']!=='text'||$n['text']!==''));
+        }
+        if($out['type']==='toggleHeading') {
+            $parts=$out['content']??[];
+            if(count($parts)<2||($parts[0]['type']??'')!=='heading'||!in_array($parts[0]['attrs']['level']??null,[1,2,3],true))fail('Titre dépliable invalide.');
+            foreach(array_slice($parts,1) as $part)if(in_array($part['type'],['text','hardBreak','doc'],true))fail('Contenu du titre dépliable invalide.');
+            unset($out['attrs']);
         }
         return $out;
     };

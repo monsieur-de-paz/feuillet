@@ -89,3 +89,9 @@ Le carnet actif utilise le même soulignement et la même couleur d’accent que
 ## Navigation réglable — 0.5.4
 
 Le repère de sélection repose sur un soulignement de 2 px et le poids 600, en couleur d’accent. Le nom tronqué conserve une réserve verticale pour ne pas couper son trait. La poignée de largeur apparaît sur le bord commun navigation/contenu ; le curseur change en col-resize, la ligne d’accent indique survol/focus/glissement. Le mouvement suit directement le pointeur, sans animation de largeur ni déplacement du contenu par transform. Le clavier offre une alternative.
+
+## Rédaction — 0.6
+
+Les commandes permanentes se limitent à l’ajout flottant et à l’historique. La mise en forme apparaît uniquement lorsqu’un texte est sélectionné : la présence du curseur ne suffit pas. Le bandeau s’ancre au-dessus du paragraphe ; sa légère apparition dure 120 ms et disparaît en réduction des mouvements. Le bouton d’ajout devient rond sur mobile. Les thèmes existants fournissent surface, texte et accent ; aucune couleur fixe de menu n’est introduite.
+
+Les titres dépliables gardent la typographie du niveau 1/2/3 et une flèche neutre. Leur contenu est indenté de 28 px, sans cadre de carte. L’ouverture est signalée par la rotation de la flèche et `aria-expanded`. La lecture publique utilise la même hiérarchie typographique.

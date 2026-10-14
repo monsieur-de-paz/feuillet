@@ -1,5 +1,14 @@
 # Historique des versions
 
+## 0.6.0 — 2026-10-14
+
+- Tab du titre vers la rédaction ; retrait du bandeau permanent.
+- Ajout de blocs par bouton flottant, commandes annuler/rétablir au-dessus du document.
+- Mise en forme flottante uniquement pendant une sélection de texte.
+- Titres dépliables 1/2/3 avec titre riche, contenu imbriqué et rendu public.
+- Normalisation serveur du nouveau bloc ; Markdown, PDF et historique compatibles.
+- Règles de publication existantes conservées.
+
 ## 0.5.4 — 2026-10-14
 
 - Carnet actif souligné et coloré comme la catégorie ; coche, repère latéral et fond retirés.

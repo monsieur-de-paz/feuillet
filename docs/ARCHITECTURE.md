@@ -147,3 +147,11 @@ Le choix du carnet et les filtres restent pilotés par activeSpace/kind ; leurs 
 `SidebarResizer.tsx` est un composant isolé, monté uniquement dans la navigation d’administration visible sur ordinateur. Il ajuste la variable CSS `--sidebar` de `.app-shell` : barre et marge de la zone principale se recalculent ensemble. Le composant possède son état de glissement pour ne pas faire rerendre App/Tiptap à chaque mouvement. Pointer capture, annulation, perte de capture, blur et démontage nettoient les classes temporaires. Le démontage enlève la variable propre au desktop pour conserver la largeur mobile.
 
 `sidebar-width.ts` borne la largeur et valide le stockage ; `feuillet.sidebar-width` dans localStorage conserve la préférence. L’événement storage synchronise les onglets. Aucun endpoint ou champ SQL. Un ResizeObserver de la zone principale recalcule la hauteur du titre uniquement si sa largeur a changé, via requestAnimationFrame, et est nettoyé au changement de page.
+
+## Rédaction contextuelle — 0.6
+
+`Editor.tsx` remplace la barre permanente par l’historique et un bouton d’insertion. Un portail positionne les contrôles au-dessus du bloc sélectionné ; une sélection vide, un nœud média ou un champ extérieur les masque. Focus, transactions, défilement et redimensionnement recalculent l’ancrage par animation frame. `App.tsx` route Tab du textarea de titre vers `editor.commands.focus("start")`.
+
+`ToggleHeading.tsx` définit `toggleHeading`, de contenu `heading block+`. Une NodeView React fournit la flèche et un seul domaine éditable ; le wrapper interne Tiptap est explicitement pris en compte par les styles de repli. La première heading garde ses marques et son niveau ; une transformation en titre ordinaire retire le conteneur sans supprimer les blocs suivants. L’état ouvert est local à la NodeView. Tab/Entrée en fin de titre passent au premier contenu.
+
+`normalize_doc()` vérifie le premier titre, son niveau 1/2/3 et la présence d’un contenu bloc. `render_document()` produit un `<details>` avec le vrai titre dans `<summary>`. Le lecteur reste en PHP, sans React ni API externe. `pdf-export.ts` parcourt tous les enfants. Le Markdown lisible déplie le contenu ; les métadonnées d’export existantes assurent le retour exact du document. Les styles partagés sont copiés à la compilation. Aucun changement SQL.
