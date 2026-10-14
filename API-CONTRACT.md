@@ -124,3 +124,20 @@ Pour un lecteur anonyme, `pages`, `spaces`, `categories` et `search` utilisent `
 `reader-state.php?page=…&root=…&token=…` et l’index en lecture forcent la visibilité publique même avec une session admin. Les liens de sous-pages et galeries ajoutent la racine aux URLs. Les références `/page` et galeries manuelles sont nettoyées de leurs IDs hors branche dans le JSON public. Le fil d’Ariane commence sur la racine, sans lien vers un accueil ni parent extérieur. Un lien public direct vers une autre page peut toutefois établir une autre racine : ce paramètre n’est pas une autorisation secrète ou un accès par groupe. Les bases explicitement publiques et les médias continuent à suivre leur propre politique de visibilité.
 
 La table `spaces` et `space_id` conservent leur nom pour la compatibilité, l’interface affiche Carnets. La migration `notebooks_migrated` conserve les pages, catégories et versions en remplaçant les scopes NULL par un carnet réel. Les exports ne contiennent plus `settings.homepage_id` ; le champ d’une ancienne sauvegarde est ignoré et ses pages sont importées comme pages ordinaires privées.
+
+## Installation et mises à jour — 0.8
+
+`setup.php` accepte un formulaire POST classique ou JSON, avec `csrf`, `installation_key`, `name`, `password`, `password_confirm`, `driver`, puis les identifiants MySQL si nécessaire. Le succès JSON retourne `{ok,authenticated,csrf}`. Une configuration existante ferme le setup. Les erreurs de clé et de CSRF précèdent toute création SQL ; une base déjà utilisée par Feuillet est refusée, hors reprise privée de la même tentative.
+
+Tous les endpoints `update_*` exigent l’admin. Les mutations exigent POST et CSRF ; les secrets GitHub ne sont jamais inclus dans les réponses.
+
+- `GET update_status` : version installée, release mise en cache, disponibilité, notification, vérifications du serveur, dernier résultat et `check_error` pour une vérification indisponible (sans transformer la réponse en erreur d’API) ; pas de requête GitHub.
+- `POST update_check {force?}` : dernière release stable du dépôt de référence, contrôle quotidien automatique ou manuel avec délai minimal de 60 secondes.
+- `POST update_preferences {choice}` : `later` (7 jours), `next` (attendre plus récent), `ignore` (numéro actuel), `mute`, `enable` (réinitialise les exclusions). `{token:string}` configure ou supprime (`""`) le jeton privé.
+- `POST update_start {version}` : vérifie à nouveau la release attendue, prépare un identifiant privé et un job en phase `download`.
+- `POST update_step {id}` : une étape bornée, `download` → `extract` → `apply` → `validating`, avec `{job:{id,version,phase,message}}`. Une opération simultanée reçoit 409 `update_busy` ; l’interface réessaie brièvement.
+- `POST update-health.php {id}` : session admin et en-tête CSRF ; charge le nouveau bootstrap dans une nouvelle requête, migre/vérifie SQL et active la version. Un échec restaure et retourne 503 avec `restored:true` si la restauration est achevée.
+- `POST recover.php {id}` : session admin et en-tête CSRF ; point d’entrée autonome pour restauration/annulation de préparation. Aucun code applicatif nouveau n’est nécessaire pour restaurer une activation interrompue.
+- `GET update_backup&id=...` : archive privée du code, de la configuration et de la base avant une opération terminée. Les médias restent dans le stockage d’origine.
+
+Le protocole de distribution 1 est décrit dans [MISES-A-JOUR.md](docs/MISES-A-JOUR.md). Les requêtes ordinaires sous maintenance reçoivent HTTP 503 et Retry-After, sans contenu privé. Une interruption déclenche une reprise de restauration au prochain accès ; aucune tâche serveur permanente n’est nécessaire.

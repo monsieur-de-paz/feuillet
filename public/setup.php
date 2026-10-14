@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/update-guard.php';
 require_once __DIR__.'/../app/bootstrap.php';
 headers_secure();
 if(installed()){header('Location: index.php');exit;}
@@ -17,7 +18,7 @@ try{
     }finally{flock($keyLock,LOCK_UN);fclose($keyLock);}
 }catch(AppError $e){http_response_code($e->status);$error=$e->getMessage();}
 catch(Throwable){http_response_code(503);$error='Le dossier privé de stockage doit être modifiable pour préparer l’installation.';}
-$checks=['PHP 8.3 ou plus'=>version_compare(PHP_VERSION,'8.3','>='),'PDO'=>extension_loaded('pdo'),'mbstring'=>extension_loaded('mbstring'),'fileinfo'=>extension_loaded('fileinfo'),'ZIP'=>extension_loaded('zip'),'Dossier de configuration modifiable'=>is_writable(FEUILLET_ROOT),'Dossier de stockage modifiable'=>is_writable(storage())];
+$checks=['PHP 8.3 ou plus'=>version_compare(PHP_VERSION,'8.3','>='),'PDO'=>extension_loaded('pdo'),'Pilote MySQL ou SQLite'=>extension_loaded('pdo_mysql')||extension_loaded('pdo_sqlite'),'mbstring'=>extension_loaded('mbstring'),'fileinfo'=>extension_loaded('fileinfo'),'ZIP'=>extension_loaded('zip'),'Dossier de configuration modifiable'=>is_writable(FEUILLET_ROOT),'Dossier de stockage modifiable'=>is_writable(storage())];
 if(($_SERVER['REQUEST_METHOD']??'GET')==='POST'){
     try{
         $isJson=str_contains($_SERVER['CONTENT_TYPE']??'','application/json');$in=$isJson?json_in():$_POST;
@@ -37,25 +38,55 @@ if(($_SERVER['REQUEST_METHOD']??'GET')==='POST'){
             try{$pdo=new PDO("mysql:host=$host;port=$port;dbname=$name;charset=utf8mb4",$c['db_user'],$c['db_password']);}catch(Throwable){fail('Connexion impossible à la base. Vérifie les identifiants fournis par OVH.');}
         }
         $pdo->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-        $lock=fopen(storage().'/installation.lock','c+');if(!$lock)fail('Impossible de verrouiller l’installation.',500);flock($lock,LOCK_EX);
+        $lock=fopen(storage().'/installation.lock','c+');if(!$lock)fail('Impossible de verrouiller l’installation.',500);if(!flock($lock,LOCK_EX))fail('Impossible de verrouiller l’installation.',500);
         $configPath=getenv('FEUILLET_CONFIG')?:FEUILLET_ROOT.'/config.php';if(is_file($configPath))fail('Une installation existe déjà.',409);
+        $targetPath=storage().'/installation-target.json';
+        $fingerprint=hash('sha256',($driver==='sqlite'?$c['sqlite_path']:$c['db_host'].':'.$c['db_port'].'/'.$c['db_name']).'|'.$installKey);
+        $previous=is_file($targetPath)?json_decode((string)file_get_contents($targetPath),true):[];
+        $existing=$driver==='sqlite'?$pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('pages','files','app_settings')")->fetchAll(PDO::FETCH_COLUMN):$pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+        if(array_intersect($existing,['pages','files','app_settings'])&&($previous['fingerprint']??'')!==$fingerprint)fail('Cette base contient déjà une installation Feuillet. Choisis une base vide pour protéger ses données.');
+        if(file_put_contents($targetPath,encoded(['fingerprint'=>$fingerprint]),LOCK_EX)===false||!chmod($targetPath,0600))fail('Impossible de préparer la connexion privée.',500);
         schema($pdo);
         $tmp=$configPath.'.'.bin2hex(random_bytes(8)).'.tmp';
         if(file_put_contents($tmp,"<?php\n// Configuration privée — ne pas publier sur GitHub.\nreturn ".var_export($c,true).";\n",LOCK_EX)===false)fail('Impossible de créer la configuration.',500);
-        chmod($tmp,0600);if(!rename($tmp,$configPath))fail('Impossible d’activer la configuration.',500);
+        if(!chmod($tmp,0600)){unlink($tmp);fail('Impossible de protéger la configuration.',500);}if(!rename($tmp,$configPath))fail('Impossible d’activer la configuration.',500);
         if($driver==='sqlite')chmod($c['sqlite_path'],0600);
-        unlink($installKeyPath);
+        unlink($installKeyPath);@unlink($targetPath);
         flock($lock,LOCK_UN);fclose($lock);
         session_regenerate_id(true);$_SESSION['admin']=true;$_SESSION['last_seen']=time();$_SESSION['csrf']=bin2hex(random_bytes(32));
         if($isJson)json_out(['ok'=>true,'csrf'=>$_SESSION['csrf'],'authenticated'=>true]);
         header('Location: index.php');exit;
     }catch(AppError $e){http_response_code($e->status);$error=$e->getMessage();if($isJson??false)json_out(['error'=>$error,'code'=>$e->errorCode],$e->status);}
-    catch(Throwable $e){error_log('Feuillet installation: '.$e->getMessage());http_response_code(500);$error='Installation impossible. Consulte le journal PHP de l’hébergement.';}
+    catch(Throwable $e){error_log('Feuillet installation: '.$e->getMessage());http_response_code(500);$error='Installation impossible. Consulte le journal PHP de l’hébergement.';if($isJson??false)json_out(['error'=>$error],500);}
 }
 $h=fn($s)=>htmlspecialchars((string)$s,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');
 ?>
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Installer Feuillet</title><link rel="stylesheet" href="reader.css"><link rel="stylesheet" href="interface.css"></head><body class="setup-body"><main class="setup-card"><div class="brand">▤ FEUILLET</div><p class="eyebrow">TON CARNET, CHEZ TOI</p><h1>Un espace pour écrire<br>et transmettre.</h1><p>Installe ton carnet personnel. Tes pages resteront privées jusqu’à leur publication.</p>
-<?php if($error):?><div class="callout tone-red" role="alert"><?=$h($error)?></div><?php endif;?>
-<details><summary>Vérifications de l’hébergement</summary><ul><?php foreach($checks as $label=>$ok):?><li><?=$ok?'✓':'✗'?> <?=$h($label)?></li><?php endforeach;?></ul><p>PHP <?=$h(PHP_VERSION)?> · Envoi PHP : <?=$h(ini_get('upload_max_filesize'))?></p></details>
-<form method="post" autocomplete="off"><input type="hidden" name="csrf" value="<?=$h($_SESSION['csrf'])?>"><p class="small">Avec ton accès FTP, ouvre le fichier privé <code>storage/installation-key.txt</code>, puis colle sa clé ci-dessous. Elle sera supprimée après l’installation.</p><label>Clé privée d’installation<input type="password" name="installation_key" required minlength="64" maxlength="64" pattern="[a-f0-9]{64}" autocomplete="off"></label><label>Nom de ton carnet<input name="name" value="Feuillet." required maxlength="80"></label><div class="form-grid"><label>Ton mot de passe<input type="password" name="password" minlength="12" required autocomplete="new-password"></label><label>Confirme le mot de passe<input type="password" name="password_confirm" minlength="12" required autocomplete="new-password"></label></div><p class="small">12 caractères minimum. Tu seras le seul administrateur.</p>
-<label>Base de données<select name="driver"><option value="mysql">MySQL / MariaDB — recommandé sur OVH</option><?php if(extension_loaded('pdo_sqlite')):?><option value="sqlite">SQLite — installation locale ou hébergement compatible</option><?php endif;?></select></label><p class="small">Pour SQLite, les champs suivants peuvent rester vides. Pour OVH, utilise les paramètres de ta base dans l’espace client.</p><div class="form-grid"><label>Serveur SQL<input name="db_host" placeholder="ex. : nom.mysql.db"></label><label>Port<input type="number" name="db_port" value="3306" min="1" max="65535"></label><label>Nom de la base<input name="db_name"></label><label>Utilisateur SQL<input name="db_user"></label></div><label>Mot de passe SQL<input type="password" name="db_password" autocomplete="new-password"></label><button class="primary" type="submit" <?=in_array(false,$checks,true)?'disabled':''?>>Créer mon carnet →</button></form><p class="small">Logiciel libre · Aucun compte auprès d’un service externe · Version <?=$h(FEUILLET_VERSION)?></p></main><footer class="feuillet-credit"><small>Propulsé par <a href="https://github.com/monsieur-de-paz/feuillet" target="_blank" rel="noopener noreferrer">Feuillet</a>, créé par Sandro de PAZ.</small></footer></body></html>
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>Installer Feuillet</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="setup.css?v=<?=$h(FEUILLET_VERSION)?>"><script src="setup.js?v=<?=$h(FEUILLET_VERSION)?>" defer></script></head>
+<body class="installer"><a class="setup-skip" href="#installation">Aller à l’installation</a>
+<div class="setup-layout"><aside class="setup-story"><a class="setup-brand" href="setup.php"><img src="feuillet-logo.svg" alt="" width="38" height="38"><span>Feuillet.</span></a>
+<div class="story-copy"><p class="setup-eyebrow">UN CARNET QUI T’APPARTIENT</p><h1>Le début <br>d’une belle page.</h1><p>Un endroit pour tes idées, tes cours et les ressources que tu transmets.</p></div>
+<div class="setup-landscape" aria-hidden="true"><img src="feuillet-logo.png" alt="" width="220" height="220"></div>
+<div class="story-note"><span class="note-dot"></span><p>Chez toi, sur ton hébergement.<br><strong>Libre, sans abonnement.</strong></p></div></aside>
+<main id="installation" class="setup-main"><header class="setup-heading"><div><p class="setup-eyebrow">INSTALLATION · <?=$h(FEUILLET_VERSION)?></p><h2>Bienvenue dans Feuillet.</h2><p>Quelques réglages, puis ton carnet est prêt.</p></div><span class="setup-duration">3 étapes</span></header>
+<nav class="setup-progress" aria-label="Étapes de l’installation"><ol><li aria-current="step"><span>1</span>Hébergement</li><li><span>2</span>Carnet</li><li><span>3</span>Connexion</li></ol><div class="progress-track"><span></span></div></nav>
+<div id="setup-error" class="setup-alert" role="alert" <?=$error?'':'hidden'?>><?=$h($error)?></div>
+<form id="setup-form" method="post" autocomplete="off"><input type="hidden" name="csrf" value="<?=$h($_SESSION['csrf'])?>">
+<fieldset data-step="0"><legend>Ton hébergement est-il prêt ?</legend><p class="step-description">Ces vérifications se font directement sur ton serveur.</p>
+<ul class="setup-checks"><?php foreach($checks as $label=>$ok):?><li class="<?=$ok?'check-ok':'check-fail'?>"><span aria-label="<?=$ok?'Disponible':'Manquant'?>"><?=$ok?'✓':'!'?></span><?=$h($label)?></li><?php endforeach;?></ul>
+<p class="setup-help">PHP <?=$h(PHP_VERSION)?> · limite d’envoi PHP <?=$h(ini_get('upload_max_filesize'))?>. <?=extension_loaded('curl')?'cURL disponible pour les mises à jour GitHub.':'Tu peux installer Feuillet ; active cURL pour les mises à jour intégrées.'?></p>
+<div class="setup-key-note"><strong>Une clé pour protéger cette première installation</strong><p>Avec ton accès FTP, ouvre <code>storage/installation-key.txt</code> et copie la clé. Ce fichier privé sera supprimé après l’installation.</p></div>
+<label for="installation-key">Clé privée d’installation</label><input id="installation-key" type="password" name="installation_key" required minlength="64" maxlength="64" pattern="[a-f0-9]{64}" autocomplete="off" spellcheck="false" placeholder="La clé copiée depuis ton hébergement">
+</fieldset>
+<fieldset data-step="1"><legend>Donne une place à tes idées.</legend><p class="step-description">Tu pourras modifier le nom et l’apparence du site plus tard.</p>
+<label for="notebook-name">Nom de ton site</label><input id="notebook-name" name="name" value="Feuillet." required maxlength="80" autocomplete="organization">
+<div class="setup-form-grid"><div><label for="password">Ton mot de passe</label><div class="password-field"><input id="password" type="password" name="password" minlength="12" required autocomplete="new-password"><button type="button" class="password-toggle" data-password="password" aria-label="Afficher le mot de passe" aria-pressed="false">Voir</button></div></div><div><label for="password-confirm">Confirme le mot de passe</label><div class="password-field"><input id="password-confirm" type="password" name="password_confirm" minlength="12" required autocomplete="new-password"><button type="button" class="password-toggle" data-password="password-confirm" aria-label="Afficher la confirmation" aria-pressed="false">Voir</button></div></div></div>
+<p class="setup-help">Au moins 12 caractères, 72 octets maximum. Tu seras le seul administrateur ; les élèves consulteront les pages que tu partages.</p><div class="password-meter" aria-hidden="true"><span></span></div><p id="password-hint" class="setup-help" aria-live="polite"></p>
+</fieldset>
+<fieldset data-step="2"><legend>Connecte ton carnet.</legend><p class="step-description">Sur OVH, retrouve ces informations dans Web Cloud → Hébergements → Bases de données.</p>
+<label for="driver">Base de données</label><select id="driver" name="driver"><option value="mysql" <?=extension_loaded('pdo_mysql')?'':'disabled'?>>MySQL / MariaDB — conseillé sur OVH</option><?php if(extension_loaded('pdo_sqlite')):?><option value="sqlite">SQLite — local ou hébergement compatible</option><?php endif;?></select>
+<div id="mysql-fields"><div class="setup-form-grid"><div><label for="db-host">Serveur SQL</label><input id="db-host" name="db_host" placeholder="nom.mysql.db" autocomplete="off"></div><div><label for="db-port">Port</label><input id="db-port" type="number" name="db_port" value="3306" min="1" max="65535"></div><div><label for="db-name">Nom de la base</label><input id="db-name" name="db_name" autocomplete="off"></div><div><label for="db-user">Utilisateur SQL</label><input id="db-user" name="db_user" autocomplete="off"></div></div><label for="db-password">Mot de passe SQL</label><div class="password-field"><input id="db-password" type="password" name="db_password" autocomplete="new-password"><button type="button" class="password-toggle" data-password="db-password" aria-label="Afficher le mot de passe SQL" aria-pressed="false">Voir</button></div></div>
+<p id="sqlite-note" class="setup-help" hidden>La base sera créée dans le stockage privé. Aucun identifiant SQL n’est nécessaire.</p><div class="setup-summary"><span>✓</span><p>Tes pages commenceront en privé.<br>Tu choisiras ensuite lesquelles partager.</p></div>
+</fieldset>
+<div class="setup-actions"><button type="button" class="setup-back" hidden>← Retour</button><button type="button" class="setup-next" hidden <?=in_array(false,$checks,true)?'disabled':''?>>Continuer <span>→</span></button><button class="setup-submit" type="submit" <?=in_array(false,$checks,true)?'disabled':''?>><span>Créer mon carnet</span><span aria-hidden="true">→</span></button></div><p id="setup-status" role="status" aria-live="polite"></p>
+</form><footer class="setup-footer"><small>Propulsé par <a href="https://github.com/monsieur-de-paz/feuillet" target="_blank" rel="noopener noreferrer">Feuillet</a>, créé par Sandro de PAZ.</small><span>Logiciel libre · MIT</span></footer></main></div></body></html>

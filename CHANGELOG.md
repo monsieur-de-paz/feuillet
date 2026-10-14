@@ -1,5 +1,14 @@
 # Historique des versions
 
+## 0.8.0 — 14 octobre 2026
+
+- Installateur moderne en trois étapes, illustration animée montagne/lac, réduction des mouvements, contrôles et erreurs conservant le formulaire.
+- Refus d’une base déjà utilisée par Feuillet, reprise identifiée d’installation et configuration privée protégée.
+- Mises à jour depuis les releases GitHub, contrôle quotidien, report/attente/ignorance et désactivation des notifications ; accès aux dépôts privés par jeton de lecture côté serveur.
+- ZIP et manifeste vérifiés, sauvegarde préalable du code et de la base, verrou de maintenance et test du nouveau code par une nouvelle requête.
+- Retour arrière après erreur de démarrage/migration ou interruption, moteur indépendant du bootstrap, archive privée de secours.
+- Documentation d’installation et de restauration actualisée ; tests d’installation neuve et d’échecs de mise à jour sur SQLite/MySQL.
+
 ## 0.7.0 — 2026-10-14
 
 - Poignée de déplacement fonctionnelle pour les blocs, repères de dépôt et entrée/sortie des sections dépliables.

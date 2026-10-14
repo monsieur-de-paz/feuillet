@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/update-guard.php';
 require_once __DIR__.'/../app/bootstrap.php';
 if(!installed()){header('Location: setup.php');exit;}
 headers_secure();require_once __DIR__.'/../app/reader.php';

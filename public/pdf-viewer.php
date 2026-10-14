@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/update-guard.php';
 require_once __DIR__.'/../app/bootstrap.php';headers_secure();
 try{if(!installed())fail('Document introuvable.',404);$id=str_limit($_GET['id']??'',36);$file=query('SELECT name,mime FROM files WHERE id=?',[$id])->fetch();if(!$file||$file['mime']!=='application/pdf'||(!admin()&&!file_public($id)))fail('Document introuvable.',404);}
 catch(AppError $e){http_response_code($e->status);echo htmlspecialchars($e->getMessage(),ENT_QUOTES,'UTF-8');exit;}

@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.7.0';
+const FEUILLET_VERSION = '0.8.0';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -47,7 +47,7 @@ function start_session(): void {
     $dir = storage() . '/sessions';
     if (!is_dir($dir)) mkdir($dir, 0700, true);
     session_save_path($dir);
-    session_name('feuillet_session');
+    session_name(session_cookie_name());
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');
     ini_set('session.use_trans_sid', '0');
@@ -57,6 +57,7 @@ function start_session(): void {
     if (!empty($_SESSION['admin']) && ($_SESSION['last_seen'] ?? 0) < time() - 43200) unset($_SESSION['admin']);
     if (!empty($_SESSION['admin'])) $_SESSION['last_seen'] = time();
 }
+function session_cookie_name(): string { return 'feuillet_'.substr(hash('sha256',(realpath(storage())?:storage()).'|'.cookie_path()),0,16); }
 function cookie_path(): string { $p = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')); return rtrim($p, '/') . '/'; }
 function admin(): bool { start_session(); return !empty($_SESSION['admin']); }
 function need_admin(): void { if (!admin()) fail('Connexion nécessaire.', 401, 'authentication_required'); }

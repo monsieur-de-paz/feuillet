@@ -41,3 +41,11 @@ Le carnet actif et la catégorie sont soulignés de la même couleur. Sur ordina
 ## Retrouver et composer ses pages — 0.7
 
 Cliquer le logo pour retrouver les dernières pages modifiées dans l’accueil admin. Importer un TXT/Markdown/RTF depuis le menu ⋯ ; la nouvelle page reste privée. Déplacer un bloc par sa poignée ⋮⋮ et suivre la ligne de dépôt : « Dans la section » l’insère dans un titre dépliable. `/lieu` ajoute une adresse et sa carte Google Maps sans clé API. Les détails et limites sont dans [le guide 0.7](NOUVEAUTES-0.7.md).
+
+## Installation et mises à jour intégrées — 0.8
+
+Utiliser l’archive installable de la release et conserver `update-manifest.json`. L’installateur guidé demande la clé privée lue par FTP dans `storage/installation-key.txt`, puis les réglages du carnet et la base dédiée. cURL, ZIP, tokenizer et l’écriture du code sont nécessaires aux mises à jour depuis GitHub. Le dépôt encore privé nécessite un jeton GitHub limité à la lecture du contenu de ce dépôt ; aucun changement de visibilité n’est effectué.
+
+Les notifications et choix sont dans `storage/updates/settings.json`. Le déploiement prépare une extraction vérifiée, sauvegarde le code et la base, conserve configuration/médias, pose `storage/update-journal.json` et remplace les fichiers sous verrou exclusif. `public/update-guard.php` précède le bootstrap sur les points d’entrée ordinaires. `public/update-health.php` valide le nouveau processus ; `public/recover.php` et la copie privée du moteur de récupération peuvent rétablir la version précédente. Les sauvegardes ne sont pas servies publiquement et restent téléchargeables par l’admin après succès ou retour arrière.
+
+La restauration dépend des droits, de l’espace disque et de SQL. Les médias ne sont pas recopiés. Voir [les étapes et la procédure FTP](MISES-A-JOUR.md) avant de supprimer un dossier de sauvegarde. Aucun cron, shell système ou service permanent n’est requis. L’installation OVH réelle reste à vérifier sur l’offre de l’utilisateur.

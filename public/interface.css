@@ -1950,3 +1950,349 @@ body.block-dragging .editor-content-wrap iframe {
     min-height: 44px;
   }
 }
+/* Updates use the same surfaces and accent tokens as the notebook. */
+.update-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 24px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  line-height: 1.5;
+  flex-wrap: wrap;
+}
+.update-banner > span {
+  flex: 1;
+}
+.update-banner button {
+  background: none;
+  border: 0;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 9px;
+  min-height: 36px;
+  cursor: pointer;
+  border-radius: 7px;
+  font: inherit;
+  font-weight: 600;
+}
+.update-banner button:hover {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.update-banner .update-postpone {
+  min-width: 36px;
+  justify-content: center;
+}
+.update-panel {
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  width: 100%;
+  min-width: 0;
+}
+.update-panel header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.update-panel header > div:nth-child(2) {
+  flex: 1;
+}
+.update-panel h3 {
+  font-size: 17px;
+  letter-spacing: -0.025em;
+  margin: 0 0 5px;
+}
+.update-panel header p {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.update-symbol {
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  color: var(--accent);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+.update-release {
+  margin-top: 22px;
+}
+.update-release-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+.update-release-heading > a {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--accent);
+}
+.update-notes {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 200px;
+  overflow: auto;
+  padding-right: 8px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--muted);
+  margin: 14px 0;
+}
+.update-safety {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  background: var(--accent-soft);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--accent);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 16px 0;
+}
+.update-safety svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.update-choices {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.update-choices button,
+.update-text-button {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 8px;
+  min-height: 36px;
+}
+.update-choices button:hover,
+.update-text-button:hover {
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+.update-empty {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 22px 0;
+}
+.update-preferences {
+  padding-top: 18px;
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.update-preferences label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  font-size: 13px;
+  margin: 0;
+}
+.update-preferences input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--accent);
+  margin: 0;
+}
+.update-preferences small {
+  display: block;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 8px 0 8px 26px;
+}
+.update-warning {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+  background: var(--surface-muted);
+  border-radius: 10px;
+  padding: 12px;
+  margin: 15px 0;
+}
+.update-token {
+  margin-top: 10px;
+  padding: 16px;
+  background: var(--surface-muted);
+  border-radius: 12px;
+}
+.update-token label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 9px;
+}
+.update-token input {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 12px;
+}
+.update-token > div {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.update-last-job {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 15px;
+  margin-top: 18px;
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.update-last-job a {
+  color: var(--accent);
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+.update-progress {
+  text-align: center;
+  padding: 24px;
+  max-width: 550px;
+  min-width: 0;
+}
+.update-progress-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  background: var(--accent-soft);
+  margin: 0 auto 20px;
+}
+.update-progress > p {
+  font-size: 16px;
+  line-height: 1.6;
+  text-wrap: balance;
+}
+.update-progress ol {
+  list-style: none;
+  padding: 0;
+  margin: 25px 0;
+  text-align: left;
+  display: grid;
+  gap: 13px;
+}
+.update-progress li {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+.update-progress li > span {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.update-progress li.done {
+  color: var(--accent);
+}
+.update-progress li.done > span {
+  background: var(--accent-soft);
+  border-color: transparent;
+}
+.update-progress li.current {
+  color: var(--ink);
+  font-weight: 600;
+}
+.update-progress li.current > span {
+  background: var(--accent);
+  color: var(--surface);
+  border-color: transparent;
+}
+.update-progress > small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+  display: block;
+}
+.update-progress-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.update-spin {
+  animation: update-spin 1.3s linear infinite;
+}
+@keyframes update-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 600px) {
+  .update-panel {
+    padding: 18px;
+  }
+  .update-panel header {
+    gap: 9px;
+  }
+  .update-panel header > .small-button {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+  .update-banner {
+    padding: 10px 15px;
+    gap: 6px;
+  }
+  .update-banner button {
+    min-height: 44px;
+  }
+  .update-choices button,
+  .update-text-button {
+    min-height: 44px;
+  }
+  .update-progress {
+    padding: 18px;
+  }
+  .update-token input {
+    font-size: 16px;
+  }
+  .update-preferences label {
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .update-spin {
+    animation: none;
+  }
+}
+
+.settings-form > .update-panel {
+  margin-bottom: 22px;
+}

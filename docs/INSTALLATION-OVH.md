@@ -115,3 +115,11 @@ L’interface est précompilée dans la distribution. Transférer également `pu
 Connecté, cliquer le logo/nom pour ouvrir l’accueil admin. Le menu ⋯ d’une page permet l’import TXT, Markdown ou RTF (2 Mo maximum) ; l’import crée une racine privée du carnet actif. Les cartes Google utilisent une intégration publique depuis le navigateur, sans clé API ni compte de facturation à configurer. Le serveur ne contacte pas Google pour cette fonction.
 
 Pour mettre à jour, conserver `config.php` et `storage/`, remplacer le code et les assets ensemble, puis recharger les onglets. Aucune nouvelle table SQL ni extension PHP supplémentaire. Ne pas revenir à une version antérieure à 0.7 après création de blocs de carte sans conversion des blocs ou restauration d’une sauvegarde. [Nouveautés et usages](NOUVEAUTES-0.7.md).
+
+## Installation et mises à jour intégrées — 0.8
+
+Utiliser l’archive installable de la release et conserver `update-manifest.json`. L’installateur guidé demande la clé privée lue par FTP dans `storage/installation-key.txt`, puis les réglages du carnet et la base dédiée. cURL, ZIP, tokenizer et l’écriture du code sont nécessaires aux mises à jour depuis GitHub. Le dépôt encore privé nécessite un jeton GitHub limité à la lecture du contenu de ce dépôt ; aucun changement de visibilité n’est effectué.
+
+Les notifications et choix sont dans `storage/updates/settings.json`. Le déploiement prépare une extraction vérifiée, sauvegarde le code et la base, conserve configuration/médias, pose `storage/update-journal.json` et remplace les fichiers sous verrou exclusif. `public/update-guard.php` précède le bootstrap sur les points d’entrée ordinaires. `public/update-health.php` valide le nouveau processus ; `public/recover.php` et la copie privée du moteur de récupération peuvent rétablir la version précédente. Les sauvegardes ne sont pas servies publiquement et restent téléchargeables par l’admin après succès ou retour arrière.
+
+La restauration dépend des droits, de l’espace disque et de SQL. Les médias ne sont pas recopiés. Voir [les étapes et la procédure FTP](MISES-A-JOUR.md) avant de supprimer un dossier de sauvegarde. Aucun cron, shell système ou service permanent n’est requis. L’installation OVH réelle reste à vérifier sur l’offre de l’utilisateur.

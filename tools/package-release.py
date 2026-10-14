@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Package an installable distribution; exclude all local runtime data."""
-import argparse, hashlib, pathlib, re, subprocess, zipfile
+import argparse, hashlib, json, pathlib, re, subprocess, zipfile
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--output',type=pathlib.Path,required=True,help='Directory for the ZIP and SHA-256 file')
@@ -17,7 +17,11 @@ def permitted(p):
     if p.name=='config.php' or p.name.startswith(('.env','config.php.')):return False
     if p.suffix.lower() in ['.log','.sqlite','.db','.zip','.pyc'] or '.sqlite-' in p.name:return False
     return True
-paths=sorted(p for p in paths if permitted(p) and p.is_file())
+paths=sorted(p for p in paths if permitted(p) and p.is_file() and p.name!='update-manifest.json')
+manifest={'format':'feuillet-distribution','protocol':1,'version':version,'php_min':'8.3.0','extensions':['pdo','mbstring','fileinfo','zip','curl','tokenizer'],'database_tables':['pages','revisions','files','spaces','app_settings','categories','collections','collection_properties','collection_rows','collection_forms','form_uploads'],'files':{p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in paths if p.relative_to(ROOT).parts[0]!='storage'}}
+manifest_path=ROOT/'update-manifest.json'
+manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
+paths.append(manifest_path)
 for required in ['README.md','LICENSE','public/assets/app.js','public/assets/app.css','public/index.php','public/setup.php','storage/.htaccess']:
     if ROOT/required not in paths:raise SystemExit('Required distribution file missing: '+required)
 args.output.mkdir(parents=True,exist_ok=True)

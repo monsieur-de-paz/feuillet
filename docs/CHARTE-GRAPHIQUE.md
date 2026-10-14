@@ -101,3 +101,9 @@ Les titres dépliables gardent la typographie du niveau 1/2/3 et une flèche neu
 La poignée ⋮⋮ est une action réelle : cliquer ouvre le menu, glisser déplace le bloc. Le dépôt est indiqué par une ligne d’accent, avec une indentation et le libellé « Dans la section » pour une destination imbriquée. Un aperçu léger accompagne le pointeur. Les titres dépliables gardent leur composition sans cadre supplémentaire. Sur mobile, la poignée active se place à droite avec une cible de 44 px ; le contenu garde sa largeur.
 
 L’accueil admin reprend les surfaces, accents, rayons et typographies du carnet. Cartes récentes et liste d’activité partagent les mêmes noms, icônes et statuts. Le bouton de navigation est près du titre, et la recherche reste consacrée à la saisie. L’accueil est réservé à l’administration. Le nouveau symbole montagne/lac est décrit dans [l’identité visuelle](IDENTITE-VISUELLE.md).
+
+## Installateur et mises à jour — 0.8
+
+L’installation reste une surface claire avant le choix des thèmes : colonne sauge avec symbole montagne/lac et formulaire en trois étapes. La hiérarchie repose sur les titres, labels et espaces ; cibles de 46–48 px, rayon de champ 10 px, notes 12 px. L’illustration et les transitions d’étape utilisent seulement opacité/transform, puis s’arrêtent ; reduced-motion supprime ces mouvements. Les secrets ne sont jamais affichés en clair par défaut.
+
+Le panneau de mises à jour reprend les tokens surface/ink/line/accent des réglages, avec marges 24 px sur ordinateur et 18 px sur mobile. Les décisions sont explicites, les actions occupées sont désactivées et la fermeture du dialogue est bloquée pendant le remplacement. Le résultat possède un texte permanent en plus de l’icône. Voir [la revue ciblée](AUDIT-INSTALLATION-0.8.md).

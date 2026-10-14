@@ -28,16 +28,16 @@ class Security(unittest.TestCase):
         self.assertEqual(headers['x-content-type-options'],'nosniff');self.assertIn('no-store',headers['cache-control'])
         self.ok(self.visitor.api('page',query='&id='+urllib.parse.quote("' OR 1=1 --")),404)
     def test_02_session_fixation_and_token_rotation(self):
-        client=harness.Client(self.admin.base);chosen='a'*32
-        status,body,headers=client.request('api.php?action=session',headers={'Cookie':'feuillet_session='+chosen})
-        self.assertEqual(status,200,body);self.assertNotIn('feuillet_session='+chosen,headers.get('Set-Cookie',''))
-        client.csrf=body['csrf'];before_token=client.csrf;before_id=next(c.value for c in client.cookies if c.name=='feuillet_session')
+        client=harness.Client(self.admin.base);chosen='a'*32;cookie_name=next(c.name for c in self.admin.cookies if c.name.startswith('feuillet_'))
+        status,body,headers=client.request('api.php?action=session',headers={'Cookie':cookie_name+'='+chosen})
+        self.assertEqual(status,200,body);self.assertNotIn(cookie_name+'='+chosen,headers.get('Set-Cookie',''))
+        client.csrf=body['csrf'];before_token=client.csrf;before_id=next(c.value for c in client.cookies if c.name==cookie_name)
         self.ok(client.api('login',{'password':harness.Integration.password}))
-        after_id=next(c.value for c in client.cookies if c.name=='feuillet_session');self.assertNotEqual(before_id,after_id)
+        after_id=next(c.value for c in client.cookies if c.name==cookie_name);self.assertNotEqual(before_id,after_id)
         self.ok(client.api('save',{'title':'Old CSRF'}),403)
         client.session();self.assertNotEqual(client.csrf,before_token)
         self.ok(client.api('logout',{}));self.assertFalse(client.session()['authenticated'])
-        cookie=next(c for c in client.cookies if c.name=='feuillet_session');self.assertTrue(cookie.has_nonstandard_attr('HttpOnly'));self.assertEqual(cookie.get_nonstandard_attr('SameSite'),'Lax')
+        cookie=next(c for c in client.cookies if c.name==cookie_name);self.assertTrue(cookie.has_nonstandard_attr('HttpOnly'));self.assertEqual(cookie.get_nonstandard_attr('SameSite'),'Lax')
     def test_03_stored_payloads_and_private_embed_metadata(self):
         secret=self.db('SECRET_DB_NAME_044');field=self.prop(secret,'SECRET_FIELD_045')
         form=self.ok(self.admin.api('form_save',{'db_id':secret['id'],'name':'SECRET_FORM_046','fields':[field['id']],'public':False}))['form']

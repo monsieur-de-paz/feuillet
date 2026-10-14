@@ -5,6 +5,7 @@ function api_dispatch(string $action): never {
     if(!installed()) fail('Installation nécessaire.',503,'setup_required');
     start_session();
     $method=$_SERVER['REQUEST_METHOD']??'GET';
+    if(str_starts_with($action,'update_')){require_once __DIR__.'/updates.php';updates_dispatch($action,$method);}
     if(function_exists('database_dispatch'))database_dispatch($action,$method);
     $postActions=['login','logout','save','publish','visibility','duplicate','trash','restore','move','restore_revision','upload','import','quiz','spaces','save_space','delete_space','settings','rename_file','image_import','import_markdown','import_document','save_category','delete_category','restore_category','homepage'];
     if(in_array($action,$postActions,true)&&!(in_array($action,['spaces','settings'],true)&&$method==='GET')) {if($method!=='POST')fail('Méthode non autorisée.',405);csrf();}

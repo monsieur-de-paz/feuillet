@@ -1,3 +1,9 @@
+import {
+  useUpdates,
+  UpdateBanner,
+  UpdatePanel,
+  UpdateProgress,
+} from "./Updates";
 import { FeuilletLogo } from "./FeuilletLogo";
 import { AdminHome } from "./AdminHome";
 import { ContextMenu, type MenuAction } from "./ContextMenu";
@@ -109,17 +115,22 @@ function Modal({
   children,
   onClose,
   wide = false,
+  closeDisabled = false,
 }: {
   title: string;
   children: ReactNode;
   onClose: () => void;
   wide?: boolean;
+  closeDisabled?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const modalControls = useRef({ onClose, closeDisabled });
+  modalControls.current = { onClose, closeDisabled };
   useEffect(() => {
     const before = document.activeElement as HTMLElement;
     const handle = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape" && !modalControls.current.closeDisabled)
+        modalControls.current.onClose();
       if (e.key === "Tab") {
         const nodes = ref.current?.querySelectorAll<HTMLElement>(
           'button:not(:disabled),input:not(:disabled),select:not(:disabled):not([aria-hidden="true"]),textarea:not(:disabled),a[href],[tabindex="0"]',
@@ -149,7 +160,7 @@ function Modal({
     <div
       className="modal-backdrop"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget && !closeDisabled) onClose();
       }}
     >
       <div
@@ -161,7 +172,12 @@ function Modal({
       >
         <div className="modal-heading">
           <h2>{title}</h2>
-          <button className="icon-button" aria-label="Fermer" onClick={onClose}>
+          <button
+            className="icon-button"
+            aria-label="Fermer"
+            disabled={closeDisabled}
+            onClick={onClose}
+          >
             <X size={20} />
           </button>
         </div>
@@ -313,6 +329,11 @@ export default function App() {
   const modalRef = useRef<string | null>(null);
 
   const [session, setSession] = useState<Session | null>(null);
+  const updates = useUpdates(
+    !!session?.authenticated,
+    session?.csrf || "",
+    save,
+  );
   const [pages, setPages] = useState<Page[]>([]);
   const [trash, setTrash] = useState<Page[]>([]);
   const [draft, setDraft] = useState<Page | null>(null);
@@ -2193,6 +2214,12 @@ export default function App() {
           className="mobile-theme-control"
         />
         <main className="main-panel" style={appearanceStyles}>
+          {admin && (
+            <UpdateBanner
+              updates={updates}
+              onOpen={() => showModal("settings")}
+            />
+          )}
           {focus && (
             <button
               className="focus-exit small-button"
@@ -3758,9 +3785,21 @@ export default function App() {
           </div>
         </Modal>
       )}
-      {modal === "settings" && (
+      {updates.progress && (
+        <Modal
+          title="Mise à jour de Feuillet"
+          closeDisabled={updates.busy}
+          onClose={() => {
+            if (!updates.busy) updates.dismiss();
+          }}
+        >
+          <UpdateProgress updates={updates} />
+        </Modal>
+      )}
+      {modal === "settings" && !updates.progress && (
         <Modal title="Réglages & sauvegardes" onClose={() => setModal(null)}>
           <div className="modal-form settings-form">
+            <UpdatePanel updates={updates} />
             <button className="small-button" onClick={showNotebookIcon}>
               <ImageIcon size={17} />
               Changer le logo du site

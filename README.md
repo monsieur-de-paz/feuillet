@@ -4,7 +4,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.7.0-2563eb" alt="Version 0.7.0">
+  <img src="https://img.shields.io/badge/version-0.8.0-2563eb" alt="Version 0.8.0">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour rédiger, organiser et partager ses ressources.** Inspiré de l’édition par blocs, il permet de préparer des cours, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
@@ -38,6 +38,10 @@ Le cœur libre de **Tiptap** est utilisé pour l’édition. Les menus, blocs et
 
 Sélecteurs avec recherche, menus d’actions au clic droit ou par bouton, navigation compacte et thème personnel clair/sombre/OLED. Les menus restent utilisables au clavier et s’adaptent aux petits écrans. La version 0.5.1 harmonise les marges des dialogues, remplace les cadres de sélection par un accent doux et permet un partage sans accueil général. [Nouveautés 0.5](docs/NOUVEAUTES-0.5.1.md) · [Charte graphique](docs/CHARTE-GRAPHIQUE.md).
 
+## Installation et mises à jour
+
+La version 0.8 propose un installateur en trois étapes, adapté au mobile, et des mises à jour depuis les releases GitHub : notification discrète, report, attente de la suivante, exclusion d’une version ou désactivation. L’installation sauvegarde le code et la base puis contrôle le démarrage ; les échecs déclenchent une restauration. Le dépôt privé peut être consulté avec un jeton de lecture conservé côté serveur. [Nouveautés 0.8](docs/NOUVEAUTES-0.8.md) · [Guide des mises à jour](docs/MISES-A-JOUR.md).
+
 ## Installer sur un hébergement
 
 ### 1. Vérifier les prérequis
@@ -49,15 +53,15 @@ Sélecteurs avec recherche, menus d’actions au clic droit ou par bouton, navig
 | Extensions `PDO`, `pdo_mysql`, `mbstring`, `fileinfo`, `zip` | Accès SQL, textes, médias et sauvegardes |
 | Sessions PHP et dossiers inscriptibles par le compte de l’hébergement | Connexion et stockage privé |
 | HTTPS | Accès au carnet et aux formulaires |
-| Extension `curl` et HTTPS sortant vers Wikimedia Commons | Recherche et import d’images Internet, sans clé API |
+| Extension `curl` et HTTPS sortant vers Wikimedia Commons / GitHub | Recherche d’images et mises à jour depuis les releases |
 
 SQLite est aussi disponible avec `pdo_sqlite` pour une installation locale ou un hébergement compatible. Choisir MySQL/MariaDB sur un mutualisé proposant une base SQL.
 
 ### 2. Télécharger et transférer le logiciel
 
-Télécharger **`Feuillet-0.7.0.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
+Télécharger **`Feuillet-0.8.0.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
 
-Le ZIP de GitHub, accessible par **Code → Download ZIP**, convient également : renommer le dossier extrait `feuillet` si nécessaire. Il contient lui aussi l’interface compilée.
+Utiliser l’archive installable de la release : elle contient les assets compilés et le manifeste nécessaire aux mises à jour intégrées. Le ZIP automatique « Source code » n’est pas la distribution recommandée.
 
 ```text
 feuillet/
@@ -106,7 +110,7 @@ La version a été testée localement sur SQLite et MySQL. La configuration exac
 
 ## Navigation, texte et bibliothèque
 
-Le bouton près de **Rechercher…** masque la barre latérale ; un bouton dans l’en-tête la réaffiche. Le raccourci initial est **Ctrl/Cmd + Maj + L**. Dans **Réglages & sauvegardes → Mon carnet**, choisir une autre touche ou désactiver ce raccourci. Le masquage est mémorisé dans le navigateur.
+Le bouton à droite du titre du site masque la barre latérale ; un bouton dans l’en-tête la réaffiche. Le raccourci initial est **Ctrl/Cmd + Maj + L**. Dans **Réglages & sauvegardes → Mon carnet**, choisir une autre touche ou désactiver ce raccourci. Le masquage est mémorisé dans le navigateur.
 
 L’accent général possède des variantes automatiques pour les thèmes sombre et OLED, également appliquées dans la vue publique. Dans les outils de couleur, **Texte par défaut** suit le thème clair, sombre ou OLED. Les couleurs choisies explicitement restent fixes. Pour une propriété **État / Choix unique** ou **Choix multiples**, ouvrir le menu de colonne puis **Modifier la propriété** pour attribuer une couleur à chaque choix.
 
