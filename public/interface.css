@@ -1101,7 +1101,7 @@ button.feuillet-select-trigger {
 
 /* Persistent navigation cues do not rely on accent color alone. */
 .app-shell .space-row.active {
-  background: var(--accent-soft);
+  background: transparent;
   color: var(--ink);
   box-shadow: inset 2px 0 var(--accent);
 }

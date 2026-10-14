@@ -1,5 +1,10 @@
 # Historique des versions
 
+## 0.5.3 — 2026-10-14
+
+- Fond du carnet actif retiré à la demande de l’utilisateur ; coche, repère latéral et texte plus marqué conservés.
+
+
 ## 0.5.2 — 2026-10-14
 
 - Carnet actif marqué par fond, coche et état accessible ; catégorie sélectionnée soulignée.

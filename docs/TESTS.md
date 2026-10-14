@@ -284,3 +284,7 @@ Dernier contrôle après la capture du titre : exception CSS pour les champs de 
 ## Ajustements 0.5.2
 
 TypeScript/Vite, Prettier et 58 contrôles frontend réussis, plus contraste/parité de 24 accents. La suite customization (9 tests) réussit sur une copie SQLite jetable. Les 92 contrôles HTTP par pilote de 0.5.1 restent la référence du backend ; ils ne sont pas présentés comme tous rejoués pour ce correctif de présentation. Chromium : carnet actif visible après clic sans changer de page, Classes soulignée, palette mesurée (cercles 28 px, cibles 44 px), réglages sans double marge et 320/390 px sans débordement ; sélection et sauvegarde robot puis restauration 📖 du carnet fictif. Catalogue mobile testé. Les réglages généraux existants sont conservés. Voir AUDIT-INTERFACE-0.5.2.md pour les limites.
+
+### Ajustement 0.5.3
+
+Correctif CSS ciblé du fond du carnet actif : transparent, repère latéral et coche conservés. TypeScript/Vite relancé et état visuel contrôlé dans Chromium. Les autres parcours et règles du backend ne sont pas modifiés.

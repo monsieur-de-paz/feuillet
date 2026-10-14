@@ -1,6 +1,6 @@
 # Feuillet 0.5.2 — repérer son carnet et choisir ses couleurs
 
-- Le carnet sélectionné garde un fond d’accent, un repère latéral et une coche. Son bouton expose aussi l’état sélectionné aux outils d’accessibilité, même quand on change de carnet sans ouvrir une autre page.
+- Le carnet sélectionné garde un repère latéral et une coche. Depuis 0.5.3, le fond de surlignage est retiré. Son bouton expose aussi l’état sélectionné aux outils d’accessibilité, même quand on change de carnet sans ouvrir une autre page.
 - La catégorie active (Tout, Classes, Articles ou rubrique personnalisée) est soulignée et plus marquée. Le repère ne dépend plus seulement de la couleur de texte.
 - La palette générale possède des pastilles rondes de 28 px, des cibles de 44 px et une coche contrastée sur la couleur choisie. Les couleurs personnalisées Fond / Texte / Accent affichent leur valeur hexadécimale dans des champs réguliers. Les contrôles passent sur une colonne sur petit écran.
 - Le panneau Réglages n’a plus de double marge à l’intérieur du formulaire. Les sections et commandes gardent un espacement régulier. Les cases à cocher restent alignées avec leur texte, sans hériter de la largeur des champs de saisie.

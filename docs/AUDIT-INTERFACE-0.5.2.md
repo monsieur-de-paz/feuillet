@@ -25,3 +25,7 @@ Pistes rejetées : remplacer le navigateur natif de couleur par une bibliothèqu
 Vérifications : TypeScript/Vite et Prettier ; 58 tests frontend, plus contraste/parité PHP-JavaScript sur 24 accents ; 9 tests HTTP customization sur SQLite jetable. Dans Chromium intégré : clic de carnet sans changement de page, coche et fond persistants ; Classes soulignée en 600 ; marges du panneau mesurées à 22/24/26 px et formulaire interne 0/0/24 px ; 16 cibles de palette identiques, cercles 28 × 28, coche sur l’accent ; 320 et 390 px sans débordement. Recherche robot, sélection, enregistrement et relecture du carnet fictif réussis ; son émoji d’origine 📖 restauré. Catalogue de carnet à 320 px sans débordement. Aucun réglage général ni cours existant modifié pour ces essais.
 
 **Verdict : Approve dans le périmètre testé.** Non vérifiés : Safari/iOS, Firefox, lecteur d’écran et popup natif de couleur sur chaque OS ; préférence OS reduced motion, hébergement OVH réel. Les thèmes utilisent les variables adaptatives existantes, mais toutes les combinaisons de couleurs personnelles n’ont pas été parcourues visuellement.
+
+## Ajustement 0.5.3
+
+À la demande de l’utilisateur, le fond de surlignage du carnet actif est retiré. La coche, le repère latéral, le poids de texte et l’état accessible restent conservés. Construction TypeScript/Vite relancée ; vérification du fond transparent dans le navigateur.

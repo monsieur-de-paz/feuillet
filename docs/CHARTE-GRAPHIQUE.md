@@ -84,4 +84,4 @@ Les champs de titre et de description directement dans la page constituent une e
 
 ## Ajustements 0.5.2
 
-Le carnet actif ajoute une coche et un fond d’accent ; la catégorie active est soulignée en 2 px, sans animation supplémentaire. Les échantillons de couleur restent des cercles de 28 px dans une cible ≥44 px. La coche donne une information indépendante de la couleur. Un formulaire imbriqué dans les réglages ne reçoit pas une seconde gouttière.
+Le carnet actif ajoute une coche et un repère latéral, sans fond de surlignage ; la catégorie active est soulignée en 2 px, sans animation supplémentaire. Les échantillons de couleur restent des cercles de 28 px dans une cible ≥44 px. La coche donne une information indépendante de la couleur. Un formulaire imbriqué dans les réglages ne reçoit pas une seconde gouttière.
