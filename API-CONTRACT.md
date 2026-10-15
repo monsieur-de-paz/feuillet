@@ -129,11 +129,11 @@ La table `spaces` et `space_id` conservent leur nom pour la compatibilité, l’
 
 `setup.php` accepte un formulaire POST classique ou JSON, avec `csrf`, `installation_key`, `name`, `password`, `password_confirm`, `driver`, puis les identifiants MySQL si nécessaire. Le succès JSON retourne `{ok,authenticated,csrf}`. Une configuration existante ferme le setup. Les erreurs de clé et de CSRF précèdent toute création SQL ; une base déjà utilisée par Feuillet est refusée, hors reprise privée de la même tentative.
 
-Tous les endpoints `update_*` exigent l’admin. Les mutations exigent POST et CSRF ; les secrets GitHub ne sont jamais inclus dans les réponses.
+Tous les endpoints `update_*` exigent l’admin. Les mutations exigent POST et CSRF ; les téléchargements publics ne demandent aucun secret GitHub.
 
 - `GET update_status` : version installée, release mise en cache, disponibilité, notification, vérifications du serveur, dernier résultat et `check_error` pour une vérification indisponible (sans transformer la réponse en erreur d’API) ; pas de requête GitHub.
 - `POST update_check {force?}` : dernière release stable du dépôt de référence, contrôle quotidien automatique ou manuel avec délai minimal de 60 secondes.
-- `POST update_preferences {choice}` : `later` (7 jours), `next` (attendre plus récent), `ignore` (numéro actuel), `mute`, `enable` (réinitialise les exclusions). `{token:string}` configure ou supprime (`""`) le jeton privé.
+- `POST update_preferences {choice}` : `later` (7 jours), `next` (attendre plus récent), `ignore` (numéro actuel), `mute`, `enable` (réinitialise les exclusions). Aucune configuration GitHub supplémentaire.
 - `POST update_start {version}` : vérifie à nouveau la release attendue, prépare un identifiant privé et un job en phase `download`.
 - `POST update_step {id}` : une étape bornée, `download` → `extract` → `apply` → `validating`, avec `{job:{id,version,phase,message}}`. Une opération simultanée reçoit 409 `update_busy` ; l’interface réessaie brièvement.
 - `POST update-health.php {id}` : session admin et en-tête CSRF ; charge le nouveau bootstrap dans une nouvelle requête, migre/vérifie SQL et active la version. Un échec restaure et retourne 503 avec `restored:true` si la restauration est achevée.
@@ -157,3 +157,9 @@ index.php?dashboard=1&space=ID désigne une vue administrative de carnet. L’in
 Les listes de carnets **administratives** ajoutent icon_id, cover_id, cover_position, icon_attribution et cover_attribution. Les listes publiques conservent leur forme antérieure, limitée à la branche consultée, et ne fournissent pas ces références privées. L’icône et la couverture d’un carnet ne rendent jamais un fichier public ; les droits indépendants liés à une page publiée restent applicables.
 
 `file_usage` peut renvoyer une utilisation `{kind:'space',id,title,visibility:'private',places:['Icône','Couverture']}`. La suppression du carnet retire ses métadonnées visuelles, sans supprimer les médias. Le ZIP format 3 inclut les décorations dans spaces ; l’import accepte aussi les anciennes sauvegardes et remappe les références d’images vers les fichiers importés. Aucun changement de schéma SQL.
+
+## Version 0.11 — mises à jour publiques
+
+update_status ne renvoie plus token_configured. update_preferences accepte uniquement les choix de notification existants ; le champ token retiré est refusé (400), les anciennes valeurs enregistrées sont nettoyées. Les releases mises en cache utilisent version/tag/name/notes/url/size/sha256, sans identifiants d’assets API. Les opérations préparées peuvent continuer à télécharger leur version par son adresse publique.
+
+Feuillet-release.json : `{format:'feuillet-release',protocol:1,repository:'monsieur-de-paz/feuillet',version:'X.Y.Z',tag:'vX.Y.Z',name,notes,size:<entier>,sha256:<64 caractères hexadécimaux>}`. La première URL est releases/latest/download/Feuillet-release.json ; revalidation sur releases/download/vX.Y.Z/Feuillet-release.json. ZIP et checksum sont déduits du numéro de version. Le reste du protocole update_start/update_step/update-health/recover et les droits admin/CSRF restent identiques.

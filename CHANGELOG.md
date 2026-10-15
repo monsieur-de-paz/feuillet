@@ -1,5 +1,12 @@
 # Historique des versions
 
+## 0.11.0 — 16 octobre 2026
+
+- Mises à jour par téléchargements publics GitHub, sans clé ni dépendance au quota anonyme de son API REST.
+- Annonce Feuillet-release.json générée avec le ZIP et son SHA-256 ; version, taille, empreintes et chemins vérifiés avant installation.
+- Suppression du formulaire d’authentification GitHub et nettoyage des anciennes préférences correspondantes.
+- Préférences de notification, sauvegarde avant activation et retour arrière conservés ; guides de mise à jour actualisés.
+
 ## 0.10.2 — 16 octobre 2026
 
 - Les liens vers les sous-pages affichent leur titre publié actuel au lieu du libellé conservé à la création, notamment « Sans titre ».
@@ -51,7 +58,7 @@
 
 - Installateur moderne en trois étapes, illustration animée montagne/lac, réduction des mouvements, contrôles et erreurs conservant le formulaire.
 - Refus d’une base déjà utilisée par Feuillet, reprise identifiée d’installation et configuration privée protégée.
-- Mises à jour depuis les releases GitHub, contrôle quotidien, report/attente/ignorance et désactivation des notifications ; accès aux dépôts privés par jeton de lecture côté serveur.
+- Mises à jour depuis les releases GitHub, contrôle quotidien, report/attente/ignorance et désactivation des notifications ; téléchargements publics sans clé dans la version actuelle.
 - ZIP et manifeste vérifiés, sauvegarde préalable du code et de la base, verrou de maintenance et test du nouveau code par une nouvelle requête.
 - Retour arrière après erreur de démarrage/migration ou interruption, moteur indépendant du bootstrap, archive privée de secours.
 - Documentation d’installation et de restauration actualisée ; tests d’installation neuve et d’échecs de mise à jour sur SQLite/MySQL.

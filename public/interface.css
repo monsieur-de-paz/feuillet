@@ -2103,8 +2103,7 @@ body.block-dragging .editor-content-wrap iframe {
   flex-wrap: wrap;
   margin-top: 12px;
 }
-.update-choices button,
-.update-text-button {
+.update-choices button {
   border: 0;
   background: transparent;
   font: inherit;
@@ -2115,8 +2114,7 @@ body.block-dragging .editor-content-wrap iframe {
   border-radius: 8px;
   min-height: 36px;
 }
-.update-choices button:hover,
-.update-text-button:hover {
+.update-choices button:hover {
   background: var(--surface-muted);
   color: var(--ink);
 }
@@ -2160,27 +2158,6 @@ body.block-dragging .editor-content-wrap iframe {
   border-radius: 10px;
   padding: 12px;
   margin: 15px 0;
-}
-.update-token {
-  margin-top: 10px;
-  padding: 16px;
-  background: var(--surface-muted);
-  border-radius: 12px;
-}
-.update-token label {
-  display: block;
-  font-size: 12px;
-  margin-bottom: 9px;
-}
-.update-token input {
-  width: 100%;
-  max-width: 100%;
-  margin: 0 0 12px;
-}
-.update-token > div {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
 }
 .update-last-job {
   display: flex;
@@ -2302,15 +2279,11 @@ body.block-dragging .editor-content-wrap iframe {
   .update-banner button {
     min-height: 44px;
   }
-  .update-choices button,
-  .update-text-button {
+  .update-choices button {
     min-height: 44px;
   }
   .update-progress {
     padding: 18px;
-  }
-  .update-token input {
-    font-size: 16px;
   }
   .update-preferences label {
     min-height: 44px;

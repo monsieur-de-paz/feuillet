@@ -12,7 +12,6 @@ import { api, ApiError } from "./types";
 export type UpdateState = {
   installed_version: string;
   notifications: boolean;
-  token_configured: boolean;
   checked_at: number;
   release: null | { version: string; name: string; notes: string; url: string };
   available: boolean;
@@ -93,17 +92,6 @@ export function useUpdates(
       setError("");
     } catch (e) {
       setError((e as Error).message);
-    }
-  }
-  async function token(value: string) {
-    setBusy(true);
-    setError("");
-    try {
-      setStatus(await api("update_preferences", { token: value }));
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
     }
   }
   async function endpoint(path: string, body: object) {
@@ -207,7 +195,6 @@ export function useUpdates(
     progress,
     refresh,
     preference,
-    token,
     install,
     recover: async () => {
       try {
@@ -251,8 +238,6 @@ export function UpdateBanner({
 }
 export function UpdatePanel({ updates }: { updates: Controller }) {
   const { status, busy, error } = updates;
-  const [secret, setSecret] = useState("");
-  const [editToken, setEditToken] = useState(false);
   return (
     <section className="update-panel" aria-label="Mises à jour de Feuillet">
       <header>
@@ -325,7 +310,7 @@ export function UpdatePanel({ updates }: { updates: Controller }) {
         <p className="update-empty">
           {status?.checked_at && !status.check_error
             ? "Tu utilises la dernière version vérifiée."
-            : "Vérifie les releases GitHub pour connaître les nouveautés."}
+            : "Vérifie les releases publiques de Feuillet pour connaître les nouveautés."}
         </p>
       )}
       {status && !status.ready && (
@@ -353,56 +338,10 @@ export function UpdatePanel({ updates }: { updates: Controller }) {
           <span>M’informer des nouvelles versions</span>
         </label>
         <small>
-          Une vérification par jour lorsque tu ouvres Feuillet. Aucune
-          installation sans ton choix.
+          Une vérification par jour lorsque tu ouvres Feuillet, sans clé ni
+          compte GitHub. Aucune installation sans ton choix.
         </small>
       </div>
-      <button
-        className="update-text-button"
-        onClick={() => setEditToken(!editToken)}
-        aria-expanded={editToken}
-      >
-        {status?.token_configured
-          ? "Accès GitHub privé configuré"
-          : "Configurer l’accès à un dépôt privé"}
-      </button>
-      {editToken && (
-        <div className="update-token">
-          <label htmlFor="github-token">
-            Jeton GitHub — lecture du contenu de ce dépôt
-          </label>
-          <input
-            id="github-token"
-            type="password"
-            value={secret}
-            onChange={(e) => setSecret(e.target.value)}
-            autoComplete="new-password"
-            placeholder="Le jeton reste dans le stockage privé"
-            maxLength={255}
-          />
-          <div>
-            <button
-              className="small-button"
-              disabled={busy || !secret}
-              onClick={() => {
-                void updates.token(secret);
-                setSecret("");
-              }}
-            >
-              Enregistrer le jeton
-            </button>
-            {status?.token_configured && (
-              <button
-                className="small-button"
-                disabled={busy}
-                onClick={() => void updates.token("")}
-              >
-                Supprimer le jeton
-              </button>
-            )}
-          </div>
-        </div>
-      )}
       {status?.job && (
         <div className="update-last-job">
           <small>

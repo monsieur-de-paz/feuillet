@@ -2,7 +2,7 @@
 
 **Feuillet** est le nom du logiciel. L'archive contient le logiciel libre et les fichiers de l'interface déjà compilés. Elle ne contient aucune note personnelle ni mot de passe initial.
 
-1. Décompresse `Feuillet-0.10.2.zip` sur ton ordinateur. Tu obtiens le dossier `feuillet`.
+1. Décompresse `Feuillet-0.11.0.zip` sur ton ordinateur. Tu obtiens le dossier `feuillet`.
 2. Envoie ce dossier sur ton hébergement par FTP, en dehors du dossier public de ton site principal si possible.
 3. Dans la configuration multisite OVH, associe `notes.exemple.fr` au dossier **`feuillet/public`**. C'est ce dossier précis qui doit être la racine web, afin de garder la configuration et les fichiers privés hors du web.
 4. Active un certificat SSL couvrant ce sous-domaine et choisis une version PHP maintenue, au minimum 8.3.
@@ -44,7 +44,7 @@ Cliquer le logo pour retrouver les dernières pages modifiées dans l’accueil 
 
 ## Installation et mises à jour intégrées — 0.8
 
-Utiliser l’archive installable de la release et conserver `update-manifest.json`. L’installateur guidé demande la clé privée lue par FTP dans `storage/installation-key.txt`, puis les réglages du carnet et la base dédiée. cURL, ZIP, tokenizer et l’écriture du code sont nécessaires aux mises à jour depuis GitHub. Le dépôt encore privé nécessite un jeton GitHub limité à la lecture du contenu de ce dépôt ; aucun changement de visibilité n’est effectué.
+Utiliser l’archive installable de la release et conserver `update-manifest.json`. L’installateur guidé demande la clé privée lue par FTP dans `storage/installation-key.txt`, puis les réglages du carnet et la base dédiée. cURL, ZIP, tokenizer et l’écriture du code sont nécessaires aux mises à jour depuis GitHub. Les releases publiques sont accessibles sans clé ni compte GitHub. Depuis 0.11, la vérification utilise leur annonce JSON publique et les téléchargements directs GitHub.
 
 Les notifications et choix sont dans `storage/updates/settings.json`. Le déploiement prépare une extraction vérifiée, sauvegarde le code et la base, conserve configuration/médias, pose `storage/update-journal.json` et remplace les fichiers sous verrou exclusif. `public/update-guard.php` précède le bootstrap sur les points d’entrée ordinaires. `public/update-health.php` valide le nouveau processus ; `public/recover.php` et la copie privée du moteur de récupération peuvent rétablir la version précédente. Les sauvegardes ne sont pas servies publiquement et restent téléchargeables par l’admin après succès ou retour arrière.
 

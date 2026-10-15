@@ -170,7 +170,7 @@ Le choix du carnet et les filtres restent pilotés par activeSpace/kind ; leurs 
 
 ## Installation et mises à jour intégrées — 0.8
 
-Utiliser l’archive installable de la release et conserver `update-manifest.json`. L’installateur guidé demande la clé privée lue par FTP dans `storage/installation-key.txt`, puis les réglages du carnet et la base dédiée. cURL, ZIP, tokenizer et l’écriture du code sont nécessaires aux mises à jour depuis GitHub. Le dépôt encore privé nécessite un jeton GitHub limité à la lecture du contenu de ce dépôt ; aucun changement de visibilité n’est effectué.
+Utiliser l’archive installable de la release et conserver `update-manifest.json`. L’installateur guidé demande la clé privée lue par FTP dans `storage/installation-key.txt`, puis les réglages du carnet et la base dédiée. cURL, ZIP, tokenizer et l’écriture du code sont nécessaires aux mises à jour depuis GitHub. Les releases publiques sont accessibles sans clé ni compte GitHub. Depuis 0.11, la vérification utilise leur annonce JSON publique et les téléchargements directs GitHub.
 
 Les notifications et choix sont dans `storage/updates/settings.json`. Le déploiement prépare une extraction vérifiée, sauvegarde le code et la base, conserve configuration/médias, pose `storage/update-journal.json` et remplace les fichiers sous verrou exclusif. `public/update-guard.php` précède le bootstrap sur les points d’entrée ordinaires. `public/update-health.php` valide le nouveau processus ; `public/recover.php` et la copie privée du moteur de récupération peuvent rétablir la version précédente. Les sauvegardes ne sont pas servies publiquement et restent téléchargeables par l’admin après succès ou retour arrière.
 
@@ -211,3 +211,9 @@ interface.css porte les teintes et fonds des cinq variantes callout. Les ancêtr
 ## Titres des liens de pages — 0.10.2
 
 Le rendu PHP du bloc pageLink résout la cible avec get_page(pageId, public), puis affiche son title échappé. L’attribut label historique reste dans le document pour la compatibilité des sauvegardes, mais n’est plus utilisé pour l’affichage de ce bloc, comme dans PageLinkView. Le mode public utilise toujours le snapshot publié ; le token du lecteur inclut les titres publiés et déclenche son actualisation lorsque la cible est republiée.
+
+## Transport public des mises à jour — 0.11
+
+app/updates.php télécharge Feuillet-release.json via releases/latest/download, puis revalide l’annonce épinglée à la version choisie. updates_release impose format feuillet-release, protocole 1, dépôt exact, tag vX.Y.Z, taille entière 1–100 Mio et SHA-256 hexadécimal. Les URLs des ZIP/checksums/annonces sont construites par updates_download_url, jamais utilisées depuis le JSON distant. updates_url refuse les autres dépôts, ports, identifiants, API REST, versions contradictoires et chemins arbitraires ; seuls les domaines officiels de fichiers peuvent recevoir les redirections. Aucun en-tête Authorization.
+
+updates_state nettoie l’ancienne clé token et réinitialise la vérification associée ; updates_save ne l’écrit plus. L’API ne fournit plus token_configured et refuse une tentative de configuration de cette ancienne option. Le moteur de sauvegarde, les verrous, la validation après démarrage et le retour arrière sont inchangés. Le générateur de distribution produit l’annonce à partir du ZIP final, à côté de son checksum, hors de l’archive pour éviter une empreinte circulaire.

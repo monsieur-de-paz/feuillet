@@ -14,19 +14,23 @@ Une vérification a lieu au plus une fois par jour à l’ouverture ou au retour
 
 Réactiver les notifications remet à zéro les reports et exclusions. Ces choix sont conservés dans le stockage du serveur, pas seulement dans un navigateur. Les brouillons et les préversions GitHub sont exclus ; aucune rétrogradation automatique n’est proposée.
 
-## Hébergement et dépôt privé
+## Hébergement et téléchargements publics
 
-PHP 8.3+, `curl`, `zip`, `tokenizer`, HTTPS sortant vers `api.github.com` et les serveurs officiels d’assets GitHub, ainsi que les droits du propriétaire sur le code et le stockage sont nécessaires. Aucun `777` n’est requis. Un espace libre suffisant pour la release, l’extraction, le code précédent et la base est indispensable. Le contrôle d’espace disponible est indicatif : une erreur d’écriture interrompt l’installation avant toute activation ou déclenche une restauration.
+PHP 8.3+, `curl`, `zip`, `tokenizer`, HTTPS sortant vers `github.com` et les serveurs officiels de téléchargement GitHub, ainsi que les droits du propriétaire sur le code et le stockage sont nécessaires. Aucun `777` n’est requis. Un espace libre suffisant pour la release, l’extraction, le code précédent et la base est indispensable. Le contrôle d’espace disponible est indicatif : une erreur d’écriture interrompt l’installation avant toute activation ou déclenche une restauration.
 
 Un dossier contenant `.git` est une copie de développement : utiliser Git pour cette copie, ou installer une distribution ZIP séparée. Le manifeste vérifie les fichiers originaux de la distribution. Des modifications manuelles du code rendent cette vérification invalide ; conserver ces modifications séparément et les intégrer avant de mettre à jour par FTP.
 
-Tant que le dépôt est privé, configurer un **jeton GitHub à accès fin** limité à ce dépôt, avec **Contents: Read-only**, dans le panneau d’accès privé. Il est enregistré en mode 0600 dans `storage/updates/settings.json`, hors de la racine publique. Il n’est jamais renvoyé par l’API ou placé dans une URL ; l’en-tête Authorization n’est envoyé qu’à `api.github.com`. Les redirections de téléchargement sont vérifiées et ne reçoivent pas ce jeton. Après passage du dépôt en public, le jeton peut être supprimé. Feuillet ne modifie pas la visibilité du dépôt.
+Les mises à jour sont publiques : aucune clé, aucun jeton ni compte GitHub n’est nécessaire. Depuis 0.11, Feuillet lit `https://github.com/monsieur-de-paz/feuillet/releases/latest/download/Feuillet-release.json`, puis revalide l’annonce de la version choisie et télécharge son ZIP et son fichier SHA-256 par leurs adresses publiques. Il ne contacte plus l’API REST GitHub. Cela évite son quota anonyme par IP, partagé entre hébergements utilisant une même adresse sortante. Les téléchargements web restent soumis aux protections et disponibilités de GitHub.
 
-Voir la [documentation officielle des assets GitHub](https://docs.github.com/en/rest/releases/assets) et celle des [jetons personnels](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
+Chaque release stable doit joindre **trois fichiers** : Feuillet-x.y.z.zip, Feuillet-x.y.z.sha256 et **Feuillet-release.json**. Le script `tools/package-release.py` les produit ensemble. L’annonce décrit le dépôt, la version stable, la taille, l’empreinte et les notes. Les adresses sont reconstruites pour le seul dépôt officiel, jamais exécutées depuis un champ libre. Le ZIP, son checksum, ses fichiers et son manifeste sont vérifiés avant activation. HTTPS et la vérification des certificats restent obligatoires.
+
+Les anciennes préférences d’authentification sont supprimées automatiquement du stockage de mise à jour. Aucun formulaire d’identifiant GitHub n’est conservé. Voir [les limites de l’API GitHub](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api) et [les téléchargements de releases](https://docs.github.com/en/repositories/releasing-projects-on-github/linking-to-releases).
+
+Si une ancienne installation ne peut pas atteindre les releases, effectuer une première mise à jour **par FTP vers 0.11 ou plus récent** : exporter une sauvegarde, conserver une copie du code existant, envoyer tous les fichiers de l’archive compilée en gardant config.php et tout storage/. Recharger ensuite Feuillet puis cliquer Vérifier. Il faut transférer l’ensemble du code, des assets et update-manifest.json pour que les empreintes de la distribution installée soient cohérentes ; remplacer uniquement app/updates.php ne constitue pas une mise à jour complète.
 
 ## Vérification et sauvegarde
 
-La release doit fournir `Feuillet-x.y.z.zip`, son fichier `.sha256` et une empreinte SHA-256 identique déclarée par GitHub. L’archive contient `update-manifest.json` : protocole, version, PHP minimal, extensions, tables du logiciel et empreintes des fichiers. Les chemins dangereux, liens symboliques, doublons, fichiers non déclarés, configuration, médias et PHP de syntaxe invalide sont refusés. Limites : ZIP 100 Mio, extraction 200 Mio, 10 000 entrées, 64 Mio par fichier. L’intégrité dépend de la release publiée dans le dépôt de référence ; ces empreintes ne constituent pas une signature indépendante de son propriétaire.
+La release doit fournir `Feuillet-x.y.z.zip`, son fichier `.sha256` et une empreinte SHA-256 identique dans `Feuillet-release.json`. L’archive contient `update-manifest.json` : protocole, version, PHP minimal, extensions, tables du logiciel et empreintes des fichiers. Les chemins dangereux, liens symboliques, doublons, fichiers non déclarés, configuration, médias et PHP de syntaxe invalide sont refusés. Limites : ZIP 100 Mio, extraction 200 Mio, 10 000 entrées, 64 Mio par fichier. L’intégrité dépend de la release publiée dans le dépôt de référence ; ces empreintes ne constituent pas une signature indépendante de son propriétaire.
 
 Avant activation, `storage/updates/<identifiant>/` reçoit :
 
@@ -63,7 +67,7 @@ Le bouton **Sauvegarde avant installation** télécharge une archive privée du 
 
 ## Publier une prochaine release
 
-Mettre à jour `FEUILLET_VERSION`, les versions npm et les docs, construire l’interface, préparer les fichiers Git, puis exécuter `python3 tools/package-release.py --output <dossier>`. Cet outil reconstruit le manifeste à partir des fichiers suivis et génère le ZIP et son SHA-256. Committer aussi le manifeste généré et joindre **les deux fichiers** à une release stable portant `vX.Y.Z`. Ne pas remplacer l’archive par le ZIP automatique « Source code » de GitHub. Une future migration qui ajoute des tables doit mettre à jour `database_tables` dans le générateur et les tests de restauration.
+Mettre à jour `FEUILLET_VERSION`, les versions npm et les docs, construire l’interface, préparer les fichiers Git, puis exécuter `python3 tools/package-release.py --output <dossier>`. Cet outil reconstruit le manifeste à partir des fichiers suivis et génère le ZIP, son SHA-256 et `Feuillet-release.json`. Committer aussi le manifeste généré et joindre **les trois fichiers** à une release stable portant `vX.Y.Z`. Ne pas remplacer l’archive par le ZIP automatique « Source code » de GitHub. Une future migration qui ajoute des tables doit mettre à jour `database_tables` dans le générateur et les tests de restauration.
 
 ### Sessions d’installation
 

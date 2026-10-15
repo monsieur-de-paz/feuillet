@@ -32,4 +32,11 @@ with zipfile.ZipFile(archive) as output:
     if output.testzip() is not None:raise SystemExit('Invalid ZIP')
 checksum=hashlib.sha256(archive.read_bytes()).hexdigest()
 (archive.with_suffix('.sha256')).write_text(checksum+'  '+archive.name+'\n')
+notes=''
+changelog=ROOT/'CHANGELOG.md'
+if changelog.exists():
+    match=re.search(r'^## '+re.escape(version)+r'[^\n]*\n(.*?)(?=^## |\Z)',changelog.read_text(),re.M|re.S)
+    if match:notes=match.group(1).strip()[:12000]
+announcement={'format':'feuillet-release','protocol':1,'repository':'monsieur-de-paz/feuillet','version':version,'tag':'v'+version,'name':'Feuillet '+version,'notes':notes,'size':archive.stat().st_size,'sha256':checksum}
+(args.output/'Feuillet-release.json').write_text(json.dumps(announcement,ensure_ascii=False,indent=2)+'\n')
 print(f'{archive.name}: {len(paths)} files, {archive.stat().st_size} bytes; SHA-256 {checksum}')

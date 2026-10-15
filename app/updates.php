@@ -6,9 +6,10 @@ const UPDATE_TABLES=['pages','revisions','files','spaces','app_settings','catego
 function updates_dir(): string {$dir=storage().'/updates';if(!is_dir($dir)&&!mkdir($dir,0700,true))fail('Dossier des mises à jour inaccessible.',503);return $dir;}
 function updates_state(): array {
     $path=updates_dir().'/settings.json';$value=is_file($path)?json_decode((string)file_get_contents($path),true):[];
-    return array_replace(['notifications'=>true,'postponed_until'=>0,'ignored'=>[],'skip_until'=>null,'checked_at'=>0,'release'=>null,'error'=>null,'token'=>'','last_job'=>null],is_array($value)?$value:[]);
+    if(is_array($value)&&array_key_exists('token',$value)){unset($value['token']);$value['checked_at']=0;$value['error']=null;fu_write($path,$value);}
+    return array_replace(['notifications'=>true,'postponed_until'=>0,'ignored'=>[],'skip_until'=>null,'checked_at'=>0,'release'=>null,'error'=>null,'last_job'=>null],is_array($value)?$value:[]);
 }
-function updates_save(array $state): void {fu_write(updates_dir().'/settings.json',$state);}
+function updates_save(array $state): void {unset($state['token']);fu_write(updates_dir().'/settings.json',$state);}
 function updates_job(string $id): array {if(!preg_match('/^[a-f0-9]{32}$/D',$id))fail('Mise à jour inconnue.',404);$path=updates_dir().'/'.$id.'/job.json';if(!is_file($path))fail('Mise à jour inconnue.',404);return json_decode((string)file_get_contents($path),true,32,JSON_THROW_ON_ERROR);}
 function updates_job_save(array $job): void {$job['updated_at']=time();fu_write(updates_dir().'/'.$job['id'].'/job.json',$job);}
 function updates_lock() { $fp=fopen(storage().'/deployment.lock','c+');if(!$fp||!flock($fp,LOCK_EX|LOCK_NB)){if($fp)fclose($fp);fail('Une opération est en cours. Réessaie dans quelques instants.',409,'update_busy');}return $fp; }
@@ -22,49 +23,56 @@ function updates_status(): array {
     $show=$available&&$s['notifications']&&$s['postponed_until']<=time()&&!in_array($r['version'],$s['ignored'],true)&&(!$s['skip_until']||version_compare($r['version'],$s['skip_until'],'>'));
     $checks=['curl'=>extension_loaded('curl'),'zip'=>class_exists(ZipArchive::class),'tokenizer'=>function_exists('token_get_all'),'code_writable'=>is_writable(FEUILLET_ROOT)&&is_writable(FEUILLET_ROOT.'/public')&&is_writable(FEUILLET_ROOT.'/app'),'storage_writable'=>is_writable(storage()),'distribution'=>is_file(FEUILLET_ROOT.'/update-manifest.json'),'git_checkout'=>is_dir(FEUILLET_ROOT.'/.git')];
     $ready=!in_array(false,array_diff_key($checks,['git_checkout'=>true]),true)&&!$checks['git_checkout'];
-    return ['installed_version'=>FEUILLET_VERSION,'repository'=>UPDATE_REPOSITORY,'notifications'=>(bool)$s['notifications'],'token_configured'=>$s['token']!=='','checked_at'=>$s['checked_at'],'release'=>$r,'available'=>$available,'show_notification'=>$show,'check_error'=>$s['error'],'checks'=>$checks,'ready'=>$ready,'job'=>$job];
+    return ['installed_version'=>FEUILLET_VERSION,'repository'=>UPDATE_REPOSITORY,'notifications'=>(bool)$s['notifications'],'checked_at'=>$s['checked_at'],'release'=>$r,'available'=>$available,'show_notification'=>$show,'check_error'=>$s['error'],'checks'=>$checks,'ready'=>$ready,'job'=>$job];
+}
+function updates_download_url(string $version,string $suffix): string {
+    if(!preg_match('/^\d+\.\d+\.\d+$/D',$version)||!in_array($suffix,['zip','sha256','json'],true))fail('Version de téléchargement invalide.');
+    return 'https://github.com/'.UPDATE_REPOSITORY.'/releases/download/v'.$version.'/'.($suffix==='json'?'Feuillet-release.json':'Feuillet-'.$version.'.'.$suffix);
 }
 function updates_url(string $url,bool $asset=false): array {
     $p=parse_url($url);$host=$p['host']??'';
     if(!$p||($p['scheme']??'')!=='https'||isset($p['user'])||isset($p['pass'])||isset($p['port'])||isset($p['fragment']))fail('Adresse de mise à jour refusée.');
-    if($host==='api.github.com'){
-        if(isset($p['query'])||!preg_match('~^/repos/'.preg_quote(UPDATE_REPOSITORY,'~').'/releases/(latest|tags/v?\d+\.\d+\.\d+|assets/[1-9]\d*)$~D',$p['path']??''))fail('Dépôt de mise à jour refusé.');
+    if($host==='github.com'){
+        $prefix='/'.UPDATE_REPOSITORY.'/releases/';$path=$p['path']??'';
+        if(isset($p['query'])||!str_starts_with($path,$prefix))fail('Dépôt de mise à jour refusé.');
+        $tail=substr($path,strlen($prefix));
+        if($tail!=='latest/download/Feuillet-release.json'){
+            if(!preg_match('~^download/v(\d+\.\d+\.\d+)/(Feuillet-release\.json|Feuillet-(\d+\.\d+\.\d+)\.(zip|sha256))$~D',$tail,$m)||(!empty($m[3])&&$m[1]!==$m[3]))fail('Fichier de mise à jour refusé.');
+        }
     }elseif(!$asset||!in_array($host,['release-assets.githubusercontent.com','objects.githubusercontent.com'],true))fail('Serveur de mise à jour refusé.');
     return $p;
 }
-/** HTTPS, bounded streaming; redirects are validated and never carry the token off api.github.com. */
+/** Public HTTPS downloads only; redirects and response size remain bounded. */
 function updates_http(string $url,string $accept,int $max,?string $destination=null): string {
     if(!extension_loaded('curl'))fail('Active l’extension PHP cURL pour vérifier les mises à jour.',503);
-    $token=updates_state()['token'];
+    updates_url($url); // The first request must belong to this repository.
     for($redirect=0;$redirect<4;$redirect++){
-        $p=updates_url($url,$accept==='application/octet-stream');$headers=['Accept: '.$accept,'User-Agent: Feuillet/'.FEUILLET_VERSION,'X-GitHub-Api-Version: 2022-11-28'];
-        if($p['host']==='api.github.com'&&$token!=='')$headers[]='Authorization: Bearer '.$token;
-        $body='';$bytes=0;$location='';$out=$destination?fopen($destination,'wb'):null;if($destination&&!$out)fail('Téléchargement impossible.',500);
+        updates_url($url,true);$headers=['Accept: '.$accept,'User-Agent: Feuillet/'.FEUILLET_VERSION];
+        $body='';$bytes=0;$location='';$retry='';$out=$destination?fopen($destination,'wb'):null;if($destination&&!$out)fail('Téléchargement impossible.',500);
         $ch=curl_init($url);curl_setopt_array($ch,[CURLOPT_HTTPHEADER=>$headers,CURLOPT_CONNECTTIMEOUT=>10,CURLOPT_TIMEOUT=>60,CURLOPT_FOLLOWLOCATION=>false,CURLOPT_PROTOCOLS=>CURLPROTO_HTTPS,CURLOPT_SSL_VERIFYPEER=>true,CURLOPT_SSL_VERIFYHOST=>2,
-            CURLOPT_HEADERFUNCTION=>static function($ch,$line)use(&$location){if(str_starts_with(strtolower($line),'location:'))$location=trim(substr($line,9));return strlen($line);},
+            CURLOPT_HEADERFUNCTION=>static function($ch,$line)use(&$location,&$retry){if(str_starts_with(strtolower($line),'location:'))$location=trim(substr($line,9));if(str_starts_with(strtolower($line),'retry-after:'))$retry=trim(substr($line,12));return strlen($line);},
             CURLOPT_WRITEFUNCTION=>static function($ch,$chunk)use(&$body,&$bytes,$max,$out){$bytes+=strlen($chunk);if($bytes>$max)return 0;if($out)return fwrite($out,$chunk);$body.=$chunk;return strlen($chunk);}
         ]);
         try{$ok=curl_exec($ch);$status=(int)curl_getinfo($ch,CURLINFO_RESPONSE_CODE);}finally{unset($ch);if($out)fclose($out);}
         if(in_array($status,[301,302,303,307,308],true)&&$location!==''){updates_url($location,true);$url=$location;continue;}
         if($ok===false||$bytes>$max)fail('Téléchargement interrompu ou trop volumineux. Réessaie plus tard.',503,'update_download');
-        if($status===404)fail('Releases indisponibles. Si le dépôt est privé, renseigne un jeton GitHub avec accès en lecture au contenu.',503,'update_private');
-        if($status===401||$status===403)fail('GitHub refuse la vérification : vérifie le jeton ou réessaie après la limite de requêtes.',503,'update_access');
-        if($status!==200)fail('GitHub est temporairement indisponible. Réessaie plus tard.',503,'update_download');return $body;
+        if($status===404)fail('La distribution publique de cette version est indisponible. Réessaie plus tard ou utilise l’archive de la release.',503,'update_missing');
+        if($status===429||$status===403){$delay=ctype_digit($retry)?' Réessaie dans '.max(1,(int)ceil((int)$retry/60)).' minute(s).':' Réessaie plus tard.';fail('GitHub limite temporairement les téléchargements publics.'.$delay,503,'update_rate_limit');}
+        if($status!==200)fail('Téléchargement public GitHub indisponible (HTTP '.$status.'). Réessaie plus tard.',503,'update_download');return $body;
     }fail('Trop de redirections GitHub.',503);
 }
 function updates_release(array $raw): array {
-    if(!empty($raw['draft'])||!empty($raw['prerelease'])||!preg_match('/^v?(\d+\.\d+\.\d+)$/D',$raw['tag_name']??'',$m))fail('Release stable compatible introuvable.');
-    $version=$m[1];$asset=null;$sum=null;foreach($raw['assets']??[] as $a){if(($a['name']??'')==='Feuillet-'.$version.'.zip')$asset=$a;if(($a['name']??'')==='Feuillet-'.$version.'.sha256')$sum=$a;}
-    if(!$asset||!$sum||!preg_match('/^sha256:([a-f0-9]{64})$/D',$asset['digest']??'',$hash))fail('La release ne contient pas une distribution vérifiable.');
-    foreach([$asset,$sum] as $a){if(!is_int($a['id']??null)||$a['id']<1)fail('Pièce de release invalide.');}
-    if(($asset['size']??0)<1||$asset['size']>104857600)fail('Distribution trop volumineuse.');
-    return ['version'=>$version,'tag'=>$raw['tag_name'],'name'=>str_limit($raw['name']??'Feuillet '.$version,200),'notes'=>str_limit($raw['body']??'',12000),'url'=>'https://github.com/'.UPDATE_REPOSITORY.'/releases/tag/'.rawurlencode($raw['tag_name']),'asset_id'=>$asset['id'],'checksum_id'=>$sum['id'],'size'=>(int)$asset['size'],'sha256'=>$hash[1],'published_at'=>str_limit($raw['published_at']??'',50)];
+    $version=$raw['version']??'';
+    if(($raw['format']??'')!=='feuillet-release'||($raw['protocol']??0)!==1||($raw['repository']??'')!==UPDATE_REPOSITORY||!is_string($version)||!preg_match('/^\d+\.\d+\.\d+$/D',$version)||($raw['tag']??'')!=='v'.$version)fail('Annonce de release publique incompatible.');
+    if(!is_string($raw['sha256']??null)||!preg_match('/^[a-f0-9]{64}$/D',$raw['sha256'])||!is_int($raw['size']??null)||$raw['size']<1||$raw['size']>104857600)fail('La release ne contient pas une distribution vérifiable.');
+    foreach(['name','notes'] as $key)if(isset($raw[$key])&&!is_string($raw[$key]))fail('Annonce de release publique invalide.');
+    return ['version'=>$version,'tag'=>$raw['tag'],'name'=>str_limit($raw['name']??'Feuillet '.$version,200),'notes'=>str_limit($raw['notes']??'',12000),'url'=>'https://github.com/'.UPDATE_REPOSITORY.'/releases/tag/v'.$version,'size'=>$raw['size'],'sha256'=>$raw['sha256']];
 }
 function updates_check(bool $force=false): array {
     $s=updates_state();if(!$force&&(!$s['notifications']||$s['checked_at']>time()-86400))return updates_status();
     if($s['checked_at']>time()-60)return updates_status(); // even manual checks respect a small rate limit
     $s['checked_at']=time();$s['error']=null;
-    try{$raw=json_decode(updates_http('https://api.github.com/repos/'.UPDATE_REPOSITORY.'/releases/latest','application/vnd.github+json',2097152),true,40,JSON_THROW_ON_ERROR);$s['release']=updates_release($raw);}catch(Throwable $e){$s['error']=$e instanceof AppError?$e->getMessage():'Réponse GitHub illisible. Réessaie plus tard.';}
+    try{$raw=json_decode(updates_http('https://github.com/'.UPDATE_REPOSITORY.'/releases/latest/download/Feuillet-release.json','application/json',2097152),true,40,JSON_THROW_ON_ERROR);$s['release']=updates_release($raw);}catch(Throwable $e){$s['error']=$e instanceof AppError?$e->getMessage():'Réponse GitHub illisible. Réessaie plus tard.';}
     updates_save($s);return updates_status();
 }
 function updates_preferences(array $in): array {
@@ -75,7 +83,7 @@ function updates_preferences(array $in): array {
     elseif($action==='mute')$s['notifications']=false;
     elseif($action==='enable'){$s['notifications']=true;$s['postponed_until']=0;$s['ignored']=[];$s['skip_until']=null;}
     elseif($action!==null)fail('Choix de notification invalide.');
-    if(array_key_exists('token',$in)){$token=$in['token'];if(!is_string($token)||strlen($token)>255||($token!==''&&!preg_match('/^[a-zA-Z0-9_]+$/D',$token)))fail('Jeton GitHub invalide.');$s['token']=$token;$s['checked_at']=0;$s['error']=null;}
+    if(array_key_exists('token',$in))fail('Les mises à jour utilisent uniquement les téléchargements publics de Feuillet.');
     updates_save($s);return updates_status();
 }
 function updates_manifest(string $directory,?string $expected=null): array {
@@ -93,8 +101,8 @@ function updates_start(string $version): array {
     $s=updates_state();if(!updates_available($s)||$version!==$s['release']['version'])fail('Vérifie la dernière release avant de l’installer.',409);
     if(is_file(storage().'/update-journal.json'))fail('Une installation doit être terminée ou restaurée.',409);
     if($s['last_job']){$last=updates_job($s['last_job']);if(!in_array($last['phase'],['complete','failed','rolled_back'],true)&&($last['updated_at']??0)>time()-900)fail('Une mise à jour est déjà préparée.',409);}
-    $fresh=updates_release(json_decode(updates_http('https://api.github.com/repos/'.UPDATE_REPOSITORY.'/releases/tags/'.rawurlencode($s['release']['tag']),'application/vnd.github+json',2097152),true,40,JSON_THROW_ON_ERROR));
-    if($fresh['sha256']!==$s['release']['sha256'])fail('La release a changé. Vérifie-la de nouveau.',409);
+    $fresh=updates_release(json_decode(updates_http(updates_download_url($version,'json'),'application/json',2097152),true,40,JSON_THROW_ON_ERROR));
+    if($fresh['version']!==$version||$fresh['sha256']!==$s['release']['sha256']||$fresh['size']!==$s['release']['size'])fail('La release a changé. Vérifie-la de nouveau.',409);
     $id=bin2hex(random_bytes(16));mkdir(updates_dir().'/'.$id,0700);
     $job=['id'=>$id,'version'=>$version,'previous_version'=>FEUILLET_VERSION,'release'=>$fresh,'phase'=>'download','message'=>'Téléchargement de la release','files_changed'=>false,'database_changed'=>false,'tables'=>UPDATE_TABLES,'created_at'=>time()];updates_job_save($job);$s['last_job']=$id;updates_save($s);return $job;
 }
@@ -141,8 +149,8 @@ function updates_step(string $id): array {
     $deployment=$job['phase']==='apply'?updates_lock():null;
     try{
         if($job['phase']==='download'){
-            $r=$job['release'];updates_http('https://api.github.com/repos/'.UPDATE_REPOSITORY.'/releases/assets/'.$r['asset_id'],'application/octet-stream',104857600,$folder.'/release.zip');
-            $sum=updates_http('https://api.github.com/repos/'.UPDATE_REPOSITORY.'/releases/assets/'.$r['checksum_id'],'application/octet-stream',4096);
+            $r=$job['release'];updates_http(updates_download_url($r['version'],'zip'),'application/octet-stream',104857600,$folder.'/release.zip');
+            $sum=updates_http(updates_download_url($r['version'],'sha256'),'application/octet-stream',4096);
             if(!preg_match('/^([a-f0-9]{64})\s+Feuillet-'.preg_quote($job['version'],'/').'\.zip\s*$/D',trim($sum),$m)||$m[1]!==$r['sha256']||hash_file('sha256',$folder.'/release.zip')!==$r['sha256']||filesize($folder.'/release.zip')!==$r['size'])fail('L’empreinte de la release ne correspond pas. Rien n’a été installé.');
             $job['phase']='extract';$job['message']='Vérification des fichiers';
         }elseif($job['phase']==='extract'){updates_extract($job);$job['phase']='apply';$job['message']='Sauvegarde puis installation';}
