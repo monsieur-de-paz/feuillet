@@ -23,3 +23,9 @@ Aucune nouvelle dépendance de production ni colonne SQL. La distribution compil
 ## Correctif 0.10.1 — encadrés lisibles
 
 Les cinq couleurs d’encadrés suivent maintenant les thèmes clair, sombre et OLED, aussi bien dans l’éditeur que dans la lecture publique. Les fonds pastel sont réservés au thème clair ; les thèmes sombres emploient une teinte à 14 % mélangée à la surface courante. Le texte par défaut suit le thème. Aucun contenu enregistré ni réglage de publication n’est modifié.
+
+## Correctif 0.10.2 — titres des sous-pages
+
+Lorsqu’un bloc de lien était créé avant de nommer une sous-page, il gardait un libellé « Sans titre ». L’éditeur affichait le titre actuel, mais le lecteur serveur privilégiait ce libellé ancien. Le lecteur utilise désormais le titre de la page cible obtenu avec les mêmes droits de lecture : titre publié pour un visiteur, sans divulguer un changement encore en brouillon.
+
+Les liens existants sont corrigés à l’affichage, y compris dans les colonnes. Aucune migration SQL ni modification des contenus n’est nécessaire. Pour une installation 0.10.x, le correctif ponctuel consiste à remplacer app/render.php par le fichier de cette version, puis recharger la page publique. Pour installer toute la version 0.10.2, utiliser la mise à jour intégrée ou l’archive compilée en conservant config.php et storage/.

@@ -32,7 +32,7 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
     if($t==='details')return '<details><summary>'.h($a['summary']??'En savoir plus').'</summary>'.$children.'</details>';
     if($t==='pageLink'){
         try{$p=get_page(str_limit($a['pageId']??'',36),$public);}catch(Throwable){return '';}
-        return '<a class="page-link" href="'.h($public?reader_page_url($p):'index.php?page='.rawurlencode($p['slug'])).'"><span>'.render_page_icon($p).'</span> '.h(($a['label']??'')?:$p['title']).'</a>';
+        return '<a class="page-link" href="'.h($public?reader_page_url($p):'index.php?page='.rawurlencode($p['slug'])).'"><span>'.render_page_icon($p).'</span> '.h($p['title']).'</a>';
     }
     if($t==='buttonLink'||$t==='bookmark'){
         $url=safe_url($a['href']??'');if(!$url)return '';

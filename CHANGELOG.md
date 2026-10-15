@@ -1,5 +1,11 @@
 # Historique des versions
 
+## 0.10.2 — 16 octobre 2026
+
+- Les liens vers les sous-pages affichent leur titre publié actuel au lieu du libellé conservé à la création, notamment « Sans titre ».
+- Même comportement dans les colonnes et après actualisation automatique du lecteur ; les titres de brouillon restent privés.
+- Correction immédiate des liens existants, sans réécriture de contenu ni nouvelle publication du parent.
+
 ## 0.10.1 — 15 octobre 2026
 
 - Encadrés bleu, vert, jaune, rose et gris adaptés aux thèmes sombre et OLED en lecture publique et dans l’éditeur.

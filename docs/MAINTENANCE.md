@@ -209,3 +209,7 @@ Déployer le code et les assets compilés en conservant configuration et stockag
 Cette version n’ajoute aucune colonne SQL. Les décorations des carnets résident dans app_settings (`space_visual_<UUID>`), à conserver avec la base lors d’une restauration complète. Le ZIP portable transporte aussi les références d’images et leur position. Une modification partielle du nom conserve la couverture et l’icône importée ; remplacer l’icône par un emoji retire sa référence de fichier.
 
 Après mise à jour, vérifier depuis un accueil de carnet : renommage, icône, ajout/repositionnement de couverture et persistance après rechargement. Dans la bibliothèque, vérifier l’utilisation privée du média. Ouvrir la publication d’une page déjà publique et copier son adresse. Sur le téléphone cible en HTTPS, vérifier la feuille de partage et son annulation. L’absence de Web Share ou d’accès au presse-papiers ne doit pas empêcher la copie manuelle du lien.
+
+## Liens affichant Sans titre — 0.10.2
+
+Si le titre de la sous-page est correct à son ouverture mais que le lien parent affiche Sans titre, installer 0.10.2. Le problème vient de l’ancien libellé stocké dans le bloc, pas de l’adresse sans-titre-… qui reste valide. Les documents existants sont corrigés au rendu sans recréer de liens ni republier le parent. Pour un correctif ponctuel sur 0.10.x, remplacer uniquement feuillet/app/render.php avec celui de 0.10.2, puis recharger la page. L’installation complète de la version garde la configuration et le stockage existants.

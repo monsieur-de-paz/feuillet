@@ -33,6 +33,18 @@ class Reader(unittest.TestCase):
   db=self.ok(self.admin.api('db_save',{'name':'Base publique','visibility':'public'}))['database'];prop=self.ok(self.admin.api('property_save',{'db_id':db['id'],'name':'Nom','type':'title'}))['property'];row=self.ok(self.admin.api('row_save',{'db_id':db['id'],'values':{prop['id']:'FICHE_INITIALE'}}))['row'];zero=self.ok(self.admin.api('property_save',{'db_id':db['id'],'name':'Zéro','type':'number'}))['property'];row=self.ok(self.admin.api('row_patch',{'id':row['id'],'property_id':zero['id'],'version':row['version'],'value':0}))['row'];p=self.publish(self.page('Une base',[{'type':'databaseView','attrs':{'dbId':db['id']}},{'type':'databaseView','attrs':{'dbId':db['id'],'viewConfig':{'layout':'gallery'}}}]));state=self.state(p);self.assertIn('<strong>Zéro</strong><p>0</p>',state['html'])
   self.ok(self.admin.api('row_patch',{'id':row['id'],'property_id':prop['id'],'version':row['version'],'value':'FICHE_MODIFIEE'}));changed=self.state(p,state['token']);self.assertIn('FICHE_MODIFIEE',changed['html'])
   self.ok(self.admin.api('row_save',{'db_id':db['id'],'visibility':'private','values':{prop['id']:'REPONSE_PRIVEE_SECRETE'}}));same=self.state(p,changed['token']);self.assertEqual(same,{'token':changed['token']})
+ def test_06_page_links_follow_published_titles_not_creation_labels(self):
+  self.ok(self.admin.api('settings',{'notebook':{'auto_publish':False}}))
+  root=self.page('Ressources');child=self.page('Sans titre');child=self.ok(self.admin.api('move',{'id':child['id'],'version':child['version'],'parent_id':root['id']}))['page']
+  link={'type':'pageLink','attrs':{'pageId':child['id'],'label':'Sans titre','icon':'📄'}}
+  root=self.ok(self.admin.api('save',{**root,'content':{'type':'doc','content':[{'type':'columns','content':[{'type':'column','content':[link]}]}]}}))['page']
+  child=self.ok(self.admin.api('save',{**child,'title':'4eme & découvertes'}))['page'];root=self.publish(root)
+  html=self.ok(self.visitor.request('index.php?page='+root['id']+'&read=1&root='+root['id'])).decode();self.assertIn('4eme &amp; découvertes</a>',html);self.assertNotIn('Sans titre',html)
+  state=self.state(root);self.assertIn('4eme &amp; découvertes</a>',state['html'])
+  child=self.ok(self.admin.api('page',query='&id='+child['id']))['page'];child=self.ok(self.admin.api('save',{**child,'title':'TITRE_BROUILLON_SECRET'}))['page'];unchanged=self.state(root,state['token']);self.assertEqual(unchanged,{'token':state['token']})
+  html=self.ok(self.admin.request('index.php?page='+root['id']+'&read=1&root='+root['id'])).decode();self.assertNotIn('TITRE_BROUILLON_SECRET',html);self.assertIn('4eme &amp; découvertes</a>',html)
+  self.publish(child);updated=self.state(root,state['token']);self.assertIn('TITRE_BROUILLON_SECRET</a>',updated['html']);self.assertNotEqual(updated['token'],state['token'])
+  self.assertEqual(self.ok(self.admin.api('page',query='&id='+root['id']))['page']['content']['content'][0]['content'][0]['content'][0]['attrs']['label'],'Sans titre')
  def test_05_empty_home_brand_and_theme_controls(self):
   n=self.ok(self.admin.api('settings'))['notebook'];self.ok(self.admin.api('settings',{'notebook':{**n,'icon':'lucide:book-open:#2563EB'}}));state=self.ok(self.visitor.request('reader-state.php'));self.assertIn('icons.svg#book-open',state['breadcrumbs']);self.assertIn('#2563EB',state['breadcrumbs']);html=self.ok(self.visitor.request('index.php?read=1')).decode();self.assertIn('theme-toggle.css',html);self.assertIn('theme.js',html);self.assertIn('data-theme-main',html)
   self.ok(self.visitor.request('reader-state.php',{},method='POST'),405)

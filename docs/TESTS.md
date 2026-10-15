@@ -388,3 +388,11 @@ Anomalie reproduite dans le lecteur public : fond bleu rgb(234,242,250) avec tex
 Le lecteur OLED à 390 × 844 ne présente aucun débordement horizontal. Les contenus et réglages des pages utilisateur sont conservés ; la page de palette est créée uniquement dans une copie de test indépendante. Capture Feuillet-0.10.1-encadres-sombre.png livrée séparément. Build TypeScript/Vite, Prettier, 143 contrôles frontend et parité de 24 couleurs réussis ; suites personnalisation et lecteur : 14 tests réussis sur SQLite et 14 sur MySQL. Les tests complets de 0.10.0 restent le socle de régression ; ils n’ont pas tous été rejoués pour ce correctif CSS.
 
 Les versions des 106 paquets installés sont également comparées au verrou npm après correction des métadonnées fflate et des contraintes Node. Les fichiers compilés utilisent les mêmes dépendances que la version précédente.
+
+## Titres de liens publics — 0.10.2
+
+Anomalie observée sur une page publique en ligne : un lien affichait Sans titre alors que l’ouverture de sa cible affichait bien 4eme. Le lecteur PHP donnait la priorité au label initial du bloc, contrairement à l’éditeur React.
+
+Nouveau scénario reader.py : lien à ancien label dans une colonne ; renommage de cible, publication et rendu HTML échappé ; changement de titre laissé en brouillon invisible même au lecteur public d’un administrateur connecté ; token inchangé pour le brouillon ; token et lien actualisés après publication de la cible sans republier le parent. Le document source conserve son label historique, sans mutation automatique. Les contrôles de partage vérifient toujours les liens vers des cibles privées ou extérieures à la branche.
+
+Suites reader.py, sharing.py et smoke.py : **42 réussites et un scénario réseau ignoré sur SQLite**, puis mêmes résultats sur MySQL. Syntaxe PHP du fichier modifié et git diff --check réussis. Dans une copie de test indépendante, anciens liens Sans titre affichant 4eme et 3eme puis ouverture de 4eme confirmée dans le navigateur. Capture Feuillet-0.10.2-titres-liens.png livrée séparément. Le serveur OVH a seulement été consulté : le remplacement de code y reste à effectuer par l’administrateur. Le frontend compilé est inchangé pour ce correctif PHP.

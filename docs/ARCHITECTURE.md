@@ -207,3 +207,7 @@ AdminHome est partagé entre l’accueil général et ceux des carnets. notebook
 ## Palette des encadrés — 0.10.1
 
 interface.css porte les teintes et fonds des cinq variantes callout. Les ancêtres data-theme dark/oled déclenchent le mélange avec --surface ; le texte utilise --ink. prepare-shared-styles.mjs copie cette même source vers public/interface.css, également chargée après reader.css. Les changements du thème visiteur sont ainsi appliqués sans sauvegarde ni transformation du document.
+
+## Titres des liens de pages — 0.10.2
+
+Le rendu PHP du bloc pageLink résout la cible avec get_page(pageId, public), puis affiche son title échappé. L’attribut label historique reste dans le document pour la compatibilité des sauvegardes, mais n’est plus utilisé pour l’affichage de ce bloc, comme dans PageLinkView. Le mode public utilise toujours le snapshot publié ; le token du lecteur inclut les titres publiés et déclenche son actualisation lorsque la cible est republiée.
