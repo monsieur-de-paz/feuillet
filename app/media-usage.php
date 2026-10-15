@@ -22,7 +22,8 @@ function media_usage(string $id): array {
         if($draft||$published)$append(['kind'=>'page','id'=>$row['id'],'title'=>$row['title'],'visibility'=>$row['visibility'],'deleted'=>!!$row['deleted_at'],'draft'=>!!$draft,'published'=>!!$published,'places'=>array_values(array_unique([...$draft,...$published]))]);
     }
     foreach(query('SELECT page_id,snapshot FROM revisions WHERE snapshot LIKE ? LIMIT 201',[$needle])->fetchAll() as $revision){$p=json_decode($revision['snapshot'],true);if(!$p||!$references($p,false))continue;$key='revision:'.$revision['page_id'];if(isset($seenHistory[$key]))continue;$seenHistory[$key]=true;$append(['kind'=>'revision','id'=>$revision['page_id'],'title'=>$byId[$revision['page_id']]['title']??$p['title'],'visibility'=>'private','places'=>['Anciennes versions']]);}
-    if((notebook_settings()['icon_id']??null)===$id)$append(['kind'=>'notebook','title'=>'Icône du carnet','visibility'=>'public','places'=>['Toutes les pages']]);
+    foreach(list_spaces() as $space){$places=[];if(($space['icon_id']??null)===$id)$places[]='Icône';if(($space['cover_id']??null)===$id)$places[]='Couverture';if($places)$append(['kind'=>'space','id'=>$space['id'],'title'=>$space['name'],'visibility'=>'private','places'=>$places]);}
+    if((notebook_settings()['icon_id']??null)===$id)$append(['kind'=>'notebook','title'=>'Icône du site','visibility'=>'public','places'=>['Toutes les pages']]);
     if(query('SELECT file_id FROM form_uploads WHERE file_id=? AND used_row_id IS NULL',[$id])->fetch())$append(['kind'=>'pending','title'=>'Pièce jointe de formulaire en attente','visibility'=>'private','places'=>['Envoi non terminé']]);
     return ['file_id'=>$id,'public'=>file_public($id),'usages'=>$usages,'truncated'=>$truncated||count($matches)>200];
 }

@@ -71,6 +71,11 @@ function import_backup(): never {
             if(!empty($notebook['icon_id'])){if(!is_string($notebook['icon_id'])||!isset($fileMap[$notebook['icon_id']]))fail('Fichier d’icône du carnet manquant.');$notebook['icon_id']=$fileMap[$notebook['icon_id']];}
             $notebook=notebook_validate($notebook);query("DELETE FROM app_settings WHERE name='notebook'");query('INSERT INTO app_settings (name,value) VALUES (?,?)',['notebook',encoded($notebook)]);
         }
+        foreach($spaces as $space){
+            $visual=['cover_position'=>$space['cover_position']??['x'=>50,'y'=>50]];
+            foreach(['icon_id','cover_id'] as $key){$old=$space[$key]??null;if($old!==null&&(!is_string($old)||!isset($fileMap[$old])))fail('Image de carnet manquante dans l’archive.');$visual[$key]=$old?$fileMap[$old]:null;}
+            space_visual_store($spaceMap[$space['id']],$visual);
+        }
         foreach($manifest['pages'] as $p){if(!is_array($p)||!preg_match('/^[a-f0-9-]{36}$/',$p['id']??'')||isset($pageMap[$p['id']]))fail('Page du manifeste invalide.');$pageMap[$p['id']]=uuid();}
         $databaseData=$manifest['database_data']??[];if(!is_array($databaseData))fail('Sauvegarde des bases invalide.');$databaseMaps=database_import($databaseData,$fileMap,$pageMap);
         $rewrite=function(array $node) use (&$rewrite,$fileMap,$pageMap,$databaseMaps,$categoryMap,$spaceMap): array {

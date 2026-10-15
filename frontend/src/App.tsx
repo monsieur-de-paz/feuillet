@@ -5,6 +5,7 @@ import {
   UpdateProgress,
 } from "./Updates";
 import { FeuilletLogo } from "./FeuilletLogo";
+import { PublicLinkSharing } from "./PublicLinkSharing";
 import { AdminHome } from "./AdminHome";
 import { ContextMenu, type MenuAction } from "./ContextMenu";
 import { Select } from "./Select";
@@ -38,7 +39,7 @@ import {
   LogOut,
   LogIn,
   X,
-  Upload,
+  FileInput,
   Download,
   ArrowLeft,
   Settings,
@@ -319,6 +320,8 @@ export default function App() {
     "global",
   );
   const [focus, setFocus] = useState(false);
+  const [iconSpaceId, setIconSpaceId] = useState("");
+  const spaceSave = useRef<Promise<void>>(Promise.resolve());
   const [spaceForm, setSpaceForm] = useState({ id: "", name: "", icon: "📚" });
   const [moveSpace, setMoveSpace] = useState("");
   const [imageTab, setImageTab] = useState<"files" | "internet">("files");
@@ -425,7 +428,9 @@ export default function App() {
   });
   const [loginPassword, setLoginPassword] = useState("");
   const [moveParent, setMoveParent] = useState("");
-  const [iconTarget, setIconTarget] = useState<"page" | "notebook">("page");
+  const [iconTarget, setIconTarget] = useState<"page" | "notebook" | "space">(
+    "page",
+  );
   const editorRef = useRef<Editor | null>(null);
   const insertEditor = useRef<Editor | null>(null);
   const draftRef = useRef<Page | null>(null);
@@ -1185,6 +1190,17 @@ export default function App() {
     imageCallback.current = onSelect || null;
     void showFiles(purpose);
   }
+  async function updateSpaceDirect(id: string, patch: Partial<Space>) {
+    const task = spaceSave.current
+      .catch(() => {})
+      .then(async () => {
+        await api("save_space", { ...patch, id });
+        await loadList();
+        notify("Le carnet a été enregistré.");
+      });
+    spaceSave.current = task;
+    return task;
+  }
   function showNotebookIcon() {
     setIconTarget("notebook");
     showModal("icon");
@@ -1194,7 +1210,12 @@ export default function App() {
     file: FileRecord | null = null,
     target = iconTarget,
   ) {
-    if (target === "notebook")
+    if (target === "space")
+      await updateSpaceDirect(iconSpaceId, {
+        icon: value || "📚",
+        icon_id: file?.id || null,
+      });
+    else if (target === "notebook")
       await saveNotebook({
         ...notebook,
         icon: value,
@@ -1219,9 +1240,12 @@ export default function App() {
         fd.append("file", file);
         const r = await api("upload", fd);
         await applyChosenIcon(
-          target === "notebook"
-            ? notebook.icon || "f."
-            : draftRef.current?.icon || "📄",
+          target === "space"
+            ? spacesRef.current.find((space) => space.id === iconSpaceId)
+                ?.icon || "📚"
+            : target === "notebook"
+              ? notebook.icon || "f."
+              : draftRef.current?.icon || "📄",
           r.file,
           target,
         );
@@ -1231,9 +1255,12 @@ export default function App() {
     chooseImage("icon", (stored) => {
       void perform(() =>
         applyChosenIcon(
-          target === "notebook"
-            ? notebook.icon || "f."
-            : draftRef.current?.icon || "📄",
+          target === "space"
+            ? spacesRef.current.find((space) => space.id === iconSpaceId)
+                ?.icon || "📚"
+            : target === "notebook"
+              ? notebook.icon || "f."
+              : draftRef.current?.icon || "📄",
           stored,
           target,
         ),
@@ -1295,6 +1322,11 @@ export default function App() {
       const result = await api("save_space", {
         ...spaceForm,
         id: spaceForm.id || undefined,
+        ...(spaceForm.id &&
+        spaces.find((space) => space.id === spaceForm.id)?.icon !==
+          spaceForm.icon
+          ? { icon_id: null }
+          : {}),
       });
       await loadList();
       if (result.id || result.space?.id)
@@ -1695,7 +1727,7 @@ export default function App() {
         : []),
       {
         label: "Importer une page",
-        icon: <Upload />,
+        icon: <FileInput />,
         run: action(() => showModal("import-document")),
         group: "export",
       },
@@ -2036,7 +2068,11 @@ export default function App() {
                     }
                   }}
                 >
-                  <FeuilletIcon icon={space.icon} size={18} />
+                  <FeuilletIcon
+                    icon={space.icon}
+                    iconId={space.icon_id}
+                    size={18}
+                  />
                   <span className="space-name">{space.name}</span>
                 </button>
                 {admin && (
@@ -2456,7 +2492,7 @@ export default function App() {
                   title="Importer une page"
                   onClick={() => showModal("import-document")}
                 >
-                  <Upload size={19} />
+                  <FileInput size={19} />
                 </button>
                 <button
                   className="icon-button"
@@ -2543,6 +2579,45 @@ export default function App() {
             <AdminHome
               key={dashboardNotebook?.id || "global"}
               notebook={dashboardNotebook}
+              onUpdateNotebook={(patch) =>
+                updateSpaceDirect(dashboardNotebook!.id, patch)
+              }
+              onEditNotebookIcon={() => {
+                setIconSpaceId(dashboardNotebook!.id);
+                setIconTarget("space");
+                showModal("icon");
+              }}
+              onChooseNotebookCover={() => {
+                const id = dashboardNotebook!.id;
+                chooseImage("cover", (file) => {
+                  void perform(() =>
+                    updateSpaceDirect(id, {
+                      cover_id: file.id,
+                      cover_position: { x: 50, y: 50 },
+                    }),
+                  );
+                });
+              }}
+              onZoomCover={() =>
+                setZoomedImage({
+                  src: fileUrl(dashboardNotebook!.cover_id!),
+                  alt: "Couverture du carnet",
+                })
+              }
+              mediaCredits={
+                dashboardNotebook && (
+                  <>
+                    <MediaCredit
+                      credit={dashboardNotebook.cover_attribution}
+                      label="Couverture"
+                    />
+                    <MediaCredit
+                      credit={dashboardNotebook.icon_attribution}
+                      label="Icône"
+                    />
+                  </>
+                )
+              }
               categories={categories}
               categoryId={kind}
               onCategoryChange={setKind}
@@ -3147,6 +3222,9 @@ export default function App() {
               consultation publique.
             </p>
             {draft.visibility === "public" && (
+              <PublicLinkSharing key={draft.id} id={draft.slug || draft.id} />
+            )}
+            {draft.visibility === "public" && (
               <a
                 className="public-url"
                 href={`${pageUrl(draft.slug || draft.id)}&read=1`}
@@ -3192,29 +3270,41 @@ export default function App() {
         <Modal
           title={
             iconTarget === "notebook"
-              ? "L’icône du carnet"
-              : "L’icône de la page"
+              ? "L’icône du site"
+              : iconTarget === "space"
+                ? "L’icône du carnet"
+                : "L’icône de la page"
           }
           onClose={() => setModal(null)}
         >
           <IconPicker
             value={{
               emoji:
-                iconTarget === "notebook"
-                  ? notebook.icon || "f."
-                  : draft?.icon || "📄",
-              webIcon: (iconTarget === "notebook"
-                ? notebook.icon
-                : draft?.icon
+                iconTarget === "space"
+                  ? spaces.find((space) => space.id === iconSpaceId)?.icon ||
+                    "📚"
+                  : iconTarget === "notebook"
+                    ? notebook.icon || "f."
+                    : draft?.icon || "📄",
+              webIcon: (iconTarget === "space"
+                ? spaces.find((space) => space.id === iconSpaceId)?.icon
+                : iconTarget === "notebook"
+                  ? notebook.icon
+                  : draft?.icon
               )?.startsWith("lucide:")
-                ? iconTarget === "notebook"
-                  ? notebook.icon!
-                  : draft!.icon
+                ? (iconTarget === "space"
+                    ? spaces.find((space) => space.id === iconSpaceId)?.icon
+                    : iconTarget === "notebook"
+                      ? notebook.icon
+                      : draft?.icon) || null
                 : null,
               iconId:
-                iconTarget === "notebook"
-                  ? notebook.icon_id || null
-                  : draft?.icon_id || null,
+                iconTarget === "space"
+                  ? spaces.find((space) => space.id === iconSpaceId)?.icon_id ||
+                    null
+                  : iconTarget === "notebook"
+                    ? notebook.icon_id || null
+                    : draft?.icon_id || null,
             }}
             busy={busy}
             onEmoji={(value) => void perform(() => applyChosenIcon(value))}
@@ -3222,7 +3312,13 @@ export default function App() {
             onImage={iconImageAction}
             onRemove={() =>
               void perform(() =>
-                applyChosenIcon(iconTarget === "notebook" ? "f." : "📄"),
+                applyChosenIcon(
+                  iconTarget === "notebook"
+                    ? "f."
+                    : iconTarget === "space"
+                      ? "📚"
+                      : "📄",
+                ),
               )
             }
           />
@@ -3331,7 +3427,7 @@ export default function App() {
                     void upload(e.dataTransfer.files[0]);
                 }}
               >
-                {busy ? <Spinner /> : <Upload size={25} />}
+                {busy ? <Spinner /> : <FileInput size={25} />}
                 <strong>
                   {busy ? "Envoi en cours…" : "Ajouter un fichier"}
                 </strong>
@@ -3418,6 +3514,12 @@ export default function App() {
                           </small>
                         </div>
                         <MediaUsage
+                          onOpenSpace={async (id) => {
+                            if (await save()) {
+                              setModal(null);
+                              void openDashboard(false, id);
+                            }
+                          }}
                           id={file.id}
                           name={file.name}
                           onOpenPage={async (id) => {
@@ -3464,7 +3566,7 @@ export default function App() {
             <p className="library-note">
               <ShieldCheck size={14} /> Les fichiers sont accessibles aux
               visiteurs via une page ou une base publiée, ou comme icône du
-              carnet.
+              site. Les décorations de carnet restent privées.
             </p>
           </div>
         </Modal>
@@ -3951,7 +4053,7 @@ export default function App() {
               </div>
             </div>
             <div className="settings-card">
-              <Upload size={25} />
+              <FileInput size={25} />
               <div>
                 <h3>Restaurer une sauvegarde</h3>
                 <p>

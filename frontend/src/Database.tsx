@@ -25,7 +25,7 @@ import {
   Settings,
   ShieldCheck,
   Trash2,
-  Upload,
+  FileInput,
   X,
   AlertCircle,
   Table,
@@ -305,7 +305,7 @@ function Field({
           ))}
         </div>
         <label className="database-file-input">
-          <Upload size={15} /> Ajouter des fichiers
+          <FileInput size={15} /> Ajouter des fichiers
           <input
             type="file"
             multiple

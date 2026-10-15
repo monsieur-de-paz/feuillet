@@ -17,10 +17,12 @@ export function MediaUsage({
   id,
   name,
   onOpenPage,
+  onOpenSpace,
 }: {
   id: string;
   name: string;
   onOpenPage: (id: string) => void;
+  onOpenSpace?: (id: string) => void;
 }) {
   const [open, setOpen] = useState(false),
     [data, setData] = useState<Result | null>(null),
@@ -81,12 +83,18 @@ export function MediaUsage({
                     {data.usages.map((u, i) => (
                       <li key={`${u.kind}-${u.id || i}`}>
                         <div>
-                          {(u.kind === "page" || u.kind === "revision") &&
+                          {(u.kind === "page" ||
+                            u.kind === "revision" ||
+                            (u.kind === "space" && !!onOpenSpace)) &&
                           u.id &&
                           !u.deleted ? (
                             <button
                               type="button"
-                              onClick={() => onOpenPage(u.id!)}
+                              onClick={() =>
+                                u.kind === "space"
+                                  ? onOpenSpace?.(u.id!)
+                                  : onOpenPage(u.id!)
+                              }
                             >
                               {u.title} <ArrowUpRight size={12} />
                             </button>

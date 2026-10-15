@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ArrowUpRight,
   Plus,
-  Upload,
+  FileInput,
+  ImagePlus,
+  Pencil,
   Clock3,
   Globe,
   Lock,
@@ -12,12 +14,18 @@ import {
 } from "lucide-react";
 import { FeuilletIcon } from "./IconPicker";
 import type { Page, Space, Category } from "./types";
+import { CoverTools } from "./Customization";
 import { notebookHomePages } from "./notebook-home";
 
 export function AdminHome({
   pages,
   spaces,
   notebook,
+  onUpdateNotebook,
+  onEditNotebookIcon,
+  onChooseNotebookCover,
+  onZoomCover,
+  mediaCredits,
   categories = [],
   categoryId = "",
   onCategoryChange,
@@ -28,6 +36,11 @@ export function AdminHome({
   pages: Page[];
   spaces: Space[];
   notebook?: Space;
+  onUpdateNotebook?: (patch: Partial<Space>) => Promise<void>;
+  onEditNotebookIcon?: () => void;
+  onChooseNotebookCover?: () => void;
+  onZoomCover?: () => void;
+  mediaCredits?: ReactNode;
   categories?: Category[];
   categoryId?: string;
   onCategoryChange: (id: string) => void;
@@ -36,6 +49,54 @@ export function AdminHome({
   onImport: () => void;
 }) {
   const [query, setQuery] = useState("");
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [name, setName] = useState(notebook?.name || "");
+  const [savingName, setSavingName] = useState(false);
+  const savingNameRef = useRef(false),
+    cancelName = useRef(false);
+  const [decorationError, setDecorationError] = useState("");
+  const [coverPosition, setCoverPosition] = useState(
+    notebook?.cover_position || { x: 50, y: 50 },
+  );
+  useEffect(
+    () => setCoverPosition(notebook?.cover_position || { x: 50, y: 50 }),
+    [
+      notebook?.id,
+      notebook?.cover_id,
+      notebook?.cover_position?.x,
+      notebook?.cover_position?.y,
+    ],
+  );
+  async function persist(patch: Partial<Space>) {
+    if (!onUpdateNotebook) return false;
+    setDecorationError("");
+    try {
+      await onUpdateNotebook(patch);
+      return true;
+    } catch (error) {
+      setDecorationError((error as Error).message);
+      return false;
+    }
+  }
+  async function saveName() {
+    if (cancelName.current || savingNameRef.current) return;
+    if (!name.trim()) {
+      setDecorationError("Donne un nom à ce carnet.");
+      return;
+    }
+    if (name.trim() === notebook?.name) {
+      setEditingTitle(false);
+      return;
+    }
+    savingNameRef.current = true;
+    setSavingName(true);
+    try {
+      if (await persist({ name: name.trim() })) setEditingTitle(false);
+    } finally {
+      savingNameRef.current = false;
+      setSavingName(false);
+    }
+  }
   const [limit, setLimit] = useState(24);
   useEffect(() => setLimit(24), [categoryId, query]);
   const scoped = notebookHomePages(pages, notebook?.id);
@@ -65,17 +126,96 @@ export function AdminHome({
           : "Accueil administrateur"
       }
     >
+      {notebook &&
+        (notebook.cover_id ? (
+          <div className="cover with-image notebook-home-cover">
+            <CoverTools
+              alt="Couverture du carnet"
+              id={notebook.cover_id}
+              position={coverPosition}
+              admin
+              onChoose={() => onChooseNotebookCover?.()}
+              onRemove={() => void persist({ cover_id: null })}
+              onZoom={() => onZoomCover?.()}
+              onPosition={setCoverPosition}
+              onDone={() => void persist({ cover_position: coverPosition })}
+            />
+          </div>
+        ) : (
+          <div className="notebook-decoration-actions">
+            <button className="small-button" onClick={onChooseNotebookCover}>
+              <ImagePlus size={15} />
+              Ajouter une couverture
+            </button>
+          </div>
+        ))}
       <div className="home-heading">
         <div>
           {notebook && (
-            <span className="home-notebook-icon">
-              <FeuilletIcon icon={notebook.icon} size={38} />
-            </span>
+            <button
+              className="home-notebook-icon notebook-icon-edit"
+              onClick={onEditNotebookIcon}
+              aria-label="Changer l’icône du carnet"
+              title="Changer l’icône du carnet"
+            >
+              <FeuilletIcon
+                icon={notebook.icon}
+                iconId={notebook.icon_id}
+                size={38}
+              />
+            </button>
           )}
-          <span className="eyebrow">
-            {notebook ? "VOTRE CARNET" : "VOTRE ESPACE DE TRAVAIL"}
-          </span>
-          <h1>{notebook ? notebook.name : "Les idées prennent place."}</h1>
+          {notebook ? (
+            editingTitle ? (
+              <input
+                className="page-title-input notebook-title-input"
+                aria-label="Titre du carnet"
+                value={name}
+                maxLength={120}
+                disabled={savingName}
+                autoFocus
+                onFocus={(event) => event.currentTarget.select()}
+                onChange={(event) => setName(event.target.value)}
+                onBlur={() => void saveName()}
+                onKeyDown={(event) => {
+                  if (event.nativeEvent.isComposing) return;
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    event.currentTarget.blur();
+                  }
+                  if (event.key === "Escape") {
+                    event.preventDefault();
+                    cancelName.current = true;
+                    setEditingTitle(false);
+                    setDecorationError("");
+                  }
+                }}
+              />
+            ) : (
+              <h1>
+                <button
+                  className="notebook-title-edit"
+                  onClick={() => {
+                    cancelName.current = false;
+                    setName(notebook.name);
+                    setEditingTitle(true);
+                    setDecorationError("");
+                  }}
+                  title="Renommer le carnet"
+                >
+                  {notebook.name}
+                  <Pencil size={17} />
+                </button>
+              </h1>
+            )
+          ) : (
+            <h1>Les idées prennent place.</h1>
+          )}
+          {decorationError && (
+            <p role="alert" className="form-error">
+              {decorationError}
+            </p>
+          )}
           <p>
             {notebook
               ? "Retrouvez vos pages, explorez vos idées et reprenez le fil."
@@ -87,6 +227,7 @@ export function AdminHome({
           Nouvelle page
         </button>
       </div>
+      {notebook && <div className="page-media-credits">{mediaCredits}</div>}
       <div className="home-stats">
         <span>
           <strong>{scoped.length}</strong> pages
@@ -102,7 +243,7 @@ export function AdminHome({
           pages publiques
         </span>
         <button className="small-button" onClick={onImport}>
-          <Upload size={16} />
+          <FileInput size={16} />
           Importer une page
         </button>
       </div>

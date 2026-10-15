@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__."/theme-colors.php";
 require_once __DIR__."/customization.php";
+require_once __DIR__."/notebooks.php";
 if(is_file(__DIR__."/databases.php"))require_once __DIR__."/databases.php";
 
 function migrate_schema(PDO $pdo): void {
@@ -64,7 +65,7 @@ function appearance_css(array $appearance): string {
 function check_space(?string $id): void { if($id&&!query('SELECT id FROM spaces WHERE id=?',[$id])->fetch())fail('Carnet introuvable.'); }
 function list_spaces(bool $public=false): array {
     $spaces=query('SELECT * FROM spaces ORDER BY sort_order,name')->fetchAll();foreach($spaces as &$s)$s['sort_order']=(int)$s['sort_order'];unset($s);
-    if(!$public)return $spaces;$ids=[];foreach(page_rows() as $row)if(!$row['deleted_at']&&$row['visibility']==='public'&&$row['published']&&ancestors_active($row,page_rows())&&reader_page_allowed($row['id'])){$p=json_decode($row['published'],true);if(!empty($p['space_id']))$ids[]=$p['space_id'];}
+    if(!$public)return decorate_spaces($spaces);$ids=[];foreach(page_rows() as $row)if(!$row['deleted_at']&&$row['visibility']==='public'&&$row['published']&&ancestors_active($row,page_rows())&&reader_page_allowed($row['id'])){$p=json_decode($row['published'],true);if(!empty($p['space_id']))$ids[]=$p['space_id'];}
     return array_values(array_filter($spaces,fn($s)=>in_array($s['id'],$ids,true)));
 }
 function spaces_mutate(array $in,bool $delete=false): array {
@@ -77,11 +78,19 @@ function spaces_mutate(array $in,bool $delete=false): array {
             if(!$target){$target=uuid();query('INSERT INTO spaces (id,name,icon,sort_order) VALUES (?,?,?,?)',[$target,'Mes pages','📚',0]);}
             query('UPDATE pages SET space_id=? WHERE space_id=?',[$target,$id]);
             foreach(query('SELECT id,published FROM pages WHERE published IS NOT NULL')->fetchAll() as $r){$p=json_decode($r['published'],true);if(($p['space_id']??null)===$id){$p['space_id']=$target;query('UPDATE pages SET published=? WHERE id=?',[encoded($p),$r['id']]);}}
-            query('UPDATE categories SET space_id=?,legacy_kind=NULL WHERE space_id=?',[$target,$id]);query('DELETE FROM spaces WHERE id=?',[$id]);$pdo->commit();
+            query('UPDATE categories SET space_id=?,legacy_kind=NULL WHERE space_id=?',[$target,$id]);query('DELETE FROM spaces WHERE id=?',[$id]);query('DELETE FROM app_settings WHERE name=?',['space_visual_'.$id]);$pdo->commit();
         }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}
     }
-    else{$name=str_limit($in['name']??'',120);if(!$name)fail('Donne un nom à ce carnet.');$icon=str_limit($in['icon']??'📚',64);$order=(int)($in['sort_order']??0);if(query('SELECT id FROM spaces WHERE id=?',[$id])->fetch())query('UPDATE spaces SET name=?,icon=?,sort_order=? WHERE id=?',[$name,$icon,$order,$id]);else query('INSERT INTO spaces (id,name,icon,sort_order) VALUES (?,?,?,?)',[$id,$name,$icon,$order]);}
-    if(!$delete&&empty($in['delete']))category_seed(db(),$id);
+    else{
+        $old=query('SELECT * FROM spaces WHERE id=?',[$id])->fetch()?:[];
+        $name=$in['name']??$old['name']??'';if(!is_string($name)||!($name=str_limit($name,120)))fail('Donne un nom à ce carnet.');
+        $icon=validate_icon($in['icon']??$old['icon']??'📚');$order=(int)($in['sort_order']??$old['sort_order']??0);
+        $pdo=db();$pdo->beginTransaction();try{
+            if($old)query('UPDATE spaces SET name=?,icon=?,sort_order=? WHERE id=?',[$name,$icon,$order,$id]);
+            else query('INSERT INTO spaces (id,name,icon,sort_order) VALUES (?,?,?,?)',[$id,$name,$icon,$order]);
+            space_visual_store($id,$in);category_seed($pdo,$id);$pdo->commit();
+        }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}
+    }
     return ['spaces'=>list_spaces(),'id'=>$id];
 }
 function rename_file(array $in): array {

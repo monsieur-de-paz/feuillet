@@ -123,3 +123,7 @@ Le logo n’affiche pas de surface ou cadre au survol ; le focus clavier reste d
 ## Accueil de carnet — 0.9.0
 
 Reprendre les cartes, espacements et actions de l’accueil général, avec l’icône et le nom du carnet comme repères. Les catégories actives sont colorées et soulignées, comme dans la barre latérale. Le champ de filtre reste discret et passe sur une ligne entière sur mobile. Les titres gardent la couleur neutre du thème. La liste de pages inclut un statut public/privé et un libellé de parent pour les sous-pages.
+
+## Personnalisation et partage — 0.10
+
+L’accueil ne possède plus de surtitre en capitales. Le nom du carnet se modifie sur place, avec un indice crayon discret et un focus clavier conservé. Son icône ouvre le sélecteur complet. La couverture reprend les outils et gestes des pages, sans nouveau langage graphique. Les contrôles d’import utilisent FileInput (document entrant) ; le partage utilise Share2. Dans la publication, champ d’adresse et deux actions de même largeur forment un groupe lisible ; les actions se superposent sous 480 px et gardent des cibles de 44 px. Titres neutres et couleurs de thème restent conservés.

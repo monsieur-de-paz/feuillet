@@ -146,6 +146,11 @@ export type Appearance = {
   focus: boolean;
 };
 export type Space = {
+  icon_id?: string | null;
+  cover_id?: string | null;
+  cover_position?: { x: number; y: number };
+  cover_attribution?: Attribution | null;
+  icon_attribution?: Attribution | null;
   id: string;
   name: string;
   icon: string;

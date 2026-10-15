@@ -1,5 +1,13 @@
 # Historique des versions
 
+## 0.10.0 — 15 octobre 2026
+
+- Accueil épuré : suppression du surtitre et icône d’import représentant un document entrant, dans toute l’interface.
+- Publication : lien public sélectionnable, copie et partage natif avec repli vers la copie selon le navigateur.
+- Carnets personnalisables directement depuis leur accueil : titre modifiable sur place, sélecteur complet d’icônes et couverture ajoutable, remplaçable, repositionnable ou retirable.
+- Décorations privées conservées dans les sauvegardes ZIP, avec remappage des fichiers à l’import et inventaire des utilisations dans la bibliothèque.
+- Enregistrements partiels validés et atomiques, sans migration de schéma SQL.
+
 ## 0.9.0 — 15 octobre 2026
 
 - Accueil dédié à chaque carnet : pages récentes, toutes les pages et sous-pages, dates et statuts privé/public.

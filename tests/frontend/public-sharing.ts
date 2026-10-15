@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {publicPageLink,requestNativeShare} from '../../frontend/src/public-sharing';
+const url=publicPageLink('une page','https://example.test/notes/index.php?dashboard=1&space=secret&root=other');
+assert.equal(url,'https://example.test/notes/index.php?page=une%20page&read=1');
+assert.equal(await requestNativeShare(url,{}),'copy');
+let called=false;
+const pending=requestNativeShare(url,{share:async data=>{called=true;assert.deepEqual(data,{url});}});
+assert.equal(called,true,'native sharing must start synchronously in the click event');
+assert.equal(await pending,'shared');
+assert.equal(await requestNativeShare(url,{share:async()=>{throw {name:'AbortError'}}}),'cancelled');
+assert.equal(await requestNativeShare(url,{share:async()=>{throw {name:'NotAllowedError'}}}),'copy');
+console.log('6/6 public sharing checks passed: clean public URL, direct activation, unsupported browsers, success, cancellation and denied sharing');

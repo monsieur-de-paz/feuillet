@@ -471,6 +471,7 @@ export function NotebookControls({
 }
 export function CoverTools({
   id,
+  alt = "Couverture de la page",
   position,
   admin,
   onPosition,
@@ -480,6 +481,7 @@ export function CoverTools({
   onDone,
 }: {
   id: string;
+  alt?: string;
   position: { x: number; y: number };
   admin: boolean;
   onPosition: (p: { x: number; y: number }) => void;
@@ -536,7 +538,7 @@ export function CoverTools({
       <img
         ref={img}
         src={fileUrl(id)}
-        alt="Couverture de la page"
+        alt={alt}
         style={{
           objectPosition: `${position.x}% ${position.y}%`,
           cursor: editing ? "grab" : "zoom-in",

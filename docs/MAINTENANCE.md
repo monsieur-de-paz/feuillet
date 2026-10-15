@@ -203,3 +203,9 @@ Transférer le code et les assets compilés, notamment interface.css et theme.js
 ## Version 0.9.0
 
 Déployer le code et les assets compilés en conservant configuration et stockage ; aucune migration dédiée. Vérifier deux carnets ayant des pages différentes, le filtre par catégorie, la recherche locale, le bouton Logo, le retour vers le carnet depuis une page et les adresses rechargées avec space. La création et l’import doivent utiliser le carnet annoncé. Les accueils sont administratifs : vérifier qu’un visiteur anonyme ne reçoit aucune liste de pages privées en ouvrant une adresse dashboard.
+
+## Carnets et liens publics — 0.10
+
+Cette version n’ajoute aucune colonne SQL. Les décorations des carnets résident dans app_settings (`space_visual_<UUID>`), à conserver avec la base lors d’une restauration complète. Le ZIP portable transporte aussi les références d’images et leur position. Une modification partielle du nom conserve la couverture et l’icône importée ; remplacer l’icône par un emoji retire sa référence de fichier.
+
+Après mise à jour, vérifier depuis un accueil de carnet : renommage, icône, ajout/repositionnement de couverture et persistance après rechargement. Dans la bibliothèque, vérifier l’utilisation privée du média. Ouvrir la publication d’une page déjà publique et copier son adresse. Sur le téléphone cible en HTTPS, vérifier la feuille de partage et son annulation. L’absence de Web Share ou d’accès au presse-papiers ne doit pas empêcher la copie manuelle du lien.

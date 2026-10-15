@@ -149,3 +149,11 @@ Les nouveaux carnets reçoivent les catégories Notes (`legacy_kind=class`) et A
 ## Accueil de carnet — 0.9.0
 
 index.php?dashboard=1&space=ID désigne une vue administrative de carnet. L’interface valide ID dans les carnets chargés et retombe sur l’accueil général si le carnet manque. Le paramètre space sert à la navigation, sans modifier les autorisations de l’API. L’administrateur charge les métadonnées de pages existantes puis les filtre pour cet affichage ; un visiteur reste soumis aux branches publiques root/page et ne reçoit pas un annuaire de carnet depuis cette adresse.
+
+## Version 0.10.0 — apparence des carnets
+
+`POST save_space` accepte maintenant les modifications partielles d’un carnet existant : `{id,name?,icon?,sort_order?,icon_id?,cover_id?,cover_position?:{x?,y?}}`. Un nouveau carnet requiert toujours un nom non vide. L’omission conserve la valeur ; null ou chaîne vide retire une référence d’image. icon_id/cover_id doivent désigner une image existante ; les coordonnées numériques finies sont bornées à 0–100. Les champs invalides annulent toute la transaction, y compris un changement de nom simultané. Le remplacement d’une image par un emoji envoie aussi icon_id:null.
+
+Les listes de carnets **administratives** ajoutent icon_id, cover_id, cover_position, icon_attribution et cover_attribution. Les listes publiques conservent leur forme antérieure, limitée à la branche consultée, et ne fournissent pas ces références privées. L’icône et la couverture d’un carnet ne rendent jamais un fichier public ; les droits indépendants liés à une page publiée restent applicables.
+
+`file_usage` peut renvoyer une utilisation `{kind:'space',id,title,visibility:'private',places:['Icône','Couverture']}`. La suppression du carnet retire ses métadonnées visuelles, sans supprimer les médias. Le ZIP format 3 inclut les décorations dans spaces ; l’import accepte aussi les anciennes sauvegardes et remappe les références d’images vers les fichiers importés. Aucun changement de schéma SQL.
