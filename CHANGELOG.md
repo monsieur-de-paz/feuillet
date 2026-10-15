@@ -1,5 +1,11 @@
 # Historique des versions
 
+## 0.8.3 — 15 octobre 2026
+
+- Logo du site sans fond ni cadre au survol, avec repère de focus clavier conservé.
+- Boutons Nouvelle page et Importer une page de même largeur sur l’accueil.
+- Fil d’Ariane de l’accueil réduit au nom personnalisé du site, sans séparateur, icône ou libellé Accueil.
+
 ## 0.8.2 — 15 octobre 2026
 
 - Titres et sous-titres neutres : noir doux en clair, blanc en sombre et OLED, indépendamment de l’accent choisi.

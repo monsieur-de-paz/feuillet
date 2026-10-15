@@ -354,3 +354,7 @@ Build TypeScript/Vite, Prettier et 125 contrôles frontend réussis ; parité de
 Le chargement de l’éditeur actualisé a été observé dans le navigateur intégré. Le contrôle des couleurs calculées et du sélecteur de thème n’a pas pu être terminé : le navigateur a cessé de répondre. La validation visuelle finale des trois thèmes reste donc à faire ; les vérifications de code ne sont pas présentées comme une capture du rendu.
 
 Suites HTTP ciblées `customization.py` et `reader.py` : 14 tests réussis sur SQLite et 14 sur MySQL, dans des installations jetables.
+
+## Finitions de l’accueil — 0.8.3
+
+Build TypeScript/Vite et Prettier réussis. Contrôles dans le navigateur intégré : les deux actions de l’accueil mesurent exactement 180 px ; le fil d’Ariane contient uniquement « Feuillet. » ; le logo effectivement survolé a un fond transparent et aucun contour. Après navigation au clavier (Tab puis Maj+Tab), le logo présente toujours un repère de focus de 2 px. L’ouverture d’une page rétablit le fil d’Ariane du carnet et de la page ; le retour à l’accueil conserve les carnets et catégories. Capture : Feuillet-0.8.3-accueil.png, livrée séparément des sources. Aucun texte ni document personnel n’a été modifié pendant ces vérifications.

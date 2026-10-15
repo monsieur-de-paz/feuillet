@@ -1726,6 +1726,13 @@ body.block-dragging * {
 .home-stats > button {
   margin-left: auto;
 }
+.home-heading > .primary-button,
+.home-stats > .small-button {
+  inline-size: 180px;
+  max-inline-size: 100%;
+  flex-shrink: 0;
+  justify-content: center;
+}
 .home-section {
   margin: 32px 0;
 }

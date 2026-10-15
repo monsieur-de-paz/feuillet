@@ -115,3 +115,7 @@ Parler de notes, pages, documents, carnets, catégories, visiteurs et administra
 ## Hiérarchie neutre — 0.8.2
 
 Les titres h1–h6 et les champs de titre/sous-titre ne portent pas l’accent. Utiliser --heading-ink : #272727 en clair, #F3F4F6 en sombre/OLED. Les titres de cartes restent neutres, même lorsqu’ils constituent un lien ; les sources et les autres liens gardent l’accent. Neutraliser aussi les marques de couleur anciennes dans un titre sans toucher au document.
+
+## Accueil — 0.8.3
+
+Le logo n’affiche pas de surface ou cadre au survol ; le focus clavier reste distinct. Les deux actions principales de l’accueil partagent une largeur de 180 px. Sans page ouverte, le fil d’Ariane se limite au nom personnalisé du site.

@@ -2260,24 +2260,36 @@ export default function App() {
                 {spaces.find((s) => String(s.id) === String(draft?.space_id))
                   ?.name || notebook.title}
               </button>
-              <ChevronRight size={12} />
-              {ancestors.map((p) => (
-                <span className="breadcrumb-parent" key={p.id}>
-                  <button onClick={() => void openPage(String(p.id))}>
-                    <FeuilletIcon icon={p.icon} iconId={p.icon_id} size={15} />{" "}
-                    {titleOf(p)}
-                  </button>
+              {hasPage && (
+                <>
                   <ChevronRight size={12} />
-                </span>
-              ))}
-              <span className="breadcrumb-current">
-                <FeuilletIcon
-                  icon={draft?.icon || "📚"}
-                  iconId={draft?.icon_id}
-                  size={16}
-                />{" "}
-                {dashboard ? "Accueil" : draft ? titleOf(draft) : "Ton carnet"}
-              </span>
+                  {ancestors.map((p) => (
+                    <span className="breadcrumb-parent" key={p.id}>
+                      <button onClick={() => void openPage(String(p.id))}>
+                        <FeuilletIcon
+                          icon={p.icon}
+                          iconId={p.icon_id}
+                          size={15}
+                        />{" "}
+                        {titleOf(p)}
+                      </button>
+                      <ChevronRight size={12} />
+                    </span>
+                  ))}
+                  <span className="breadcrumb-current">
+                    <FeuilletIcon
+                      icon={draft?.icon || "📚"}
+                      iconId={draft?.icon_id}
+                      size={16}
+                    />{" "}
+                    {dashboard
+                      ? "Accueil"
+                      : draft
+                        ? titleOf(draft)
+                        : "Ton carnet"}
+                  </span>
+                </>
+              )}
             </nav>
             {admin && hasPage && (
               <div className="topbar-actions">

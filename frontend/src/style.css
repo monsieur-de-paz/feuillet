@@ -2845,7 +2845,7 @@ small,
   cursor: default;
 }
 .brand-icon-change:hover:not(:disabled) {
-  outline: 2px solid var(--accent);
+  background: transparent;
 }
 .notebook-auto-publish {
   flex-direction: row !important;

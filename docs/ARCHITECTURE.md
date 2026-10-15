@@ -185,3 +185,7 @@ Le tableau de bord et la sélection du carnet sont indépendants. `openDashboard
 ## Couleur des titres — 0.8.2
 
 La variable --heading-ink est définie par themeStyle côté React et appearance_css côté PHP ; theme.js l’actualise lors d’un changement de thème personnel du lecteur. Le style partagé interface.css couvre les titres et leurs marques de texte imbriquées, ainsi que les champs de titre et les titres de cartes, sans modifier les attributs enregistrés. Les styles historiques de titres de l’éditeur utilisent également cette variable.
+
+## Fil d’Ariane de l’accueil — 0.8.3
+
+Dans App.tsx, les séparateurs, ancêtres et page courante du fil d’Ariane sont rendus uniquement lorsque hasPage est vrai. Le bouton racine et les commandes de navigation restent disponibles sur l’accueil. Les deux actions du tableau de bord partagent une règle de largeur dans interface.css ; le survol du logo est transparent et distinct de son focus clavier.
