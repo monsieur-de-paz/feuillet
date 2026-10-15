@@ -195,3 +195,7 @@ La restauration dépend des droits, de l’espace disque et de SQL. Les médias 
 ## Correctif 0.8.1
 
 Transférer le code et les assets compilés en conservant configuration et stockage. Vérifier le retour à l’accueil par logo, nom du site et fil d’Ariane, puis la sélection d’un autre carnet, d’une catégorie et d’une page. Sur mobile, le retour à l’accueil conserve le tiroir ouvert. Les catégories déjà créées sont conservées ; seul un nouveau carnet propose Notes/Articles. Les anciens guides et preuves de versions restent des documents historiques.
+
+## Correctif 0.8.2
+
+Transférer le code et les assets compilés, notamment interface.css et theme.js, en conservant configuration et stockage. Vérifier un titre et un sous-titre en clair/sombre/OLED dans l’éditeur puis le lecteur public ; une source doit conserver l’accent. Aucune migration de contenu n’est nécessaire.

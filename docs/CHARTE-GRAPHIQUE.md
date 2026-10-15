@@ -111,3 +111,7 @@ Le panneau de mises à jour reprend les tokens surface/ink/line/accent des régl
 ## Vocabulaire du produit — 0.8.1
 
 Parler de notes, pages, documents, carnets, catégories, visiteurs et administration. Les textes livrés par défaut n’imposent aucun métier. Un usage particulier appartient au contenu rédigé par le propriétaire. Les libellés administratifs et publics utilisent le même vocabulaire ; les formulaires précisent qui reçoit les réponses. La navigation garde ses repères pendant l’affichage de l’accueil.
+
+## Hiérarchie neutre — 0.8.2
+
+Les titres h1–h6 et les champs de titre/sous-titre ne portent pas l’accent. Utiliser --heading-ink : #272727 en clair, #F3F4F6 en sombre/OLED. Les titres de cartes restent neutres, même lorsqu’ils constituent un lien ; les sources et les autres liens gardent l’accent. Neutraliser aussi les marques de couleur anciennes dans un titre sans toucher au document.

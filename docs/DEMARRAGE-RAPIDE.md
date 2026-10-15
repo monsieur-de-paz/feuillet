@@ -2,7 +2,7 @@
 
 **Feuillet** est le nom du logiciel. L'archive contient le logiciel libre et les fichiers de l'interface déjà compilés. Elle ne contient aucune note personnelle ni mot de passe initial.
 
-1. Décompresse `Feuillet-0.8.1.zip` sur ton ordinateur. Tu obtiens le dossier `feuillet`.
+1. Décompresse `Feuillet-0.8.2.zip` sur ton ordinateur. Tu obtiens le dossier `feuillet`.
 2. Envoie ce dossier sur ton hébergement par FTP, en dehors du dossier public de ton site principal si possible.
 3. Dans la configuration multisite OVH, associe `notes.exemple.fr` au dossier **`feuillet/public`**. C'est ce dossier précis qui doit être la racine web, afin de garder la configuration et les fichiers privés hors du web.
 4. Active un certificat SSL couvrant ce sous-domaine et choisis une version PHP maintenue, au minimum 8.3.

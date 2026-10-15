@@ -55,4 +55,4 @@ body[style] .resource-button{background:var(--surface);border-color:var(--line)}
 
 body[style] button.primary{background:var(--accent);color:var(--accent-contrast);border-color:var(--accent)}body[style] button.primary:hover{background:var(--accent-hover)}
 
-body[style] .reader-page :is(h1,h2,h3){color:var(--page-accent)}body[style] .reader-page>h1:first-of-type,body[style] .reader-page .gallery-heading h3,body[style] .reader-page .embedded-database h2,body[style] .reader-page .embedded-form h2{color:var(--page-text)}
+body[style] .reader-page :is(h1,h2,h3){color:var(--heading-ink,var(--page-text))}body[style] .reader-page>h1:first-of-type,body[style] .reader-page .gallery-heading h3,body[style] .reader-page .embedded-database h2,body[style] .reader-page .embedded-form h2{color:var(--page-text)}

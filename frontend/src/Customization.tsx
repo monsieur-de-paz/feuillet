@@ -56,6 +56,7 @@ export function themeStyle(a: Appearance): CSSProperties {
     "--surface-soft":
       mode === "oled" ? "#121212" : dark ? "#2a2e35" : "#eeefed",
     "--ink": a.text,
+    "--heading-ink": dark ? "#f3f4f6" : "#272727",
     "--muted": dark ? "#afb3bd" : "#6f716d",
     "--line": dark ? "#373a42" : "#e4e5e2",
     "--green": accent,

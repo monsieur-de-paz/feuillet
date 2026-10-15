@@ -10,6 +10,28 @@
   --menu-action-size: 40px;
   --danger: #b83d32;
 }
+/* Headings stay neutral, including old inline text colors and linked titles. */
+:is(.app-shell, .reader-page, .modal, .public-database-form)
+  :is(
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    .page-title-input,
+    .page-description-input,
+    .page-description,
+    .quiz-title-input,
+    .gallery-card-text > strong
+  ) {
+  color: var(--heading-ink, #272727) !important;
+}
+:is(.app-shell, .reader-page, .modal, .public-database-form)
+  :is(h1, h2, h3, h4, h5, h6)
+  :is(span, strong, b, em, i, a, code, s, u, sub, sup) {
+  color: inherit !important;
+}
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

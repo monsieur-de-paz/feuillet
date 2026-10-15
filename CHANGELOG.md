@@ -1,5 +1,11 @@
 # Historique des versions
 
+## 0.8.2 — 15 octobre 2026
+
+- Titres et sous-titres neutres : noir doux en clair, blanc en sombre et OLED, indépendamment de l’accent choisi.
+- Même présentation dans l’éditeur et le lecteur public, pour les titres dépliables, galeries, quiz et fenêtres de réglages.
+- Les anciennes couleurs de texte dans les titres sont neutralisées à l’affichage ; liens, sources et contrôles conservent leur accentuation.
+
 ## 0.8.1 — 15 octobre 2026
 
 - Présentation de Feuillet centrée sur les notes enrichies auto-hébergées : installation, connexion, partage, formulaires, exports et guides.

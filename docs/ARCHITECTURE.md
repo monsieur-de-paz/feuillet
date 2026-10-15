@@ -181,3 +181,7 @@ Le verrou de contrôle des updates (`storage/updates/control.lock`) est distinct
 ## Navigation et vocabulaire — 0.8.1
 
 Le tableau de bord et la sélection du carnet sont indépendants. `openDashboard` sauvegarde la page puis remplace le panneau principal sans recharger ni vider les données de navigation et sans fermer le tiroir mobile. Le bouton du fil d’Ariane vérifie l’existence d’une page avant de sélectionner son carnet. Les catégories initiales utilisent Notes/Articles ; les clés `legacy_kind` et `kind=class` sont conservées pour lire les anciennes bases et sauvegardes. La normalisation de l’ancien sous-titre par défaut s’effectue à la lecture des réglages et préserve tout texte personnalisé.
+
+## Couleur des titres — 0.8.2
+
+La variable --heading-ink est définie par themeStyle côté React et appearance_css côté PHP ; theme.js l’actualise lors d’un changement de thème personnel du lecteur. Le style partagé interface.css couvre les titres et leurs marques de texte imbriquées, ainsi que les champs de titre et les titres de cartes, sans modifier les attributs enregistrés. Les styles historiques de titres de l’éditeur utilisent également cette variable.

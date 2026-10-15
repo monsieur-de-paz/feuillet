@@ -346,3 +346,11 @@ Limites : PHP local 8.5, MySQL local et SQLite ; PHP 8.3/8.4, MariaDB, Safari/iO
 - Aucun message d’erreur console observé dans le parcours local. Comparaison avant/après de la prévisualisation : 38 lignes de pages (corbeille comprise), 2 carnets, 12 catégories et 6 réglages identiques.
 
 Les anciens comptes rendus ci-dessous/dans les versions précédentes peuvent citer des exemples de contenus d’enseignement ; ils documentent des vérifications historiques. La version livrée ne contient pas les contenus personnels de la prévisualisation. Le déploiement OVH réel, Safari/iOS et les autres navigateurs ne sont pas validés par ces essais.
+
+## Titres neutres — 0.8.2
+
+Build TypeScript/Vite, Prettier et 125 contrôles frontend réussis ; parité des accents sur 24 couleurs conservée. Vérifications ciblées de themeStyle, appearance_css et du script public theme.js : 36 cas couvrent les trois thèmes, trois accents, une couleur de paragraphe personnalisée et les changements de préférence du visiteur. Les titres restent neutres et l’accent de base est conservé.
+
+Le chargement de l’éditeur actualisé a été observé dans le navigateur intégré. Le contrôle des couleurs calculées et du sélecteur de thème n’a pas pu être terminé : le navigateur a cessé de répondre. La validation visuelle finale des trois thèmes reste donc à faire ; les vérifications de code ne sont pas présentées comme une capture du rendu.
+
+Suites HTTP ciblées `customization.py` et `reader.py` : 14 tests réussis sur SQLite et 14 sur MySQL, dans des installations jetables.
