@@ -247,7 +247,7 @@ export default function CourseEditor({
       attributes: {
         class: "course-content",
         spellcheck: "true",
-        "aria-label": admin ? "Contenu de la page" : "Contenu du cours",
+        "aria-label": "Contenu de la page",
       },
       handleKeyDown: (_view, event) => {
         if (
@@ -592,7 +592,7 @@ export default function CourseEditor({
           label: "PDF",
           description: "Un document à lire et télécharger",
           icon: <FileText />,
-          keywords: "pdf cours document",
+          keywords: "pdf fichier document",
         },
         {
           id: "audio",
@@ -709,7 +709,7 @@ export default function CourseEditor({
       id: "gallery",
       label: "Galerie",
       description: "Une collection de pages en cartes",
-      keywords: "galerie cartes collection classe ressources",
+      keywords: "galerie cartes collection notes ressources",
       icon: <LayoutGrid />,
       run: (ed) =>
         insertNode(ed, {
@@ -729,7 +729,7 @@ export default function CourseEditor({
       id: "quiz",
       label: "Quiz",
       description: "Des questions et une correction immédiate",
-      keywords: "quiz qcm exercice question",
+      keywords: "quiz qcm questionnaire question",
       icon: <ListChecks />,
       run: (ed) =>
         insertNode(ed, {

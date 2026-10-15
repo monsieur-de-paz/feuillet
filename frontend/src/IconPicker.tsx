@@ -205,7 +205,7 @@ const webGroups: [string, string, string[]][] = [
   ["", "Toutes", []],
   [
     "study",
-    "Cours et notes",
+    "Documents et notes",
     [
       "book",
       "file",

@@ -1,6 +1,6 @@
 # Validation
 
-Les tests HTTP de `tests/smoke.py` utilisent une **copie jetable** du logiciel, un mot de passe aléatoire, une base SQLite indépendante et un serveur PHP local sur un port libre. Ils ne se connectent à aucun serveur de production et ne modifient aucun cours réel. La variable `FEUILLET_CONFIG` est retirée de l'environnement du serveur de test, afin qu'aucune configuration externe ne soit réutilisée.
+Les tests HTTP de `tests/smoke.py` utilisent une **copie jetable** du logiciel, un mot de passe aléatoire, une base SQLite indépendante et un serveur PHP local sur un port libre. Ils ne se connectent à aucun serveur de production et ne modifient aucune page réelle. La variable `FEUILLET_CONFIG` est retirée de l'environnement du serveur de test, afin qu'aucune configuration externe ne soit réutilisée.
 
 ```sh
 python3 tests/smoke.py
@@ -334,3 +334,15 @@ Le téléchargement réel de la release privée GitHub 0.7 est contrôlé sépar
 Chromium intégré : setup étapes Hébergement/Carnet, validation/focus ; vues 320 et 390 px sans débordement, boutons 48 px, illustration et marges ; panneau de mises à jour, choix de notification et deux installations sur le même hôte sans collision de session. Les champs GitHub restent vides dans la copie utilisateur. Les préférences essayées sont remises à leur état initial.
 
 Limites : PHP local 8.5, MySQL local et SQLite ; PHP 8.3/8.4, MariaDB, Safari/iOS, appareil tactile physique, lecteur d’écran, préférence reduced-motion OS et mutualisé OVH réel non vérifiés. La réduction des mouvements est prévue en CSS. Les vérifications de PDF conservent la limite de récupération du téléchargement documentée en 0.6 ; la version ne modifie pas ce moteur. Aucun déploiement OVH effectué.
+
+## Correctif 0.8.1 — 15 octobre 2026
+
+- Build TypeScript/Vite et vérification Prettier réussis.
+- 125 contrôles frontend réussis et parité PHP/JS des accents sur 24 couleurs.
+- Douze suites HTTP : **121 réussites et un scénario réseau ignoré par pilote**, sur SQLite puis MySQL. Installation neuve, partage, catégories, formulaires, sécurité et restauration des mises à jour vérifiés dans des copies jetables. Les scénarios de mises à jour dérivent maintenant leur version cible depuis la version installée.
+- Installation neuve : catégories Notes/Articles et sous-titre généraliste ; absence des anciens textes pédagogiques dans l’installateur.
+- Navigateur intégré : anomalie reproduite avant correction en cliquant le titre du fil d’Ariane sur l’accueil ; ce clic désélectionnait le carnet. Après correction, le carnet Essais et la catégorie Documents restent sélectionnés après clics sur nom, logo et fil d’Ariane. Passage à Tout puis ouverture d’une page depuis la barre latérale réussis.
+- À 390 × 844 : retour depuis une page vers l’accueil sans fermer le tiroir mobile. Largeur du document égale au viewport, également contrôlée à 320 × 740. Retour au viewport normal après vérification.
+- Aucun message d’erreur console observé dans le parcours local. Comparaison avant/après de la prévisualisation : 38 lignes de pages (corbeille comprise), 2 carnets, 12 catégories et 6 réglages identiques.
+
+Les anciens comptes rendus ci-dessous/dans les versions précédentes peuvent citer des exemples de contenus d’enseignement ; ils documentent des vérifications historiques. La version livrée ne contient pas les contenus personnels de la prévisualisation. Le déploiement OVH réel, Safari/iOS et les autres navigateurs ne sont pas validés par ces essais.

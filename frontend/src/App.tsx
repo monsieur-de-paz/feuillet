@@ -271,7 +271,7 @@ export default function App() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [notebook, setNotebook] = useState<Notebook>({
     title: "Feuillet.",
-    subtitle: "Mon carnet pédagogique",
+    subtitle: "Mes notes, simplement",
     max_upload: 104857600,
     auto_publish: true,
     icon: "f.",
@@ -659,7 +659,6 @@ export default function App() {
     )
       return;
     setPageContext(null);
-    setSidebar(false);
     setFocus(false);
     setDashboard(true);
     setDraft(null);
@@ -667,7 +666,6 @@ export default function App() {
     editorRef.current = null;
     dirtyRef.current = false;
     setFatal("");
-    await loadList();
     if (replace) window.history.replaceState({}, "", "index.php?dashboard=1");
     else window.history.pushState({}, "", "index.php?dashboard=1");
     window.scrollTo(0, 0);
@@ -2177,7 +2175,7 @@ export default function App() {
               </>
             ) : (
               <button onClick={() => showModal("login")}>
-                <LogIn size={16} /> Espace enseignant
+                <LogIn size={16} /> Administration
               </button>
             )}
             <div className="sidebar-footer">
@@ -2250,6 +2248,10 @@ export default function App() {
               <button
                 className="breadcrumb-home"
                 onClick={() => {
+                  if (!draft) {
+                    void openDashboard();
+                    return;
+                  }
                   setActiveSpace(String(draft?.space_id || ""));
                   const rootPage = ancestors[0];
                   if (rootPage) void openPage(String(rootPage.id));
@@ -2689,8 +2691,8 @@ export default function App() {
               </h1>
               <p>
                 {admin
-                  ? "Tes cours, tes idées et les ressources à partager trouveront leur place ici."
-                  : "Les ressources seront disponibles ici dès leur publication."}
+                  ? "Tes notes, tes idées et les documents à partager trouveront leur place ici."
+                  : "Ouvre un lien de partage pour consulter une page."}
               </p>
               {admin && (
                 <button
@@ -2979,7 +2981,10 @@ export default function App() {
       {modal === "login" && (
         <Modal title="Ouvrir mon carnet" onClose={() => setModal(null)}>
           <form className="modal-form" onSubmit={login}>
-            <p>Connecte-toi pour rédiger et publier tes ressources.</p>
+            <p>
+              Connecte-toi pour rédiger tes notes et choisir les pages à
+              partager.
+            </p>
             <label>
               Mot de passe
               <input
@@ -3006,7 +3011,7 @@ export default function App() {
           title={
             draft.visibility === "public"
               ? "Publication de la page"
-              : "Partager cette page avec tes élèves"
+              : "Partager cette page avec tes visiteurs"
           }
           onClose={() => setModal(null)}
         >
@@ -3372,8 +3377,9 @@ export default function App() {
               )}
             </div>
             <p className="library-note">
-              <ShieldCheck size={14} /> Les fichiers sont accessibles aux élèves
-              via une page ou une base publiée, ou comme icône du carnet.
+              <ShieldCheck size={14} /> Les fichiers sont accessibles aux
+              visiteurs via une page ou une base publiée, ou comme icône du
+              carnet.
             </p>
           </div>
         </Modal>
@@ -3494,7 +3500,7 @@ export default function App() {
               </Select>
             </label>
             <label>
-              Type de ressource
+              Type de page
               <Select
                 value={draft.kind}
                 onChange={(e) =>
@@ -3502,7 +3508,7 @@ export default function App() {
                 }
               >
                 <option value="page">Page</option>
-                <option value="class">Classe</option>
+                <option value="class">Collection</option>
                 <option value="article">Article</option>
               </Select>
             </label>

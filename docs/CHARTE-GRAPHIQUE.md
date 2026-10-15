@@ -1,6 +1,6 @@
 # Charte graphique et interactions de Feuillet
 
-Version 0.5.0, 14 octobre 2026. Cette charte concerne l’éditeur, sa navigation, ses réglages, les bases et la lecture publique. Feuillet est un carnet : les cours occupent le premier plan ; les outils restent proches du contenu. La référence est l’édition documentaire de Notion, avec une interface propre à Feuillet.
+Version 0.5.0, 14 octobre 2026. Cette charte concerne l’éditeur, sa navigation, ses réglages, les bases et la lecture publique. Feuillet est un carnet : les notes occupent le premier plan ; les outils restent proches du contenu. La référence est l’édition documentaire de Notion, avec une interface propre à Feuillet.
 
 ## Principes
 
@@ -72,7 +72,7 @@ Skills lus intégralement pour cette évolution, dans des copies de travail sép
 - [Taste Skill — Redesign](https://github.com/Leonxlnx/taste-skill/blob/a60a36dc2bb3bb77ccf17f2f62041f5ca8a458b9/skills/redesign-skill/SKILL.md), révision `a60a36d` : audit de l’existant et améliorations ciblées.
 - [Taste Skill — Minimalist UI](https://github.com/Leonxlnx/taste-skill/blob/a60a36dc2bb3bb77ccf17f2f62041f5ca8a458b9/skills/minimalist-skill/SKILL.md) : hiérarchie documentaire, retenue des surfaces et du mouvement.
 
-Le brief Feuillet prime sur leurs prescriptions génériques : le noir OLED, les emoji, les polices choisies, Lucide déjà intégré et les galeries à colonnes configurables sont conservés. Les propositions de textures, effets cinématiques, fontes nouvelles ou grille asymétrique imposée ne conviennent pas à un carnet de cours. La fonte système évite d’ajouter une dépendance pour une simple finition.
+Le brief Feuillet prime sur leurs prescriptions génériques : le noir OLED, les emoji, les polices choisies, Lucide déjà intégré et les galeries à colonnes configurables sont conservés. Les propositions de textures, effets cinématiques, fontes nouvelles ou grille asymétrique imposée ne conviennent pas à un carnet de notes. La fonte système évite d’ajouter une dépendance pour une simple finition.
 
 Implémentation : `frontend/src/interface.css`, `Select.tsx`, `FloatingSurface.tsx`, `ContextMenu.tsx`, `interface-geometry.ts`. Le CSS commun est copié dans `public/interface.css` pendant la compilation. [Audit et validation](AUDIT-INTERFACE-0.5.md), [guide des nouveautés](NOUVEAUTES-0.5.md).
 
@@ -107,3 +107,7 @@ L’accueil admin reprend les surfaces, accents, rayons et typographies du carne
 L’installation reste une surface claire avant le choix des thèmes : colonne sauge avec symbole montagne/lac et formulaire en trois étapes. La hiérarchie repose sur les titres, labels et espaces ; cibles de 46–48 px, rayon de champ 10 px, notes 12 px. L’illustration et les transitions d’étape utilisent seulement opacité/transform, puis s’arrêtent ; reduced-motion supprime ces mouvements. Les secrets ne sont jamais affichés en clair par défaut.
 
 Le panneau de mises à jour reprend les tokens surface/ink/line/accent des réglages, avec marges 24 px sur ordinateur et 18 px sur mobile. Les décisions sont explicites, les actions occupées sont désactivées et la fermeture du dialogue est bloquée pendant le remplacement. Le résultat possède un texte permanent en plus de l’icône. Voir [la revue ciblée](AUDIT-INSTALLATION-0.8.md).
+
+## Vocabulaire du produit — 0.8.1
+
+Parler de notes, pages, documents, carnets, catégories, visiteurs et administration. Les textes livrés par défaut n’imposent aucun métier. Un usage particulier appartient au contenu rédigé par le propriétaire. Les libellés administratifs et publics utilisent le même vocabulaire ; les formulaires précisent qui reçoit les réponses. La navigation garde ses repères pendant l’affichage de l’accueil.

@@ -124,7 +124,7 @@ function render_form_view(string $id,bool $public): string {
     $form=$bundle['form'];$title='<h2>'.h($form['name']).'</h2>';
     if(empty($form['public']))return '<section class="embedded-form">'.$title.'<p>Ce formulaire est privé. Ouvre ses réglages pour activer le partage.</p></section>';
     $link='index.php?form='.rawurlencode($form['token']);$fields='';foreach($bundle['properties'] as $property)$fields.='<li>'.h($property['name']).(!empty($property['required'])?' <span class="muted">(obligatoire)</span>':'').'</li>';
-    return '<section class="embedded-form">'.$title.'<p>Les réponses sont envoyées à l’enseignant et restent privées.</p>'.($fields?'<ul class="form-fields-preview">'.$fields.'</ul>':'').'<a class="resource-button" href="'.h($link).'">Ouvrir et remplir le formulaire ↗</a><noscript><p>JavaScript est nécessaire pour envoyer les réponses et les pièces jointes.</p></noscript></section>';
+    return '<section class="embedded-form">'.$title.'<p>Les réponses sont envoyées à l’administrateur du site et restent privées.</p>'.($fields?'<ul class="form-fields-preview">'.$fields.'</ul>':'').'<a class="resource-button" href="'.h($link).'">Ouvrir et remplir le formulaire ↗</a><noscript><p>JavaScript est nécessaire pour envoyer les réponses et les pièces jointes.</p></noscript></section>';
 }
 
 /** Public breadcrumbs use only active published snapshots, even for logged-in readers. */

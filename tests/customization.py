@@ -51,6 +51,7 @@ class Customization(unittest.TestCase):
         all_categories=self.ok(self.admin.api('categories'))['categories']
         default=self.ok(self.admin.api('spaces'))['spaces'][0]['id']
         for scope in [default,a,b]:self.assertEqual({x['legacy_kind'] for x in all_categories if x['space_id']==scope and x['legacy_kind']},{'class','article'})
+        self.assertEqual({c['name'] for c in all_categories if c['space_id']==a},{'Notes','Articles'})
         cat=self.category('Travaux pratiques',a,sort_order=42);other=self.category('Archives de presse',b,sort_order=5)
         self.assertNotIn(cat,json.dumps(self.ok(self.visitor.api('categories'))))
         p=self.save(title='TP partagé',space_id=a,category_id=cat)

@@ -1,5 +1,12 @@
 # Historique des versions
 
+## 0.8.1 — 15 octobre 2026
+
+- Présentation de Feuillet centrée sur les notes enrichies auto-hébergées : installation, connexion, partage, formulaires, exports et guides.
+- Nouveaux carnets initialisés avec Notes et Articles ; descriptions et catégories personnalisées conservées.
+- Retour à l’accueil sans désélectionner le carnet ni fermer la navigation mobile ; titre du fil d’Ariane utilisable même sans page ouverte.
+- Correction d’un accès nullable dans la progression des mises à jour ; scénarios de mise à jour indépendants de la version de développement.
+
 ## 0.8.0 — 14 octobre 2026
 
 - Installateur moderne en trois étapes, illustration animée montagne/lac, réduction des mouvements, contrôles et erreurs conservant le formulaire.

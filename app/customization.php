@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 function category_seed(PDO $pdo, ?string $space): void {
     $mysql=$pdo->getAttribute(PDO::ATTR_DRIVER_NAME)==='mysql';
-    foreach(['class'=>'Classes','article'=>'Articles'] as $kind=>$name){
+    foreach(['class'=>'Notes','article'=>'Articles'] as $kind=>$name){
         $hash=hash('sha256','feuillet-category|'.($space??'general').'|'.$kind);
         $id=substr($hash,0,8).'-'.substr($hash,8,4).'-'.substr($hash,12,4).'-'.substr($hash,16,4).'-'.substr($hash,20,12);
         $sql=$mysql?'INSERT IGNORE INTO categories (id,space_id,name,legacy_kind,sort_order) VALUES (?,?,?,?,?)':'INSERT INTO categories (id,space_id,name,legacy_kind,sort_order) VALUES (?,?,?,?,?) ON CONFLICT(id) DO NOTHING';
@@ -39,9 +39,11 @@ function categories_mutate(string $action,array $input): array {
 function notebook_settings(): array {
     $old=cfg()['name']??'Feuillet.';
     $title=in_array($old,['Le carnet de Sandro','Mon carnet','Mon carnet de cours'],true)?'Feuillet.':$old;
-    $defaults=['title'=>$title,'subtitle'=>'Mon carnet pédagogique','icon'=>'feuillet','icon_id'=>null,'auto_publish'=>true,'auto_publish_children'=>false,'sidebar_shortcut'=>'Mod+Shift+L','max_upload'=>(int)(cfg()['max_upload']??104857600)];
+    $defaults=['title'=>$title,'subtitle'=>'Mes notes, simplement','icon'=>'feuillet','icon_id'=>null,'auto_publish'=>true,'auto_publish_children'=>false,'sidebar_shortcut'=>'Mod+Shift+L','max_upload'=>(int)(cfg()['max_upload']??104857600)];
     $raw=query("SELECT value FROM app_settings WHERE name='notebook'")->fetchColumn();
-    return array_replace($defaults,$raw?json_decode($raw,true):[]);
+    $settings=array_replace($defaults,$raw?json_decode($raw,true):[]);
+    if($settings['subtitle']==='Mon carnet pédagogique')$settings['subtitle']=$defaults['subtitle'];
+    return $settings;
 }
 function notebook_validate(array $input): array {
     $out=notebook_settings();

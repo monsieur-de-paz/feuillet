@@ -41,7 +41,7 @@ Le backend ne dépend pas de Composer. PDO sélectionne MySQL/MariaDB ou SQLite 
 
 ## Construction et distribution
 
-Les sources React/TypeScript utilisent le cœur libre de Tiptap et ProseMirror. Les menus et blocs pédagogiques sont ceux de Feuillet ; aucun composant Pro ou service de collaboration Tiptap n'est présent dans le verrouillage npm examiné.
+Les sources React/TypeScript utilisent le cœur libre de Tiptap et ProseMirror. Les menus et blocs enrichis sont ceux de Feuillet ; aucun composant Pro ou service de collaboration Tiptap n'est présent dans le verrouillage npm examiné.
 
 `npm run build` effectue le contrôle TypeScript, prépare PDF.js puis compile l'interface avec Vite. Le résultat est dans `public/assets`. `tools/prepare-pdf.mjs` copie PDF.js, son worker, ses tables de caractères, ses polices de secours, ses modules WebAssembly et ses licences vers `public/vendor/pdfjs`.
 
@@ -98,7 +98,7 @@ Feuillet n'emploie pas React Server Components ni un moteur JavaScript de serveu
 
 ## Contraintes actuelles
 
-Le système n'a ni comptes élèves, ni édition collaborative, ni synchronisation hors ligne. La recherche couvre le texte des pages et les noms de fichiers, sans OCR ou indexation interne des PDF. L'audio et la vidéo utilisent les formats compatibles avec le navigateur.
+Le système n'a ni comptes visiteurs, ni édition collaborative, ni synchronisation hors ligne. La recherche couvre le texte des pages et les noms de fichiers, sans OCR ou indexation interne des PDF. L'audio et la vidéo utilisent les formats compatibles avec le navigateur.
 
 Les imports ZIP créent des copies privées et remappent les références ; ils ne constituent pas un remplacement identique de toute l'installation. Les limites de propriétés, lignes, formules, taille des requêtes et archives bornent le travail serveur. Pour une reprise exacte incluant configuration et historique, sauvegarder SQL, `storage/` et `config.php` ensemble.
 
@@ -177,3 +177,7 @@ Les notifications et choix sont dans `storage/updates/settings.json`. Le déploi
 La restauration dépend des droits, de l’espace disque et de SQL. Les médias ne sont pas recopiés. Voir [les étapes et la procédure FTP](MISES-A-JOUR.md) avant de supprimer un dossier de sauvegarde. Aucun cron, shell système ou service permanent n’est requis. L’installation OVH réelle reste à vérifier sur l’offre de l’utilisateur.
 
 Le verrou de contrôle des updates (`storage/updates/control.lock`) est distinct du verrou de déploiement. Vérification GitHub, téléchargement et extraction ne bloquent pas la lecture ni les sauvegardes des pages. La session PHP est fermée après authentification/CSRF pour ces opérations. Seule la sauvegarde cohérente suivie d’activation prend le verrou de déploiement ; les endpoints autonomes de santé/récupération sont les seules entrées pendant cette maintenance.
+
+## Navigation et vocabulaire — 0.8.1
+
+Le tableau de bord et la sélection du carnet sont indépendants. `openDashboard` sauvegarde la page puis remplace le panneau principal sans recharger ni vider les données de navigation et sans fermer le tiroir mobile. Le bouton du fil d’Ariane vérifie l’existence d’une page avant de sélectionner son carnet. Les catégories initiales utilisent Notes/Articles ; les clés `legacy_kind` et `kind=class` sont conservées pour lire les anciennes bases et sauvegardes. La normalisation de l’ancien sous-titre par défaut s’effectue à la lecture des réglages et préserve tout texte personnalisé.

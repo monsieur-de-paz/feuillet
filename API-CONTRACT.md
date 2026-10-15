@@ -104,7 +104,7 @@ Pour les champs, limites et exemples de formules : [BASES-ET-FORMULAIRES.md](doc
 - `notebook.auto_publish`: booléen, actif par défaut. Seules les pages déjà publiques sont synchronisées après `save`, dans la transaction de l’écriture. Une nouvelle page reste privée.
 - `notebook.icon`: émoji, `f.` ou `lucide:slug[:#RRGGBB]` validé dans le manifeste ; `notebook.icon_id`: image existante ou `null`. Une image choisie pour la marque du carnet est publique.
 - `GET page&id=...&published=1` force le snapshot publié, même pour un administrateur.
-- `GET reader-state.php?page=...&token=...` force également la visibilité publique. Le champ `page` vide laisse le lecteur sans contenu de cours. Le paramètre `root` conserve la branche du partage ; à défaut la page demandée est sa propre racine. Une réponse inchangée contient uniquement `{token}` ; une modification ajoute `html`, `breadcrumbs`, `title`, `appearance`, `mode` et `unavailable`. Ce jeton est une empreinte de contenu, pas un secret d’authentification.
+- `GET reader-state.php?page=...&token=...` force également la visibilité publique. Le champ `page` vide laisse le lecteur sans contenu de page. Le paramètre `root` conserve la branche du partage ; à défaut la page demandée est sa propre racine. Une réponse inchangée contient uniquement `{token}` ; une modification ajoute `html`, `breadcrumbs`, `title`, `appearance`, `mode` et `unavailable`. Ce jeton est une empreinte de contenu, pas un secret d’authentification.
 - Un lien transformé utilise les types existants `buttonLink`, `bookmark` ou un paragraphe avec marque `link`. `fileBlock.mode` choisit téléchargement ou lecteur compatible, sans changer `fileId`.
 
 ## Ajouts 0.4.1
@@ -141,3 +141,7 @@ Tous les endpoints `update_*` exigent l’admin. Les mutations exigent POST et C
 - `GET update_backup&id=...` : archive privée du code, de la configuration et de la base avant une opération terminée. Les médias restent dans le stockage d’origine.
 
 Le protocole de distribution 1 est décrit dans [MISES-A-JOUR.md](docs/MISES-A-JOUR.md). Les requêtes ordinaires sous maintenance reçoivent HTTP 503 et Retry-After, sans contenu privé. Une interruption déclenche une reprise de restauration au prochain accès ; aucune tâche serveur permanente n’est nécessaire.
+
+## Valeurs proposées — 0.8.1
+
+Les nouveaux carnets reçoivent les catégories Notes (`legacy_kind=class`) et Articles (`legacy_kind=article`). Ces valeurs historiques restent acceptées sans migration destructive. Les noms de catégories existantes sont préservés. `settings.notebook.subtitle` utilise « Mes notes, simplement » par défaut et normalise uniquement l’ancien sous-titre standard ; un texte personnalisé est renvoyé tel quel.

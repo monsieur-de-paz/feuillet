@@ -110,7 +110,7 @@ Avec accès à PHP en ligne de commande, `tools/reset-password.php` lit le nouve
 
 Sans SSH, préparer le hash avec `tools/create-password-hash.php` sur un ordinateur disposant de PHP, puis modifier uniquement `password_hash` dans une copie privée de `config.php` avant retransfert. Préserver les autres champs et supprimer les anciennes sessions de `storage/sessions/` pour fermer les connexions existantes. Ne jamais placer un script de réinitialisation accessible publiquement.
 
-Les erreurs détaillées vont au journal PHP ; le navigateur reçoit un message général. Lors d'un signalement, fournir version, action, statut HTTP et erreur utile, en retirant mot de passe, paramètres SQL, token de formulaire non partagé et contenu d'élève.
+Les erreurs détaillées vont au journal PHP ; le navigateur reçoit un message général. Lors d'un signalement, fournir version, action, statut HTTP et erreur utile, en retirant mot de passe, paramètres SQL, token de formulaire non partagé et contenu personnel.
 
 ## Limites de maintenance encore ouvertes
 
@@ -164,7 +164,7 @@ Remplacer les fichiers compilés et public/interface.css, garder config.php et s
 
 ## Mise à jour 0.5.4
 
-Transférer le code et les assets comme pour 0.5.3, conserver configuration et stockage privés. Recharger les onglets pour voir le nouveau soulignement et la poignée de largeur. Double-clic sur la poignée ou Entrée rétablit la largeur responsive par défaut. La préférence de largeur est locale au navigateur ; elle n’est pas dans les exports de cours et peut être différente sur un autre appareil. Aucun changement de schéma SQL.
+Transférer le code et les assets comme pour 0.5.3, conserver configuration et stockage privés. Recharger les onglets pour voir le nouveau soulignement et la poignée de largeur. Double-clic sur la poignée ou Entrée rétablit la largeur responsive par défaut. La préférence de largeur est locale au navigateur ; elle n’est pas dans les exports de pages et peut être différente sur un autre appareil. Aucun changement de schéma SQL.
 
 ## Mise à jour 0.6
 
@@ -191,3 +191,7 @@ Utiliser l’archive installable de la release et conserver `update-manifest.jso
 Les notifications et choix sont dans `storage/updates/settings.json`. Le déploiement prépare une extraction vérifiée, sauvegarde le code et la base, conserve configuration/médias, pose `storage/update-journal.json` et remplace les fichiers sous verrou exclusif. `public/update-guard.php` précède le bootstrap sur les points d’entrée ordinaires. `public/update-health.php` valide le nouveau processus ; `public/recover.php` et la copie privée du moteur de récupération peuvent rétablir la version précédente. Les sauvegardes ne sont pas servies publiquement et restent téléchargeables par l’admin après succès ou retour arrière.
 
 La restauration dépend des droits, de l’espace disque et de SQL. Les médias ne sont pas recopiés. Voir [les étapes et la procédure FTP](MISES-A-JOUR.md) avant de supprimer un dossier de sauvegarde. Aucun cron, shell système ou service permanent n’est requis. L’installation OVH réelle reste à vérifier sur l’offre de l’utilisateur.
+
+## Correctif 0.8.1
+
+Transférer le code et les assets compilés en conservant configuration et stockage. Vérifier le retour à l’accueil par logo, nom du site et fil d’Ariane, puis la sélection d’un autre carnet, d’une catégorie et d’une page. Sur mobile, le retour à l’accueil conserve le tiroir ouvert. Les catégories déjà créées sont conservées ; seul un nouveau carnet propose Notes/Articles. Les anciens guides et preuves de versions restent des documents historiques.

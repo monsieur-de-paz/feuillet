@@ -1,6 +1,6 @@
 # Installation sur le mutualisé OVH
 
-Ce guide prépare une installation sur un hébergement mutualisé OVHcloud. Remplacer **`cours.exemple.fr`** par votre domaine ou sous-domaine. Une base SQL et un dossier suffisent ; la compatibilité de l’offre exacte et les limites PHP se vérifient dans l’installateur. Ce guide ne constitue pas une validation sur votre compte OVH réel.
+Ce guide prépare une installation sur un hébergement mutualisé OVHcloud. Remplacer **`notes.exemple.fr`** par votre domaine ou sous-domaine. Une base SQL et un dossier suffisent ; la compatibilité de l’offre exacte et les limites PHP se vérifient dans l’installateur. Ce guide ne constitue pas une validation sur votre compte OVH réel.
 
 ## 1. Préparer le dossier et la base
 
@@ -28,7 +28,7 @@ Le compte FTP doit pouvoir créer `config.php` et écrire dans `storage/`. Utili
 
 ## 2. Relier le sous-domaine
 
-Dans l'espace client OVH, ouvrir l'hébergement puis **Multisite**. Ajouter `cours.exemple.fr` en pointant le dossier racine vers **`feuillet/public`** (ou son chemin relatif réel depuis la racine FTP).
+Dans l'espace client OVH, ouvrir l'hébergement puis **Multisite**. Ajouter `notes.exemple.fr` en pointant le dossier racine vers **`feuillet/public`** (ou son chemin relatif réel depuis la racine FTP).
 
 Configurer l'entrée DNS pour qu'elle pointe vers l'hébergement. Si OVH gère la zone, suivre les valeurs proposées par l'espace client, sans recopier une adresse IP d'exemple. Activer le certificat SSL pour ce sous-domaine et attendre qu'il soit opérationnel avant l'installation.
 
@@ -44,11 +44,11 @@ La version PHP et l'environnement peuvent se régler dans l'espace client ou par
 
 ## 4. Terminer dans le navigateur
 
-Ouvrir `https://cours.exemple.fr/setup.php`. Compléter les paramètres de la base et choisir son nom et un mot de passe personnel robuste. L'installation prépare les tables et la configuration. Une fois installée, elle doit refuser une seconde installation.
+Ouvrir `https://notes.exemple.fr/setup.php`. Compléter les paramètres de la base et choisir son nom et un mot de passe personnel robuste. L'installation prépare les tables et la configuration. Une fois installée, elle doit refuser une seconde installation.
 
 Se connecter, créer une page privée, envoyer un petit PDF, puis publier la page. Dans un navigateur privé, vérifier la lecture et le téléchargement. Repasser la page en privé et vérifier que **le lien direct du PDF** n'est plus accessible, sauf si le même fichier est également utilisé dans une autre page publique.
 
-Vérifier qu’une modification enregistrée dans un cours déjà publié apparaît automatiquement chez les visiteurs. Pour préparer des modifications privées, désactiver la publication automatique dans les réglages du carnet ; dans ce mode, le cours conserve son ancienne version jusqu’à « Publier ». Une page publique n'a pas besoin de compte élève ; un lien peut donc être partagé au-delà de la classe.
+Vérifier qu’une modification enregistrée dans une page déjà publiée apparaît automatiquement chez les visiteurs. Pour préparer des modifications privées, désactiver la publication automatique dans les réglages du carnet ; dans ce mode, la page conserve son ancienne version jusqu’à « Publier ». Une page publique n'a pas besoin de compte visiteur ; un lien peut donc être partagé au-delà de la classe.
 
 ## 5. Quotas et médias
 
@@ -82,7 +82,7 @@ Aucune commande SSH, installation Composer ou compilation Node.js n'est nécessa
 
 Le logiciel ne dépend pas d'un service e-mail pour récupérer le compte. Si un accès SSH est disponible, exécuter `php tools/reset-password.php` depuis le dossier Feuillet, puis saisir le nouveau mot de passe sur l'entrée standard. Il n'est pas passé en argument de commande. L'outil ferme les anciennes sessions.
 
-Sans SSH, exécuter localement `php tools/create-password-hash.php` avec un PHP installé, puis remplacer uniquement la valeur `password_hash` dans une copie privée de `config.php` et la renvoyer par FTP. Ne pas envoyer ce fichier à un service de génération de mots de passe en ligne. Après remplacement, supprimer les fichiers de session de `storage/sessions/` pour fermer les anciennes connexions, sans supprimer les cours ni les pièces jointes.
+Sans SSH, exécuter localement `php tools/create-password-hash.php` avec un PHP installé, puis remplacer uniquement la valeur `password_hash` dans une copie privée de `config.php` et la renvoyer par FTP. Ne pas envoyer ce fichier à un service de génération de mots de passe en ligne. Après remplacement, supprimer les fichiers de session de `storage/sessions/` pour fermer les anciennes connexions, sans supprimer les pages ni les pièces jointes.
 
 ## Lecteur PDF
 
@@ -94,7 +94,7 @@ Fonctions ajoutées et procédure de mise à jour : [NOUVEAUTES-0.2.md](NOUVEAUT
 
 ## Préparer les carnets et liens publics (0.5.1)
 
-Créer les carnets, puis leurs pages et catégories. Publier chaque page destinée à un groupe et copier son lien public. Tester ce lien dans une fenêtre privée : la page partagée doit être la première du fil d’Ariane, ses sous-pages doivent y revenir, et les autres branches ne doivent pas être listées. `index.php?read=1` affiche seulement une invitation à utiliser un lien partagé. `index.php?edit=1` ouvre la connexion enseignant.
+Créer les carnets, puis leurs pages et catégories. Publier chaque page destinée à un groupe et copier son lien public. Tester ce lien dans une fenêtre privée : la page partagée doit être la première du fil d’Ariane, ses sous-pages doivent y revenir, et les autres branches ne doivent pas être listées. `index.php?read=1` affiche seulement une invitation à utiliser un lien partagé. `index.php?edit=1` ouvre la connexion administrateur.
 
 Lors d’une mise à jour, les pages autrefois hors espace sont déplacées automatiquement dans un vrai carnet « Mes pages », renommable. Les anciens accueils restent des pages ordinaires. Sauvegarder SQL, configuration et médias avant de transférer le code, et conserver `config.php` et `storage/`. Voir [Maintenance](MAINTENANCE.md) et [les nouveautés 0.5.1](NOUVEAUTES-0.5.1.md).
 

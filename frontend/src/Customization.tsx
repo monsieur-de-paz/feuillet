@@ -295,7 +295,7 @@ export function CategoriesEditor({
       >
         <input
           aria-label="Nouvelle catégorie"
-          placeholder="Cours, exercices, projets…"
+          placeholder="Notes, projets, idées…"
           value={name}
           maxLength={60}
           onChange={(e) => setName(e.target.value)}

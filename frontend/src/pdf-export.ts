@@ -551,7 +551,7 @@ export async function exportPdf(
         break;
       }
       case "quiz":
-        line(a.title || "Exercice", 13, true, indent);
+        line(a.title || "Quiz", 13, true, indent);
         for (const q of a.questions || []) {
           line(q.prompt || q.question || "Question", 11, true, indent);
           for (const option of q.options || [])
@@ -605,7 +605,7 @@ export async function exportPdf(
     }
   }
   pdf.setProperties({
-    title: page.title || "Cours",
+    title: page.title || "Sans titre",
     creator: "Feuillet",
     subject: "Export du carnet",
   });

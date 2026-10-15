@@ -4,14 +4,16 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.8.0-2563eb" alt="Version 0.8.0">
+  <img src="https://img.shields.io/badge/version-0.8.1-2563eb" alt="Version 0.8.1">
 </p>
 
-**Feuillet est un carnet web gratuit et open source pour rédiger, organiser et partager ses ressources.** Inspiré de l’édition par blocs, il permet de préparer des cours, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
+**Feuillet est un carnet web gratuit et open source pour prendre des notes enrichies, les centraliser et les partager sur son propre hébergement.** Inspiré de l’édition par blocs, il permet de rédiger des notes enrichies, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
 
 Il fonctionne sur un hébergement **PHP + MySQL/MariaDB**, y compris un mutualisé compatible. Un seul compte rédige ; les lecteurs consultent les pages et répondent aux formulaires depuis leur navigateur, sur ordinateur ou mobile. Aucun VPS ni abonnement n’est nécessaire. Node.js sert uniquement à développer l’interface ; les fichiers compilés sont fournis.
 
-<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.7.md">Nouveautés</a></p>
+<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.8.1.md">Nouveautés</a></p>
+
+Un journal personnel, un espace de projets, une collection de lectures ou une documentation : vous choisissez vos carnets, leurs catégories et ce que vous partagez.
 
 ## Ce que vous pouvez faire
 
@@ -19,7 +21,7 @@ Il fonctionne sur un hébergement **PHP + MySQL/MariaDB**, y compris un mutualis
 |---|---|---|
 | Éditeur par blocs, commandes `/`, titres dépliables, listes, tableaux, colonnes et encadrés | Carnets, catégories personnalisées, pages et sous-pages, fil d’Ariane | Publication d’une page et de ses sous-pages |
 | Couleur du texte et du fond, liens, boutons modifiables | Galeries de pages et bases avec champs typés | PDF, audio, vidéo et fichiers à télécharger |
-| Couvertures repositionnables, icônes importées, images redimensionnables et agrandissables dans l’éditeur | Relations entre bases, formules et agrégations | Exercices avec correction immédiate |
+| Couvertures repositionnables, icônes importées, images redimensionnables et agrandissables dans l’éditeur | Relations entre bases, formules et agrégations | Quiz avec correction immédiate |
 | Thèmes blanc, sombre et OLED ; polices Quicksand et Fraunces | Notes privées, recherche et historique | Formulaires : texte, e-mail, téléphone, URL, fichiers… |
 | Import et export Markdown, export PDF | Partage par branche, sauvegarde et restauration ZIP | Réponses aux formulaires consultables uniquement par l’administrateur |
 
@@ -59,7 +61,7 @@ SQLite est aussi disponible avec `pdo_sqlite` pour une installation locale ou un
 
 ### 2. Télécharger et transférer le logiciel
 
-Télécharger **`Feuillet-0.8.0.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
+Télécharger **`Feuillet-0.8.1.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
 
 Utiliser l’archive installable de la release : elle contient les assets compilés et le manifeste nécessaire aux mises à jour intégrées. Le ZIP automatique « Source code » n’est pas la distribution recommandée.
 
@@ -84,13 +86,13 @@ Le compte d’hébergement doit pouvoir créer `config.php` dans `feuillet/` et 
 
 Créer une base SQL dédiée. Conserver le **serveur SQL exact**, le port, le nom de la base, l’utilisateur et son mot de passe. Feuillet crée ses tables ; aucun import SQL manuel n’est nécessaire.
 
-Associer le domaine ou sous-domaine au dossier `feuillet/public`, activer HTTPS et sélectionner la version PHP adaptée. Exemple : `cours.exemple.fr` → `feuillet/public`.
+Associer le domaine ou sous-domaine au dossier `feuillet/public`, activer HTTPS et sélectionner la version PHP adaptée. Exemple : `notes.exemple.fr` → `feuillet/public`.
 
 **Sur OVHcloud**, utiliser **Hébergement → Multisite** pour associer le sous-domaine au dossier racine. Les réglages PHP dépendent de la configuration de l’offre ; consulter le [guide OVHcloud](docs/INSTALLATION-OVH.md) et sa [documentation officielle PHP](https://docs.ovhcloud.com/fr/guides/web-cloud/web-hosting/configure-your-web-hosting). Les limites de PHP et de la base sont distinctes de l’espace de stockage.
 
 ### 4. Ouvrir l’installateur
 
-Ouvrir `https://cours.exemple.fr/setup.php`, puis :
+Ouvrir `https://notes.exemple.fr/setup.php`, puis :
 
 1. Vérifier les prérequis affichés. À la première ouverture, l’installateur crée une clé privée dans `storage/installation-key.txt`.
 2. Lire ce fichier par FTP/SFTP, puis saisir sa clé dans le champ **Clé d’installation**. Elle n’est jamais affichée par le site et sera supprimée après installation.
@@ -98,11 +100,11 @@ Ouvrir `https://cours.exemple.fr/setup.php`, puis :
 4. Choisir MySQL/MariaDB et renseigner les paramètres fournis par l’hébergeur.
 5. Cliquer sur **Créer mon carnet**.
 
-La configuration est créée automatiquement. Il n’y a aucun compte ou mot de passe prédéfini. Le carnet démarre sans les cours et données de démonstration du développement. Aucune commande SSH, installation Composer ou compilation n’est nécessaire pour cette installation.
+La configuration est créée automatiquement. Il n’y a aucun compte ou mot de passe prédéfini. Le carnet démarre sans les pages et données de démonstration du développement. Aucune commande SSH, installation Composer ou compilation n’est nécessaire pour cette installation.
 
 ### 5. Préparer ses carnets et essayer avant de partager
 
-Créer des **Carnets** pour organiser les pages et leurs catégories. Pour partager un cours, publier sa page puis copier son lien public. Cette page devient la première de la navigation du visiteur ; ses liens et galeries restent dans sa branche. Une sous-page partagée directement devient sa propre racine. L’adresse `index.php?read=1` ne liste aucun cours. Les pages publiques restent consultables par toute personne possédant leur lien : cette navigation ne constitue pas un accès protégé par groupe. [Guide de partage 0.5.1](docs/NOUVEAUTES-0.5.1.md).
+Créer des **Carnets** pour organiser les pages et leurs catégories. Pour partager une page, publier sa page puis copier son lien public. Cette page devient la première de la navigation du visiteur ; ses liens et galeries restent dans sa branche. Une sous-page partagée directement devient sa propre racine. L’adresse `index.php?read=1` ne liste aucune page. Les pages publiques restent consultables par toute personne possédant leur lien : cette navigation ne constitue pas un accès protégé par groupe. [Guide de partage 0.5.1](docs/NOUVEAUTES-0.5.1.md).
 
 Créer une page, y déposer un petit PDF, puis cliquer sur **Publier**. Dans une fenêtre privée du navigateur, vérifier la lecture et le téléchargement. Repasser la page en privé et vérifier l’accès au lien du fichier. Un média réutilisé dans une autre page publique reste accessible.
 
@@ -127,7 +129,7 @@ Dans **Bibliothèque**, le bouton **Utilisations** de chaque fichier liste ses p
 | `/bouton` | Ajouter un bouton dont le texte et le lien restent modifiables |
 | `/base` | Créer ou choisir une base de données |
 | `/formulaire` | Créer ou choisir un formulaire lié à une base |
-| `/quiz` | Ajouter un exercice avec correction |
+| `/quiz` | Ajouter un quiz avec correction |
 
 Le bouton **Ajouter** propose les mêmes insertions sur mobile. Sélectionner du texte ouvre les outils de mise en forme. Le nom, le sous-titre, la limite d’envoi et le thème général se règlent dans **Réglages & sauvegardes**. Les propriétés d’une page permettent de personnaliser son apparence et sa catégorie. Le bouton **Présentation** transforme les fichiers déjà présents en lecteurs ou téléchargements, et les liens en boutons ou cartes. [Modifier les blocs](docs/BLOCS-0.4.md).
 
@@ -135,7 +137,7 @@ Le bouton **Ajouter** propose les mêmes insertions sur mobile. Sélectionner du
 
 Les nouvelles pages racines sont **privées**. **Publier** partage cette page et toutes ses sous-pages actuelles. Ensuite, par défaut, chaque enregistrement actualise automatiquement une page déjà publique, y compris les médias et la couverture. Le réglage **Publier automatiquement les sous-pages des pages publiques** rend publiques toutes leurs sous-pages existantes et futures, y compris lors d’un déplacement sous un parent public. Il est désactivé par défaut pour conserver les choix de visibilité existants. Une fois activé, l’accès public est hérité du parent ; désactiver ce réglage ou rendre le parent privé permet de préparer des sous-pages privées. **Rendre privée** retire aussi les sous-pages.
 
-Décocher **Mettre à jour automatiquement les pages déjà publiques** dans les réglages retrouve le mode brouillon et sa publication manuelle. Les visiteurs déjà présents suivent les changements toutes les 15 secondes lorsque leur onglet est visible. Un exercice commencé ou un média en lecture est préservé. [Fonctionnement détaillé](docs/PUBLICATION-ET-THEMES-0.4.md).
+Décocher **Mettre à jour automatiquement les pages déjà publiques** dans les réglages retrouve le mode brouillon et sa publication manuelle. Les visiteurs déjà présents suivent les changements toutes les 15 secondes lorsque leur onglet est visible. Un quiz commencé ou un média en lecture est préservé. [Fonctionnement détaillé](docs/PUBLICATION-ET-THEMES-0.4.md).
 
 Les cartes de galerie partagent le même ratio, la même disposition et les mêmes tailles dans les deux vues ; les contrôles et pages privées restent réservés à l’administrateur. L’icône du carnet et celle d’une page se modifient avec un catalogue d’émojis, les dessins Lucide colorables ou une image. Le bouton de thème personnel propose clair, sombre et OLED ; il est adapté à l’ordinateur et au mobile.
 
@@ -151,11 +153,11 @@ Exporter régulièrement le carnet depuis **Réglages & sauvegardes**. Le ZIP co
 
 L’import crée des copies privées, conserve les relations et calculs, remappe les fichiers et ferme les formulaires importés. Le ZIP ne remplace pas une sauvegarde complète de la base SQL, de `config.php` et de `storage/`, nécessaire pour restaurer aussi le compte et l’historique technique.
 
-Pour une mise à jour : sauvegarder, remplacer le code et le contenu de `public/assets/`, conserver **`config.php` et tout `storage/`**, puis ouvrir le carnet. Les migrations sont automatiques et ne suppriment pas les cours. Vérifier ensuite connexion, lecture publique et accès aux fichiers. Ne pas relancer l’installateur sur une installation existante.
+Pour une mise à jour : sauvegarder, remplacer le code et le contenu de `public/assets/`, conserver **`config.php` et tout `storage/`**, puis ouvrir le carnet. Les migrations sont automatiques et ne suppriment pas les pages. Vérifier ensuite connexion, lecture publique et accès aux fichiers. Ne pas relancer l’installateur sur une installation existante.
 
 ## Limites actuelles
 
-- Un seul compte administrateur ; pas de collaboration simultanée ni de comptes élèves.
+- Un seul compte administrateur ; pas de collaboration simultanée ni de comptes visiteurs.
 - Les formules utilisent le langage propre à Feuillet ; il couvre calculs, conditions, textes et agrégations, sans reprendre toute la syntaxe de Notion. [Syntaxe et exemples](docs/BASES-ET-FORMULAIRES.md).
 - Jusqu’à 100 propriétés et 5 000 fiches par base. Le lecteur HTML affiche les 500 premières fiches accessibles.
 - La limite d’envoi se règle de 1 à 1 024 Mo et reste plafonnée par PHP. Feuillet affiche la limite effective ; augmenter celle du carnet ne modifie pas la configuration de l’hébergeur.
@@ -208,4 +210,4 @@ La largeur de la navigation se règle en glissant son bord droit, avec mémorisa
 
 La rédaction 0.6 remplace le bandeau permanent par un ajout flottant et des outils visibles pendant la sélection de texte. Entrée ou Tab mène du titre au contenu ; les titres 1, 2 et 3 peuvent se déplier. [Guide 0.6](docs/NOUVEAUTES-0.6.md).
 
-Feuillet 0.7 ajoute le déplacement des blocs entre sections, un accueil admin avec les dernières modifications, l’import TXT/Markdown/RTF et un bloc de lieu avec carte Google Maps sans clé API. [Guide 0.7](docs/NOUVEAUTES-0.7.md) · [Identité visuelle et logo](docs/IDENTITE-VISUELLE.md).
+Feuillet 0.7 ajoute le déplacement des blocs entre sections, un accueil admin avec les dernières modifications, l’import TXT/Markdown/RTF et un bloc de lieu avec carte Google Maps sans clé API. [Guide 0.7](docs/NOUVEAUTES-0.8.1.md) · [Identité visuelle et logo](docs/IDENTITE-VISUELLE.md).

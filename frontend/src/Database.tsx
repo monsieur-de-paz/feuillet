@@ -2373,7 +2373,7 @@ function PropertyEditor({
             </Select>
             <small className="database-field-help">
               La relation sélectionne de vraies fiches de cette base. Elle reste
-              accessible à l’enseignant.
+              accessible à l’administrateur du site.
             </small>
           </label>
         )}
@@ -2915,7 +2915,9 @@ function PublicFormFields({
       <div className="database-success" role="status">
         <Check size={22} />
         <h3>Ta réponse a bien été envoyée.</h3>
-        <p>Merci ! Elle sera consultable uniquement par l’enseignant.</p>
+        <p>
+          Merci ! Elle sera consultable uniquement par l’administrateur du site.
+        </p>
         <button className="small-button" onClick={() => setSubmitted(false)}>
           Envoyer une autre réponse
         </button>
@@ -2942,7 +2944,7 @@ function PublicFormFields({
         <p className="database-field-help">
           Les pièces jointes non envoyées avec ta réponse expirent après 24
           heures. Les fichiers envoyés restent privés et accessibles à
-          l’enseignant.
+          l’administrateur du site.
         </p>
       )}
       <div className="database-honeypot" aria-hidden="true">
@@ -2975,8 +2977,8 @@ function PublicFormFields({
           </button>
           <p className="database-form-footer">
             Les champs marqués * sont obligatoires. Tes réponses et tes fichiers
-            sont transmis à l’enseignant et ne sont pas affichés aux autres
-            visiteurs.
+            sont transmis à l’administrateur du site et ne sont pas affichés aux
+            autres visiteurs.
           </p>
         </>
       )}
@@ -3826,7 +3828,7 @@ export function DatabaseManager({
                   )}
                   <div className="database-tools">
                     <span className="database-field-help">
-                      Les élèves répondent sans voir le contenu de la base.
+                      Les visiteurs répondent sans voir le contenu de la base.
                     </span>
                     <button
                       className="small-button"
@@ -3932,8 +3934,8 @@ export function DatabaseManager({
                     <ShieldCheck size={16} />
                     <span>
                       Publier un formulaire partage ses questions. Les fiches et
-                      les fichiers envoyés par les élèves restent privés et sont
-                      visibles uniquement ici.
+                      les fichiers envoyés par les visiteurs restent privés et
+                      sont visibles uniquement ici.
                     </span>
                   </div>
                 </>
@@ -4255,8 +4257,8 @@ export function DatabaseView({
             />
             {app.admin && (
               <p className="database-field-help">
-                Les fiches privées sont visibles dans cet aperçu enseignant. Les
-                réponses aux formulaires restent privées.
+                Les fiches privées sont visibles dans cet aperçu administrateur.
+                Les réponses aux formulaires restent privées.
               </p>
             )}
           </>
@@ -4340,7 +4342,7 @@ export function FormView({
           </div>
           <p className="database-field-help">
             {data.form.public
-              ? "Ce formulaire est accessible aux élèves."
+              ? "Ce formulaire est accessible aux visiteurs."
               : "Ce formulaire est privé. Publie-le pour permettre les réponses."}{" "}
             Les réponses restent privées.
           </p>

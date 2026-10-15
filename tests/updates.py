@@ -7,7 +7,7 @@ class Updates(unittest.TestCase):
  @classmethod
  def setUpClass(cls):
   h.Integration.setUpClass();cls.admin=h.Integration.admin;cls.visitor=h.Integration.visitor;cls.install=h.Integration.install
-  manifest=json.loads((h.ROOT/'update-manifest.json').read_text());cls.manifest=manifest
+  manifest=json.loads((h.ROOT/'update-manifest.json').read_text());cls.manifest=manifest;cls.current_version=manifest['version'];parts=cls.current_version.split('.');cls.next_version='.'.join(parts[:-1]+[str(int(parts[-1])+1)])
   for path in list(manifest['files'])+['update-manifest.json']:
    target=cls.install/path;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(h.ROOT/path,target)
   cls.original_config=(cls.install/'config.php').read_bytes()
@@ -18,13 +18,13 @@ class Updates(unittest.TestCase):
   from uuid import uuid4
   id=uuid4().hex;folder=self.install/'storage/updates'/id;folder.mkdir(parents=True)
   files={name:(self.install/name).read_bytes() for name in self.manifest['files']}
-  files['app/bootstrap.php']=files['app/bootstrap.php'].replace(b"FEUILLET_VERSION = '0.8.0'",b"FEUILLET_VERSION = '0.8.1'")
+  files['app/bootstrap.php']=files['app/bootstrap.php'].replace(("FEUILLET_VERSION = '"+self.current_version+"'").encode(),("FEUILLET_VERSION = '"+self.next_version+"'").encode())
   files['public/upgrade-proof.txt']=b'New asset'
   if mode=='runtime':files['public/index.php']+=b"\n<?php throw new RuntimeException('Controlled entrypoint failure'); ?>"
   if mode=='migration':files['app/bootstrap.php']=files['app/bootstrap.php'].replace(b'    migrate_schema($pdo);',b'''    if(basename($_SERVER['SCRIPT_FILENAME']??'')==='update-health.php'){$pdo->exec("CREATE TABLE future_upgrade_probe (id INTEGER)");$pdo->exec("UPDATE pages SET title='Controlled corruption'");throw new RuntimeException('Controlled migration failure');}
     migrate_schema($pdo);''',1)
   if mode=='syntax':files['app/future.php']=b'<?php broken PHP !'
-  manifest=dict(self.manifest,version='0.8.1',files={p:hashlib.sha256(data).hexdigest() for p,data in files.items()})
+  manifest=dict(self.manifest,version=self.next_version,files={p:hashlib.sha256(data).hexdigest() for p,data in files.items()})
   if mode=='migration':manifest['database_tables']=[*manifest['database_tables'],'future_upgrade_probe']
   if mode=='hash':manifest['files']['public/upgrade-proof.txt']='0'*64
   files['update-manifest.json']=json.dumps(manifest).encode();files['storage/.htaccess']=(h.ROOT/'storage/.htaccess').read_bytes()
@@ -32,8 +32,8 @@ class Updates(unittest.TestCase):
   with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
    for path,data in files.items():z.writestr('feuillet/'+path,data)
    if malicious:z.writestr(malicious,b'bad')
-  release={'version':'0.8.1','tag':'v0.8.1','name':'Test release','notes':'Local fixture','url':'https://github.com/monsieur-de-paz/feuillet/releases/tag/v0.8.1','asset_id':1,'checksum_id':2,'size':archive.stat().st_size,'sha256':hashlib.sha256(archive.read_bytes()).hexdigest()}
-  job={'id':id,'version':'0.8.1','previous_version':'0.8.0','release':release,'phase':'extract','message':'Test fixture','files_changed':False,'database_changed':False,'tables':['pages','revisions','files','spaces','app_settings','categories','collections','collection_properties','collection_rows','collection_forms','form_uploads'],'created_at':int(time.time()),'updated_at':int(time.time())}
+  release={'version':self.next_version,'tag':'v'+self.next_version,'name':'Test release','notes':'Local fixture','url':'https://github.com/monsieur-de-paz/feuillet/releases/tag/v'+self.next_version,'asset_id':1,'checksum_id':2,'size':archive.stat().st_size,'sha256':hashlib.sha256(archive.read_bytes()).hexdigest()}
+  job={'id':id,'version':self.next_version,'previous_version':self.current_version,'release':release,'phase':'extract','message':'Test fixture','files_changed':False,'database_changed':False,'tables':['pages','revisions','files','spaces','app_settings','categories','collections','collection_properties','collection_rows','collection_forms','form_uploads'],'created_at':int(time.time()),'updated_at':int(time.time())}
   (folder/'job.json').write_text(json.dumps(job));state={'notifications':True,'checked_at':int(time.time()),'release':release,'last_job':id,'token':''};(folder.parent/'settings.json').write_text(json.dumps(state));return id,folder
  def step(self,id):return self.admin.api('update_step',{'id':id})
  def health(self,id):return self.admin.request('update-health.php',{'id':id},{'X-CSRF-Token':self.admin.csrf})
@@ -85,7 +85,7 @@ class Updates(unittest.TestCase):
   result=subprocess.run([h.ARGS.php,str(runner)],capture_output=True);self.assertEqual(result.returncode,0,result.stderr)
  def test_09_filesystem_and_development_checkout_are_refused(self):
   id,folder=self.seed();git=self.install/'.git';git.mkdir()
-  try:self.assertFalse(self.ok(self.admin.api('update_status'))['ready']);self.ok(self.admin.api('update_start',{'version':'0.8.1'}),503)
+  try:self.assertFalse(self.ok(self.admin.api('update_status'))['ready']);self.ok(self.admin.api('update_start',{'version':self.next_version}),503)
   finally:git.rmdir()
   self.ok(self.step(id));target=self.install/'app/bootstrap.php';target.chmod(0o444)
   try:self.ok(self.step(id),400);self.original()
@@ -102,5 +102,5 @@ class Updates(unittest.TestCase):
   self.ok(self.admin.api('update_preferences',{'choice':'enable'}))
  def test_90_success_preserves_pages_media_config_and_session(self):
   p=self.ok(self.admin.api('save',{'title':'Course survives upgrade','content':{'type':'doc','content':[{'type':'paragraph'}]}}))['page'];file=self.ok(self.admin.upload('upload','Keep.txt',b'Keep media','text/plain'))['file']
-  id,folder=self.seed();self.ok(self.step(id));job=self.ok(self.step(id))['job'];self.assertEqual(job['phase'],'validating');self.assertTrue((folder/'code.zip').exists());self.assertTrue((folder/('database.jsonl' if h.ARGS.mysql else 'database.sqlite')).exists());self.ok(self.health(id));self.assertEqual(self.ok(self.admin.api('session'))['version'],'0.8.1');self.assertEqual(self.ok(self.admin.api('page',query='&id='+p['id']))['page']['title'],p['title']);self.assertEqual(self.ok(self.admin.request('media.php?id='+file['id'])),b'Keep media');self.assertEqual((self.install/'config.php').read_bytes(),self.original_config);self.assertFalse((self.install/'storage/update-journal.json').exists());self.assertEqual((self.install/'public/upgrade-proof.txt').read_bytes(),b'New asset');recovered=self.ok(self.admin.request('recover.php',{'id':id},{'X-CSRF-Token':self.admin.csrf}));self.assertTrue(recovered['already_installed']);self.assertEqual(self.ok(self.admin.api('session'))['version'],'0.8.1')
+  id,folder=self.seed();self.ok(self.step(id));job=self.ok(self.step(id))['job'];self.assertEqual(job['phase'],'validating');self.assertTrue((folder/'code.zip').exists());self.assertTrue((folder/('database.jsonl' if h.ARGS.mysql else 'database.sqlite')).exists());self.ok(self.health(id));self.assertEqual(self.ok(self.admin.api('session'))['version'],self.next_version);self.assertEqual(self.ok(self.admin.api('page',query='&id='+p['id']))['page']['title'],p['title']);self.assertEqual(self.ok(self.admin.request('media.php?id='+file['id'])),b'Keep media');self.assertEqual((self.install/'config.php').read_bytes(),self.original_config);self.assertFalse((self.install/'storage/update-journal.json').exists());self.assertEqual((self.install/'public/upgrade-proof.txt').read_bytes(),b'New asset');recovered=self.ok(self.admin.request('recover.php',{'id':id},{'X-CSRF-Token':self.admin.csrf}));self.assertTrue(recovered['already_installed']);self.assertEqual(self.ok(self.admin.api('session'))['version'],self.next_version)
 if __name__=='__main__':unittest.main(argv=[__file__]+h.REMAINING,verbosity=2)

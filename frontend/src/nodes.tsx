@@ -1446,7 +1446,7 @@ function QuizView({ node, updateAttributes }: NodeViewProps) {
         <span className="quiz-label">À toi de jouer</span>
         {app.admin && (
           <button className="small-button" onClick={() => setEditing(!editing)}>
-            {editing ? "Voir l’exercice" : "Modifier les questions"}
+            {editing ? "Voir le quiz" : "Modifier les questions"}
           </button>
         )}
       </div>

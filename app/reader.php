@@ -28,5 +28,5 @@ function render_reader_page(array $page,bool $public=true): string {
 }
 function render_reader_empty(bool $unavailable=false): string {
     if($unavailable)return '<main class="reader-page"><h1>Page indisponible</h1><p>Cette page est privée, retirée ou ne fait pas partie de ce partage.</p></main>';
-    return '<main class="reader-page reader-empty"><div class="page-emoji">'.render_reader_brand().'</div><h1>Ouvrir une page partagée</h1><p>Utilise le lien transmis par ton enseignant pour consulter ses cours et leurs sous-pages.</p><a class="resource-button" href="index.php?edit=1">Espace enseignant</a></main>';
+    return '<main class="reader-page reader-empty"><div class="page-emoji">'.render_reader_brand().'</div><h1>Ouvrir une page partagée</h1><p>Ouvre le lien partagé par le propriétaire du site pour consulter une page et ses sous-pages.</p><a class="resource-button" href="index.php?edit=1">Administration</a></main>';
 }

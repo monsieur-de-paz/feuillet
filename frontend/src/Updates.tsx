@@ -439,7 +439,8 @@ export function UpdateProgress({ updates }: { updates: Controller }) {
   const finished = ["complete", "failed"].includes(progress.phase);
   const hasBackup =
     progress.phase === "complete" ||
-    (updates.status?.job?.id === progress.id && updates.status.job.has_backup);
+    (updates.status?.job?.id === progress.id &&
+      updates.status?.job?.has_backup);
   const labels = [
     "Télécharger",
     "Vérifier",
