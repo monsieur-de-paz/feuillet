@@ -1,5 +1,11 @@
 # Historique des versions
 
+## 0.10.1 — 15 octobre 2026
+
+- Encadrés bleu, vert, jaune, rose et gris adaptés aux thèmes sombre et OLED en lecture publique et dans l’éditeur.
+- Palette partagée : fond teinté sombre et texte du thème, au lieu d’un fond pastel clair sous du texte blanc.
+- Métadonnées du verrou npm corrigées pour fflate et les versions minimales de Node, sans changement des bibliothèques compilées.
+
 ## 0.10.0 — 15 octobre 2026
 
 - Accueil épuré : suppression du surtitre et icône d’import représentant un document entrant, dans toute l’interface.

@@ -2525,3 +2525,37 @@ body.block-dragging .editor-content-wrap iframe {
     grid-template-columns: 1fr;
   }
 }
+
+/* Same callout palette in the editor and the server-rendered public reader. */
+.callout.tone-blue {
+  --callout-tint: #4f97db;
+  --callout-background: #eaf2fa;
+}
+.callout.tone-green {
+  --callout-tint: #4fba88;
+  --callout-background: #e9f3ea;
+}
+.callout.tone-amber {
+  --callout-tint: #e3b54e;
+  --callout-background: #fbf2d8;
+}
+.callout.tone-red {
+  --callout-tint: #e47885;
+  --callout-background: #fae8e4;
+}
+.callout.tone-gray {
+  --callout-tint: #9ca3af;
+  --callout-background: #efefea;
+}
+.callout[class*="tone-"] {
+  background: var(--callout-background);
+  color: var(--ink, #37352f);
+}
+:is([data-theme="dark"], [data-theme="oled"]) .callout[class*="tone-"] {
+  background: color-mix(
+    in srgb,
+    var(--callout-tint) 14%,
+    var(--surface, #17191d)
+  );
+  color: var(--ink, #f3f4f6);
+}

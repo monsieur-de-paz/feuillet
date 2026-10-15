@@ -127,3 +127,7 @@ Reprendre les cartes, espacements et actions de l’accueil général, avec l’
 ## Personnalisation et partage — 0.10
 
 L’accueil ne possède plus de surtitre en capitales. Le nom du carnet se modifie sur place, avec un indice crayon discret et un focus clavier conservé. Son icône ouvre le sélecteur complet. La couverture reprend les outils et gestes des pages, sans nouveau langage graphique. Les contrôles d’import utilisent FileInput (document entrant) ; le partage utilise Share2. Dans la publication, champ d’adresse et deux actions de même largeur forment un groupe lisible ; les actions se superposent sous 480 px et gardent des cibles de 44 px. Titres neutres et couleurs de thème restent conservés.
+
+## Encadrés — 0.10.1
+
+Les callouts utilisent une palette sémantique bleu/vert/jaune/rose/gris commune au lecteur et à l’éditeur, dans interface.css. Sur fond clair, fond pastel et texte du thème ; sur fond sombre ou OLED, teinte à 14 % sur --surface et texte --ink. Éviter les fonds clairs fixes avec un texte héritant du mode sombre. Les couleurs de texte explicitement choisies restent des choix du document.

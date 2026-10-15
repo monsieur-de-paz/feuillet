@@ -19,3 +19,7 @@ Le partage natif dépend du navigateur et nécessite un contexte sécurisé, nor
 Le surtitre de l’accueil général est retiré. Une icône de document avec flèche entrante remplace l’ancienne flèche montante pour l’import de pages, de sauvegardes et l’ajout de fichiers. Le véritable partage utilise son propre symbole.
 
 Aucune nouvelle dépendance de production ni colonne SQL. La distribution compilée s’installe comme les versions précédentes ; conservez config.php et storage/. Les résultats et limites des vérifications sont dans [TESTS.md](TESTS.md).
+
+## Correctif 0.10.1 — encadrés lisibles
+
+Les cinq couleurs d’encadrés suivent maintenant les thèmes clair, sombre et OLED, aussi bien dans l’éditeur que dans la lecture publique. Les fonds pastel sont réservés au thème clair ; les thèmes sombres emploient une teinte à 14 % mélangée à la surface courante. Le texte par défaut suit le thème. Aucun contenu enregistré ni réglage de publication n’est modifié.

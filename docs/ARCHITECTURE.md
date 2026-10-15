@@ -203,3 +203,7 @@ AdminHome est partagé entre l’accueil général et ceux des carnets. notebook
 `AdminHome.tsx` réutilise CoverTools et le sélecteur d’icônes existants. App sérialise les sauvegardes directes pour conserver les changements successifs ; le nom se sauvegarde à la sortie du champ. Le ZIP exporte les décorations dans spaces ; l’import remappe les fichiers avant de les enregistrer sous les nouveaux IDs de carnets. media_usage ajoute des utilisations privées de type space.
 
 `PublicLinkSharing.tsx` affiche le lien canonique de lecture et gère copie, statut accessible et repli manuel. public-sharing.ts garde la construction de l’adresse et le résultat shared/cancelled/copy testables ; navigator.share est appelé dans le geste utilisateur, avant toute attente asynchrone. Cette interaction n’exécute aucune mutation de publication.
+
+## Palette des encadrés — 0.10.1
+
+interface.css porte les teintes et fonds des cinq variantes callout. Les ancêtres data-theme dark/oled déclenchent le mélange avec --surface ; le texte utilise --ink. prepare-shared-styles.mjs copie cette même source vers public/interface.css, également chargée après reader.css. Les changements du thème visiteur sont ainsi appliqués sans sauvegarde ni transformation du document.
