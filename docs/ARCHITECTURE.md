@@ -189,3 +189,9 @@ La variable --heading-ink est définie par themeStyle côté React et appearance
 ## Fil d’Ariane de l’accueil — 0.8.3
 
 Dans App.tsx, les séparateurs, ancêtres et page courante du fil d’Ariane sont rendus uniquement lorsque hasPage est vrai. Le bouton racine et les commandes de navigation restent disponibles sur l’accueil. Les deux actions du tableau de bord partagent une règle de largeur dans interface.css ; le survol du logo est transparent et distinct de son focus clavier.
+
+## Accueils de carnets — 0.9.0
+
+`dashboardSpace` identifie la portée d’un accueil, indépendamment de `activeSpace` qui pilote la navigation et les créations. `openDashboard` valide le carnet avec la liste chargée, sauvegarde le brouillon et respecte les gardes avant de changer d’écran. Le paramètre space est restauré au chargement et sur popstate. `spacesRef` évite que le gestionnaire d’historique lise une liste initiale périmée.
+
+AdminHome est partagé entre l’accueil général et ceux des carnets. notebookHomePages filtre les métadonnées par carnet, catégorie et termes normalisés avant de les trier ; il conserve pages privées et sous-pages sans muter les entrées. Les catégories utilisent l’état de la barre latérale ; la recherche locale et la limite de liste sont propres au composant, remonté à chaque changement de portée. Aucune API ou table nouvelle n’est ajoutée. Le compteur navigationRequest ignore les réponses asynchrones devenues obsolètes après un autre choix de navigation.

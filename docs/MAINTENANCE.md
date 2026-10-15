@@ -199,3 +199,7 @@ Transférer le code et les assets compilés en conservant configuration et stock
 ## Correctif 0.8.2
 
 Transférer le code et les assets compilés, notamment interface.css et theme.js, en conservant configuration et stockage. Vérifier un titre et un sous-titre en clair/sombre/OLED dans l’éditeur puis le lecteur public ; une source doit conserver l’accent. Aucune migration de contenu n’est nécessaire.
+
+## Version 0.9.0
+
+Déployer le code et les assets compilés en conservant configuration et stockage ; aucune migration dédiée. Vérifier deux carnets ayant des pages différentes, le filtre par catégorie, la recherche locale, le bouton Logo, le retour vers le carnet depuis une page et les adresses rechargées avec space. La création et l’import doivent utiliser le carnet annoncé. Les accueils sont administratifs : vérifier qu’un visiteur anonyme ne reçoit aucune liste de pages privées en ouvrant une adresse dashboard.

@@ -358,3 +358,15 @@ Suites HTTP ciblées `customization.py` et `reader.py` : 14 tests réussis sur S
 ## Finitions de l’accueil — 0.8.3
 
 Build TypeScript/Vite et Prettier réussis. Contrôles dans le navigateur intégré : les deux actions de l’accueil mesurent exactement 180 px ; le fil d’Ariane contient uniquement « Feuillet. » ; le logo effectivement survolé a un fond transparent et aucun contour. Après navigation au clavier (Tab puis Maj+Tab), le logo présente toujours un repère de focus de 2 px. L’ouverture d’une page rétablit le fil d’Ariane du carnet et de la page ; le retour à l’accueil conserve les carnets et catégories. Capture : Feuillet-0.8.3-accueil.png, livrée séparément des sources. Aucun texte ni document personnel n’a été modifié pendant ces vérifications.
+
+## Accueils de carnets — 0.9.0
+
+Build TypeScript/Vite, Prettier et **137 contrôles frontend** réussis ; parité des accents sur 24 couleurs conservée. Les 12 nouveaux contrôles de notebookHomePages couvrent l’isolation des carnets, les sous-pages privées/publiques, les filtres combinés, les recherches sans accents, le tri stable et la conservation des entrées.
+
+Suites HTTP partage et imports : **23 tests réussis par pilote**, sur SQLite puis MySQL. Un scénario supplémentaire vérifie qu’un accueil de carnet ouvert anonymement, avec ou sans read=1, n’expose ni nom de carnet ni page privée et que l’API ne fournit aucun annuaire global. Copies jetables uniquement.
+
+Navigateur intégré : carnets Mes pages (23 pages) et Essais (9 pages), retour au tableau général (32 pages), recherche premiere retrouvant Première ressource, catégorie Classes ne montrant que Les 4e/Les 3e et sélection reflétée dans la barre latérale. Catégorie vide, effacement des filtres, rechargement d’adresse et bouton Retour vérifiés. Le titre de l’onglet et le fil d’Ariane indiquent le carnet.
+
+Une page privée de vérification a été créée depuis l’accueil Essais, retrouvée dans ce carnet puis placée dans la corbeille. La boîte d’import affiche ce même carnet comme destination ; aucun nouveau document n’a été importé dans la prévisualisation pour ce contrôle. Les imports de fichiers sont couverts par la suite HTTP. Aucun message d’erreur console observé.
+
+À 390 × 844, choisir un carnet dans le tiroir le ferme et affiche son accueil. Aucun débordement horizontal à 390 px puis 320 × 740. Le viewport normal est rétabli. Capture Feuillet-0.9-carnet.png livrée séparément. Ces vérifications ne constituent pas un essai sur appareil iOS physique ou sur l’hébergement OVH réel.

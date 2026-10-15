@@ -119,3 +119,7 @@ Les titres h1–h6 et les champs de titre/sous-titre ne portent pas l’accent. 
 ## Accueil — 0.8.3
 
 Le logo n’affiche pas de surface ou cadre au survol ; le focus clavier reste distinct. Les deux actions principales de l’accueil partagent une largeur de 180 px. Sans page ouverte, le fil d’Ariane se limite au nom personnalisé du site.
+
+## Accueil de carnet — 0.9.0
+
+Reprendre les cartes, espacements et actions de l’accueil général, avec l’icône et le nom du carnet comme repères. Les catégories actives sont colorées et soulignées, comme dans la barre latérale. Le champ de filtre reste discret et passe sur une ligne entière sur mobile. Les titres gardent la couleur neutre du thème. La liste de pages inclut un statut public/privé et un libellé de parent pour les sous-pages.

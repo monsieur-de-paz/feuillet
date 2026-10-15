@@ -145,3 +145,7 @@ Le protocole de distribution 1 est décrit dans [MISES-A-JOUR.md](docs/MISES-A-J
 ## Valeurs proposées — 0.8.1
 
 Les nouveaux carnets reçoivent les catégories Notes (`legacy_kind=class`) et Articles (`legacy_kind=article`). Ces valeurs historiques restent acceptées sans migration destructive. Les noms de catégories existantes sont préservés. `settings.notebook.subtitle` utilise « Mes notes, simplement » par défaut et normalise uniquement l’ancien sous-titre standard ; un texte personnalisé est renvoyé tel quel.
+
+## Accueil de carnet — 0.9.0
+
+index.php?dashboard=1&space=ID désigne une vue administrative de carnet. L’interface valide ID dans les carnets chargés et retombe sur l’accueil général si le carnet manque. Le paramètre space sert à la navigation, sans modifier les autorisations de l’API. L’administrateur charge les métadonnées de pages existantes puis les filtre pour cet affichage ; un visiteur reste soumis aux branches publiques root/page et ne reçoit pas un annuaire de carnet depuis cette adresse.

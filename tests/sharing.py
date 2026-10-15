@@ -83,4 +83,9 @@ class Sharing(unittest.TestCase):
   spaces=self.ok(self.admin.api('spaces'))['spaces']
   for space in spaces[:-1]:self.ok(self.admin.api('delete_space',{'id':space['id']}))
   last=self.ok(self.admin.api('spaces'))['spaces'];self.assertEqual(len(last),1);p=self.page('Dernier carnet conservé',space_id=last[0]['id']);self.ok(self.admin.api('delete_space',{'id':last[0]['id']}));after=self.ok(self.admin.api('spaces'))['spaces'];self.assertEqual(len(after),1);self.assertNotEqual(after[0]['id'],last[0]['id']);self.assertEqual(self.ok(self.admin.api('page',query='&id='+p['id']))['page']['space_id'],after[0]['id']);self.assertTrue(all(c['space_id']==after[0]['id'] for c in self.ok(self.admin.api('categories'))['categories']))
+ def test_16_notebook_dashboard_does_not_expose_pages_to_visitors(self):
+  space=self.ok(self.admin.api('save_space',{'name':'DASHBOARD_CARNET_PRIVE','icon':'📓'}))['id'];page=self.page('PAGE_SECRETE_DU_DASHBOARD',space_id=space)
+  for suffix in ['', '&read=1']:
+   html=self.html(path='index.php?dashboard=1&space='+space+suffix);self.assertNotIn('DASHBOARD_CARNET_PRIVE',html);self.assertNotIn(page['title'],html);self.assertIn('Ouvrir une page partagée',html)
+  self.assertEqual(self.ok(self.visitor.api('pages',query='&space='+space))['pages'],[])
 if __name__=='__main__':unittest.main(argv=[__file__,*harness.REMAINING],verbosity=2)

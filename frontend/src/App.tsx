@@ -267,6 +267,9 @@ export default function App() {
   const [editorEpoch, setEditorEpoch] = useState(0);
   const [spaces, setSpaces] = useState<Space[]>([]);
   const [dashboard, setDashboard] = useState(false);
+  const [dashboardSpace, setDashboardSpace] = useState("");
+  const spacesRef = useRef<Space[]>([]);
+  const navigationRequest = useRef(0);
   const [activeSpace, setActiveSpace] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [notebook, setNotebook] = useState<Notebook>({
@@ -530,7 +533,10 @@ export default function App() {
           : result.spaces[0].id,
       );
     setTrash(result.trash || []);
-    if (result.spaces) setSpaces(result.spaces);
+    if (result.spaces) {
+      spacesRef.current = result.spaces;
+      setSpaces(result.spaces);
+    }
     if (result.categories) setCategories(result.categories);
     return result.pages as Page[];
   }
@@ -621,6 +627,7 @@ export default function App() {
       notify("La page doit être enregistrée avant de la quitter.");
       return;
     }
+    const request = ++navigationRequest.current;
     setDashboard(false);
     setPageContext(null);
     setSidebar(false);
@@ -628,6 +635,7 @@ export default function App() {
     setSaveError("");
     try {
       const { page } = await api("page", undefined, { id });
+      if (request !== navigationRequest.current) return;
       const changedPage = String(draftRef.current?.id) !== String(page.id);
       draftRef.current = page;
       dirtyRef.current = false;
@@ -645,12 +653,12 @@ export default function App() {
           document.querySelector(".main-panel")?.scrollTo(0, 0);
         });
     } catch (e) {
-      notify((e as Error).message);
+      if (request === navigationRequest.current) notify((e as Error).message);
     } finally {
-      setPageLoading(false);
+      if (request === navigationRequest.current) setPageLoading(false);
     }
   }
-  async function openDashboard(replace = false) {
+  async function openDashboard(replace = false, requestedSpace = "") {
     if (!adminRef.current || !(await save())) return;
     if (
       !document.dispatchEvent(
@@ -659,16 +667,32 @@ export default function App() {
     )
       return;
     setPageContext(null);
+    navigationRequest.current++;
+    setPageLoading(false);
     setFocus(false);
+    const space = spacesRef.current.find(
+      (item) => String(item.id) === requestedSpace,
+    );
     setDashboard(true);
+    setDashboardSpace(space?.id || "");
+    if (space) {
+      setActiveSpace(String(space.id));
+      setSearch("");
+      setKind("");
+      setSidebar(false);
+    }
     setDraft(null);
     draftRef.current = null;
     editorRef.current = null;
     dirtyRef.current = false;
     setFatal("");
-    if (replace) window.history.replaceState({}, "", "index.php?dashboard=1");
-    else window.history.pushState({}, "", "index.php?dashboard=1");
+    const url =
+      "index.php?dashboard=1" +
+      (space ? "&space=" + encodeURIComponent(space.id) : "");
+    if (replace) window.history.replaceState({}, "", url);
+    else window.history.pushState({}, "", url);
     window.scrollTo(0, 0);
+    document.querySelector(".main-panel")?.scrollTo(0, 0);
   }
   useEffect(() => {
     (async () => {
@@ -706,6 +730,12 @@ export default function App() {
             );
         } else if (s.authenticated) {
           setDashboard(true);
+          const requested = new URLSearchParams(location.search).get("space");
+          const space = spacesRef.current.find(
+            (item) => String(item.id) === requested,
+          );
+          setDashboardSpace(space?.id || "");
+          if (space) setActiveSpace(String(space.id));
         } else if (list.length) {
           const first = list.find((p) => !p.parent_id) || list[0];
           await openPage(String(first.id), true, true);
@@ -719,7 +749,11 @@ export default function App() {
     const pop = () => {
       const id = new URLSearchParams(location.search).get("page");
       if (id) void openPage(id, true);
-      else if (adminRef.current) void openDashboard(true);
+      else if (adminRef.current)
+        void openDashboard(
+          true,
+          new URLSearchParams(location.search).get("space") || "",
+        );
     };
     window.addEventListener("popstate", pop);
     return () => window.removeEventListener("popstate", pop);
@@ -1266,6 +1300,8 @@ export default function App() {
       if (result.id || result.space?.id)
         setActiveSpace(String(result.id || result.space.id));
       setModal(null);
+      if (!spaceForm.id)
+        await openDashboard(false, String(result.id || result.space?.id || ""));
       notify("Carnet enregistré.");
     });
   }
@@ -1277,6 +1313,7 @@ export default function App() {
       await loadList();
       if (draftRef.current)
         await openPage(String(draftRef.current.id), true, true);
+      else if (dashboardSpace === spaceForm.id) await openDashboard(true);
       setModal(null);
       notify(
         "Le carnet a été supprimé. Ses pages et catégories ont été conservées.",
@@ -1410,16 +1447,28 @@ export default function App() {
     }
   }
   useEffect(() => {
+    const home = dashboard
+      ? spaces.find((space) => String(space.id) === dashboardSpace)
+      : undefined;
     document.title = draft
       ? `${titleOf(draft)} — ${session?.name || "Feuillet"}`
-      : session?.name || "Feuillet";
+      : home
+        ? `${home.name} — ${session?.name || "Feuillet"}`
+        : session?.name || "Feuillet";
     const title =
       document.querySelector<HTMLTextAreaElement>(".page-title-input");
     if (title) {
       title.style.height = "auto";
       title.style.height = title.scrollHeight + "px";
     }
-  }, [draft?.title, draft?.id, session?.name]);
+  }, [
+    draft?.title,
+    draft?.id,
+    session?.name,
+    dashboard,
+    dashboardSpace,
+    spaces,
+  ]);
   useEffect(() => {
     let frame = 0;
     const resizeTitle = () => {
@@ -1791,6 +1840,9 @@ export default function App() {
         String(p.id) === String(draft.parent_id) && p.visibility === "public",
     )
   );
+  const dashboardNotebook = spaces.find(
+    (space) => String(space.id) === dashboardSpace,
+  );
   const hasPage = !!draft && !dashboard;
   if (loading)
     return (
@@ -1977,8 +2029,11 @@ export default function App() {
                 <button
                   aria-pressed={activeSpace === String(space.id)}
                   onClick={() => {
-                    setActiveSpace(String(space.id));
-                    setSearch("");
+                    if (admin) void openDashboard(false, String(space.id));
+                    else {
+                      setActiveSpace(String(space.id));
+                      setSearch("");
+                    }
                   }}
                 >
                   <FeuilletIcon icon={space.icon} size={18} />
@@ -2252,6 +2307,10 @@ export default function App() {
                     void openDashboard();
                     return;
                   }
+                  if (admin && draft.space_id) {
+                    void openDashboard(false, String(draft.space_id));
+                    return;
+                  }
                   setActiveSpace(String(draft?.space_id || ""));
                   const rootPage = ancestors[0];
                   if (rootPage) void openPage(String(rootPage.id));
@@ -2260,6 +2319,15 @@ export default function App() {
                 {spaces.find((s) => String(s.id) === String(draft?.space_id))
                   ?.name || notebook.title}
               </button>
+              {admin && dashboard && dashboardNotebook && (
+                <>
+                  <ChevronRight size={12} />
+                  <span className="breadcrumb-current">
+                    <FeuilletIcon icon={dashboardNotebook.icon} size={16} />{" "}
+                    {dashboardNotebook.name}
+                  </span>
+                </>
+              )}
               {hasPage && (
                 <>
                   <ChevronRight size={12} />
@@ -2473,6 +2541,11 @@ export default function App() {
             </div>
           ) : admin && dashboard ? (
             <AdminHome
+              key={dashboardNotebook?.id || "global"}
+              notebook={dashboardNotebook}
+              categories={categories}
+              categoryId={kind}
+              onCategoryChange={setKind}
               pages={pages}
               spaces={spaces}
               onOpen={(id) => void openPage(id)}
@@ -3779,8 +3852,13 @@ export default function App() {
           <div className="modal-form">
             <p>
               Un document .txt, .md ou .rtf devient une nouvelle page privée
-              dans le carnet actif. Le Markdown et les styles de texte courants
-              du RTF sont conservés.
+              dans le carnet{" "}
+              <strong>
+                {spaces.find((space) => String(space.id) === activeSpace)
+                  ?.name || "actif"}
+              </strong>
+              . Le Markdown et les styles de texte courants du RTF sont
+              conservés.
             </p>
             <label className="primary-button import-button">
               Choisir un document

@@ -1,5 +1,13 @@
 # Historique des versions
 
+## 0.9.0 — 15 octobre 2026
+
+- Accueil dédié à chaque carnet : pages récentes, toutes les pages et sous-pages, dates et statuts privé/public.
+- Catégories synchronisées avec la barre latérale et filtre par titre, description ou étiquettes, sans mélanger les carnets.
+- Création et import dans le carnet sélectionné, adresse d’accueil rechargeable et navigation précédent/suivant.
+- Fil d’Ariane et titre d’onglet propres au carnet ; logo toujours relié à l’accueil général.
+- Les réponses tardives d’ouverture d’une page ne remplacent plus une navigation ultérieure.
+
 ## 0.8.3 — 15 octobre 2026
 
 - Logo du site sans fond ni cadre au survol, avec repère de focus clavier conservé.
