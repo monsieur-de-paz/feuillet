@@ -2532,3 +2532,129 @@ body.block-dragging .editor-content-wrap iframe {
   );
   color: var(--ink, #f3f4f6);
 }
+
+/* Public navigation keeps login and theme controls together, including polling. */
+.reader-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-height: 76px;
+}
+.reader-header > .reader-breadcrumbs {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.reader-header .reader-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.reader-header .reader-brand > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.reader-header .reader-header-actions {
+  flex: 0 0 auto;
+  margin-left: auto;
+  gap: 16px;
+  align-items: center;
+  justify-content: flex-end;
+}
+.reader-header .reader-edit-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  color: var(--ink);
+  background: var(--surface);
+  max-width: none;
+}
+.reader-header .feuillet-theme-toggle {
+  position: relative;
+  flex-shrink: 0;
+}
+.public-home-panel {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 22px;
+  background: var(--surface);
+}
+.public-home-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.public-home-heading > svg {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+.public-home-heading h3 {
+  margin: 0;
+}
+.public-home-heading p {
+  margin: 4px 0 0;
+}
+.public-home-panel p {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+.public-home-panel label {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+}
+.public-home-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: nowrap;
+  margin-top: 18px;
+}
+.public-home-actions .small-button {
+  justify-content: center;
+  text-decoration: none;
+}
+@media (max-width: 600px) {
+  .reader-header {
+    padding: 12px 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .reader-header .reader-header-actions {
+    gap: 12px;
+    min-height: 44px;
+  }
+  .reader-header .reader-edit-link {
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+  .reader-header .reader-breadcrumbs {
+    flex-basis: 0;
+  }
+  .reader-header .reader-brand {
+    font-size: 13px;
+  }
+  .reader-header .theme-main-button,
+  .reader-header .theme-options > summary,
+  .reader-header .theme-menu-trigger {
+    min-height: 44px;
+  }
+  .public-home-panel {
+    padding: 18px;
+  }
+  .public-home-actions > * {
+    flex: 1 1 160px;
+  }
+}
+
+.reader-header .theme-options > summary,
+.reader-header .theme-menu-trigger {
+  min-width: 30px;
+}

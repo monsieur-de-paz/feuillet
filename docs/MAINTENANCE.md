@@ -213,3 +213,7 @@ Après mise à jour, vérifier depuis un accueil de carnet : renommage, icône, 
 ## Liens affichant Sans titre — 0.10.2
 
 Si le titre de la sous-page est correct à son ouverture mais que le lien parent affiche Sans titre, installer 0.10.2. Le problème vient de l’ancien libellé stocké dans le bloc, pas de l’adresse sans-titre-… qui reste valide. Les documents existants sont corrigés au rendu sans recréer de liens ni republier le parent. Pour un correctif ponctuel sur 0.10.x, remplacer uniquement feuillet/app/render.php avec celui de 0.10.2, puis recharger la page. L’installation complète de la version garde la configuration et le stockage existants.
+
+## Accueil public depuis 0.12
+
+Configurer dans Accueil public ou Réglages & sauvegardes. Si l’ancienne page d’accueil ne s’affiche pas, vérifier qu’elle est désignée, hors corbeille et publiée. Les brouillons ne sont pas montrés, même au lecteur d’un administrateur connecté. Une galerie doit sélectionner explicitement ses cartes ; leurs pages doivent être publiques. Le choix et les références sont compris dans les sauvegardes ZIP. Retirer une page de l’accueil ne révoque pas son partage existant. Ne pas éditer app_settings manuellement.

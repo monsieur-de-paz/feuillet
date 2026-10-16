@@ -217,3 +217,11 @@ Le rendu PHP du bloc pageLink résout la cible avec get_page(pageId, public), pu
 app/updates.php télécharge Feuillet-release.json via releases/latest/download, puis revalide l’annonce épinglée à la version choisie. updates_release impose format feuillet-release, protocole 1, dépôt exact, tag vX.Y.Z, taille entière 1–100 Mio et SHA-256 hexadécimal. Les URLs des ZIP/checksums/annonces sont construites par updates_download_url, jamais utilisées depuis le JSON distant. updates_url refuse les autres dépôts, ports, identifiants, API REST, versions contradictoires et chemins arbitraires ; seuls les domaines officiels de fichiers peuvent recevoir les redirections. Aucun en-tête Authorization.
 
 updates_state nettoie l’ancienne clé token et réinitialise la vérification associée ; updates_save ne l’écrit plus. L’API ne fournit plus token_configured et refuse une tentative de configuration de cette ancienne option. Le moteur de sauvegarde, les verrous, la validation après démarrage et le retour arrière sont inchangés. Le générateur de distribution produit l’annonce à partir du ZIP final, à côté de son checksum, hors de l’archive pour éviter une empreinte circulaire.
+
+## Accueil public — 0.12
+
+`app/public-home.php` gère la désignation d’une page normale dans `app_settings.public_home`. Aucun nouveau schéma SQL. `public_home` exige l’administration, et CSRF en écriture. L’éditeur crée une page privée, sans publier implicitement. `reader_scope_request` résout la racine sans page vers cet accueil ; une configuration absente, privée ou supprimée revient à l’accueil simple. Les liens explicites indisponibles gardent un 404.
+
+Le périmètre du lecteur contient sa branche publique et les références explicites du document publié (pageLink et galerie manuelle). Chaque carte extérieure ouvre sa propre racine. Ni les brouillons, ni les autres pages publiques ne forment un catalogue. Le token tient compte du choix d’accueil ; reader-state renvoie la barre complète pour que reading.js conserve connexion et thème après remplacement. Les exports remappent le réglage vers les pages importées seulement avec apply_settings ; l’import conserve les pages privées.
+
+Le crédit PHP est commun au lecteur et PDF ; React prend sa version dans package.json. Les deux sources de version sont alignées lors de la livraison.

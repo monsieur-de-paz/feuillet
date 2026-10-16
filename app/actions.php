@@ -7,8 +7,8 @@ function api_dispatch(string $action): never {
     $method=$_SERVER['REQUEST_METHOD']??'GET';
     if(str_starts_with($action,'update_')){require_once __DIR__.'/updates.php';updates_dispatch($action,$method);}
     if(function_exists('database_dispatch'))database_dispatch($action,$method);
-    $postActions=['login','logout','save','publish','visibility','duplicate','trash','restore','move','restore_revision','upload','import','quiz','spaces','save_space','delete_space','settings','rename_file','image_import','import_markdown','import_document','save_category','delete_category','restore_category','homepage'];
-    if(in_array($action,$postActions,true)&&!(in_array($action,['spaces','settings'],true)&&$method==='GET')) {if($method!=='POST')fail('Méthode non autorisée.',405);csrf();}
+    $postActions=['login','logout','save','publish','visibility','duplicate','trash','restore','move','restore_revision','upload','import','quiz','spaces','save_space','delete_space','settings','rename_file','image_import','import_markdown','import_document','save_category','delete_category','restore_category','homepage','public_home'];
+    if(in_array($action,$postActions,true)&&!(in_array($action,['spaces','settings','public_home'],true)&&$method==='GET')) {if($method!=='POST')fail('Méthode non autorisée.',405);csrf();}
     elseif($method!=='GET')fail('Méthode non autorisée.',405);
     if($action==='session')json_out(['authenticated'=>admin(),'csrf'=>$_SESSION['csrf'],'name'=>notebook_settings()['title'],'installed'=>true,'version'=>FEUILLET_VERSION]);
     if($action==='login'){
@@ -53,6 +53,7 @@ function api_dispatch(string $action): never {
         json_out(['score'=>$score,'total'=>count($results),'results'=>$results]);
     }
     need_admin();
+    if($action==='public_home')json_out($method==='GET'?public_home_status():public_home_mutate(json_in()));
     if($action==='homepage')fail('Le partage se fait désormais directement depuis chaque page.',410,'removed_feature');
     if(in_array($action,['save_category','delete_category','restore_category'],true))json_out(categories_mutate($action,json_in()));
     if(in_array($action,['spaces','save_space','delete_space'],true))json_out(spaces_mutate(json_in(),$action==='delete_space'));

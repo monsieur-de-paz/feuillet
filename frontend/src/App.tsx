@@ -6,6 +6,7 @@ import {
 } from "./Updates";
 import { FeuilletLogo } from "./FeuilletLogo";
 import { PublicLinkSharing } from "./PublicLinkSharing";
+import { PublicHomePanel } from "./PublicHomePanel";
 import { AdminHome } from "./AdminHome";
 import { ContextMenu, type MenuAction } from "./ContextMenu";
 import { Select } from "./Select";
@@ -1469,6 +1470,21 @@ export default function App() {
       notify("Cette version a été restaurée dans le brouillon.");
     });
   }
+  async function editPublicHome() {
+    if (!(await save())) return;
+    await perform(async () => {
+      const result = await api("public_home", {
+        create: true,
+        space_id: activeSpace || undefined,
+      });
+      await loadList();
+      setModal(null);
+      await openPage(result.page_id);
+      notify(
+        "Rédige ton accueil, puis publie cette page pour l’afficher à la racine du site.",
+      );
+    });
+  }
   async function showSettings() {
     if (!(await save())) return;
     showModal("settings");
@@ -2216,6 +2232,9 @@ export default function App() {
           <div className="sidebar-bottom">
             {admin ? (
               <>
+                <button onClick={() => void editPublicHome()}>
+                  <Home size={16} /> Accueil public
+                </button>
                 <button onClick={() => void showFiles()}>
                   <Folder size={16} /> Bibliothèque
                 </button>
@@ -2264,11 +2283,7 @@ export default function App() {
                   />
                 )}
               </>
-            ) : (
-              <button onClick={() => showModal("login")}>
-                <LogIn size={16} /> Administration
-              </button>
-            )}
+            ) : null}
             <div className="sidebar-footer">
               Feuillet <span>·</span> Un carnet ouvert
             </div>
@@ -2297,11 +2312,13 @@ export default function App() {
               )
             );
           })()}
-        <ThemeToggle
-          mode={effectiveAppearance.mode}
-          onChange={changeTheme}
-          className="mobile-theme-control"
-        />
+        {admin && (
+          <ThemeToggle
+            mode={effectiveAppearance.mode}
+            onChange={changeTheme}
+            className="mobile-theme-control"
+          />
+        )}
         <main className="main-panel" style={appearanceStyles}>
           {admin && (
             <UpdateBanner
@@ -2500,6 +2517,21 @@ export default function App() {
                   onClick={() => void showSettings()}
                 >
                   <Settings size={19} />
+                </button>
+              </div>
+            )}
+            {!admin && (
+              <div className="reader-header-actions">
+                <ThemeToggle
+                  mode={effectiveAppearance.mode}
+                  onChange={changeTheme}
+                />
+                <button
+                  className="small-button reader-login-button"
+                  onClick={() => showModal("login")}
+                >
+                  <LogIn size={16} />
+                  Administration
                 </button>
               </div>
             )}
@@ -3997,6 +4029,10 @@ export default function App() {
       {modal === "settings" && !updates.progress && (
         <Modal title="Réglages & sauvegardes" onClose={() => setModal(null)}>
           <div className="modal-form settings-form">
+            <PublicHomePanel
+              pages={pages}
+              onEdit={() => void editPublicHome()}
+            />
             <UpdatePanel updates={updates} />
             <button className="small-button" onClick={showNotebookIcon}>
               <ImageIcon size={17} />

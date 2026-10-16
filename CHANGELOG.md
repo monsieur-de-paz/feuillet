@@ -1,5 +1,13 @@
 # Historique des versions
 
+## 0.12.0 — 16 octobre 2026
+
+- Accueil public éditable à la racine : création dédiée ou choix d’une page, textes et blocs habituels, publication explicite.
+- Galeries manuelles et liens choisis pour présenter des pages sans exposer un annuaire global ; chaque partage conserve sa branche.
+- Administration uniquement dans la barre supérieure du lecteur ; thème et connexion regroupés à droite, adaptés au mobile et conservés après actualisation automatique.
+- Crédit commun avec version courante et nouvelle signature « Monsieur de PAZ, enseignant en France », y compris installation, formulaires et lecteur PDF.
+- Réglage d’accueil inclus dans les sauvegardes ZIP, remappé à l’import et privé après restauration.
+
 ## 0.11.0 — 16 octobre 2026
 
 - Mises à jour par téléchargements publics GitHub, sans clé ni dépendance au quota anonyme de son API REST.

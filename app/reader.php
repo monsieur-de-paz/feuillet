@@ -4,7 +4,7 @@ require_once __DIR__.'/render.php';
 
 /** Cheap polling token; never load or hash private form answers. */
 function reader_token(?array $page): string {
-    $state=['root'=>reader_root_id(),'notebook'=>notebook_settings(),'appearance'=>global_appearance()];
+    $state=['home'=>reader_is_home(),'home_id'=>public_home_id(),'version'=>FEUILLET_VERSION,'root'=>reader_root_id(),'notebook'=>notebook_settings(),'appearance'=>global_appearance()];
     if(!$page)return hash('sha256',encoded($state));
     $state['page']=$page;$state['ancestors']=array_map(fn($p)=>[$p['id'],$p['title'],$p['version']],reader_ancestors($page));
     $dbs=[];$forms=[];$files=files_in($page['content']);foreach(['cover_id','icon_id'] as $key)if($page[$key]??null)$files[]=$page[$key];if(notebook_settings()['icon_id']??null)$files[]=notebook_settings()['icon_id'];
@@ -28,5 +28,12 @@ function render_reader_page(array $page,bool $public=true): string {
 }
 function render_reader_empty(bool $unavailable=false): string {
     if($unavailable)return '<main class="reader-page"><h1>Page indisponible</h1><p>Cette page est privée, retirée ou ne fait pas partie de ce partage.</p></main>';
-    return '<main class="reader-page reader-empty"><div class="page-emoji">'.render_reader_brand().'</div><h1>Ouvrir une page partagée</h1><p>Ouvre le lien partagé par le propriétaire du site pour consulter une page et ses sous-pages.</p><a class="resource-button" href="index.php?edit=1">Administration</a></main>';
+    return '<main class="reader-page reader-empty"><div class="page-emoji">'.render_reader_brand().'</div><h1>'.h(notebook_settings()['title']).'</h1><p>'.h(notebook_settings()['subtitle']).'</p></main>';
+}
+
+function render_reader_header_contents(?array $page): string {
+    $home=reader_is_home()||empty($_GET['page']);
+    $navigation=$page&&!$home?render_reader_breadcrumbs($page):'<nav class="reader-breadcrumbs" aria-label="Fil d’Ariane"><span class="reader-brand">'.render_reader_brand().'</span></nav>';
+    $id=$page['slug']??str_limit($_GET['page']??'',190);$url='index.php?edit=1'.($id?'&page='.rawurlencode($id):'');
+    return $navigation.'<div class="reader-header-actions">'.render_reader_theme_toggle().'<a class="reader-edit-link" href="'.h($url).'">'.(admin()?'Modifier':'Administration').'</a></div>';
 }

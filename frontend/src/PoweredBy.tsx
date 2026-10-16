@@ -1,3 +1,4 @@
+import { version } from "../package.json";
 export function PoweredBy() {
   return (
     <footer className="feuillet-credit">
@@ -8,9 +9,9 @@ export function PoweredBy() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Feuillet
+          Feuillet {version}
         </a>
-        , créé par Sandro de PAZ.
+        , créé par Monsieur de PAZ, enseignant en France.
       </span>
     </footer>
   );

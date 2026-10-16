@@ -4,14 +4,14 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.11.0-2563eb" alt="Version 0.11.0">
+  <img src="https://img.shields.io/badge/version-0.12.0-2563eb" alt="Version 0.12.0">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour prendre des notes enrichies, les centraliser et les partager sur son propre hébergement.** Inspiré de l’édition par blocs, il permet de rédiger des notes enrichies, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
 
 Il fonctionne sur un hébergement **PHP + MySQL/MariaDB**, y compris un mutualisé compatible. Un seul compte rédige ; les lecteurs consultent les pages et répondent aux formulaires depuis leur navigateur, sur ordinateur ou mobile. Aucun VPS ni abonnement n’est nécessaire. Node.js sert uniquement à développer l’interface ; les fichiers compilés sont fournis.
 
-<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.11.md">Nouveautés</a></p>
+<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.12.md">Nouveautés</a></p>
 
 Un journal personnel, un espace de projets, une collection de lectures ou une documentation : vous choisissez vos carnets, leurs catégories et ce que vous partagez.
 
@@ -35,6 +35,8 @@ Un journal personnel, un espace de projets, une collection de lectures ou une do
 Le cœur libre de **Tiptap** est utilisé pour l’édition. Les menus, blocs et fonctions de Feuillet sont développés dans ce dépôt ; aucun template commercial ou composant Tiptap Pro n’est requis. Feuillet est indépendant de Notion.
 
 Cliquez sur le logo pour retrouver toutes vos activités, ou sur un carnet pour ouvrir son accueil : pages récentes, catégories, recherche et liste de toutes ses pages. Les actions de création et d’import utilisent le carnet sélectionné. Cliquez directement sur son titre ou son icône pour les modifier, et ajoutez une couverture repositionnable depuis cet accueil. Le panneau de publication permet de copier le lien public ou de le partager avec les applications proposées par votre appareil.
+
+L’accueil public à la racine du site est configurable : créez une page dédiée depuis **Accueil public**, rédigez-la puis publiez-la. Textes, images et galeries choisies utilisent le même éditeur. Les liens partagés conservent leur propre arborescence. [Configurer cet accueil](docs/NOUVEAUTES-0.12.md).
 
 ## Une interface de carnet
 

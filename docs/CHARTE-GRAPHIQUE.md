@@ -131,3 +131,7 @@ L’accueil ne possède plus de surtitre en capitales. Le nom du carnet se modif
 ## Encadrés — 0.10.1
 
 Les callouts utilisent une palette sémantique bleu/vert/jaune/rose/gris commune au lecteur et à l’éditeur, dans interface.css. Sur fond clair, fond pastel et texte du thème ; sur fond sombre ou OLED, teinte à 14 % sur --surface et texte --ink. Éviter les fonds clairs fixes avec un texte héritant du mode sombre. Les couleurs de texte explicitement choisies restent des choix du document.
+
+## Barre du lecteur — 0.12
+
+Fil d’Ariane flexible à gauche ; groupe thème/connexion sans rétrécissement à droite. Hauteur minimale des actions 44 px, espacement 16 px sur ordinateur et 12 px sur mobile. Le nom du site se tronque avant que les actions se chevauchent. Un seul lien Administration dans la barre. Le remplacement automatique reprend la barre entière. Le crédit commun reste discret et ajoute la version à Feuillet, avec lien vers le dépôt.

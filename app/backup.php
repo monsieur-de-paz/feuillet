@@ -14,7 +14,7 @@ function export_backup(): never {
     }
     $files=[];foreach(query('SELECT * FROM files')->fetchAll() as $f){$filePath=storage().'/files/'.$f['path'];if(!is_file($filePath))continue;$files[]=['id'=>$f['id'],'name'=>$f['name'],'mime'=>$f['mime'],'size'=>(int)$f['size'],'entry'=>'files/'.$f['id'],'attribution'=>json_decode($f['attribution']??'null',true)];$zip->addFile($filePath,'files/'.$f['id']);}
     $zip->addFile(FEUILLET_ROOT.'/public/reader.css','reader.css');
-    $zip->addFromString('manifest.json',encoded(['format'=>'feuillet-backup','version'=>3,'exported_at'=>now(),'pages'=>$pages,'files'=>$files,'spaces'=>list_spaces(),'settings'=>['appearance'=>global_appearance(),'notebook'=>notebook_settings()],'categories'=>categories_list(false,true),'database_data'=>database_backup()]));
+    $zip->addFromString('manifest.json',encoded(['format'=>'feuillet-backup','version'=>3,'exported_at'=>now(),'pages'=>$pages,'files'=>$files,'spaces'=>list_spaces(),'settings'=>['public_home_id'=>public_home_status()['page_id'],'appearance'=>global_appearance(),'notebook'=>notebook_settings()],'categories'=>categories_list(false,true),'database_data'=>database_backup()]));
     $zip->addFromString('LISEZ-MOI.txt',"Sauvegarde Feuillet\nmanifest.json contient les pages et les métadonnées. files/ contient les originaux (nom original dans le manifeste). html/ fournit une lecture de secours ; les liens internes et quiz nécessitent le logiciel. Importer cette archive dans Feuillet crée des copies privées et n'écrase rien. Les catégories, styles, bases, propriétés, relations et réponses privées sont inclus. Les imports restent privés et les formulaires sont fermés avec de nouveaux liens. La configuration de connexion et le mot de passe ne sont pas exportés.\n");
     if(!$zip->close())fail('Sauvegarde impossible. Vérifie l’espace disque disponible.',500);
     header('Content-Type: application/zip');header('Content-Disposition: attachment; filename="feuillet-'.gmdate('Y-m-d-His').'.zip"');header('Content-Length: '.filesize($path));session_write_close();readfile($path);unlink($path);exit;
@@ -100,6 +100,7 @@ function import_backup(): never {
         }
 
         foreach($pageMap as $id){$p=row_page(query('SELECT * FROM pages WHERE id=?',[$id])->fetch());check_parent($p['parent_id'],$id);revision_save($p);}
+        if(!empty($_POST['apply_settings'])&&array_key_exists('public_home_id',$manifest['settings']??[])){ $home=$manifest['settings']['public_home_id'];if($home!==null&&(!is_string($home)||!isset($pageMap[$home])))fail('Page d’accueil manquante dans l’archive.');public_home_store($home?$pageMap[$home]:null);}
         $pdo->commit();$zip->close();json_out(['ok'=>true,'pages'=>count($pageMap),'files'=>count($fileMap),'spaces'=>count($spaceMap),'categories'=>count($categoryMap),'databases'=>count($databaseMaps['databases']),'forms'=>count($databaseMaps['forms'])]);
     }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();foreach($createdPaths as $path)if(is_file($path))unlink($path);$zip->close();throw $e;}
 }

@@ -16,7 +16,7 @@ class Sharing(unittest.TestCase):
  def test_01_root_has_no_home_or_global_directory(self):
   self.publish(self.page('AUTRE_GROUPE_INVISIBLE'))
   for client in [self.admin,self.visitor]:
-   html=self.html(client);self.assertIn('Ouvrir une page partagée',html);self.assertNotIn('AUTRE_GROUPE_INVISIBLE',html);self.assertNotIn('accueil n’est',html)
+   html=self.html(client);self.assertIn('reader-empty',html);self.assertNotIn('AUTRE_GROUPE_INVISIBLE',html);self.assertNotIn('accueil n’est',html)
   for endpoint,key in [('pages','pages'),('spaces','spaces'),('categories','categories'),('search','pages')]:self.assertEqual(self.ok(self.visitor.api(endpoint))[key],[])
  def test_02_direct_child_is_its_own_root(self):
   parent=self.page('PARENT_NON_AFFICHE');child=self.page('RACINE_PARTAGEE',parent=parent['id']);self.publish(parent)
@@ -64,7 +64,7 @@ class Sharing(unittest.TestCase):
   p=self.page('RACINE_PRIVEE');self.ok(self.visitor.request('index.php?page='+p['id']+'&read=1'),404);self.ok(self.visitor.api('pages',query='&root='+p['id']),404);self.ok(self.visitor.api('pages',query='&root=invalid'),404)
   self.ok(self.visitor.request('reader-state.php?page='+p['id']+'&root=invalid')) # safe unavailable representation, no content
  def test_12_powered_by_and_editor_entry(self):
-  p=self.publish(self.page('CREDIT_TEST'));html=self.html(path='index.php?page='+p['id']);self.assertIn('Propulsé par',html);self.assertIn('créé par Sandro de PAZ',html);self.assertIn('https://github.com/monsieur-de-paz/feuillet',html);self.assertIn('?edit=1&amp;page=',html);self.assertNotIn('assets/app.js',html)
+  p=self.publish(self.page('CREDIT_TEST'));html=self.html(path='index.php?page='+p['id']);self.assertIn('Propulsé par',html);self.assertIn('créé par Monsieur de PAZ, enseignant en France',html);self.assertIn('https://github.com/monsieur-de-paz/feuillet',html);self.assertIn('?edit=1&amp;page=',html);self.assertNotIn('assets/app.js',html)
   edit=self.html(path='index.php?edit=1');self.assertIn('assets/app.js',edit);self.assertNotIn('AUTRE_GROUPE_INVISIBLE',edit)
  def test_13_linked_views_filter_sort_hide_and_layout(self):
   db=self.ok(self.admin.api('db_save',{'name':'Vues partagées','visibility':'public'}))['database']
@@ -86,6 +86,6 @@ class Sharing(unittest.TestCase):
  def test_16_notebook_dashboard_does_not_expose_pages_to_visitors(self):
   space=self.ok(self.admin.api('save_space',{'name':'DASHBOARD_CARNET_PRIVE','icon':'📓'}))['id'];page=self.page('PAGE_SECRETE_DU_DASHBOARD',space_id=space)
   for suffix in ['', '&read=1']:
-   html=self.html(path='index.php?dashboard=1&space='+space+suffix);self.assertNotIn('DASHBOARD_CARNET_PRIVE',html);self.assertNotIn(page['title'],html);self.assertIn('Ouvrir une page partagée',html)
+   html=self.html(path='index.php?dashboard=1&space='+space+suffix);self.assertNotIn('DASHBOARD_CARNET_PRIVE',html);self.assertNotIn(page['title'],html);self.assertIn('reader-empty',html)
   self.assertEqual(self.ok(self.visitor.api('pages',query='&space='+space))['pages'],[])
 if __name__=='__main__':unittest.main(argv=[__file__,*harness.REMAINING],verbosity=2)
