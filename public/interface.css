@@ -2727,3 +2727,12 @@ body.block-selecting .editor-content-wrap iframe {
     background: transparent !important;
   }
 }
+
+.update-progress li.failed {
+  color: var(--danger, #b6413a);
+  font-weight: 600;
+}
+.update-progress li.failed > span {
+  background: color-mix(in srgb, var(--danger, #b6413a) 12%, var(--surface));
+  color: var(--danger, #b6413a);
+}

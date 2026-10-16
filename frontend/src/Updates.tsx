@@ -26,6 +26,7 @@ export type UpdateState = {
     version: string;
     updated_at: number;
     has_backup: boolean;
+    failed_phase?: string | null;
   };
 };
 export function useUpdates(
@@ -40,6 +41,7 @@ export function useUpdates(
     phase: string;
     message: string;
     id?: string;
+    failedPhase?: string;
   } | null>(null);
   const busyRef = useRef(false),
     saveRef = useRef(beforeInstall);
@@ -137,6 +139,7 @@ export function useUpdates(
     setBusy(true);
     setError("");
     let id = "";
+    let phase = "download";
     const unload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       e.returnValue = "";
@@ -149,10 +152,12 @@ export function useUpdates(
       });
       id = started.job.id;
       let job = started.job;
+      phase = job.phase;
       setProgress(job);
       while (["download", "extract", "apply"].includes(job.phase)) {
         const result = await step(id);
         job = result.job;
+        phase = job.phase;
         setProgress(job);
       }
       await endpoint("update-health.php", { id });
@@ -170,13 +175,19 @@ export function useUpdates(
           if (recovered.already_installed) {
             completed = true;
             setProgress({ phase: "complete", message: recovered.message, id });
-          } else message += " La version précédente est disponible.";
+          } else if (recovered.unchanged)
+            message +=
+              " La préparation s’est arrêtée avant le remplacement : la version installée est conservée.";
+          else if (recovered.restored)
+            message += " La version précédente a été restaurée.";
+          else message += " La version précédente est disponible.";
         } catch {
           message +=
             " Ouvre la procédure de restauration si l’installation reste indisponible.";
         }
       }
-      if (!completed) setProgress({ phase: "failed", message, id });
+      if (!completed)
+        setProgress({ phase: "failed", message, id, failedPhase: phase });
       try {
         setStatus(await api("update_status"));
       } catch {
@@ -386,12 +397,16 @@ export function UpdateProgress({ updates }: { updates: Controller }) {
     "Sauvegarder et installer",
     "Ouvrir Feuillet",
   ];
+  const phase =
+    progress.phase === "failed"
+      ? progress.failedPhase || "download"
+      : progress.phase;
   const current =
-    progress.phase === "download"
+    phase === "download"
       ? 0
-      : progress.phase === "extract"
+      : phase === "extract"
         ? 1
-        : progress.phase === "apply"
+        : phase === "apply"
           ? 2
           : 3;
   return (
@@ -416,7 +431,9 @@ export function UpdateProgress({ updates }: { updates: Controller }) {
               i < current || progress.phase === "complete"
                 ? "done"
                 : i === current
-                  ? "current"
+                  ? progress.phase === "failed"
+                    ? "failed"
+                    : "current"
                   : ""
             }
           >
@@ -428,6 +445,9 @@ export function UpdateProgress({ updates }: { updates: Controller }) {
               )}
             </span>
             {label}
+            {progress.phase === "failed" && i === current
+              ? " — interrompu"
+              : ""}
           </li>
         ))}
       </ol>

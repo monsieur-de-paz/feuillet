@@ -26,7 +26,7 @@ try{
 }catch(Throwable $e){
     error_log('Feuillet update health: '.$e->getMessage());
     if($journal&&$lock&&isset($storage)){
-        try{unset($GLOBALS['feuillet_pdo']);if(isset($pdo))$pdo=null;if(!function_exists('fu_recover'))require_once $storage.'/updates/recovery-engine.php';fu_recover($root,$storage,$journal,$config);http_response_code(503);echo json_encode(['error'=>'La nouvelle version ne démarre pas. La version précédente a été restaurée.','restored'=>true]);}
+        try{unset($GLOBALS['feuillet_pdo']);if(isset($pdo))$pdo=null;if(!function_exists('fu_recover'))require_once $storage.'/updates/recovery-engine.php';$journal['failed_phase']='validating';fu_recover($root,$storage,$journal,$config);http_response_code(503);echo json_encode(['error'=>'La nouvelle version ne démarre pas. La version précédente a été restaurée.','restored'=>true]);}
         catch(Throwable $rollback){error_log('Feuillet rollback: '.$rollback->getMessage());http_response_code(503);echo json_encode(['error'=>'Restauration à terminer. Les sauvegardes sont conservées ; consulte la procédure FTP.']);}
     }else{if(http_response_code()<400)http_response_code(503);echo json_encode(['error'=>'Vérification impossible. Réessaie ou restaure la version précédente.']);}
 }finally{if($lock){flock($lock,LOCK_UN);fclose($lock);}}

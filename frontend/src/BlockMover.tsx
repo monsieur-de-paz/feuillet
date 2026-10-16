@@ -380,14 +380,13 @@ export function BlockMover({
           }}
           onKeyDown={(e) => {
             if (!e.altKey) return;
-            const direction = (
-              {
-                ArrowUp: "up",
-                ArrowDown: "down",
-                ArrowLeft: "out",
-                ArrowRight: "in",
-              } as const
-            )[e.key as "ArrowUp"];
+            const directions = {
+              ArrowUp: "up",
+              ArrowDown: "down",
+              ArrowLeft: "out",
+              ArrowRight: "in",
+            } as const;
+            const direction = directions[e.key as keyof typeof directions];
             if (!direction) return;
             e.preventDefault();
             const group = blockRoots(

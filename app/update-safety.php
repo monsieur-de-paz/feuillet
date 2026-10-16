@@ -72,6 +72,6 @@ function fu_recover(string $root,string $storage,array $journal,array $config): 
         }finally{$zip->close();}
     }
     if(!empty($journal['database_changed'])){ $snapshot=$folder.'/'.(($config['driver']??'')==='sqlite'?'database.sqlite':'database.jsonl');if(!is_file($snapshot)||hash_file('sha256',$snapshot)!==($journal['database_sha256']??''))throw new RuntimeException('Sauvegarde SQL endommagée.');fu_restore_database($folder,$config,$journal['tables'],$journal['new_tables']??[]);}
-    $journal['phase']='rolled_back';$journal['message']='La mise à jour a échoué. La version précédente a été restaurée.';$journal['finished_at']=gmdate('c');
+    $changed=!empty($journal['files_changed'])||!empty($journal['database_changed']);$journal['phase']=$changed?'rolled_back':'failed';$journal['message']=$changed?'La mise à jour a échoué. La version précédente a été restaurée.':'La préparation a échoué avant le remplacement. La version installée est conservée.';$journal['finished_at']=gmdate('c');
     fu_write($folder.'/job.json',$journal);if(is_file($storage.'/update-journal.json')&&!unlink($storage.'/update-journal.json'))throw new RuntimeException('Fin de restauration impossible.');
 }

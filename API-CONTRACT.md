@@ -163,3 +163,7 @@ Les listes de carnets **administratives** ajoutent icon_id, cover_id, cover_posi
 update_status ne renvoie plus token_configured. update_preferences accepte uniquement les choix de notification existants ; le champ token retiré est refusé (400), les anciennes valeurs enregistrées sont nettoyées. Les releases mises en cache utilisent version/tag/name/notes/url/size/sha256, sans identifiants d’assets API. Les opérations préparées peuvent continuer à télécharger leur version par son adresse publique.
 
 Feuillet-release.json : `{format:'feuillet-release',protocol:1,repository:'monsieur-de-paz/feuillet',version:'X.Y.Z',tag:'vX.Y.Z',name,notes,size:<entier>,sha256:<64 caractères hexadécimaux>}`. La première URL est releases/latest/download/Feuillet-release.json ; revalidation sur releases/download/vX.Y.Z/Feuillet-release.json. ZIP et checksum sont déduits du numéro de version. Le reste du protocole update_start/update_step/update-health/recover et les droits admin/CSRF restent identiques.
+
+## Mises à jour — compléments 0.13.1
+
+update_status.job ajoute failed_phase (nullable) pour la dernière étape interrompue. Les erreurs de fichiers vérifiés renvoient update_integrity avec chemin relatif ; aucune donnée de configuration n’est exposée. recover.php conserve already_installed et ajoute restored/unchanged pour différencier une restauration effective d’un échec avant remplacement. Authentification, CSRF et verrous restent exigés ; aucun endpoint de diagnostic anonyme ou de contournement du manifeste.

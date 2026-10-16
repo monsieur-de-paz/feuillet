@@ -19,6 +19,7 @@ try{
             $settingsPath=$storage.'/updates/settings.json';$settings=is_file($settingsPath)?json_decode((string)file_get_contents($settingsPath),true):[];
             $id=$settings['last_job']??'';if($id!==$requested){http_response_code(409);throw new RuntimeException('Cette opération a été remplacée par une autre.');}if(preg_match('/^[a-f0-9]{32}$/D',$id)){$jobPath=$storage.'/updates/'.$id.'/job.json';$job=json_decode((string)file_get_contents($jobPath),true);if(($job['phase']??'')==='complete'){echo json_encode(['ok'=>true,'already_installed'=>true,'message'=>'La nouvelle version est déjà installée.']);exit;}if(is_array($job)&&in_array($job['phase']??'', ['download','extract','apply'],true)){require_once $root.'/app/update-safety.php';$job['phase']='failed';$job['message']='Préparation annulée. La version installée est conservée.';fu_write($jobPath,$job);}}
         }
-        echo json_encode(['ok'=>true,'message'=>'La version précédente est disponible.']);
+        $restored=($job['phase']??'')==='rolled_back'||(!empty($journal)&&(!empty($journal['files_changed'])||!empty($journal['database_changed'])));
+        echo json_encode(['ok'=>true,'restored'=>$restored,'unchanged'=>!$restored,'message'=>$restored?'La version précédente a été restaurée.':'La préparation a été arrêtée avant le remplacement. La version installée est conservée.']);
     }finally{flock($lock,LOCK_UN);fclose($lock);}
 }catch(Throwable $e){if(http_response_code()<400)http_response_code(503);error_log('Feuillet recovery endpoint: '.$e->getMessage());echo json_encode(['error'=>http_response_code()===503?'Restauration incomplète. Les sauvegardes sont conservées ; consulte la procédure FTP.':$e->getMessage()]);}

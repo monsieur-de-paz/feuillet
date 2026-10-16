@@ -72,3 +72,7 @@ Mettre à jour `FEUILLET_VERSION`, les versions npm et les docs, construire l’
 ### Sessions d’installation
 
 Chaque installation possède un nom de cookie dérivé de son stockage et de son chemin web. Plusieurs copies de test sur un même hôte n’écrasent pas la connexion de l’autre. Le chemin reste identique pendant une mise à jour ; le test de démarrage et la récupération autonome utilisent le même calcul. Après mise à jour manuelle depuis 0.7, se reconnecter une fois.
+
+## Correctif d’un blocage après transfert FTP
+
+La version 0.13.1 sépare l’inventaire des fichiers locaux de la vérification stricte de la release téléchargée. Si l’ancien moteur refuse la distribution avant remplacement, utiliser l’archive **Feuillet-Correctif-MAJ-0.13.1.zip** : remplacer uniquement **feuillet/app/updates.php**, puis relancer Vérifier et installer 0.13.1. [Instructions détaillées](NOUVEAUTES-0.13.1.md). Ne pas envoyer le correctif dans public/, modifier config.php, supprimer storage/ ou relancer setup.php. Le numéro affiché ne change qu’après la mise à jour complète.

@@ -1,5 +1,14 @@
 # Historique des versions
 
+## 0.13.1 — 16 octobre 2026
+
+- Correction des mises à jour bloquées par une différence dans les fichiers déjà installés après FTP ; le manifeste local sert d’inventaire de sauvegarde.
+- Sauvegarde des octets réellement présents, vérifiée avant remplacement, avec restauration des modifications et des absences après échec.
+- Intégrité stricte conservée pour les téléchargements et le code activé ; chemin relatif indiqué en cas de fichier incorrect.
+- Étape réellement interrompue affichée, sans fausses coches de réussite ; distinction entre absence de remplacement et restauration effective.
+- Correctif de dépannage limité à app/updates.php pour les installations dont l’ancien moteur bloque la mise à jour.
+- Typage du raccourci Alt + flèches pour le groupe de blocs corrigé et compilation complète rejouée.
+
 ## 0.13.0 — 16 octobre 2026
 
 - Sélection de plusieurs blocs par rectangle depuis les marges, surbrillance adaptée au thème, ajout avec Maj et désélection par Échap.

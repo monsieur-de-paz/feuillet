@@ -221,3 +221,9 @@ Configurer dans Accueil public ou Réglages & sauvegardes. Si l’ancienne page 
 ## Sélection des blocs depuis 0.13
 
 La surbrillance et le rectangle sont locaux à l’éditeur, pas stockés dans la base. Pour vérifier une régression, tester la sélection depuis une marge, le déplacement de trois blocs, une entrée/sortie de titre dépliable et Annuler/Rétablir, puis recharger après Enregistré. Le rendu lecteur doit rester dépourvu de commandes/surbrillance. La suite frontend `block-selection` contrôle l’ordre, les conteneurs, médias, schéma, remappage et décorations.
+
+## Mise à jour refusée après FTP — 0.13.1
+
+Avant 0.13.1, le message « distribution incomplète ou endommagée » pouvait désigner un fichier déjà installé, y compris un document absent ou une conversion de fins de ligne FTP. Ne pas effacer storage ou recréer la base. La fenêtre peut afficher les premières étapes comme réussies à tort ; le statut HTTP 400 seul ne localise pas le fichier.
+
+La release 0.13.1 propose un correctif de démarrage limité à app/updates.php, puis une installation normale via GitHub. Voir [la procédure exacte](NOUVEAUTES-0.13.1.md). Le moteur conserve les empreintes de la nouvelle archive ; ne jamais contourner sa vérification pour faire passer un ZIP défectueux. En cas de nouvel échec, lire le message comportant désormais le chemin relatif et l’étape du job.

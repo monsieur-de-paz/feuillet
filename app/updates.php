@@ -18,7 +18,7 @@ function updates_available(array $state): bool {
     $r=$state['release'];return is_array($r)&&version_compare($r['version'],FEUILLET_VERSION,'>');
 }
 function updates_status(): array {
-    $s=updates_state();$job=null;if($s['last_job'])try{$j=updates_job($s['last_job']);$job=['id'=>$j['id'],'phase'=>$j['phase'],'message'=>$j['message']??'','version'=>$j['version'],'updated_at'=>$j['updated_at']??0,'has_backup'=>!empty($j['database_sha256'])&&is_file(updates_dir().'/'.$j['id'].'/backup.json')];}catch(Throwable){}
+    $s=updates_state();$job=null;if($s['last_job'])try{$j=updates_job($s['last_job']);$job=['id'=>$j['id'],'phase'=>$j['phase'],'message'=>$j['message']??'','version'=>$j['version'],'updated_at'=>$j['updated_at']??0,'failed_phase'=>$j['failed_phase']??null,'has_backup'=>!empty($j['database_sha256'])&&is_file(updates_dir().'/'.$j['id'].'/backup.json')];}catch(Throwable){}
     $available=updates_available($s);$r=$s['release'];
     $show=$available&&$s['notifications']&&$s['postponed_until']<=time()&&!in_array($r['version'],$s['ignored'],true)&&(!$s['skip_until']||version_compare($r['version'],$s['skip_until'],'>'));
     $checks=['curl'=>extension_loaded('curl'),'zip'=>class_exists(ZipArchive::class),'tokenizer'=>function_exists('token_get_all'),'code_writable'=>is_writable(FEUILLET_ROOT)&&is_writable(FEUILLET_ROOT.'/public')&&is_writable(FEUILLET_ROOT.'/app'),'storage_writable'=>is_writable(storage()),'distribution'=>is_file(FEUILLET_ROOT.'/update-manifest.json'),'git_checkout'=>is_dir(FEUILLET_ROOT.'/.git')];
@@ -86,13 +86,18 @@ function updates_preferences(array $in): array {
     if(array_key_exists('token',$in))fail('Les mises à jour utilisent uniquement les téléchargements publics de Feuillet.');
     updates_save($s);return updates_status();
 }
-function updates_manifest(string $directory,?string $expected=null): array {
+/** The installed manifest is an inventory for backup, not a clean-copy prerequisite.
+ * Downloaded and activated releases must always use strict byte verification. */
+function updates_manifest(string $directory,?string $expected=null,bool $verifyFiles=true): array {
     $path=$directory.'/update-manifest.json';if(!is_file($path)||filesize($path)>2097152)fail('Manifeste de distribution absent.');$m=json_decode((string)file_get_contents($path),true,32,JSON_THROW_ON_ERROR);
     if(($m['format']??'')!=='feuillet-distribution'||($m['protocol']??0)!==1||!preg_match('/^\d+\.\d+\.\d+$/D',$m['version']??'')||($expected!==null&&$m['version']!==$expected)||!is_array($m['files']??null)||count($m['files'])>10000)fail('Distribution incompatible.');
     if(version_compare(PHP_VERSION,$m['php_min']??'8.3','<'))fail('Cette version demande un PHP plus récent. Modifie la version PHP dans ton hébergement.');
     foreach($m['extensions']??[] as $extension)if(!is_string($extension)||!extension_loaded($extension))fail('Extension PHP nécessaire : '.str_limit($extension,40));
     if(!is_array($m['database_tables']??null)||count($m['database_tables'])>64)fail('Liste des tables incompatible.');foreach($m['database_tables'] as $table)if(!is_string($table)||!preg_match('/^[a-z_]+$/D',$table))fail('Table de distribution invalide.');
-    foreach($m['files'] as $relative=>$hash){if(!fu_path($relative)||$relative==='update-manifest.json'||!preg_match('/^[a-f0-9]{64}$/D',(string)$hash))fail('Chemin de manifeste interdit.');$file=fu_target($directory,$relative);if(!is_file($file)||hash_file('sha256',$file)!==$hash)fail('La distribution est incomplète ou endommagée.');if(str_ends_with($relative,'.php')){try{token_get_all((string)file_get_contents($file),TOKEN_PARSE);}catch(ParseError){fail('Un fichier PHP de la distribution est invalide.');}}}
+    foreach($m['files'] as $relative=>$hash){if(!fu_path($relative)||$relative==='update-manifest.json'||!is_string($hash)||!preg_match('/^[a-f0-9]{64}$/D',$hash))fail('Chemin de manifeste interdit.');$file=fu_target($directory,$relative);if(!$verifyFiles)continue;
+        if(!is_file($file))fail('Fichier absent de la distribution vérifiée : '.$relative.'.',400,'update_integrity');
+        if(hash_file('sha256',$file)!==$hash)fail('Le contenu d’un fichier de la distribution vérifiée est incorrect : '.$relative.'.',400,'update_integrity');
+        if(str_ends_with($relative,'.php')){try{token_get_all((string)file_get_contents($file),TOKEN_PARSE);}catch(ParseError){fail('Un fichier PHP de la distribution est invalide : '.$relative.'.',400,'update_integrity');}}}
     foreach(['app/bootstrap.php','app/updates.php','app/update-safety.php','public/index.php','public/api.php','public/update-guard.php','public/recover.php','public/update-health.php','public/assets/app.js','public/assets/app.css','storage/.htaccess'] as $required){if($required==='storage/.htaccess')continue;if(!isset($m['files'][$required]))fail('Fichier essentiel absent de la distribution.');}
     return $m;
 }
@@ -125,14 +130,19 @@ function updates_extract(array $job): void {
     $versionFile=file_get_contents($stage.'/app/bootstrap.php');if(!preg_match("/const FEUILLET_VERSION = '([^']+)';/",$versionFile,$matches)||$matches[1]!==$job['version'])fail('Version de logiciel incohérente.');
 }
 function updates_apply(array &$job): void {
-    $folder=updates_dir().'/'.$job['id'];$stage=$folder.'/stage';$next=updates_manifest($stage,$job['version']);$old=updates_manifest(FEUILLET_ROOT);
+    $folder=updates_dir().'/'.$job['id'];$stage=$folder.'/stage';$next=updates_manifest($stage,$job['version']);$old=updates_manifest(FEUILLET_ROOT,null,false);
     $paths=array_values(array_unique([...array_keys($old['files']),...array_keys($next['files']),'update-manifest.json']));
     $size=0;foreach($paths as $relative){$target=fu_target(FEUILLET_ROOT,$relative);if(is_file($target)){$size+=filesize($target);if(!is_writable($target))fail('Fichier non modifiable : '.$relative);}elseif(!is_writable(dirname($target))&&is_dir(dirname($target)))fail('Dossier non modifiable : '.dirname($relative));}
     $free=disk_free_space(FEUILLET_ROOT);if($free!==false&&$free<$size*3+filesize($folder.'/release.zip')*3+52428800)fail('Espace disque insuffisant pour la mise à jour et sa sauvegarde.');
     $journal=$job;$journal['tables']=$old['database_tables'];$journal['new_tables']=$next['database_tables'];$journal['phase']='backing_up';fu_copy(FEUILLET_ROOT.'/app/update-safety.php',updates_dir().'/recovery-engine.php',0600);fu_write(storage().'/update-journal.json',$journal);
     $hashes=[];$zip=new ZipArchive();if($zip->open($folder.'/code.zip',ZipArchive::CREATE|ZipArchive::EXCL)!==true)fail('Sauvegarde du logiciel impossible.');
     foreach($paths as $relative){$target=fu_target(FEUILLET_ROOT,$relative);if(is_file($target)){$hashes[$relative]=hash_file('sha256',$target);if(!$zip->addFile($target,$relative))fail('Sauvegarde du logiciel incomplète.');}}
-    if(!$zip->close())fail('Sauvegarde du logiciel impossible.');chmod($folder.'/code.zip',0600);fu_write($folder.'/backup.json',['paths'=>$paths,'hashes'=>$hashes,'version'=>FEUILLET_VERSION]);
+    if(!$zip->close())fail('Sauvegarde du logiciel impossible.');chmod($folder.'/code.zip',0600);
+    // Verify actual local bytes, including FTP changes, before touching installed code.
+    $backup=new ZipArchive();if($backup->open($folder.'/code.zip')!==true)fail('Sauvegarde du logiciel illisible. Aucun fichier n’a été remplacé.');
+    try{foreach($hashes as $relative=>$digest){$stream=$backup->getStream($relative);if(!$stream)fail('Fichier absent de la sauvegarde : '.$relative);$ctx=hash_init('sha256');try{$bytes=hash_update_stream($ctx,$stream);}finally{fclose($stream);}if($bytes===false||hash_final($ctx)!==$digest)fail('Sauvegarde du logiciel non vérifiable : '.$relative.'. Aucun fichier n’a été remplacé.');}}
+    finally{$backup->close();}
+    fu_write($folder.'/backup.json',['paths'=>$paths,'hashes'=>$hashes,'version'=>FEUILLET_VERSION]);
     $configPath=getenv('FEUILLET_CONFIG')?:FEUILLET_ROOT.'/config.php';fu_copy($configPath,$folder.'/config.php',0600);
     fu_database(db(),$folder,$journal['tables']);
     $snapshot=$folder.'/'.((cfg()['driver']??'')==='sqlite'?'database.sqlite':'database.jsonl');$journal['database_sha256']=hash_file('sha256',$snapshot);
@@ -146,7 +156,7 @@ function updates_step(string $id): array {
     $job=updates_job($id);if(!in_array($job['phase'],['download','extract','apply'],true))fail('Étape de mise à jour indisponible.',409);
     if((updates_state()['last_job']??null)!==$id)fail('Mise à jour remplacée par une autre.',409);
     $folder=updates_dir().'/'.$id;
-    $deployment=$job['phase']==='apply'?updates_lock():null;
+    $failedPhase=$job['phase'];$deployment=$job['phase']==='apply'?updates_lock():null;
     try{
         if($job['phase']==='download'){
             $r=$job['release'];updates_http(updates_download_url($r['version'],'zip'),'application/octet-stream',104857600,$folder.'/release.zip');
@@ -157,8 +167,8 @@ function updates_step(string $id): array {
         else updates_apply($job);
         updates_job_save($job);return ['job'=>['id'=>$job['id'],'version'=>$job['version'],'phase'=>$job['phase'],'message'=>$job['message']]];
     }catch(Throwable $e){
-        if(is_file(storage().'/update-journal.json')){unset($GLOBALS['feuillet_pdo']);$journal=json_decode((string)file_get_contents(storage().'/update-journal.json'),true);fu_recover(FEUILLET_ROOT,storage(),$journal,cfg());}
-        else{$job['phase']='failed';$job['message']=$e instanceof AppError?$e->getMessage():'La préparation a échoué. La version installée est conservée.';updates_job_save($job);}
+        if(is_file(storage().'/update-journal.json')){unset($GLOBALS['feuillet_pdo']);$journal=json_decode((string)file_get_contents(storage().'/update-journal.json'),true);$journal['failed_phase']=$failedPhase;fu_recover(FEUILLET_ROOT,storage(),$journal,cfg());}
+        else{$job['failed_phase']=$failedPhase;$job['phase']='failed';$job['message']=$e instanceof AppError?$e->getMessage():'La préparation a échoué. La version installée est conservée.';updates_job_save($job);}
         throw $e;
     }finally{if($deployment){flock($deployment,LOCK_UN);fclose($deployment);}}
 }
