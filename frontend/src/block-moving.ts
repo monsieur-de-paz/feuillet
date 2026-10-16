@@ -1,4 +1,5 @@
 import { Fragment, type Node as PMNode } from "@tiptap/pm/model";
+import { closeHistory } from "@tiptap/pm/history";
 import {
   NodeSelection,
   TextSelection,
@@ -6,6 +7,78 @@ import {
   type Transaction,
 } from "@tiptap/pm/state";
 export type BlockPosition = { pos: number; node: PMNode; depth: number };
+export const BLOCK_SELECTION_META = "feuillet:block-selection";
+/** A selected container owns its children; document order is stable. */
+export function blockRoots(doc: PMNode, positions: number[]): BlockPosition[] {
+  const chosen = new Set(positions);
+  const roots: BlockPosition[] = [];
+  let end = -1;
+  for (const block of movableBlocks(doc)) {
+    if (chosen.has(block.pos) && block.pos >= end) {
+      roots.push(block);
+      end = block.pos + block.node.nodeSize;
+    }
+  }
+  return roots;
+}
+/** Move an ordered set atomically, including across different parents. */
+export function moveBlocks(
+  state: EditorState,
+  positions: number[],
+  to: number,
+): Transaction | null {
+  const blocks = blockRoots(state.doc, positions);
+  if (
+    !blocks.length ||
+    to < 0 ||
+    to > state.doc.content.size ||
+    blocks.some((b) => to >= b.pos && to <= b.pos + b.node.nodeSize)
+  )
+    return null;
+  const tr = state.tr;
+  for (const block of [...blocks].reverse()) {
+    const start = tr.mapping.map(block.pos),
+      node = tr.doc.nodeAt(start);
+    if (!node || !node.eq(block.node)) return null;
+    const $pos = tr.doc.resolve(start),
+      parent = $pos.parent,
+      index = $pos.index();
+    if (parent.canReplace(index, index + 1))
+      tr.delete(start, start + node.nodeSize);
+    else if (
+      parent.canReplaceWith(index, index + 1, state.schema.nodes.paragraph)
+    )
+      tr.replaceWith(
+        start,
+        start + node.nodeSize,
+        state.schema.nodes.paragraph.create(),
+      );
+    else return null;
+  }
+  const mapped = tr.mapping.map(to),
+    $to = tr.doc.resolve(mapped),
+    fragment = Fragment.fromArray(blocks.map((b) => b.node));
+  if (!$to.parent.canReplace($to.index(), $to.index(), fragment)) return null;
+  tr.insert(mapped, fragment);
+  try {
+    tr.doc.check();
+  } catch {
+    return null;
+  }
+  const selected: number[] = [];
+  let pos = mapped;
+  for (const block of blocks) {
+    selected.push(pos);
+    pos += block.node.nodeSize;
+  }
+  tr.setSelection(
+    blocks[0].node.isAtom
+      ? NodeSelection.create(tr.doc, mapped)
+      : TextSelection.near(tr.doc.resolve(mapped + 1)),
+  );
+  tr.setMeta(BLOCK_SELECTION_META, selected);
+  return closeHistory(tr).scrollIntoView();
+}
 export function movableBlocks(doc: PMNode): BlockPosition[] {
   const found: BlockPosition[] = [];
   doc.descendants((node, pos, parent, index) => {

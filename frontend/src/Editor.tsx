@@ -1,5 +1,7 @@
 import { MapBlock } from "./MapBlock";
 import { BlockMover, blockAtElement } from "./BlockMover";
+import { BlockSelection } from "./block-selection";
+import { BlockMarquee } from "./BlockMarquee";
 import {
   selectedBlock,
   moveBlock,
@@ -200,6 +202,7 @@ export default function CourseEditor({
   activeRef.current = active;
   const editor = useEditor({
     extensions: [
+      BlockSelection,
       StarterKit.configure({
         link: {
           openOnClick: !admin,
@@ -1428,7 +1431,9 @@ export default function CourseEditor({
         <div className="editor-tips">
           Tape <kbd>/</kbd> au début d’un paragraphe pour choisir un bloc.
           Utilise ↑ ↓ puis Entrée. Sélectionne du texte pour le mettre en forme.
-          Le menu ⋮ permet de déplacer ou dupliquer le bloc courant.{" "}
+          Trace un rectangle depuis une marge pour sélectionner plusieurs blocs,
+          puis glisse une poignée pour les déplacer ensemble. Échap
+          désélectionne. Le menu ⋮ permet aussi de dupliquer le bloc courant.{" "}
           <kbd>Ctrl/Cmd + Z</kbd> annule la dernière action.
         </div>
       )}
@@ -1502,12 +1507,15 @@ export default function CourseEditor({
               setBlockAnchor(anchor);
               setBlockMenu(true);
             }}
-            onMoved={() => {
+            onMoved={(count) => {
               activeBlockRef.current = null;
-              app.notify("Bloc déplacé.");
+              app.notify(
+                count > 1 ? `${count} blocs déplacés.` : "Bloc déplacé.",
+              );
             }}
           />
         )}
+        {admin && editor && <BlockMarquee editor={editor} wrap={contentRef} />}
         {blockMenu && (
           <ContextMenu
             anchor={blockAnchor}

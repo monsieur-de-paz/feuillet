@@ -135,3 +135,7 @@ Les callouts utilisent une palette sémantique bleu/vert/jaune/rose/gris commune
 ## Barre du lecteur — 0.12
 
 Fil d’Ariane flexible à gauche ; groupe thème/connexion sans rétrécissement à droite. Hauteur minimale des actions 44 px, espacement 16 px sur ordinateur et 12 px sur mobile. Le nom du site se tronque avant que les actions se chevauchent. Un seul lien Administration dans la barre. Le remplacement automatique reprend la barre entière. Le crédit commun reste discret et ajoute la version à Feuillet, avec lien vers le dépôt.
+
+## Sélection groupée — 0.13
+
+Surlignage doux par bloc (accent à 16 %, transparent), rectangle translucide avec contour d’accent fin, transition 100 ms désactivée si mouvements réduits. Aucun cadre de focus noir ajouté. Le compteur discret n’apparaît que pendant une sélection. Les éléments flottants ne capturent pas les liens, champs ou médias ; le geste part des marges et respecte le défilement tactile.

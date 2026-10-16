@@ -217,3 +217,7 @@ Si le titre de la sous-page est correct à son ouverture mais que le lien parent
 ## Accueil public depuis 0.12
 
 Configurer dans Accueil public ou Réglages & sauvegardes. Si l’ancienne page d’accueil ne s’affiche pas, vérifier qu’elle est désignée, hors corbeille et publiée. Les brouillons ne sont pas montrés, même au lecteur d’un administrateur connecté. Une galerie doit sélectionner explicitement ses cartes ; leurs pages doivent être publiques. Le choix et les références sont compris dans les sauvegardes ZIP. Retirer une page de l’accueil ne révoque pas son partage existant. Ne pas éditer app_settings manuellement.
+
+## Sélection des blocs depuis 0.13
+
+La surbrillance et le rectangle sont locaux à l’éditeur, pas stockés dans la base. Pour vérifier une régression, tester la sélection depuis une marge, le déplacement de trois blocs, une entrée/sortie de titre dépliable et Annuler/Rétablir, puis recharger après Enregistré. Le rendu lecteur doit rester dépourvu de commandes/surbrillance. La suite frontend `block-selection` contrôle l’ordre, les conteneurs, médias, schéma, remappage et décorations.

@@ -225,3 +225,11 @@ updates_state nettoie l’ancienne clé token et réinitialise la vérification 
 Le périmètre du lecteur contient sa branche publique et les références explicites du document publié (pageLink et galerie manuelle). Chaque carte extérieure ouvre sa propre racine. Ni les brouillons, ni les autres pages publiques ne forment un catalogue. Le token tient compte du choix d’accueil ; reader-state renvoie la barre complète pour que reading.js conserve connexion et thème après remplacement. Les exports remappent le réglage vers les pages importées seulement avec apply_settings ; l’import conserve les pages privées.
 
 Le crédit PHP est commun au lecteur et PDF ; React prend sa version dans package.json. Les deux sources de version sont alignées lors de la livraison.
+
+## Sélection groupée — 0.13
+
+`BlockSelection` est une extension Tiptap dont l’état de plugin contient des positions temporaires et les remappe au fil des transactions. `Decoration.node` peint les racines sélectionnées ; aucun attribut n’est écrit dans le JSON des pages. Une sélection de conteneur élimine ses descendants pour ne pas déplacer deux fois le même contenu.
+
+`BlockMarquee` démarre uniquement depuis une zone vide du panneau et à la souris, hors titre/propriétés/contrôles. Il compare le rectangle aux boîtes des blocs visibles : l’en-tête ou la hauteur complète sélectionne le conteneur, une intersection partielle avec son corps sélectionne ses enfants. Pointerup termine, Échap/blur/pointercancel annulent, les bords déclenchent le défilement. La sélection de texte conserve les événements natifs dans les blocs.
+
+`moveBlocks` retire les racines par positions décroissantes, garde un paragraphe requis si nécessaire, remappe la destination puis insère le fragment ordonné dans une seule transaction validée par le schéma. Les dépôts dans son propre sous-arbre et les destinations incompatibles sont refusés sans mutation. Le déplacement porte une métadonnée de sélection, mais les sauvegardes ne contiennent que le document. `BlockMover` réutilise la ligne de dépôt et l’ouverture des sections. La poignée reste joignable au passage de la marge hors DOM éditable. Aucune modification SQL ou API.

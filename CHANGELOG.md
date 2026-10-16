@@ -1,5 +1,13 @@
 # Historique des versions
 
+## 0.13.0 — 16 octobre 2026
+
+- Sélection de plusieurs blocs par rectangle depuis les marges, surbrillance adaptée au thème, ajout avec Maj et désélection par Échap.
+- Déplacement groupé depuis une poignée, ordre conservé, entrée/sortie des titres dépliables et ouverture de la section de destination.
+- Une transaction et une annulation pour le groupe ; contenus, attributs et fichiers conservés, paragraphes vides de structure valides.
+- Poignées stabilisées dans les marges et près des enfants sélectionnés ; le texte reste sélectionnable normalement depuis un paragraphe.
+- Référence REA et documentation Notion conservées avec limites explicites ; pas de modification du document pour la surbrillance.
+
 ## 0.12.0 — 16 octobre 2026
 
 - Accueil public éditable à la racine : création dédiée ou choix d’une page, textes et blocs habituels, publication explicite.

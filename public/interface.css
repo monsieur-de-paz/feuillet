@@ -2658,3 +2658,72 @@ body.block-dragging .editor-content-wrap iframe {
 .reader-header .theme-menu-trigger {
   min-width: 30px;
 }
+
+/* Group selection follows the page accent, without a focus frame. */
+.course-content .feuillet-block-selected {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  border-radius: 5px;
+  outline: none;
+  box-shadow: none;
+  transition: background-color 100ms ease-out;
+}
+.course-content .feuillet-block-selected .feuillet-block-selected {
+  background: transparent;
+}
+.block-selection-rectangle {
+  position: fixed;
+  z-index: 150;
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border-radius: 3px;
+}
+body.block-selecting,
+body.block-selecting * {
+  user-select: none !important;
+  cursor: crosshair !important;
+}
+body.block-selecting .editor-content-wrap iframe {
+  pointer-events: none;
+}
+.block-selection-status {
+  position: fixed;
+  z-index: 45;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: calc(100vw - 32px);
+  padding: 10px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 0.12);
+  color: var(--ink);
+  font-size: 12px;
+}
+.block-selection-status button {
+  flex-shrink: 0;
+  color: var(--accent);
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+.block-selection-status button:hover {
+  background: var(--surface-muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  .course-content .feuillet-block-selected {
+    transition: none;
+  }
+}
+@media print {
+  .block-selection-status,
+  .block-selection-rectangle {
+    display: none !important;
+  }
+  .course-content .feuillet-block-selected {
+    background: transparent !important;
+  }
+}

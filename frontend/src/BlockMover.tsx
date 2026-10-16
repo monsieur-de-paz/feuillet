@@ -5,10 +5,13 @@ import { GripVertical, Plus } from "lucide-react";
 import {
   movableBlocks,
   moveBlock,
+  moveBlocks,
   blockSiblingDestination,
   selectedBlock,
+  blockRoots,
   type BlockPosition,
 } from "./block-moving";
+import { selectedBlocks } from "./block-selection";
 type Hit = BlockPosition & { element: HTMLElement };
 type Drop = {
   pos: number;
@@ -105,7 +108,7 @@ export function BlockMover({
   wrap: RefObject<HTMLDivElement | null>;
   onMenu: (pos: number, anchor: HTMLButtonElement) => void;
   onInsert: (pos: number) => void;
-  onMoved: () => void;
+  onMoved: (count: number) => void;
 }) {
   const [hover, setHover] = useState<Hit | null>(null),
     [drop, setDrop] = useState<Drop | null>(null),
@@ -114,6 +117,7 @@ export function BlockMover({
     );
   const drag = useRef<{
     from: number;
+    positions: number[];
     doc: typeof editor.state.doc;
     x: number;
     y: number;
@@ -133,8 +137,51 @@ export function BlockMover({
     if (!el) return;
     const follow = (event: PointerEvent) => {
       if (drag.current) return;
-      const hit = blockAtElement(editor, event.target as Element);
+      const target = event.target as Element;
+      if (target.closest?.(".block-mover")) return;
+      let hit = el.contains(target) ? blockAtElement(editor, target) : null;
+      if (hit) {
+        const parent = hit;
+        const nearby = blockRoots(
+          editor.state.doc,
+          selectedBlocks(editor.state),
+        )
+          .filter(
+            (b) =>
+              b.pos > parent.pos && b.pos < parent.pos + parent.node.nodeSize,
+          )
+          .map((b) => ({
+            ...b,
+            element: editor.view.nodeDOM(b.pos) as HTMLElement,
+          }))
+          .filter(
+            (b) =>
+              b.element instanceof HTMLElement &&
+              b.element.getClientRects().length,
+          )
+          .map((b) => ({
+            ...b,
+            distance: Math.max(
+              b.element.getBoundingClientRect().top - event.clientY,
+              event.clientY - b.element.getBoundingClientRect().bottom,
+              0,
+            ),
+          }))
+          .sort((a, b) => a.distance - b.distance)[0];
+        if (nearby && nearby.distance <= 12) hit = nearby;
+      }
       if (hit) setHover(hit);
+      else {
+        const bounds = editor.view.dom.getBoundingClientRect();
+        // Keep the rail reachable while crossing the gutter outside the editable DOM.
+        if (
+          event.clientX < bounds.left - 64 ||
+          event.clientX > bounds.right + 16 ||
+          event.clientY < bounds.top - 12 ||
+          event.clientY > bounds.bottom + 12
+        )
+          setHover(null);
+      }
     };
     const reset = () => {
       if (!drag.current) setHover(null);
@@ -158,15 +205,13 @@ export function BlockMover({
         if (element instanceof HTMLElement) setHover({ ...previous, element });
       }
     };
-    el.addEventListener("pointermove", follow);
-    el.addEventListener("pointerleave", reset);
+    document.addEventListener("pointermove", follow);
     editor.on("transaction", refresh);
     editor.on("focus", refresh);
     editor.on("selectionUpdate", refresh);
     window.addEventListener("resize", reset);
     return () => {
-      el.removeEventListener("pointermove", follow);
-      el.removeEventListener("pointerleave", reset);
+      document.removeEventListener("pointermove", follow);
       editor.off("transaction", refresh);
       editor.off("focus", refresh);
       editor.off("selectionUpdate", refresh);
@@ -228,14 +273,21 @@ export function BlockMover({
       const latest = dropAt(editor, d.currentX, d.currentY);
       dropRef.current = latest;
       if (!cancel && dropRef.current && editor.state.doc === d.doc) {
-        const tr = moveBlock(editor.state, d.from, dropRef.current.pos);
+        const tr =
+          d.positions.length > 1
+            ? moveBlocks(editor.state, d.positions, dropRef.current.pos)
+            : moveBlock(
+                editor.state,
+                d.positions[0] ?? d.from,
+                dropRef.current.pos,
+              );
         if (tr) {
           dropRef.current.container?.dispatchEvent(
             new Event("feuillet:unfold"),
           );
           editor.view.dispatch(tr);
           editor.view.focus();
-          onMoved();
+          onMoved(d.positions.length);
         }
       }
       setHover(null);
@@ -268,7 +320,15 @@ export function BlockMover({
             if (e.button !== 0) return;
             e.preventDefault();
             suppressClick.current = false;
+            const group = selectedBlocks(editor.state);
+            const belongs = group.some((pos) => {
+              const node = editor.state.doc.nodeAt(pos);
+              return (
+                node && hover.pos >= pos && hover.pos < pos + node.nodeSize
+              );
+            });
             drag.current = {
+              positions: belongs ? group : [hover.pos],
               from: hover.pos,
               doc: editor.state.doc,
               x: e.clientX,
@@ -299,7 +359,10 @@ export function BlockMover({
                 ),
               ),
               y: Math.max(8, Math.min(innerHeight - 48, e.clientY + 14)),
-              text: hover.node.textContent.slice(0, 70) || "Déplacer le bloc",
+              text:
+                d.positions.length > 1
+                  ? `${d.positions.length} blocs`
+                  : hover.node.textContent.slice(0, 70) || "Déplacer le bloc",
             });
             setDrop(dropAt(editor, e.clientX, e.clientY));
           }}
@@ -327,18 +390,35 @@ export function BlockMover({
             )[e.key as "ArrowUp"];
             if (!direction) return;
             e.preventDefault();
+            const group = blockRoots(
+              editor.state.doc,
+              selectedBlocks(editor.state),
+            );
+            const belongs = group.some(
+              (b) => hover.pos >= b.pos && hover.pos < b.pos + b.node.nodeSize,
+            );
+            const sources = belongs ? group : [hover];
+            const anchor =
+              direction === "down" ? sources[sources.length - 1] : sources[0];
             const to = blockSiblingDestination(
               editor.state,
-              hover.pos,
+              anchor.pos,
               direction,
             );
             if (to !== null) {
-              const tr = moveBlock(editor.state, hover.pos, to);
+              const tr =
+                sources.length > 1
+                  ? moveBlocks(
+                      editor.state,
+                      sources.map((b) => b.pos),
+                      to,
+                    )
+                  : moveBlock(editor.state, anchor.pos, to);
               if (tr) {
                 editor.view.dispatch(tr);
                 editor.view.focus();
                 setHover(null);
-                onMoved();
+                onMoved(sources.length);
               }
             }
           }}
