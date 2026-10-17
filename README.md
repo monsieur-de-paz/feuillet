@@ -4,16 +4,18 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.13.1-2563eb" alt="Version 0.13.1">
+  <img src="https://img.shields.io/badge/version-0.14.0-2563eb" alt="Version 0.14.0">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour prendre des notes enrichies, les centraliser et les partager sur son propre hébergement.** Inspiré de l’édition par blocs, il permet de rédiger des notes enrichies, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
 
 Il fonctionne sur un hébergement **PHP + MySQL/MariaDB**, y compris un mutualisé compatible. Un seul compte rédige ; les lecteurs consultent les pages et répondent aux formulaires depuis leur navigateur, sur ordinateur ou mobile. Aucun VPS ni abonnement n’est nécessaire. Node.js sert uniquement à développer l’interface ; les fichiers compilés sont fournis.
 
-<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.13.1.md">Nouveautés</a></p>
+<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.14.md">Nouveautés</a></p>
 
 Un journal personnel, un espace de projets, une collection de lectures ou une documentation : vous choisissez vos carnets, leurs catégories et ce que vous partagez.
+
+La version **0.14** réunit plusieurs sources d’images, permet de déplacer un groupe de blocs vers une autre page et d’insérer des fichiers par glisser-déposer. Les pièces jointes disposent d’un aperçu en fenêtre superposée ; le thème suit le système par défaut. [Découvrir ces fonctions](docs/NOUVEAUTES-0.14.md).
 
 ## Ce que vous pouvez faire
 
@@ -48,7 +50,7 @@ Sélecteurs avec recherche, menus d’actions au clic droit ou par bouton, navig
 
 ## Installation et mises à jour
 
-La version 0.13.1 corrige un blocage après transfert FTP : les fichiers locaux modifiés ou absents ne sont plus confondus avec une archive téléchargée corrompue. Leur état réel est sauvegardé avant remplacement ; la nouvelle distribution reste strictement vérifiée. [Dépanner une ancienne installation bloquée](docs/NOUVEAUTES-0.13.1.md).
+La version 0.13.1 corrige un blocage après transfert FTP : les fichiers locaux modifiés ou absents ne sont plus confondus avec une archive téléchargée corrompue. Leur état réel est sauvegardé avant remplacement ; la nouvelle distribution reste strictement vérifiée. [Dépanner une ancienne installation bloquée](docs/NOUVEAUTES-0.14.md).
 
 La version 0.8 propose un installateur en trois étapes, adapté au mobile, et des mises à jour depuis les releases GitHub : notification discrète, report, attente de la suivante, exclusion d’une version ou désactivation. L’installation sauvegarde le code et la base puis contrôle le démarrage ; les échecs déclenchent une restauration. Les releases publiques sont accessibles sans clé ni compte GitHub. La version 0.11 utilise leurs téléchargements directs pour éviter le quota anonyme de l’API REST. [Nouveautés 0.8](docs/NOUVEAUTES-0.8.md) · [Guide des mises à jour](docs/MISES-A-JOUR.md).
 

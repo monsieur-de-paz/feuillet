@@ -52,11 +52,11 @@ Une page ajoute `space_id:string|null`, `icon_id:string|null`, `appearance:<Part
 
 `attribution={source_url,author,license,license_url}|null`. Les pages incluent `cover_attribution` et `icon_attribution` afin d'afficher les crédits avec les couvertures et icônes. Les images de blocs, couvertures et cartes du lecteur PHP affichent les crédits. L'interface et les exports PDF doivent aussi reprendre ces crédits.
 
-### Images Wikimedia Commons
+### Images Wikimedia Commons (contrat initial ; étendu en 0.14)
 
 `GET action=image_search&q=<texte>` administrateur renvoie `{images:[{title:'File:…',url,thumb,source_url,source,author,license,license_url}],results:<même tableau>}`. Recherche gratuite sur Wikimedia Commons, sans clé API. PHP cURL est requis pour cette fonction ; l'envoi de fichiers locaux reste disponible sans cURL.
 
-`POST action=image_import {title:'File:…'}` administrateur revalide le fichier auprès de l'API Commons et renvoie `{file}` avec son attribution. Ne pas transmettre une URL arbitraire : le titre du résultat est l'identifiant accepté. Le serveur ne contacte que `commons.wikimedia.org` et `upload.wikimedia.org` en HTTPS, sans redirection, avec limites de temps et taille ; le fichier reçu passe par les contrôles de MIME et d'image de l'envoi standard. Maximum 10 Mo, également limité par le plafond d'envoi configuré. Une indisponibilité distante renvoie 502 et permet de revenir à l'envoi local.
+`POST action=image_import {title:'File:…'}` administrateur revalide le fichier auprès de l'API Commons et renvoie `{file}` avec son attribution. Ne pas transmettre une URL arbitraire : le titre du résultat est l'identifiant accepté. Pour Commons, le serveur contacte `commons.wikimedia.org`, `upload.wikimedia.org` et `thumb.wikimedia.org` en HTTPS, sans redirection, avec limites de temps et taille ; le fichier reçu passe par les contrôles de MIME et d'image de l'envoi standard. Maximum 10 Mo, également limité par le plafond d'envoi configuré. Une indisponibilité distante renvoie 502 et permet de revenir à l'envoi local.
 
 ### Blocs supplémentaires
 
@@ -167,3 +167,12 @@ Feuillet-release.json : `{format:'feuillet-release',protocol:1,repository:'monsi
 ## Mises à jour — compléments 0.13.1
 
 update_status.job ajoute failed_phase (nullable) pour la dernière étape interrompue. Les erreurs de fichiers vérifiés renvoient update_integrity avec chemin relatif ; aucune donnée de configuration n’est exposée. recover.php conserve already_installed et ajoute restored/unchanged pour différencier une restauration effective d’un échec avant remplacement. Authentification, CSRF et verrous restent exigés ; aucun endpoint de diagnostic anonyme ou de contournement du manifeste.
+
+## Images, transferts et aperçus — 0.14
+
+- `GET image_search&q=…` : `{images,results,warnings}`. Les deux listes sont identiques pour conserver le contrat antérieur. Les éléments exposent `provider` (`commons`, `openverse`, `nasa`), `id` pour Openverse/NASA, `title`, `url`, `thumb`, `source_url`, `source_name`, `author`, `license`, `license_url`. Les résultats sont entrelacés et dédupliqués par leur source. Recherche réservée à l’administrateur ; cache serveur dix minutes.
+- `POST image_import` : `{provider,title}` pour Commons, `{provider,id}` pour Openverse/NASA. L’URL fournie par un client n’est jamais utilisée : les métadonnées sont relues auprès du fournisseur. Retour `{file}` ; `file.attribution.source_name` complète les champs existants.
+- `POST blocks_transfer` : `{source_id,source_version,target_id,target_version,paths}`. `paths` est une liste de chemins d’indices JSON depuis `doc.content`. Les descendants d’un conteneur sélectionné sont dédupliqués. Retour `{source,target,count,undo}` ; les versions des deux pages augmentent.
+- `POST blocks_restore` : le reçu `undo` renvoyé ci-dessus contient les deux contenus d’origine et les versions attendues. Un changement ultérieur d’une page provoque HTTP 409. Les métadonnées des pages ne sont pas écrasées. Les deux actions exigent connexion, POST et CSRF.
+- `GET public/file-preview.php?id=…&theme=light|dark|oled` : vue HTML protégée par les mêmes droits que `media.php`. Un PDF redirige vers PDF.js. Les formats non lisibles affichent une solution de téléchargement. `file-preview.js` ouvre cette vue dans un dialogue natif, à partir des boutons `data-file-preview` des rendus React et PHP.
+- `feuillet.theme` vaut `system` par défaut, ou `light`, `dark`, `oled`, `inherit` en stockage local. `inherit` signifie le thème d’auteur ; absence de valeur signifie le système. Les changements OS sont suivis seulement en mode `system`.

@@ -388,8 +388,8 @@ Du **texte gras** et [une source](https://example.org).
     @unittest.skipUnless(ARGS.network,'Live Commons test requires --network')
     def test_19_live_commons_import_and_attribution(self):
         images=self.ok(self.admin.api('image_search',query='&q=solar%20panel'))['images'];self.assertGreater(len(images),0)
-        self.assertTrue(images[0]['title'].startswith('File:'))
-        f=self.ok(self.admin.api('image_import',{'title':images[0]['title']}))['file']
+        commons=next(image for image in images if image['provider']=='commons');self.assertTrue(commons['title'].startswith('File:'))
+        f=self.ok(self.admin.api('image_import',{'title':commons['title'],'provider':'commons'}))['file']
         self.assertTrue(f['mime'].startswith('image/'));self.assertIsNotNone(f['attribution']);self.assertTrue(f['attribution']['source_url'].startswith('https://commons.wikimedia.org/'))
         self.ok(self.visitor.api('file_info',query='&id='+f['id']),404)
         p=self.publish(self.page_save(title='Crédits Commons',cover_id=f['id'],icon_id=f['id'],content={'type':'doc','content':[{'type':'image','attrs':{'fileId':f['id'],'src':f['url'],'alt':f['name']}}]}))

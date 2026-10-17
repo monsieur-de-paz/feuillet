@@ -14,6 +14,7 @@ import {
 import {
   FileText,
   Download,
+  Eye,
   ExternalLink,
   ArrowUpRight,
   Plus,
@@ -48,6 +49,7 @@ import {
 } from "./types";
 
 type MediaAttribution = {
+  source_name?: string;
   author?: string;
   license?: string;
   source_url?: string;
@@ -61,7 +63,8 @@ function MediaCredit({
   compact?: boolean;
 }) {
   if (!attribution) return null;
-  const author = attribution.author || "Wikimedia Commons";
+  const author =
+    attribution.author || attribution.source_name || "Wikimedia Commons";
   return (
     <div
       className={`image-attribution ${compact ? "compact" : ""}`}
@@ -500,6 +503,7 @@ function PageLinkView({ node }: NodeViewProps) {
   return (
     <NodeViewWrapper contentEditable={false} className="page-link-block">
       <a
+        data-page-target={String(node.attrs.pageId)}
         href={pageUrl(node.attrs.pageId)}
         onClick={(e) => {
           e.preventDefault();
@@ -880,6 +884,15 @@ function FileView({ node, updateAttributes, getPos, selected }: NodeViewProps) {
             <span>Renommer</span>
           </button>
         )}
+        <button
+          type="button"
+          className="file-preview-trigger"
+          data-file-preview={String(fileId)}
+          data-file-name={name || "Fichier"}
+        >
+          <Eye size={16} />
+          Aperçu
+        </button>
         <a href={fileUrl(fileId, true)} download title="Télécharger">
           <Download size={18} />
           <span>Télécharger</span>
@@ -1258,6 +1271,7 @@ function GalleryView({ node, updateAttributes }: NodeViewProps) {
           <div key={page.id} className="gallery-card">
             <a
               className="gallery-card-main"
+              data-page-target={String(page.id)}
               href={pageUrl(page.id)}
               onClick={(event) => {
                 event.preventDefault();

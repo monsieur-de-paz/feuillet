@@ -227,3 +227,13 @@ La surbrillance et le rectangle sont locaux à l’éditeur, pas stockés dans l
 Avant 0.13.1, le message « distribution incomplète ou endommagée » pouvait désigner un fichier déjà installé, y compris un document absent ou une conversion de fins de ligne FTP. Ne pas effacer storage ou recréer la base. La fenêtre peut afficher les premières étapes comme réussies à tort ; le statut HTTP 400 seul ne localise pas le fichier.
 
 La release 0.13.1 propose un correctif de démarrage limité à app/updates.php, puis une installation normale via GitHub. Voir [la procédure exacte](NOUVEAUTES-0.13.1.md). Le moteur conserve les empreintes de la nouvelle archive ; ne jamais contourner sa vérification pour faire passer un ZIP défectueux. En cas de nouvel échec, lire le message comportant désormais le chemin relatif et l’étape du job.
+
+## Contrôles après la version 0.14
+
+Aucune migration SQL supplémentaire. Vérifier un transfert de blocs vers une page privée, puis son annulation ; essayer aussi un conflit avec une seconde fenêtre. La publication automatique dépend toujours du réglage global : la désactiver conserve les anciens contenus publiés jusqu’à publication explicite.
+
+Vérifier le dépôt d’un PDF et d’une image depuis le bureau dans le contenu, les limites d’envoi et le bouton Aperçu depuis une session anonyme autorisée. Une URL d’aperçu privée doit répondre 404 sans connexion. Un format bureautique sans lecteur affiche une alternative de téléchargement.
+
+La recherche d’images dépend des connexions HTTPS sortantes de l’hébergeur. Les restrictions/rate limits d’un fournisseur apparaissent comme avertissement ; les résultats disponibles des autres sources restent utilisables. Le cache de recherche est sous `storage/temporary/image-search-*.json`, avec une durée de dix minutes. Il peut être supprimé lors d’une maintenance sans supprimer les fichiers importés. Les fichiers déjà importés restent indépendants de la disponibilité ultérieure de ces services.
+
+Les limites et règles des services sont décrites dans les [documents Openverse](https://docs.openverse.org/api/reference/authentication_and_throttling.html), l’[API NASA Images](https://images.nasa.gov/docs/images.nasa.gov_api_docs.pdf) et les [conditions de réutilisation NASA](https://www.nasa.gov/nasa-brand-center/images-and-media/). La provenance reste visible pour vérifier les droits de chaque image.

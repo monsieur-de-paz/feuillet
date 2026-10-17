@@ -139,3 +139,11 @@ Fil d’Ariane flexible à gauche ; groupe thème/connexion sans rétrécissemen
 ## Sélection groupée — 0.13
 
 Surlignage doux par bloc (accent à 16 %, transparent), rectangle translucide avec contour d’accent fin, transition 100 ms désactivée si mouvements réduits. Aucun cadre de focus noir ajouté. Le compteur discret n’apparaît que pendant une sélection. Les éléments flottants ne capturent pas les liens, champs ou médias ; le geste part des marges et respecte le défilement tactile.
+
+## Médias et déplacements — 0.14
+
+La même ligne d’insertion guide le déplacement de blocs et le dépôt de fichiers. Une destination de page utilise une surface d’accent translucide et un contour interne ; le libellé du curseur nomme la destination. L’annulation du transfert apparaît comme une action explicite, distincte de l’historique de frappe.
+
+Les aperçus utilisent un dialogue natif de 1120 px maximum, avec un arrière-plan assombri et flouté, une entrée discrète de 200 ms et des commandes de 44 px minimum. Le titre du document s’ellipse, les commandes restent accessibles sur écran de 320 px. Le contenu environnant est inerte pendant l’ouverture. Échap, fermeture et retour du focus suivent le comportement attendu d’un dialogue. Les animations respectent `prefers-reduced-motion`.
+
+Le thème système devient l’état initial. Les choix manuels demeurent visibles dans le sélecteur et mémorisés par appareil ; les styles d’auteur restent accessibles par « Thème du carnet ».

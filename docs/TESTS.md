@@ -438,3 +438,25 @@ Validation finale locale : build TypeScript/Vite et Prettier réussis, 179 contr
 Navigateur intégré, copie séparée : simulation d’un README non inscriptible, téléchargement/vérification réussis, arrêt avant copie du code, troisième étape marquée « interrompu » et quatrième non validée. Le message nomme README.md et précise que l’installation est conservée. La capture correspond à ce test contrôlé, pas à un diagnostic du fichier réellement différent chez l’utilisateur. Consultation publique OVH en lecture seule : racine accessible et styles portant encore v=0.11.0 ; aucun accès d’administration ni modification distante.
 
 Les premiers essais ont manqué d’espace temporaire à cause des sauvegardes conservées entre tests ; les suites ont été rejouées après nettoyage limité aux copies générées. Ces résultats locaux ne démontrent pas encore la réussite de la future installation sur OVH ; l’archive de dépannage n’a pas été envoyée au serveur par l’agent.
+
+## Validation 0.14 — médias et déplacement entre pages
+
+```sh
+python3 tests/media-workflow.py
+python3 tests/media-workflow.py --mysql
+node tests/frontend.mjs
+```
+
+Les 12 scénarios HTTP passent sur SQLite et MySQL : déplacement ordonné, déduplication parent/enfant, conservation des pièces jointes, réparation d’un titre dépliable devenu vide, conflits sans écrasement, annulation des deux contenus, publication automatique, refus des visiteurs/CSRF, aperçus privés, texte échappé, alternative pour un format non lisible, métadonnées d’import non fiables et domaines de miniatures Wikimedia.
+
+Les tests frontend vérifient les chemins JSON depuis le vrai document ProseMirror, l’ancre d’envoi remappée pendant la frappe et supprimée avec son emplacement, les nœuds réellement insérables dans le schéma, l’ordre d’un lot et le paragraphe final. Le script public de thème est exécuté avec des événements système/stockage : suivre l’OS, conserver un choix OLED et revenir au thème d’auteur sont contrôlés. Le build TypeScript/Vite et le formatage passent.
+
+Vérifications dans le navigateur intégré sur une copie privée jetable : transfert d’un paragraphe vers une sous-page, présence dans la destination, annulation, sélection rectangulaire de deux paragraphes puis transfert groupé et annulation ; aperçu PDF avec PDF.js, aperçu texte, Échap et retour du focus ; choix Système cohérent avec `prefers-color-scheme`. Aperçu contrôlé à 320, 390 et 430 px, sans débordement horizontal et avec fermeture de 44 px.
+
+La recherche réelle a fourni 42 résultats « mountain lake » depuis Wikimedia/NASA et l’import d’une image de chacun de ces deux fournisseurs a conservé sa provenance. Openverse n’a pas répondu depuis l’environnement de validation ; le repli et l’avertissement ont fonctionné. Son import réel n’est donc pas déclaré vérifié. Les requêtes externes restent soumises aux limites des fournisseurs et au réseau de l’hébergement.
+
+Le geste physique Finder → navigateur, les codecs audio/vidéo de chaque appareil et les lecteurs de formats bureautiques restent à essayer sur les appareils cibles. Les envois HTTP, l’insertion de fichiers et la protection des fichiers privés sont couverts automatiquement. Les formats sans lecteur proposent explicitement le téléchargement.
+
+Non-régression exécutée : sécurité (13), partage (16), publication automatique (6), lecteur (6), titres dépliables (6), installation (5), socle HTTP (20 réussis, un test distant opt-in ignoré), ainsi que l’ensemble des suites frontend existantes. Sécurité, installation et socle HTTP ont aussi été vérifiés sur MySQL. Les validations de mise à jour sont décrites dans la section précédente ; l’archive de cette version est reconstruite avec son manifeste complet avant livraison.
+
+La distribution 0.14 a passé les 16 scénarios de mise à jour sur SQLite et MySQL, incluant copie FTP modifiée, restauration exacte et interruption. Une véritable installation 0.11.0, corrigée par le pont de mise à jour existant, a aussi été mise à jour vers l’archive 0.14 sur les deux moteurs sans perdre page privée, média, configuration ou session. La lecture publique et l’import d’une couverture NASA depuis le sélecteur ont été contrôlés dans le navigateur.

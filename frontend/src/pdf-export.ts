@@ -205,7 +205,7 @@ export async function exportPdf(
   function credit(value?: Attribution | null) {
     if (!value) return;
     line(
-      [value.author || "Wikimedia Commons", value.license]
+      [value.author || value.source_name || "Wikimedia Commons", value.license]
         .filter(Boolean)
         .join(" · "),
       8,

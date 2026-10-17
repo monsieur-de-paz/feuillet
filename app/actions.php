@@ -7,7 +7,7 @@ function api_dispatch(string $action): never {
     $method=$_SERVER['REQUEST_METHOD']??'GET';
     if(str_starts_with($action,'update_')){require_once __DIR__.'/updates.php';updates_dispatch($action,$method);}
     if(function_exists('database_dispatch'))database_dispatch($action,$method);
-    $postActions=['login','logout','save','publish','visibility','duplicate','trash','restore','move','restore_revision','upload','import','quiz','spaces','save_space','delete_space','settings','rename_file','image_import','import_markdown','import_document','save_category','delete_category','restore_category','homepage','public_home'];
+    $postActions=['blocks_transfer','blocks_restore','login','logout','save','publish','visibility','duplicate','trash','restore','move','restore_revision','upload','import','quiz','spaces','save_space','delete_space','settings','rename_file','image_import','import_markdown','import_document','save_category','delete_category','restore_category','homepage','public_home'];
     if(in_array($action,$postActions,true)&&!(in_array($action,['spaces','settings','public_home'],true)&&$method==='GET')) {if($method!=='POST')fail('Méthode non autorisée.',405);csrf();}
     elseif($method!=='GET')fail('Méthode non autorisée.',405);
     if($action==='session')json_out(['authenticated'=>admin(),'csrf'=>$_SESSION['csrf'],'name'=>notebook_settings()['title'],'installed'=>true,'version'=>FEUILLET_VERSION]);
@@ -53,13 +53,14 @@ function api_dispatch(string $action): never {
         json_out(['score'=>$score,'total'=>count($results),'results'=>$results]);
     }
     need_admin();
+    if(in_array($action,['blocks_transfer','blocks_restore'],true)){require_once __DIR__.'/block-transfer.php';json_out(blocks_transfer(json_in(),$action==='blocks_restore'));}
     if($action==='public_home')json_out($method==='GET'?public_home_status():public_home_mutate(json_in()));
     if($action==='homepage')fail('Le partage se fait désormais directement depuis chaque page.',410,'removed_feature');
     if(in_array($action,['save_category','delete_category','restore_category'],true))json_out(categories_mutate($action,json_in()));
     if(in_array($action,['spaces','save_space','delete_space'],true))json_out(spaces_mutate(json_in(),$action==='delete_space'));
     if($action==='settings'){$in=json_in();$values=[];if(array_key_exists('appearance',$in))$values['appearance']=validate_appearance($in['appearance']);if(array_key_exists('notebook',$in))$values['notebook']=notebook_validate($in['notebook']);$pdo=db();$pdo->beginTransaction();try{foreach($values as $name=>$value){query('DELETE FROM app_settings WHERE name=?',[$name]);query('INSERT INTO app_settings (name,value) VALUES (?,?)',[$name,encoded($value)]);}if(isset($values['notebook'])&&$values['notebook']['auto_publish_children'])publish_inherited_children();$pdo->commit();}catch(Throwable $e){$pdo->rollBack();throw $e;}json_out(['appearance'=>global_appearance(),'notebook'=>notebook_settings(),'server_upload_limit'=>server_upload_limit()]);}
     if($action==='rename_file')json_out(rename_file(json_in()));
-    if($action==='image_search'){$images=image_search(str_limit($_GET['q']??'',120));json_out(['images'=>$images,'results'=>$images]);}
+    if($action==='image_search')json_out(image_search(str_limit($_GET['q']??'',120)));
     if($action==='image_import')json_out(['file'=>image_import(json_in())]);
     if($action==='import_document'){require_once __DIR__.'/document-import.php';json_out(['page'=>import_document()]);}
     if($action==='import_markdown')json_out(['page'=>import_markdown()]);

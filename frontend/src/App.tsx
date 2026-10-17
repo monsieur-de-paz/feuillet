@@ -73,6 +73,7 @@ import {
   readThemePreference,
   storeThemePreference,
   applyThemePreference,
+  useSystemDark,
   type ThemePreference,
 } from "./ThemeToggle";
 import { PoweredBy } from "./PoweredBy";
@@ -199,7 +200,7 @@ function MediaCredit({
   return (
     <small className="media-credit">
       <span>
-        {label} : {credit.author || "Wikimedia Commons"}
+        {label} : {credit.author || credit.source_name || "Wikimedia Commons"}
         {credit.license ? ` · ${credit.license}` : ""}
       </span>
       {credit.source_url && (
@@ -293,7 +294,12 @@ export default function App() {
   const [appearance, setAppearance] = useState<Appearance>(defaultAppearance);
   const [themePreference, setThemePreference] =
     useState<ThemePreference>(readThemePreference);
-  const displayAppearance = applyThemePreference(appearance, themePreference);
+  const systemDark = useSystemDark();
+  const displayAppearance = applyThemePreference(
+    appearance,
+    themePreference,
+    systemDark,
+  );
   function changeTheme(value: ThemePreference) {
     storeThemePreference(value);
     setThemePreference(value);
@@ -314,7 +320,7 @@ export default function App() {
     document.documentElement.style.colorScheme =
       displayAppearance.mode === "light" ? "light" : "dark";
     document.documentElement.dataset.theme = displayAppearance.mode;
-  }, [appearance, themePreference]);
+  }, [appearance, themePreference, systemDark]);
   const appearanceRef = useRef<Appearance>(defaultAppearance);
   const appearanceSave = useRef<Promise<any>>(Promise.resolve());
   const [appearanceScope, setAppearanceScope] = useState<"global" | "page">(
@@ -401,6 +407,8 @@ export default function App() {
     [],
   );
   const [busy, setBusy] = useState(false);
+  const [transferUndo, setTransferUndo] = useState<any>(null);
+  const transferring = useRef(false);
   const [modalError, setModalError] = useState("");
   const [files, setFiles] = useState<FileRecord[]>([]);
   const [fileQuery, setFileQuery] = useState("");
@@ -555,6 +563,36 @@ export default function App() {
         : [...prev, page],
     );
   }
+  useEffect(() => {
+    const protect = (event: DragEvent) => {
+      if (
+        event.dataTransfer?.types.includes("Files") &&
+        !(
+          event.target instanceof HTMLInputElement &&
+          event.target.type === "file"
+        )
+      )
+        event.preventDefault();
+    };
+    const fallback = (event: DragEvent) => {
+      if (event.dataTransfer?.types.includes("Files")) {
+        event.preventDefault();
+        notify(
+          adminRef.current
+            ? "Dépose tes fichiers à l’endroit souhaité dans le contenu d’une page."
+            : "Connecte-toi pour ajouter des fichiers à une page.",
+        );
+      }
+    };
+    window.addEventListener("dragover", protect, true);
+    window.addEventListener("drop", protect, true);
+    window.addEventListener("drop", fallback);
+    return () => {
+      window.removeEventListener("dragover", protect, true);
+      window.removeEventListener("drop", protect, true);
+      window.removeEventListener("drop", fallback);
+    };
+  }, []);
   async function save(): Promise<boolean> {
     if (timer.current) clearTimeout(timer.current);
     if (savePromise.current) return savePromise.current;
@@ -618,6 +656,96 @@ export default function App() {
     window.addEventListener("beforeunload", prevent);
     return () => window.removeEventListener("beforeunload", prevent);
   }, []);
+  async function moveToPage(targetId: string, paths: number[][], content: Doc) {
+    const source = draftRef.current,
+      editor = editorRef.current;
+    if (!source || !editor || transferring.current) return;
+    if (targetId === String(source.id)) {
+      notify("Choisis une autre page pour déplacer ces blocs.");
+      return;
+    }
+    if (
+      !document.dispatchEvent(
+        new Event("feuillet:before-page-change", { cancelable: true }),
+      )
+    )
+      return;
+    transferring.current = true;
+    editor.setEditable(false, false);
+    setBusy(true);
+    const blockNavigation = (event: Event) => event.preventDefault();
+    document.addEventListener("feuillet:before-page-change", blockNavigation);
+    try {
+      updateDraft({ content });
+      if (!(await save()))
+        throw new Error("Enregistre la page avant de déplacer les blocs.");
+      const { page: target } = await api("page", undefined, { id: targetId });
+      if (!editor.state.doc.eq(editor.schema.nodeFromJSON(content)))
+        throw new Error("La page a changé. Recommence le déplacement.");
+      const result = await api("blocks_transfer", {
+        source_id: source.id,
+        source_version: draftRef.current!.version,
+        target_id: target.id,
+        target_version: target.version,
+        paths,
+      });
+      draftRef.current = result.source;
+      setDraft(result.source);
+      dirtyRef.current = false;
+      setEditorEpoch((n) => n + 1);
+      updateList(result.source);
+      updateList(result.target);
+      setSaveStatus("saved");
+      setTransferUndo({ ...result.undo, title: result.target.title });
+      notify(
+        `${result.count} bloc${result.count > 1 ? "s" : ""} déplacé${result.count > 1 ? "s" : ""} vers « ${result.target.title} ».`,
+      );
+    } catch (error) {
+      notify((error as Error).message);
+    } finally {
+      transferring.current = false;
+      setBusy(false);
+      document.removeEventListener(
+        "feuillet:before-page-change",
+        blockNavigation,
+      );
+      if (!editor.isDestroyed) editor.setEditable(true, false);
+    }
+  }
+  async function undoPageTransfer() {
+    if (!transferUndo || transferring.current) return;
+    if (
+      !document.dispatchEvent(
+        new Event("feuillet:before-page-change", { cancelable: true }),
+      )
+    )
+      return;
+    if (!(await save())) return;
+    setBusy(true);
+    try {
+      const result = await api("blocks_restore", transferUndo);
+      updateList(result.source);
+      updateList(result.target);
+      if (
+        draftRef.current?.id === result.source.id ||
+        draftRef.current?.id === result.target.id
+      ) {
+        const next =
+          draftRef.current?.id === result.source.id
+            ? result.source
+            : result.target;
+        draftRef.current = next;
+        setDraft(next);
+        setEditorEpoch((n) => n + 1);
+      }
+      setTransferUndo(null);
+      notify("Déplacement annulé.");
+    } catch (error) {
+      notify((error as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
   async function openPage(id: string, replace = false, skipSave = false) {
     if (
       !document.dispatchEvent(
@@ -1302,6 +1430,7 @@ export default function App() {
     try {
       const result = await api("image_search", undefined, { q: imageQuery });
       setInternetImages(result.images || []);
+      if (result.warnings?.length) notify(result.warnings.join(" "));
     } catch (e) {
       setModalError((e as Error).message);
     } finally {
@@ -1310,7 +1439,11 @@ export default function App() {
   }
   async function importInternet(image: any) {
     await perform(async () => {
-      const { file } = await api("image_import", { title: image.title });
+      const { file } = await api("image_import", {
+        title: image.title,
+        provider: image.provider,
+        id: image.id,
+      });
       setFiles((prev) => [file, ...prev]);
       selectFile(file);
       notify("Image importée. Sa source et sa licence sont conservées.");
@@ -1868,6 +2001,7 @@ export default function App() {
   const effectiveAppearance = applyThemePreference(
     { ...appearance, ...draft?.appearance },
     themePreference,
+    systemDark,
   );
   const appearanceStyles = {
     ...themeStyle(effectiveAppearance),
@@ -1915,6 +2049,9 @@ export default function App() {
     <AppContext.Provider
       value={{
         admin,
+        moveToPage,
+        uploadedFile: (file) =>
+          setFiles((prev) => [file, ...prev.filter((f) => f.id !== file.id)]),
         pages,
         currentId: String(draft?.id || ""),
         openPage: (id) => void openPage(id),
@@ -2852,6 +2989,7 @@ export default function App() {
                       .map((p) => (
                         <a
                           key={p.id}
+                          data-page-target={String(p.id)}
                           href={pageUrl(p.id)}
                           onClick={(e) => {
                             e.preventDefault();
@@ -2900,6 +3038,17 @@ export default function App() {
           <PoweredBy />
         </main>
       </div>
+      {transferUndo && (
+        <div className="transfer-undo" role="status">
+          <span>Blocs déplacés vers « {transferUndo.title} »</span>
+          <button disabled={busy} onClick={() => void undoPageTransfer()}>
+            Annuler le déplacement
+          </button>
+          <button aria-label="Fermer" onClick={() => setTransferUndo(null)}>
+            ×
+          </button>
+        </div>
+      )}
       {toast && (
         <div className="toast" role="status">
           <Check size={17} />
@@ -3407,7 +3556,7 @@ export default function App() {
                 <form onSubmit={searchInternet} className="internet-search">
                   <input
                     required
-                    aria-label="Rechercher une image sur Wikimedia Commons"
+                    aria-label="Rechercher une image sur Openverse, Wikimedia Commons et NASA Images"
                     placeholder="Un sujet, un objet, un paysage…"
                     value={imageQuery}
                     onChange={(e) => setImageQuery(e.target.value)}
@@ -3418,19 +3567,26 @@ export default function App() {
                   </button>
                 </form>
                 <p className="muted">
-                  Images libres de Wikimedia Commons. La source, l’auteur et la
-                  licence accompagnent le fichier importé.
+                  Images réunies depuis Openverse, Wikimedia Commons et NASA
+                  Images. La source, l’auteur et la licence accompagnent le
+                  fichier importé.
                 </p>
                 <div className="internet-results">
                   {internetImages.map((image) => (
-                    <div className="internet-result" key={image.title}>
+                    <div
+                      className="internet-result"
+                      key={`${image.provider}-${image.id || image.title}`}
+                    >
                       <button
                         disabled={busy}
                         onClick={() => void importInternet(image)}
                       >
                         <img src={image.thumb} alt={image.title} />
                         <strong>{image.title.replace(/^File:/, "")}</strong>
-                        <small>{image.license || "Voir la licence"}</small>
+                        <small>
+                          {image.source_name} ·{" "}
+                          {image.license || "Voir la licence"}
+                        </small>
                       </button>
                       <a
                         href={safeLink(image.source_url || image.source)}

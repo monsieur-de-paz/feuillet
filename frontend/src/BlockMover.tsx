@@ -10,10 +10,13 @@ import {
   selectedBlock,
   blockRoots,
   type BlockPosition,
+  blockJsonPaths,
 } from "./block-moving";
 import { selectedBlocks } from "./block-selection";
 type Hit = BlockPosition & { element: HTMLElement };
-type Drop = {
+export type Drop = {
+  pageId?: string;
+  title?: string;
   pos: number;
   left: number;
   top: number;
@@ -36,7 +39,31 @@ export function blockAtElement(editor: Editor, target: Element): Hit | null {
       )[0] || null
   );
 }
-function dropAt(editor: Editor, x: number, y: number): Drop | null {
+export function dropAt(
+  editor: Editor,
+  x: number,
+  y: number,
+  pages = false,
+): Drop | null {
+  if (pages) {
+    const target = document
+      .elementFromPoint(x, y)
+      ?.closest<HTMLElement>("[data-page-id],[data-page-target]");
+    const id = target?.dataset.pageId || target?.dataset.pageTarget;
+    if (id && target) {
+      const r = target.getBoundingClientRect();
+      return {
+        pageId: id,
+        title: target.textContent?.trim() || "Page",
+        pos: 0,
+        left: r.left,
+        top: r.top,
+        width: r.width,
+        inside: true,
+        container: target,
+      };
+    }
+  }
   const hits = movableBlocks(editor.state.doc)
     .map((b) => ({ ...b, element: editor.view.nodeDOM(b.pos) as HTMLElement }))
     .filter(
@@ -103,12 +130,14 @@ export function BlockMover({
   onMenu,
   onInsert,
   onMoved,
+  onMoveToPage,
 }: {
   editor: Editor;
   wrap: RefObject<HTMLDivElement | null>;
   onMenu: (pos: number, anchor: HTMLButtonElement) => void;
   onInsert: (pos: number) => void;
   onMoved: (count: number) => void;
+  onMoveToPage: (id: string, paths: number[][]) => void;
 }) {
   const [hover, setHover] = useState<Hit | null>(null),
     [drop, setDrop] = useState<Drop | null>(null),
@@ -229,7 +258,7 @@ export function BlockMover({
         d.currentY < 100 ? -12 : d.currentY > innerHeight - 64 ? 12 : 0;
       if (speed) {
         window.scrollBy(0, speed);
-        setDrop(dropAt(editor, d.currentX, d.currentY));
+        setDrop(dropAt(editor, d.currentX, d.currentY, true));
       }
       frame = requestAnimationFrame(step);
     };
@@ -258,6 +287,11 @@ export function BlockMover({
       window.removeEventListener("blur", cancelDrag);
     };
   }, [!!ghost, editor]);
+  useEffect(() => {
+    if (!drop?.pageId || !drop.container) return;
+    drop.container.classList.add("block-page-drop-target");
+    return () => drop.container?.classList.remove("block-page-drop-target");
+  }, [drop?.pageId, drop?.container]);
   if (!hover) return null;
   const rect = hover.element.getBoundingClientRect(),
     base = wrap.current?.getBoundingClientRect();
@@ -270,9 +304,17 @@ export function BlockMover({
     document.body.classList.remove("block-dragging");
     if (d?.active) {
       suppressClick.current = true;
-      const latest = dropAt(editor, d.currentX, d.currentY);
+      const latest = dropAt(editor, d.currentX, d.currentY, true);
       dropRef.current = latest;
       if (!cancel && dropRef.current && editor.state.doc === d.doc) {
+        if (dropRef.current.pageId) {
+          onMoveToPage(
+            dropRef.current.pageId,
+            blockJsonPaths(d.doc, d.positions),
+          );
+          setHover(null);
+          return;
+        }
         const tr =
           d.positions.length > 1
             ? moveBlocks(editor.state, d.positions, dropRef.current.pos)
@@ -364,7 +406,7 @@ export function BlockMover({
                   ? `${d.positions.length} blocs`
                   : hover.node.textContent.slice(0, 70) || "Déplacer le bloc",
             });
-            setDrop(dropAt(editor, e.clientX, e.clientY));
+            setDrop(dropAt(editor, e.clientX, e.clientY, true));
           }}
           onPointerUp={() => finish()}
           onPointerCancel={() => finish(true)}
@@ -432,9 +474,11 @@ export function BlockMover({
               className="block-drag-ghost"
               style={{ left: ghost.x, top: ghost.y }}
             >
-              {ghost.text}
+              {drop?.pageId
+                ? `Déplacer dans « ${drop.title?.slice(0, 50)} »`
+                : ghost.text}
             </div>
-            {drop && (
+            {drop && !drop.pageId && (
               <div
                 className={`block-drop-line ${drop.inside ? "inside" : ""}`}
                 style={{ left: drop.left, top: drop.top, width: drop.width }}

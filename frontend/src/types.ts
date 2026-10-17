@@ -6,6 +6,7 @@ export type Doc = {
   marks?: any[];
 };
 export type Attribution = {
+  source_name?: string;
   author: string;
   license: string;
   source_url: string;

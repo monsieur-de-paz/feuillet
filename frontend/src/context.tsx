@@ -1,6 +1,12 @@
 import { createContext, useContext } from "react";
-import type { Page, FileRecord, ImagePurpose } from "./types";
+import type { Page, FileRecord, ImagePurpose, Doc } from "./types";
 export type AppContextType = {
+  moveToPage: (
+    targetId: string,
+    paths: number[][],
+    content: Doc,
+  ) => Promise<void>;
+  uploadedFile: (file: FileRecord) => void;
   admin: boolean;
   pages: Page[];
   currentId: string;
@@ -20,6 +26,8 @@ export type AppContextType = {
   renameFile: (file: FileRecord, onRename?: (file: FileRecord) => void) => void;
 };
 export const AppContext = createContext<AppContextType>({
+  moveToPage: async () => {},
+  uploadedFile: () => {},
   admin: false,
   pages: [],
   currentId: "",

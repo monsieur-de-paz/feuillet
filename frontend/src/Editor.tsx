@@ -1,3 +1,4 @@
+import { EditorFileDrop } from "./EditorFileDrop";
 import { MapBlock } from "./MapBlock";
 import { BlockMover, blockAtElement } from "./BlockMover";
 import { BlockSelection } from "./block-selection";
@@ -1507,6 +1508,9 @@ export default function CourseEditor({
               setBlockAnchor(anchor);
               setBlockMenu(true);
             }}
+            onMoveToPage={(id, paths) =>
+              void app.moveToPage(id, paths, editor.getJSON() as Doc)
+            }
             onMoved={(count) => {
               activeBlockRef.current = null;
               app.notify(
@@ -1515,7 +1519,12 @@ export default function CourseEditor({
             }}
           />
         )}
-        {admin && editor && <BlockMarquee editor={editor} wrap={contentRef} />}
+        {admin && editor && (
+          <>
+            <BlockMarquee editor={editor} wrap={contentRef} />
+            <EditorFileDrop editor={editor} wrap={contentRef} />
+          </>
+        )}
         {blockMenu && (
           <ContextMenu
             anchor={blockAnchor}

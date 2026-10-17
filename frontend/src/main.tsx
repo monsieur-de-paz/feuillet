@@ -12,6 +12,7 @@ import { FeuilletIcon } from "./IconPicker";
 import {
   ThemeToggle,
   applyThemePreference,
+  useSystemDark,
   readThemePreference,
   storeThemePreference,
   type ThemePreference,
@@ -25,7 +26,8 @@ function PublicFormScreen({ token }: { token: string }) {
   });
   const [preference, setPreference] =
     useState<ThemePreference>(readThemePreference);
-  const appearance = applyThemePreference(base, preference);
+  const systemDark = useSystemDark();
+  const appearance = applyThemePreference(base, preference, systemDark);
   useEffect(() => {
     let alive = true;
     void api("settings")
@@ -39,20 +41,28 @@ function PublicFormScreen({ token }: { token: string }) {
         });
       })
       .catch(() => {});
-    useEffect(() => {
-      Object.entries(themeStyle(appearance)).forEach(([key, value]) => {
-        if (key.startsWith("--"))
-          document.documentElement.style.setProperty(key, String(value));
-      });
-      document.documentElement.style.colorScheme =
-        appearance.mode === "light" ? "light" : "dark";
-      document.documentElement.dataset.theme = appearance.mode;
-      document.body.style.background = appearance.background;
-      document.body.style.color = appearance.text;
-    }, [base, preference]);
     return () => {
       alive = false;
     };
+  }, []);
+  useEffect(() => {
+    Object.entries(themeStyle(appearance)).forEach(([key, value]) => {
+      if (key.startsWith("--"))
+        document.documentElement.style.setProperty(key, String(value));
+    });
+    document.documentElement.style.colorScheme =
+      appearance.mode === "light" ? "light" : "dark";
+    document.documentElement.dataset.theme = appearance.mode;
+    document.body.style.background = appearance.background;
+    document.body.style.color = appearance.text;
+  }, [base, preference, systemDark]);
+  useEffect(() => {
+    const changed = (e: StorageEvent) => {
+      if (e.key === null || e.key === "feuillet.theme")
+        setPreference(readThemePreference());
+    };
+    window.addEventListener("storage", changed);
+    return () => window.removeEventListener("storage", changed);
   }, []);
   return (
     <>

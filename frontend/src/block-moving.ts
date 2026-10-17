@@ -178,3 +178,14 @@ export function blockSiblingDestination(
       ? start + 1
       : null;
 }
+
+/** JSON paths remain stable after autosaving this exact editor document. */
+export function blockJsonPaths(doc: PMNode, positions: number[]): number[][] {
+  return blockRoots(doc, positions).map(({ pos }) => {
+    const $pos = doc.resolve(pos),
+      path: number[] = [];
+    for (let depth = 0; depth <= $pos.depth; depth++)
+      path.push($pos.index(depth));
+    return path;
+  });
+}

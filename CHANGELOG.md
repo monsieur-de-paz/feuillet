@@ -1,5 +1,14 @@
 # Historique des versions
 
+## 0.14.0 — 2026-10-17
+
+- Recherche d’images commune : Openverse, Wikimedia Commons et NASA Images, provenance/licence conservées et repli si un moteur est indisponible. Correction du domaine officiel des miniatures Wikimedia.
+- Déplacement atomique d’un bloc ou d’une sélection vers une sous-page, une galerie ou la barre latérale, avec vérification des versions et annulation du transfert.
+- Dépôt de plusieurs fichiers depuis l’ordinateur à une position précise, progression, insertion dans l’ordre et conservation des envois réussis en cas d’échec partiel.
+- Aperçu des pièces jointes dans une fenêtre accessible commune à l’éditeur et au lecteur : PDF, images, audio, vidéo et texte ; téléchargement pour les autres formats.
+- Thème Système par défaut, suivi des changements de l’appareil et conservation des choix manuels clair/sombre/OLED.
+- Contrôles de sécurité des téléchargements d’images distantes et des aperçus, documentation utilisateur et technique actualisée.
+
 ## 0.13.1 — 16 octobre 2026
 
 - Correction des mises à jour bloquées par une différence dans les fichiers déjà installés après FTP ; le manifeste local sert d’inventaire de sauvegarde.

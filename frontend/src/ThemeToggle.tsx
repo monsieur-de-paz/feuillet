@@ -1,41 +1,58 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ContextMenu } from "./ContextMenu";
-import { Moon, Sun, ChevronDown, Check } from "lucide-react";
+import { Moon, Sun, ChevronDown, Check, Monitor } from "lucide-react";
 import type { Appearance } from "./types";
 import "./theme-toggle.css";
-export type ThemePreference = "light" | "dark" | "oled" | null;
+export type ThemePreference = "light" | "dark" | "oled" | "system" | null;
 export const themeStorageKey = "feuillet.theme";
 export function readThemePreference(): ThemePreference {
   try {
     const value = localStorage.getItem(themeStorageKey);
-    return value === "light" || value === "dark" || value === "oled"
-      ? value
-      : null;
+    return value === "inherit"
+      ? null
+      : value === "light" || value === "dark" || value === "oled"
+        ? value
+        : "system";
   } catch {
-    return null;
+    return "system";
   }
 }
 export function storeThemePreference(value: ThemePreference) {
   try {
-    if (value) localStorage.setItem(themeStorageKey, value);
-    else localStorage.removeItem(themeStorageKey);
+    localStorage.setItem(themeStorageKey, value || "inherit");
   } catch {}
+}
+export function useSystemDark() {
+  const [dark, setDark] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches,
+  );
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-color-scheme: dark)");
+    const change = () => setDark(query.matches);
+    change();
+    query.addEventListener("change", change);
+    return () => query.removeEventListener("change", change);
+  }, []);
+  return dark;
 }
 export function applyThemePreference(
   appearance: Appearance,
   preference: ThemePreference,
+  systemDark = typeof window !== "undefined" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches,
 ): Appearance {
-  if (!preference || preference === appearance.mode) return appearance;
+  if (preference === null) return appearance;
+  const mode =
+    preference === "system" ? (systemDark ? "dark" : "light") : preference;
+  if (mode === appearance.mode) return appearance;
   return {
     ...appearance,
-    mode: preference,
+    mode,
     background:
-      preference === "light"
-        ? "#ffffff"
-        : preference === "oled"
-          ? "#000000"
-          : "#111318",
-    text: preference === "light" ? "#37352f" : "#f3f4f6",
+      mode === "light" ? "#ffffff" : mode === "oled" ? "#000000" : "#111318",
+    text: mode === "light" ? "#37352f" : "#f3f4f6",
   };
 }
 export function ThemeToggle({
@@ -78,25 +95,29 @@ export function ThemeToggle({
           anchor={anchor}
           title="Affichage"
           onClose={() => setAnchor(null)}
-          actions={(["light", "dark", "oled", null] as ThemePreference[]).map(
-            (value) => ({
-              label:
-                value === "light"
+          actions={(
+            ["system", "light", "dark", "oled", null] as ThemePreference[]
+          ).map((value) => ({
+            label:
+              value === "system"
+                ? "Système"
+                : value === "light"
                   ? "Clair"
                   : value === "dark"
                     ? "Sombre"
                     : value === "oled"
                       ? "Noir OLED"
                       : "Thème du carnet",
-              icon:
-                readThemePreference() === value ? (
-                  <Check size={16} />
-                ) : undefined,
-              checked: readThemePreference() === value,
-              run: () => onChange(value),
-              group: value === null ? "inherit" : "mode",
-            }),
-          )}
+            icon:
+              readThemePreference() === value ? (
+                <Check size={16} />
+              ) : value === "system" ? (
+                <Monitor size={16} />
+              ) : undefined,
+            checked: readThemePreference() === value,
+            run: () => onChange(value),
+            group: value === null ? "inherit" : "mode",
+          }))}
         />
       )}
     </div>
