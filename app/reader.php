@@ -22,7 +22,7 @@ function reader_token(?array $page): string {
     return hash('sha256',encoded($state));
 }
 function render_reader_page(array $page,bool $public=true): string {
-    $cover=$page['cover_id']?'<div class="page-cover"><img style="object-position:'.h(($page['cover_position']['x']??50).'% '.($page['cover_position']['y']??50).'%').'" src="media.php?id='.rawurlencode($page['cover_id']).'" alt=""></div>':'';
+    $cover=$page['cover_id']?'<div class="page-cover"><img style="'.h(cover_image_style($page['cover_position']??null)).'" src="media.php?id='.rawurlencode($page['cover_id']).'" alt=""></div>':'';
     $a=page_appearance($page);$style=($a['width']==='wide'?'max-width:1200px;':'').($a['focus']?'min-height:100vh;':'');
     return $cover.'<main class="reader-page" style="'.h($style).'"><div class="page-emoji">'.render_page_icon($page).'</div>'.render_credit($page['cover_attribution']??null).render_credit($page['icon_attribution']??null).'<h1>'.h($page['title']).'</h1>'.($page['description']?'<p class="page-description">'.h($page['description']).'</p>':'').render_document($page['content'],$page['id'],$public).'</main>';
 }

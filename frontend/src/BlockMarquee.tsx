@@ -198,7 +198,15 @@ export function BlockMarquee({
       update();
     };
     const up = (event: PointerEvent) => {
-      if (drag?.pointer === event.pointerId) stop();
+      if (drag?.pointer === event.pointerId) {
+        const positions = selectedBlocks(editor.state),
+          active = drag.active;
+        stop();
+        if (active) {
+          editor.view.focus();
+          choose(positions);
+        }
+      }
     };
     const cancel = () => stop(true);
     const key = (event: KeyboardEvent) => {

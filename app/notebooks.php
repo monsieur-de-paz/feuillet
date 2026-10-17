@@ -20,7 +20,7 @@ function space_visual_store(string $id,array $input): void {
     }
     if(array_key_exists('cover_position',$input)){
         $position=$input['cover_position'];if(!is_array($position))fail('Position de couverture invalide.');
-        foreach(['x','y'] as $key)if(isset($position[$key])&&(!is_numeric($position[$key])||!is_finite((float)$position[$key])))fail('Position de couverture invalide.');
+        foreach(['x','y','zoom'] as $key)if(isset($position[$key])&&(!is_numeric($position[$key])||!is_finite((float)$position[$key])))fail('Position de couverture invalide.');
         $out['cover_position']=cover_position(array_replace($out['cover_position'],$position));
     }
     query('DELETE FROM app_settings WHERE name=?',['space_visual_'.$id]);

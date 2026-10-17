@@ -237,3 +237,11 @@ Vérifier le dépôt d’un PDF et d’une image depuis le bureau dans le conten
 La recherche d’images dépend des connexions HTTPS sortantes de l’hébergeur. Les restrictions/rate limits d’un fournisseur apparaissent comme avertissement ; les résultats disponibles des autres sources restent utilisables. Le cache de recherche est sous `storage/temporary/image-search-*.json`, avec une durée de dix minutes. Il peut être supprimé lors d’une maintenance sans supprimer les fichiers importés. Les fichiers déjà importés restent indépendants de la disponibilité ultérieure de ces services.
 
 Les limites et règles des services sont décrites dans les [documents Openverse](https://docs.openverse.org/api/reference/authentication_and_throttling.html), l’[API NASA Images](https://images.nasa.gov/docs/images.nasa.gov_api_docs.pdf) et les [conditions de réutilisation NASA](https://www.nasa.gov/nasa-brand-center/images-and-media/). La provenance reste visible pour vérifier les droits de chaque image.
+
+## Lecteur PDF et couvertures — 0.15
+
+Après mise à jour, vérifier l’aperçu public avec un navigateur sans session administrateur. `pdf-engine.php?v=<version>` et `pdf-engine.php?worker=1&v=<version>` doivent répondre 200 avec `Content-Type: text/javascript`. Ils servent le logiciel PDF.js ; les aperçus et médias privés restent refusés. Le lecteur ne dépend plus du MIME Apache des fichiers `.mjs`.
+
+La distribution fournit aussi `public/.htaccess` pour JavaScript, CSS et WebAssembly. Conserver ce fichier lors d’un transfert FTP et envoyer toute la distribution, dont `pdf-engine.php` et `public/vendor/pdfjs/`. Les URL versionnées évitent un ancien cache du lecteur. Un document endommagé ou une ressource indisponible doit proposer le téléchargement.
+
+Contrôler les trois commandes de couverture, le zoom, l’annulation et le cadrage après rechargement. Le JSON reste compatible avec les anciennes positions x/y. Pour le presse-papiers, copier une sélection avec titre dépliable et pièce jointe, la coller ailleurs puis annuler le collage en une action.

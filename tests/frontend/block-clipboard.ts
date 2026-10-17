@@ -1,0 +1,26 @@
+import assert from 'node:assert/strict';
+import { Editor } from '@tiptap/core';
+import StarterKit from '@tiptap/starter-kit';
+import { TextSelection,AllSelection } from '@tiptap/pm/state';
+import { history,undo } from '@tiptap/pm/history';
+import { ToggleHeading } from '../../frontend/src/ToggleHeading';
+import { FileBlock,ResizableImage,Gallery,Callout,PageLink } from '../../frontend/src/nodes';
+import { BlockSelection,createBlockSelectionPlugin } from '../../frontend/src/block-selection';
+import { BLOCK_SELECTION_META,movableBlocks } from '../../frontend/src/block-moving';
+import {clipboardPayload,readClipboardBlocks,pasteBlockTransaction} from '../../frontend/src/BlockClipboard';
+import {coverImageStyle,coverOverflow,coverZoom} from '../../frontend/src/cover-position';
+const p=(text:string)=>({type:'paragraph',content:[{type:'text',text,marks:[{type:'bold'}]}]});
+const source=new Editor({element:null,extensions:[StarterKit,ToggleHeading,FileBlock,ResizableImage,Gallery,Callout,PageLink,BlockSelection],content:{type:'doc',content:[p('Premier — été ☀'),{type:'toggleHeading',content:[{type:'heading',attrs:{level:2},content:[{type:'text',text:'Un titre dépliable'}]},p('Texte intérieur')]},{type:'fileBlock',attrs:{fileId:'file-keep',name:'Ma pièce.pdf',mime:'application/pdf',mode:'download'}},{type:'image',attrs:{fileId:'image-keep',src:'media.php?id=image-keep',width:48,align:'right'}},{type:'gallery',attrs:{manual:true,pageIds:['page-keep'],columns:3,aspect:'1/1'}}]}});
+let state=source.state.reconfigure({plugins:[history(),createBlockSelectionPlugin()]});const chosen=movableBlocks(state.doc);state=state.apply(state.tr.setMeta(BLOCK_SELECTION_META,chosen.map(b=>b.pos)));
+const before=state.doc.toJSON(),scope='https://example.test/feuillet/';const payload=clipboardPayload(state,scope)!;assert.equal(payload.blocks.length,5);assert.deepEqual(state.doc.toJSON(),before);assert.deepEqual(payload.blocks[1],before.content[1]);
+const nodes=readClipboardBlocks(JSON.stringify(payload),state.schema,scope)!;assert.equal(nodes.length,5);assert.equal(nodes[2].attrs.fileId,'file-keep');assert.equal(nodes[3].attrs.width,48);assert.deepEqual(nodes[4].attrs.pageIds,['page-keep']);
+const target=new Editor({element:null,extensions:[StarterKit,ToggleHeading,FileBlock,ResizableImage,Gallery,Callout,PageLink,BlockSelection],content:{type:'doc',content:[{type:'paragraph'}]}});
+let targetState=target.state.reconfigure({plugins:[history(),createBlockSelectionPlugin()]});const pasted=pasteBlockTransaction(targetState,readClipboardBlocks(JSON.stringify(payload),target.schema,scope))!;assert.ok(pasted);assert.deepEqual(pasted.doc.toJSON().content.slice(0,5),payload.blocks);assert.deepEqual(targetState.doc.toJSON(),{type:'doc',content:[{type:'paragraph'}]});
+let undoState=targetState.apply(pasted);assert.equal(undo(undoState,tr=>undoState=undoState.apply(tr)),true);assert.deepEqual(undoState.doc.toJSON(),targetState.doc.toJSON());
+assert.equal(readClipboardBlocks(JSON.stringify(payload),state.schema,'https://other.test/'),null);assert.equal(readClipboardBlocks('invalid',state.schema,scope),null);assert.equal(readClipboardBlocks(JSON.stringify({...payload,blocks:[{type:'text',text:'Not block'}]}),state.schema,scope),null);assert.equal(readClipboardBlocks(JSON.stringify({...payload,blocks:[{type:'unknown'}]}),state.schema,scope),null);assert.equal(readClipboardBlocks(JSON.stringify({...payload,version:999}),state.schema,scope),null);assert.equal(readClipboardBlocks('x'.repeat(2000001),state.schema,scope),null);
+assert.deepEqual(coverOverflow(1000,500,1000,200),{x:0,y:300,ready:true});assert.deepEqual(coverOverflow(1000,500,1000,200,2),{x:1000,y:800,ready:true});assert.equal(coverOverflow(0,0,800,200).ready,false);assert.equal(coverZoom({x:50,y:50,zoom:100}),3);assert.equal(coverZoom({x:50,y:50,zoom:NaN}),1);assert.deepEqual(coverImageStyle({x:20,y:80,zoom:1.5}),{objectPosition:'20% 80%',transform:'scale(1.5)',transformOrigin:'20% 80%'});
+console.log('Block clipboard and cover checks passed: nested blocks, attachment IDs, gallery settings, marks/Unicode, source preserved, atomic paste/undo, foreign or malformed data and zoom geometry');
+
+const all=state.apply(state.tr.setSelection(new AllSelection(state.doc)).setMeta(BLOCK_SELECTION_META,[]));assert.equal(clipboardPayload(all,scope)!.blocks.length,5);
+const unsafe={...payload,blocks:[{type:'paragraph',content:[{type:'text',text:'Link',marks:[{type:'link',attrs:{href:'javascript:alert(1)'}}]}]}]};assert.equal(readClipboardBlocks(JSON.stringify(unsafe),state.schema,scope)![0].firstChild!.marks[0].attrs.href,'#');
+console.log('Select-all and unsafe clipboard URL checks passed');

@@ -19,7 +19,7 @@ export type Page = {
   title: string;
   icon: string;
   cover_id: string | null;
-  cover_position?: { x: number; y: number };
+  cover_position?: { x: number; y: number; zoom?: number };
   category_id?: string | null;
   icon_id?: string | null;
   cover_attribution?: Attribution | null;
@@ -149,7 +149,7 @@ export type Appearance = {
 export type Space = {
   icon_id?: string | null;
   cover_id?: string | null;
-  cover_position?: { x: number; y: number };
+  cover_position?: { x: number; y: number; zoom?: number };
   cover_attribution?: Attribution | null;
   icon_attribution?: Attribution | null;
   id: string;

@@ -49,6 +49,8 @@ export function createBlockSelectionPlugin() {
           event.key === "Meta"
         )
           return false;
+        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "c")
+          return false;
         // Leave normal writing/history shortcuts to ProseMirror. Escape only clears the group.
         view.dispatch(view.state.tr.setMeta(BLOCK_SELECTION_META, []));
         if (event.key === "Escape") {

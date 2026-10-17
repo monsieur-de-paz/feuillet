@@ -1,5 +1,4 @@
-import * as pdfjs from './vendor/pdfjs/pdf.min.mjs';
-pdfjs.GlobalWorkerOptions.workerSrc='./vendor/pdfjs/pdf.worker.min.mjs';
+let pdfjs;
 const status=document.getElementById('pdf-status'),number=document.getElementById('page-number'),container=document.getElementById('pdf-container'),canvas=document.getElementById('pdf-canvas'),text=document.getElementById('pdf-text'),pageBox=document.getElementById('pdf-page');
 let pdf,current=1,zoom=1,task,generation=0;
 async function render(){
@@ -18,6 +17,9 @@ document.getElementById('previous').onclick=()=>change(current-1);document.getEl
 number.onchange=()=>change(Number(number.value)||1);document.getElementById('zoom-out').onclick=()=>{zoom=Math.max(.5,zoom-.2);render();};document.getElementById('zoom-in').onclick=()=>{zoom=Math.min(2,zoom+.2);render();};
 let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(render,150);});
 try{
+  const version=encodeURIComponent(document.body.dataset.version||'');
+  pdfjs=await import('./pdf-engine.php?v='+version);
+  pdfjs.GlobalWorkerOptions.workerSrc='./pdf-engine.php?worker=1&v='+version;
   pdf=await pdfjs.getDocument({url:'media.php?id='+encodeURIComponent(document.body.dataset.file),cMapUrl:'vendor/pdfjs/cmaps/',cMapPacked:true,standardFontDataUrl:'vendor/pdfjs/standard_fonts/',wasmUrl:'vendor/pdfjs/wasm/'}).promise;
   document.getElementById('page-count').textContent='/ '+pdf.numPages;number.max=String(pdf.numPages);await render();
-}catch(error){status.textContent='Impossible d’ouvrir ce PDF. Tu peux le télécharger avec le bouton ↓.';}
+}catch(error){status.textContent='L’aperçu du PDF est indisponible. Tu peux télécharger le document avec le bouton ↓.';document.getElementById('pdf-page').hidden=true;document.getElementById('previous').disabled=true;document.getElementById('next').disabled=true;console.error('Feuillet PDF :',error);}

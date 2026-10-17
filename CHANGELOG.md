@@ -1,5 +1,14 @@
 # Historique des versions
 
+## 0.15.0 — 2026-10-17
+
+- Suppression du fond coloré des galeries dans l’éditeur, y compris en sélection.
+- Nouvelles cartes de fichiers publiques : nom, format et taille hiérarchisés, aperçu et téléchargement séparés, mise en page mobile adaptée aux thèmes.
+- PDF.js et worker servis par PHP avec type JavaScript explicite ; types MIME Apache fournis, scripts versionnés et alternative de téléchargement en cas d’échec.
+- Commandes de couverture isolées des zones qui se chevauchent, zoom 100–300 %, cadrage publié/exporté et annulation fiable sur les carnets.
+- Copier-coller structuré entre pages : Ctrl/Cmd+C puis Ctrl/Cmd+V, mises en forme, pièces jointes, galeries et titres dépliables conservés, collage annulable en une action.
+- Validation du presse-papiers, limites de taille/profondeur et refus des URL actives ; droits des fichiers privés conservés.
+
 ## 0.14.0 — 2026-10-17
 
 - Recherche d’images commune : Openverse, Wikimedia Commons et NASA Images, provenance/licence conservées et repli si un moteur est indisponible. Correction du domaine officiel des miniatures Wikimedia.

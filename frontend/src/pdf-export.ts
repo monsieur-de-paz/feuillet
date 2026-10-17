@@ -236,7 +236,7 @@ export async function exportPdf(
     attribution?: Attribution | null,
     widthPercent = 100,
     alignment = "left",
-    cropPosition?: { x: number; y: number },
+    cropPosition?: { x: number; y: number; zoom?: number },
   ) {
     if (!url || !url.startsWith("media.php?")) {
       if (alt) line(`Image : ${alt}`);
@@ -262,10 +262,9 @@ export async function exportPdf(
         : "#ffffff";
       context.fillRect(0, 0, canvas.width, canvas.height);
       if (cropPosition) {
-        const zoom = Math.max(
-          canvas.width / bitmap.width,
-          canvas.height / bitmap.height,
-        );
+        const zoom =
+          Math.max(canvas.width / bitmap.width, canvas.height / bitmap.height) *
+          Math.max(1, Math.min(3, cropPosition.zoom || 1));
         const sw = canvas.width / zoom,
           sh = canvas.height / zoom;
         const sx =

@@ -1,0 +1,7 @@
+Options -Indexes
+# Apache/OVH must serve ES modules and WebAssembly with explicit MIME types.
+<IfModule mod_mime.c>
+    AddType text/javascript .js .mjs
+    AddType application/wasm .wasm
+    AddType text/css .css
+</IfModule>

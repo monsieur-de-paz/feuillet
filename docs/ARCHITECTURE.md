@@ -249,3 +249,13 @@ La sauvegarde code.zip reprend les octets effectivement lus. Après fermeture du
 `EditorFileDrop` intercepte le dépôt natif avant le gestionnaire de l’éditeur. Un plugin ProseMirror conserve une ancre de position et la remappe dans les transactions pendant l’envoi ; sa décoration de progression ne fait pas partie du document sauvegardé. Les fichiers sont envoyés séquentiellement pour conserver l’ordre et chaque succès utilise le même envoi XHR que les autres pièces jointes. Les dépôts de fichiers hors de la zone d’édition ne remplacent pas la page du navigateur.
 
 `file-preview.js` et `file-preview.css` sont communs à l’éditeur et à la lecture PHP. Le dialogue conserve le focus et charge uniquement l’endpoint local `file-preview.php`. Ce dernier vérifie l’accès au fichier réel ; les textes sont échappés et bornés à 1 Mio. Aucun rendu de HTML/SVG actif ni service bureautique tiers n’est ajouté. `ThemeToggle` et `public/theme.js` partagent les valeurs de préférence système/manuelles ; les couleurs d’accent continuent d’utiliser l’algorithme commun existant.
+
+## Édition et lecteur — 0.15
+
+`BlockClipboard.tsx` intercepte `copy` et `paste` dans l’éditeur actif, en laissant les autres champs utiliser leur comportement habituel. Sélections groupées, complètes et blocs textuels complets sont convertis en racines ordonnées. Le JSON conserve les attributs des blocs personnalisés ; HTML et texte assurent une alternative. Les entrées sont bornées, désérialisées avec le schéma de destination et contrôlées avant une transaction d’insertion unique, séparée de l’historique de frappe.
+
+`CoverTools` utilise un portail React positionné par rapport à l’image et recalculé au défilement/redimensionnement. Les commandes restent au-dessus du contenu et sous les modales. `cover-position.ts` calcule le débordement après zoom ; le glissement suit ce débordement. `cover_image_style` et l’export PDF appliquent la même convention. Le JSON existant stocke le cadrage, sans colonne supplémentaire.
+
+`pdf-engine.php` sélectionne deux fichiers PDF.js fixes et définit leur MIME explicitement, sans dépendre de la reconnaissance de `.mjs` par Apache. Le lecteur utilise un import dynamique protégé par un traitement d’erreur et des URL versionnées. `public/.htaccess` complète les types MIME statiques. L’endpoint ne publie aucun fichier utilisateur.
+
+Les pièces jointes PHP utilisent `attachment-block / attachment-caption / attachment-info / attachment-actions` et les styles de `file-preview.css`. Les noms sont échappés et l’aperçu utilise le dialogue à accès contrôlé existant.

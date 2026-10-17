@@ -1,5 +1,18 @@
+import { createPortal } from "react-dom";
+import {
+  coverZoom,
+  coverOverflow,
+  coverImageStyle,
+  type CoverPosition,
+} from "./cover-position";
 import { Select } from "./Select";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import {
   ArrowUp,
   ArrowDown,
@@ -482,98 +495,121 @@ export function CoverTools({
 }: {
   id: string;
   alt?: string;
-  position: { x: number; y: number };
+  position: CoverPosition;
   admin: boolean;
-  onPosition: (p: { x: number; y: number }) => void;
+  onPosition: (p: CoverPosition) => void;
   onChoose: () => void;
   onRemove: () => void;
   onZoom: () => void;
-  onDone?: () => void;
+  onDone?: (position?: CoverPosition) => void;
 }) {
-  const img = useRef<HTMLImageElement>(null);
+  const img = useRef<HTMLImageElement>(null),
+    toolbar = useRef<HTMLDivElement>(null),
+    initial = useRef(position);
+  const [editing, setEditing] = useState(false),
+    [bounds, setBounds] = useState<DOMRect | null>(null),
+    [toolbarHeight, setToolbarHeight] = useState(36);
+  const [overflow, setOverflow] = useState({ x: 0, y: 0, ready: false });
+  const zoom = coverZoom(position);
   const drag = useRef<{
     x: number;
     y: number;
-    position: { x: number; y: number };
+    position: CoverPosition;
     overflowX: number;
     overflowY: number;
   } | null>(null);
-  const [editing, setEditing] = useState(false);
-  const initial = useRef(position);
-  const [overflow, setOverflow] = useState({ x: 0, y: 0, ready: false });
-  function measure() {
-    const image = img.current;
-    if (!image?.naturalWidth || !image.naturalHeight) return;
-    const rect = image.getBoundingClientRect();
-    const scale = Math.max(
-      rect.width / image.naturalWidth,
-      rect.height / image.naturalHeight,
+  const measure = () => {
+    const image = img.current,
+      rect = image?.parentElement?.getBoundingClientRect();
+    if (!image || !rect) return;
+    setBounds(rect);
+    setOverflow(
+      coverOverflow(
+        image.naturalWidth,
+        image.naturalHeight,
+        rect.width,
+        rect.height,
+        zoom,
+      ),
     );
-    setOverflow({
-      x: Math.max(0, image.naturalWidth * scale - rect.width),
-      y: Math.max(0, image.naturalHeight * scale - rect.height),
-      ready: true,
-    });
-  }
+  };
   useEffect(() => {
-    setOverflow({ x: 0, y: 0, ready: false });
+    setEditing(false);
+    drag.current = null;
+    initial.current = position;
+  }, [id]);
+  useLayoutEffect(() => {
     measure();
     const observer = new ResizeObserver(measure);
-    if (img.current) observer.observe(img.current);
+    if (img.current?.parentElement) observer.observe(img.current.parentElement);
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", measure, true);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure, true);
+    };
+  }, [id, zoom]);
+  useLayoutEffect(() => {
+    if (!toolbar.current) return;
+    const update = () => setToolbarHeight(toolbar.current?.offsetHeight || 36);
+    const observer = new ResizeObserver(update);
+    observer.observe(toolbar.current);
+    update();
     return () => observer.disconnect();
-  }, [id]);
+  }, [editing, !!bounds]);
   useEffect(() => {
     if (!admin) return;
-    const reposition = () => {
+    const start = () => {
       initial.current = position;
       setEditing(true);
     };
-    document.addEventListener("feuillet-reposition-cover", reposition);
+    document.addEventListener("feuillet-reposition-cover", start);
     return () =>
-      document.removeEventListener("feuillet-reposition-cover", reposition);
+      document.removeEventListener("feuillet-reposition-cover", start);
   }, [admin, position]);
   const clamp = (n: number) => Math.max(0, Math.min(100, n));
+  const visible =
+    admin &&
+    bounds &&
+    bounds.bottom > 85 &&
+    bounds.top < innerHeight &&
+    bounds.width > 0;
   return (
     <>
       <img
         ref={img}
         src={fileUrl(id)}
         alt={alt}
+        draggable={false}
         style={{
-          objectPosition: `${position.x}% ${position.y}%`,
+          ...coverImageStyle(position),
           cursor: editing ? "grab" : "zoom-in",
           touchAction: editing ? "none" : "auto",
         }}
-        draggable={false}
         onLoad={measure}
-        onLostPointerCapture={() => {
-          drag.current = null;
-        }}
         onClick={() => {
           if (!editing) onZoom();
         }}
+        onLostPointerCapture={() => (drag.current = null)}
         onPointerDown={(e) => {
-          if (!editing || !img.current || !overflow.ready || e.button !== 0)
-            return;
-          const r = img.current.getBoundingClientRect();
-          const scale = Math.max(
-            r.width / img.current.naturalWidth,
-            r.height / img.current.naturalHeight,
-          );
+          if (!editing || !overflow.ready || e.button !== 0) return;
           drag.current = {
             x: e.clientX,
             y: e.clientY,
             position,
-            overflowX: img.current.naturalWidth * scale - r.width,
-            overflowY: img.current.naturalHeight * scale - r.height,
+            overflowX: overflow.x,
+            overflowY: overflow.y,
           };
           e.currentTarget.setPointerCapture(e.pointerId);
           e.preventDefault();
+          e.stopPropagation();
         }}
         onPointerMove={(e) => {
           const d = drag.current;
           if (!d) return;
           onPosition({
+            ...d.position,
             x:
               d.overflowX > 1
                 ? clamp(d.position.x - ((e.clientX - d.x) / d.overflowX) * 100)
@@ -589,89 +625,122 @@ export function CoverTools({
           if (e.currentTarget.hasPointerCapture(e.pointerId))
             e.currentTarget.releasePointerCapture(e.pointerId);
         }}
-        onPointerCancel={() => {
-          drag.current = null;
-        }}
+        onPointerCancel={() => (drag.current = null)}
       />
-      {admin && (
-        <div
-          className={`cover-actions ${editing ? "cover-reposition-tools" : ""}`}
-        >
-          {editing ? (
-            <>
-              <span>
-                {!overflow.ready
-                  ? "Chargement de la couverture…"
-                  : overflow.x < 1 && overflow.y < 1
-                    ? "Cette image est entièrement visible dans la couverture."
-                    : overflow.x < 1
-                      ? "Glisse l’image verticalement pour la repositionner."
-                      : overflow.y < 1
-                        ? "Glisse l’image horizontalement pour la repositionner."
-                        : "Glisse l’image pour la repositionner."}{" "}
-                Le cadrage reste dans le brouillon jusqu’à la publication.
-              </span>
-              <label>
-                Horizontal
-                <input
-                  aria-label="Position horizontale de la couverture"
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={position.x}
-                  disabled={!overflow.ready || overflow.x < 1}
-                  onChange={(e) =>
-                    onPosition({ ...position, x: Number(e.target.value) })
-                  }
-                />
-              </label>
-              <label>
-                Vertical
-                <input
-                  aria-label="Position verticale de la couverture"
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={position.y}
-                  disabled={!overflow.ready || overflow.y < 1}
-                  onChange={(e) =>
-                    onPosition({ ...position, y: Number(e.target.value) })
-                  }
-                />
-              </label>
-              <button
-                onClick={() => {
-                  onPosition(initial.current);
-                  setEditing(false);
-                }}
-              >
-                Annuler
-              </button>
-              <button
-                onClick={() => {
-                  setEditing(false);
-                  onDone?.();
-                }}
-              >
-                Terminer
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={onChoose}>Changer</button>
-              <button
-                onClick={() => {
-                  initial.current = position;
-                  setEditing(true);
-                }}
-              >
-                <Move size={14} /> Repositionner
-              </button>
-              <button onClick={onRemove}>Retirer</button>
-            </>
-          )}
-        </div>
-      )}
+      {visible &&
+        createPortal(
+          <div
+            ref={toolbar}
+            className={`cover-actions cover-actions-portal ${editing ? "cover-reposition-tools" : ""}`}
+            style={{
+              left: Math.max(8, bounds!.left + 12),
+              top: Math.max(64, bounds!.bottom - toolbarHeight - 12),
+              width: Math.min(bounds!.width - 24, innerWidth - 16),
+            }}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            {editing ? (
+              <>
+                <span>
+                  {!overflow.ready
+                    ? "Chargement de la couverture…"
+                    : overflow.x < 1 && overflow.y < 1
+                      ? "Agrandis l’image pour ajuster son cadrage."
+                      : "Glisse l’image ou utilise les réglages pour ajuster le cadrage."}{" "}
+                  Les changements sont enregistrés automatiquement.
+                </span>
+                <label>
+                  Zoom
+                  <input
+                    type="range"
+                    aria-label="Zoom de la couverture"
+                    min="1"
+                    max="3"
+                    step="0.05"
+                    value={zoom}
+                    onChange={(e) =>
+                      onPosition({ ...position, zoom: Number(e.target.value) })
+                    }
+                  />
+                  <output>{Math.round(zoom * 100)} %</output>
+                </label>
+                <label>
+                  Horizontal
+                  <input
+                    type="range"
+                    aria-label="Position horizontale de la couverture"
+                    min="0"
+                    max="100"
+                    value={position.x}
+                    disabled={!overflow.ready || overflow.x < 1}
+                    onChange={(e) =>
+                      onPosition({ ...position, x: Number(e.target.value) })
+                    }
+                  />
+                </label>
+                <label>
+                  Vertical
+                  <input
+                    type="range"
+                    aria-label="Position verticale de la couverture"
+                    min="0"
+                    max="100"
+                    value={position.y}
+                    disabled={!overflow.ready || overflow.y < 1}
+                    onChange={(e) =>
+                      onPosition({ ...position, y: Number(e.target.value) })
+                    }
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => onPosition({ x: 50, y: 50, zoom: 1 })}
+                >
+                  Centrer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onPosition(initial.current);
+                    setEditing(false);
+                    onDone?.(initial.current);
+                  }}
+                >
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditing(false);
+                    onDone?.(position);
+                  }}
+                >
+                  Terminer
+                </button>
+              </>
+            ) : (
+              <>
+                <button type="button" onClick={onChoose}>
+                  Changer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    initial.current = position;
+                    setEditing(true);
+                  }}
+                >
+                  <Move size={14} />
+                  Repositionner
+                </button>
+                <button type="button" onClick={onRemove}>
+                  Retirer
+                </button>
+              </>
+            )}
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

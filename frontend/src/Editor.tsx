@@ -1,3 +1,4 @@
+import { BlockClipboard } from "./BlockClipboard";
 import { EditorFileDrop } from "./EditorFileDrop";
 import { MapBlock } from "./MapBlock";
 import { BlockMover, blockAtElement } from "./BlockMover";
@@ -1521,6 +1522,7 @@ export default function CourseEditor({
         )}
         {admin && editor && (
           <>
+            <BlockClipboard editor={editor} />
             <BlockMarquee editor={editor} wrap={contentRef} />
             <EditorFileDrop editor={editor} wrap={contentRef} />
           </>

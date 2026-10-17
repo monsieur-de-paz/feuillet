@@ -84,7 +84,13 @@ function auto_publish_page(string $id): void {
 }
 function server_upload_limit(): int { $a=ini_bytes(ini_get('upload_max_filesize'));$b=ini_bytes(ini_get('post_max_size'));return min($a?:PHP_INT_MAX,$b?:PHP_INT_MAX); }
 function cover_position(mixed $value): array {
-    if(!is_array($value))return ['x'=>50,'y'=>50];return ['x'=>max(0,min(100,(float)($value['x']??50))),'y'=>max(0,min(100,(float)($value['y']??50)))];
+    if(!is_array($value))return ['x'=>50,'y'=>50];$out=[];
+    foreach(['x','y'] as $key){$v=$value[$key]??50;$out[$key]=is_numeric($v)&&is_finite((float)$v)?max(0,min(100,(float)$v)):50;}
+    if(array_key_exists('zoom',$value)){$v=$value['zoom'];$out['zoom']=is_numeric($v)&&is_finite((float)$v)?round(max(1,min(3,(float)$v)),2):1;}
+    return $out;
+}
+function cover_image_style(mixed $value): string {
+    $p=cover_position($value);$origin=$p['x'].'% '.$p['y'].'%';return 'object-position:'.$origin.';transform:scale('.($p['zoom']??1).');transform-origin:'.$origin;
 }
 function publish_tree(array $page): array {
     $ids=descendants($page['id']);$pdo=db();$pdo->beginTransaction();$count=0;

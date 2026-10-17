@@ -123,3 +123,7 @@ Utiliser l’archive installable de la release et conserver `update-manifest.jso
 Les notifications et choix sont dans `storage/updates/settings.json`. Le déploiement prépare une extraction vérifiée, sauvegarde le code et la base, conserve configuration/médias, pose `storage/update-journal.json` et remplace les fichiers sous verrou exclusif. `public/update-guard.php` précède le bootstrap sur les points d’entrée ordinaires. `public/update-health.php` valide le nouveau processus ; `public/recover.php` et la copie privée du moteur de récupération peuvent rétablir la version précédente. Les sauvegardes ne sont pas servies publiquement et restent téléchargeables par l’admin après succès ou retour arrière.
 
 La restauration dépend des droits, de l’espace disque et de SQL. Les médias ne sont pas recopiés. Voir [les étapes et la procédure FTP](MISES-A-JOUR.md) avant de supprimer un dossier de sauvegarde. Aucun cron, shell système ou service permanent n’est requis. L’installation OVH réelle reste à vérifier sur l’offre de l’utilisateur.
+
+## Lecteur PDF sur le mutualisé
+
+La distribution 0.15 fournit `pdf-engine.php`, qui sert PDF.js avec le type JavaScript requis même si Apache ne reconnaît pas `.mjs`. Envoyer tous les fichiers de `public/`, y compris `.htaccess`, ce nouvel endpoint et `vendor/pdfjs/`. La racine web reste exclusivement `feuillet/public`. Vérifier un PDF depuis une session non connectée après installation ; un document privé doit rester inaccessible.

@@ -147,3 +147,11 @@ La même ligne d’insertion guide le déplacement de blocs et le dépôt de fic
 Les aperçus utilisent un dialogue natif de 1120 px maximum, avec un arrière-plan assombri et flouté, une entrée discrète de 200 ms et des commandes de 44 px minimum. Le titre du document s’ellipse, les commandes restent accessibles sur écran de 320 px. Le contenu environnant est inerte pendant l’ouverture. Échap, fermeture et retour du focus suivent le comportement attendu d’un dialogue. Les animations respectent `prefers-reduced-motion`.
 
 Le thème système devient l’état initial. Les choix manuels demeurent visibles dans le sélecteur et mémorisés par appareil ; les styles d’auteur restent accessibles par « Thème du carnet ».
+
+## Galeries, fichiers et couverture — 0.15
+
+Les galeries restent transparentes dans l’éditeur, y compris en sélection de nœud. Une sélection groupée dispose d’un repère latéral fin ; les cartes gardent leurs surfaces indépendantes.
+
+La pièce jointe publique donne la priorité au nom : icône de 44 px, nom avec retour à la ligne, format/taille discrets, puis deux actions équilibrées. Le téléchargement est une commande ; le nom ne devient pas un long lien souligné. Sur mobile, les actions occupent une ligne dédiée avec une hauteur minimale de 44 px.
+
+Les commandes de couverture flottent au-dessus de l’image, indépendamment du chevauchement avec l’icône et le titre. Zoom et axes s’adaptent à l’espace disponible. La copie des blocs suit les raccourcis de la plateforme avec une confirmation discrète.

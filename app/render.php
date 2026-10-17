@@ -50,11 +50,16 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
     }
     if($t==='fileBlock'){
         $id=str_limit($a['fileId']??'',36);$f=query('SELECT name,mime,size FROM files WHERE id=?',[$id])->fetch();if(!$f||($public&&!file_public($id)))return '';
-        $url='media.php?id='.rawurlencode($id);$preview='<button type="button" class="file-preview-trigger" data-file-preview="'.h($id).'" data-file-name="'.h($f['name']).'"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>Aperçu</button>';$link=$preview.'<a class="download" href="'.$url.'&download=1">↓ '.h($f['name']).' <small>('.h(round((int)$f['size']/1024)).' Ko)</small></a>';
-        if(($a['mode']??'')==='pdf'&&$f['mime']==='application/pdf')return '<section class="file-block"><iframe class="pdf-reader" title="'.h($f['name']).'" src="pdf-viewer.php?id='.rawurlencode($id).'"></iframe>'.$link.'<a href="'.$url.'" target="_blank" rel="noopener">Ouvrir le PDF</a></section>';
-        if(($a['mode']??'')==='audio'&&str_starts_with($f['mime'],'audio/'))return '<section class="file-block"><audio controls preload="metadata" src="'.$url.'"></audio>'.$link.'</section>';
-        if(($a['mode']??'')==='video'&&str_starts_with($f['mime'],'video/'))return '<section class="file-block"><video controls playsinline preload="metadata" src="'.$url.'"></video>'.$link.'</section>';
-        return '<section class="file-block">'.$link.'</section>';
+        $url='media.php?id='.rawurlencode($id);$mode=in_array($a['mode']??'', ['pdf','audio','video'],true)?$a['mode']:'download';
+        $extension=strtoupper(pathinfo($f['name'],PATHINFO_EXTENSION)?:'FICHIER');$size=(int)$f['size'];$sizeLabel=$size>=1048576?round($size/1048576,1).' Mo':max(1,(int)ceil($size/1024)).' Ko';
+        $eye='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
+        $download='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 16v4h14v-4"/></svg>';
+        $caption='<div class="attachment-caption"><span class="attachment-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></span><div class="attachment-info"><strong>'.h($f['name']).'</strong><small>'.h($extension).' <span aria-hidden="true">·</span> '.h($sizeLabel).'</small></div><div class="attachment-actions"><button type="button" class="file-preview-trigger" data-file-preview="'.h($id).'" data-file-name="'.h($f['name']).'">'.$eye.'<span>Aperçu</span></button><a class="attachment-download" href="'.$url.'&download=1" aria-label="'.h('Télécharger '.$f['name']).'">'.$download.'<span>Télécharger</span></a></div></div>';
+        $media='';
+        if($mode==='pdf'&&$f['mime']==='application/pdf')$media='<iframe class="pdf-reader" title="'.h($f['name']).'" loading="lazy" src="pdf-viewer.php?id='.rawurlencode($id).'"></iframe>';
+        elseif($mode==='audio'&&str_starts_with($f['mime'],'audio/'))$media='<audio controls preload="metadata" src="'.$url.'"></audio>';
+        elseif($mode==='video'&&str_starts_with($f['mime'],'video/'))$media='<video controls playsinline preload="metadata" src="'.$url.'"></video>';
+        return '<section class="file-block attachment-block mode-'.h($media?$mode:'download').'">'.$media.$caption.'</section>';
     }
     if($t==='gallery')return render_gallery($a,$pageId,$public);
     if($t==='databaseView')return render_database_view(str_limit($a['dbId']??'',36),$public,is_array($a['viewConfig']??null)?$a['viewConfig']:[]);

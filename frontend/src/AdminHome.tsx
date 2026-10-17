@@ -65,6 +65,7 @@ export function AdminHome({
       notebook?.cover_id,
       notebook?.cover_position?.x,
       notebook?.cover_position?.y,
+      notebook?.cover_position?.zoom,
     ],
   );
   async function persist(patch: Partial<Space>) {
@@ -138,7 +139,9 @@ export function AdminHome({
               onRemove={() => void persist({ cover_id: null })}
               onZoom={() => onZoomCover?.()}
               onPosition={setCoverPosition}
-              onDone={() => void persist({ cover_position: coverPosition })}
+              onDone={(position) =>
+                void persist({ cover_position: position || coverPosition })
+              }
             />
           </div>
         ) : (
