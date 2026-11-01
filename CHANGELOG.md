@@ -1,5 +1,13 @@
 # Historique des versions
 
+## 0.17.0 — 2026-11-02
+
+- Survol et focus des boutons et cartes avec couleur, bordure et léger déplacement ; mouvement réduit respecté.
+- Icônes des liens : emoji, icône web, fichier ou image, avec retrait possible.
+- Cartes avec image personnalisable ; visuels conservés entre présentations bouton/carte et remappés à la copie et à la restauration.
+- Reconnaissance de cartes Notion HTML identifiables et conversion de liens texte par le menu contextuel.
+
+
 ## 0.16.2 — 2026-11-01
 
 - Espacement des titres de contenu rééquilibré : davantage d’espace avant, moins après, en édition et en lecture publique.

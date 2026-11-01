@@ -1,3 +1,4 @@
+import { LinkIconPicker } from "./LinkIconPicker";
 import { LazyVideo } from "./LazyVideo";
 import { Select } from "./Select";
 import {
@@ -618,6 +619,7 @@ export function linkPresentationContent(
   href: string,
   label: string,
   description = "",
+  visual: Record<string, any> = {},
 ) {
   const url = safeLink(href);
   if (mode === "inline")
@@ -632,10 +634,19 @@ export function linkPresentationContent(
       ],
     };
   if (mode === "button")
-    return { type: "buttonLink", attrs: { href: url, label: label || href } };
+    return {
+      type: "buttonLink",
+      attrs: { ...visual, href: url, label: label || href },
+    };
   return {
     type: "bookmark",
-    attrs: { href: url, title: label || href, description, source: url },
+    attrs: {
+      ...visual,
+      href: url,
+      title: label || href,
+      description,
+      source: url,
+    },
   };
 }
 export function transformSelectedLink(editor: Editor, mode: LinkPresentation) {
@@ -651,8 +662,26 @@ export function transformSelectedLink(editor: Editor, mode: LinkPresentation) {
     .insertContentAt({ from, to }, linkPresentationContent(mode, href, label))
     .run();
 }
-function LinkResourceView({ node, editor, getPos, selected }: NodeViewProps) {
+function LinkResourceView({
+  node,
+  editor,
+  getPos,
+  selected,
+  updateAttributes,
+}: NodeViewProps) {
   const app = useApp();
+  const [iconPicker, setIconPicker] = useState(false);
+  const glyph =
+    node.attrs.iconId || node.attrs.icon ? (
+      <FeuilletIcon
+        icon={node.attrs.icon}
+        iconId={node.attrs.iconId}
+        size={22}
+      />
+    ) : null;
+  const preview = node.attrs.posterId
+    ? fileUrl(node.attrs.posterId)
+    : node.attrs.previewUrl;
   const [editing, setEditing] = useState(false);
   const [mode, setMode] = useState<LinkPresentation>(
     node.type.name === "bookmark" ? "card" : "button",
@@ -694,18 +723,26 @@ function LinkResourceView({ node, editor, getPos, selected }: NodeViewProps) {
       <div className="resource-presentation-row">
         {isCard ? (
           <a
+            className="bookmark link-card"
             href={safeLink(node.attrs.href)}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <div className="bookmark-symbol">
-              <BookOpen size={25} />
-            </div>
-            <div>
+            <div className="bookmark-symbol">{glyph}</div>
+            <div className="link-card-body">
               <strong>{node.attrs.title || node.attrs.href}</strong>
               {node.attrs.description && <p>{node.attrs.description}</p>}
               <small>{node.attrs.href}</small>
             </div>
+            {preview && (
+              <img
+                className="link-card-preview"
+                src={preview}
+                alt=""
+                loading="lazy"
+                referrerPolicy="no-referrer"
+              />
+            )}
             <ArrowUpRight size={18} />
           </a>
         ) : (
@@ -715,7 +752,8 @@ function LinkResourceView({ node, editor, getPos, selected }: NodeViewProps) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {node.attrs.label}
+            {glyph}
+            <span>{node.attrs.label}</span>
             <ExternalLink size={16} />
           </a>
         )}
@@ -732,6 +770,44 @@ function LinkResourceView({ node, editor, getPos, selected }: NodeViewProps) {
           </button>
         )}
       </div>
+      {app.admin && (
+        <button
+          type="button"
+          className="small-button"
+          onClick={() => setIconPicker(true)}
+        >
+          Icône du lien
+        </button>
+      )}
+      {iconPicker && (
+        <LinkIconPicker
+          attrs={node.attrs}
+          onChange={updateAttributes}
+          onClose={() => setIconPicker(false)}
+        />
+      )}
+      {app.admin && isCard && (
+        <button
+          type="button"
+          className="small-button"
+          onClick={() =>
+            app.chooseImage("image", (file) =>
+              updateAttributes({ posterId: file.id, previewUrl: "" }),
+            )
+          }
+        >
+          Image d’aperçu
+        </button>
+      )}
+      {app.admin && isCard && preview && (
+        <button
+          type="button"
+          className="small-button"
+          onClick={() => updateAttributes({ posterId: "", previewUrl: "" })}
+        >
+          Retirer l’aperçu
+        </button>
+      )}
       {app.admin && editing && (
         <form
           className="inline-button-editor resource-config"
@@ -758,6 +834,12 @@ function LinkResourceView({ node, editor, getPos, selected }: NodeViewProps) {
                   url,
                   label.trim(),
                   description.trim(),
+                  {
+                    icon: node.attrs.icon,
+                    iconId: node.attrs.iconId,
+                    posterId: node.attrs.posterId,
+                    previewUrl: node.attrs.previewUrl,
+                  },
                 ),
               )
               .run();
@@ -842,7 +924,14 @@ export const ButtonLink = Node.create({
   group: "block",
   atom: true,
   addAttributes() {
-    return { href: { default: "" }, label: { default: "Ouvrir la ressource" } };
+    return {
+      href: { default: "" },
+      label: { default: "Ouvrir la ressource" },
+      icon: { default: "↗" },
+      iconId: { default: "" },
+      posterId: { default: "" },
+      previewUrl: { default: "" },
+    };
   },
   parseHTML() {
     return [{ tag: "div[data-button-link]" }];
@@ -864,10 +953,45 @@ export const Bookmark = Node.create({
       title: { default: "" },
       description: { default: "" },
       source: { default: "" },
+      icon: { default: "↗" },
+      iconId: { default: "" },
+      posterId: { default: "" },
+      previewUrl: { default: "" },
     };
   },
   parseHTML() {
-    return [{ tag: "div[data-bookmark]" }];
+    return [
+      { tag: "div[data-bookmark]" },
+      ...[
+        "a.bookmark",
+        "a.notion-bookmark",
+        "a[data-notion-bookmark]",
+        "div.notion-bookmark-block",
+      ].map((tag) => ({
+        tag,
+        getAttrs: (el: HTMLElement) => ({
+          href: safeLink(
+            el.getAttribute("href") ||
+              el.querySelector("a")?.getAttribute("href") ||
+              "",
+          ),
+          title:
+            el.querySelector(".bookmark-title,.notion-bookmark-title")
+              ?.textContent ||
+            el.textContent ||
+            "Lien",
+          description:
+            el.querySelector(
+              ".bookmark-description,.notion-bookmark-description",
+            )?.textContent || "",
+          previewUrl: (
+            el.querySelector("img")?.getAttribute("src") || ""
+          ).startsWith("https://")
+            ? el.querySelector("img")!.getAttribute("src")
+            : "",
+        }),
+      })),
+    ];
   },
   renderHTML({ HTMLAttributes }) {
     return ["div", mergeAttributes(HTMLAttributes, { "data-bookmark": "" })];

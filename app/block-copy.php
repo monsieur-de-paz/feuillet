@@ -45,6 +45,7 @@ final class BlockCopy {
             $node['attrs']=array_replace($a,['manual'=>true,'parentId'=>'','kind'=>'','pageIds'=>$ids]);
         }
         if($type==='pageLink'&&!empty($a['pageId']))$this->page($a['pageId'],$owner);
+        if(!empty($a['iconId']))$this->file($a['iconId']);
         if(!empty($a['posterId']))$this->file($a['posterId']);
         if(!empty($a['fileId']))$this->file($a['fileId']);
         if($type==='databaseView'&&!empty($a['dbId']))$this->database($a['dbId']);
@@ -84,6 +85,7 @@ final class BlockCopy {
     }
     public function rewrite(array $node): array {
         $a=$node['attrs']??[];$maps=$this->databaseMap;
+        if(!empty($a['iconId']))$a['iconId']=$this->fileMap[$a['iconId']];
         if(!empty($a['posterId']))$a['posterId']=$this->fileMap[$a['posterId']];
         if(isset($a['fileId'])){$a['fileId']=$this->fileMap[$a['fileId']]??'';if(($node['type']??'')==='image')$a['src']='media.php?id='.$a['fileId'];}
         if(isset($a['pageId'])&&$a['pageId']!=='')$a['pageId']=$this->pageMap[$a['pageId']]??'';

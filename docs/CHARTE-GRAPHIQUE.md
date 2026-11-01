@@ -163,3 +163,7 @@ Ordre de la navigation dans l’administration : onglets en première rangée, f
 ## Espacement des titres 0.16.2
 
 Les titres du contenu utilisent une marge avant de 1,4 em et après de 0,35 em. Ils appartiennent visuellement au contenu suivant. Les espaces restent proportionnels à la taille du titre. Le premier titre d’un encadré et l’intitulé d’un titre dépliable n’ajoutent pas de marge haute interne.
+
+## Liens 0.17
+
+Boutons et cartes disposent d’un état hover/focus visible, cohérent avec l’accent du thème : déplacement de 2 px maximum, bordure accentuée et fond teinté. Respecter prefers-reduced-motion. Les miniatures de carte sont latérales, réduites sur mobile, avec textes pouvant revenir à la ligne.

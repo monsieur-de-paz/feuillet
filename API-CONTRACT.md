@@ -190,3 +190,7 @@ POST blocks_copy (administrateur + CSRF) reçoit id, version entière, content (
 ## Onglets et vidéos 0.16
 
 fileBlock accepte posterId (vide ou identifiant d’image existante), validé lors de save. Les miniatures utilisent les routes upload/media habituelles, les mêmes droits de lecture et les mêmes remappages à l’import ou au collage. Aucun endpoint de traitement vidéo ni identifiant de page supplémentaire n’est exposé.
+
+## Liens 0.17
+
+Attributs de buttonLink/bookmark : icon (texte ou identifiant du catalogue), iconId (image locale), posterId (image locale de la carte), previewUrl (image HTTPS externe). Les images locales doivent exister et être de type image. Les droits média suivent les références du document publié ; copie et sauvegarde remappent les identifiants.

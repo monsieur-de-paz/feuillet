@@ -36,8 +36,10 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
     }
     if($t==='buttonLink'||$t==='bookmark'){
         $url=safe_url($a['href']??'');if(!$url)return '';
-        if($t==='buttonLink')return '<a class="resource-button" href="'.h($url).'" target="_blank" rel="noopener noreferrer">↗ '.h($a['label']??$url).'</a>';
-        return '<a class="bookmark" href="'.h($url).'" target="_blank" rel="noopener noreferrer"><strong>'.h($a['title']??$url).'</strong><p>'.h($a['description']??'').'</p><small>'.h($a['source']??parse_url($url,PHP_URL_HOST)).' ↗</small></a>';
+        $icon=(!empty($a['iconId'])||($a['icon']??'↗')!=='')?render_page_icon(['icon'=>$a['icon']??'↗','icon_id'=>$a['iconId']??null]):'';
+        if($t==='buttonLink')return '<a class="resource-button" href="'.h($url).'" target="_blank" rel="noopener noreferrer">'.$icon.' <span>'.h($a['label']??$url).'</span></a>';
+        $preview=!empty($a['posterId'])?'media.php?id='.rawurlencode($a['posterId']):safe_url($a['previewUrl']??'');
+        return '<a class="bookmark link-card" href="'.h($url).'" target="_blank" rel="noopener noreferrer">'.$icon.'<div class="link-card-body"><strong>'.h($a['title']??$url).'</strong><p>'.h($a['description']??'').'</p><small>'.h(parse_url($url,PHP_URL_HOST)??'').' ↗</small></div>'.($preview?'<img class="link-card-preview" src="'.h($preview).'" loading="lazy" referrerpolicy="no-referrer" alt="">':'').'</a>';
     }
     if($t==='mapBlock'){
         $address=str_limit($a['address']??'',500);if(!$address)return '';

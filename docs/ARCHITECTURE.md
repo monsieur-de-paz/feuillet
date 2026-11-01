@@ -278,3 +278,7 @@ page-navigation regroupe EditorTabs puis topbar dans un seul conteneur sticky. L
 ## Espacement des titres 0.16.2
 
 La classe content-heading identifie les titres du document dans le rendu PHP et les HTMLAttributes de l’extension Heading. Les marges communes se trouvent dans interface.css, avec exceptions explicites pour encadrés et titres dépliables. Les titres des cartes, fenêtres et autres composants ne sont pas concernés.
+
+## Liens 0.17
+
+ButtonLink et Bookmark acceptent icon, iconId, posterId et previewUrl. LinkIconPicker réutilise le sélecteur complet existant. Le rendu PHP et React partage link-card et resource-button. files_in inclut iconId et posterId ; les remappages de sauvegarde et de copie couvrent les deux. previewUrl est limité à HTTPS, échappé au rendu et chargé avec referrerpolicy no-referrer. Aucune requête de scraping serveur n’est ajoutée.

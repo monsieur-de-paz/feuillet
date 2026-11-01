@@ -1000,6 +1000,20 @@ export default function CourseEditor({
       node.type.name.endsWith("List") ||
       node.type.name === "blockquote";
     const items: MenuAction[] = [];
+    if (editor.isActive("link"))
+      for (const [mode, label] of [
+        ["button", "Afficher ce lien en bouton"],
+        ["card", "Afficher ce lien en carte avec aperçu"],
+      ] as const)
+        items.push({
+          label,
+          icon: <Link />,
+          group: "edit",
+          run: () => {
+            transformSelectedLink(editor, mode);
+          },
+        });
+
     const formatSelection = (run: () => void) => {
       if (editor.state.selection instanceof NodeSelection && node.isTextblock)
         editor.commands.setTextSelection({

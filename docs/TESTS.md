@@ -499,3 +499,7 @@ La migration de la vraie distribution 0.16.0 à la 0.16.1 passe sur SQLite, avec
 ## Espacement des titres 0.16.2
 
 Build TypeScript/Vite et socle HTTP : 20 scénarios réussis, un test réseau ignoré. Contrôle navigateur public sur copie jetable avec trois titres niveau 1 et fichiers : marges calculées 61,6 px avant / 15,4 px après ; écart réel titre–fichier 18 px. L’espace avant dépasse bien celui après.
+
+## Liens 0.17
+
+Build et suites frontend réussis. tests/link-cards.py passe sur SQLite et MySQL : icônes et miniatures privées puis publiques, rendu HTML, copie indépendante, export/import et refus des références invalides. Sécurité : 13 scénarios réussis ; socle HTTP : 20 réussis et un réseau ignoré. Contrôle navigateur public sur une page jetable : bouton avec emoji et carte ; hover actif mesuré avec transform translateY(-2px).

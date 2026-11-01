@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.16.2';
+const FEUILLET_VERSION = '0.17.0';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -126,7 +126,9 @@ function normalize_doc(mixed $doc): array {
             if($node['type']==='databaseView'){$id=str_limit($out['attrs']['dbId']??'',36);database_record($id);$out['attrs']=['dbId'=>$id,'viewConfig'=>database_view_config($id,$out['attrs']['viewConfig']??[])];}
             if($node['type']==='formView'){$id=str_limit($out['attrs']['formId']??'',36);if(!query('SELECT id FROM collection_forms WHERE id=?',[$id])->fetch())fail('Formulaire introuvable.');$out['attrs']=['formId'=>$id];}
             if($node['type']==='gallery'){ $out['attrs']['pageIds']=array_values(array_unique(array_filter(array_slice(is_array($out['attrs']['pageIds']??null)?$out['attrs']['pageIds']:[],0,500),fn($id)=>is_string($id)&&preg_match('/^[a-f0-9-]{36}$/',$id))));$out['attrs']['columns']=max(1,min(6,(int)($out['attrs']['columns']??2)));$out['attrs']['rows']=max(0,min(12,(int)($out['attrs']['rows']??2)));$out['attrs']['layout']=($out['attrs']['layout']??'grid')==='list'?'list':'grid';$out['attrs']['aspect']=in_array($out['attrs']['aspect']??'', ['16/9','4/3','1/1','3/4','auto'],true)?$out['attrs']['aspect']:'16/9'; }
-            if($node['type']==='fileBlock'&&!empty($out['attrs']['posterId'])){$poster=query('SELECT mime FROM files WHERE id=?',[str_limit($out['attrs']['posterId'],36)])->fetch();if(!$poster||!str_starts_with($poster['mime'],'image/'))fail('Miniature invalide.');}
+            if(!empty($out['attrs']['posterId'])){$poster=query('SELECT mime FROM files WHERE id=?',[str_limit($out['attrs']['posterId'],36)])->fetch();if(!$poster||!str_starts_with($poster['mime'],'image/'))fail('Miniature invalide.');}
+            if(!empty($out['attrs']['iconId'])){$icon=query('SELECT mime FROM files WHERE id=?',[str_limit($out['attrs']['iconId'],36)])->fetch();if(!$icon||!str_starts_with($icon['mime'],'image/'))fail('Icône invalide.');}
+            if(isset($out['attrs']['previewUrl']))$out['attrs']['previewUrl']=(is_string($out['attrs']['previewUrl'])&&str_starts_with($out['attrs']['previewUrl'],'https://'))?safe_url($out['attrs']['previewUrl']):'';
             if($node['type']==='image'&&!empty($out['attrs']['fileId']))$out['attrs']['src']='media.php?id='.rawurlencode((string)$out['attrs']['fileId']);
             if($node['type']==='image'){ $out['attrs']['width']=max(10,min(100,(int)($out['attrs']['width']??100)));$out['attrs']['align']=in_array($out['attrs']['align']??'',['left','center','right'],true)?$out['attrs']['align']:'center'; }
             if($node['type']==='fileBlock' || ($node['type']==='image' && !empty($out['attrs']['fileId']))) {
@@ -266,7 +268,7 @@ function save_page(array $input): array {
     } catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}
 }
 function files_in(array $doc): array {
-    $ids=[];if(!empty($doc['attrs']['posterId'])&&is_string($doc['attrs']['posterId']))$ids[]=$doc['attrs']['posterId'];if(is_string($doc['attrs']['fileId']??null))$ids[]=$doc['attrs']['fileId'];
+    $ids=[];if(!empty($doc['attrs']['iconId'])&&is_string($doc['attrs']['iconId']))$ids[]=$doc['attrs']['iconId'];if(!empty($doc['attrs']['posterId'])&&is_string($doc['attrs']['posterId']))$ids[]=$doc['attrs']['posterId'];if(is_string($doc['attrs']['fileId']??null))$ids[]=$doc['attrs']['fileId'];
     foreach($doc['content']??[] as $child)$ids=array_merge($ids,files_in($child));
     return array_values(array_unique($ids));
 }
