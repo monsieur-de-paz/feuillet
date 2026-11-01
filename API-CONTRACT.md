@@ -186,3 +186,7 @@ update_status.job ajoute failed_phase (nullable) pour la dernière étape interr
 ## Copie indépendante 0.15.2
 
 POST blocks_copy (administrateur + CSRF) reçoit id, version entière, content (document résultant), paths (chemins des ressources insérées), source_id. Retourne page, files et copied (comptes). Refuse GET, visiteurs, chemins invalides et conflits de version. Toutes les copies SQL et l’écriture destination sont atomiques ; les fichiers physiques créés sont supprimés après échec.
+
+## Onglets et vidéos 0.16
+
+fileBlock accepte posterId (vide ou identifiant d’image existante), validé lors de save. Les miniatures utilisent les routes upload/media habituelles, les mêmes droits de lecture et les mêmes remappages à l’import ou au collage. Aucun endpoint de traitement vidéo ni identifiant de page supplémentaire n’est exposé.

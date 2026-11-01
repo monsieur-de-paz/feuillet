@@ -45,6 +45,7 @@ final class BlockCopy {
             $node['attrs']=array_replace($a,['manual'=>true,'parentId'=>'','kind'=>'','pageIds'=>$ids]);
         }
         if($type==='pageLink'&&!empty($a['pageId']))$this->page($a['pageId'],$owner);
+        if(!empty($a['posterId']))$this->file($a['posterId']);
         if(!empty($a['fileId']))$this->file($a['fileId']);
         if($type==='databaseView'&&!empty($a['dbId']))$this->database($a['dbId']);
         if($type==='formView'&&!empty($a['formId'])){$form=query('SELECT db_id FROM collection_forms WHERE id=?',[$a['formId']])->fetch();if(!$form)fail('Formulaire copié introuvable.',409,'copy_missing');$this->database($form['db_id']);}
@@ -83,6 +84,7 @@ final class BlockCopy {
     }
     public function rewrite(array $node): array {
         $a=$node['attrs']??[];$maps=$this->databaseMap;
+        if(!empty($a['posterId']))$a['posterId']=$this->fileMap[$a['posterId']];
         if(isset($a['fileId'])){$a['fileId']=$this->fileMap[$a['fileId']]??'';if(($node['type']??'')==='image')$a['src']='media.php?id='.$a['fileId'];}
         if(isset($a['pageId'])&&$a['pageId']!=='')$a['pageId']=$this->pageMap[$a['pageId']]??'';
         if(($node['type']??'')==='gallery'){$a['pageIds']=array_map(fn($id)=>$this->pageMap[$id],$a['pageIds']);$a['manual']=true;$a['parentId']='';$a['kind']='';}

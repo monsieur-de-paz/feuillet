@@ -58,7 +58,7 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
         $media='';
         if($mode==='pdf'&&$f['mime']==='application/pdf')$media='<iframe class="pdf-reader" title="'.h($f['name']).'" loading="lazy" src="pdf-viewer.php?id='.rawurlencode($id).'"></iframe>';
         elseif($mode==='audio'&&str_starts_with($f['mime'],'audio/'))$media='<audio controls preload="metadata" src="'.$url.'"></audio>';
-        elseif($mode==='video'&&str_starts_with($f['mime'],'video/'))$media='<video controls playsinline preload="metadata" src="'.$url.'"></video>';
+        elseif($mode==='video'&&str_starts_with($f['mime'],'video/'))$media='<button type="button" class="video-preview" data-video-src="'.$url.'" aria-label="'.h('Lire la vidéo : '.$f['name']).'"><img loading="lazy" src="'.(!empty($a['posterId'])?'media.php?id='.rawurlencode($a['posterId']):'video-placeholder.svg').'" alt=""><span class="video-play" aria-hidden="true">▶</span><span class="video-preview-label">Lire la vidéo</span></button>';
         return '<section class="file-block attachment-block mode-'.h($media?$mode:'download').'">'.$media.$caption.'</section>';
     }
     if($t==='gallery')return render_gallery($a,$pageId,$public);

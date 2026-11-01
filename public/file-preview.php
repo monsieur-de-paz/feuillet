@@ -14,7 +14,7 @@ try{
 catch(Throwable $e){error_log('Feuillet aperçu: '.$e->getMessage());http_response_code(500);echo 'Aperçu indisponible.';exit;}
 ?><!doctype html><html lang="fr" data-theme="<?=$h($theme)?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?=$h($f['name'])?></title><link rel="stylesheet" href="file-preview.css?v=<?=$h(FEUILLET_VERSION)?>"></head><body class="file-preview-document">
 <?php if(in_array($mime,['image/jpeg','image/png','image/gif','image/webp','image/avif'],true)):?><img src="<?=$h($url)?>" alt="<?=$h($f['name'])?>">
-<?php elseif(str_starts_with($mime,'video/')):?><video controls playsinline preload="metadata" src="<?=$h($url)?>"></video>
-<?php elseif(str_starts_with($mime,'audio/')):?><div class="file-preview-audio"><span aria-hidden="true">♫</span><h1><?=$h($f['name'])?></h1><audio controls preload="metadata" src="<?=$h($url)?>"></audio></div>
+<?php elseif(str_starts_with($mime,'video/')):?><video controls playsinline preload="none" src="<?=$h($url)?>"></video>
+<?php elseif(str_starts_with($mime,'audio/')):?><div class="file-preview-audio"><span aria-hidden="true">♫</span><h1><?=$h($f['name'])?></h1><audio controls preload="none" src="<?=$h($url)?>"></audio></div>
 <?php elseif($text!==null):?><article class="file-preview-text"><pre><?=$h($text)?></pre><?php if((int)$f['size']>1048576):?><p>Seul le premier mégaoctet est affiché. Télécharge le fichier pour le lire en entier.</p><?php endif;?></article>
 <?php else:?><div class="file-preview-fallback"><span aria-hidden="true">▤</span><h1><?=$h($f['name'])?></h1><p>Le navigateur ne peut pas afficher ce format. Télécharge le fichier pour l’ouvrir avec ton application.</p><a href="<?=$h($url.'&download=1')?>">Télécharger le fichier</a></div><?php endif;?></body></html>

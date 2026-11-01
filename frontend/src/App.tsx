@@ -1,3 +1,4 @@
+import { EditorTabs } from "./EditorTabs";
 import {
   useUpdates,
   UpdateBanner,
@@ -2756,6 +2757,22 @@ export default function App() {
               </div>
             )}
           </header>
+          {admin && (
+            <EditorTabs
+              pages={pages}
+              current={draft}
+              onOpen={(id) => void openPage(id)}
+              onNew={() => void createPage(null)}
+              onClose={async (next) => {
+                if (next) {
+                  await openPage(next);
+                  return String(draftRef.current?.id) === next;
+                }
+                await openDashboard();
+                return draftRef.current === null;
+              }}
+            />
+          )}
           {(saveStatus === "error" || saveStatus === "conflict") && (
             <div className="save-error" role="alert">
               <AlertCircle size={18} />

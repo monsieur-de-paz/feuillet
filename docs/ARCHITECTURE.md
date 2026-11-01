@@ -266,3 +266,7 @@ La règle imposant color: inherit !important aux descendants des titres est reti
 ## Copie indépendante 0.15.2
 
 Le moteur app/block-copy.php découvre un graphe borné, alloue de nouveaux identifiants, copie les octets des fichiers et remappe les références avant de sauvegarder la destination dans la même transaction SQL. database_import remappe propriétés, relations, formulaires et lignes. Le client repère uniquement les nœuds fraîchement insérés et conserve une annulation du collage. Un verrou temporaire de l’éditeur évite une modification concurrente locale.
+
+## Onglets et vidéos 0.16
+
+LazyVideo monte la balise video seulement après activation. Le rendu PHP émet data-video-src et video-lazy.js utilise une délégation de clic compatible avec les actualisations du lecteur. Le posterId du fileBlock référence une image de files ; files_in inclut cet identifiant, et les imports/copies le remappent. La capture facultative côté navigateur est bornée à 960 × 540 pixels. EditorTabs persiste au plus 32 UUID, par origine et chemin d’installation ; les navigations et fermetures actives passent par openPage/openDashboard et la sauvegarde habituelle.

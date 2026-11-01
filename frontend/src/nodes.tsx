@@ -1,3 +1,4 @@
+import { LazyVideo } from "./LazyVideo";
 import { Select } from "./Select";
 import {
   Node,
@@ -911,7 +912,14 @@ function FileView({ node, updateAttributes, getPos, selected }: NodeViewProps) {
       )}
       {effectiveMode === "audio" && <audio controls preload="none" src={url} />}{" "}
       {effectiveMode === "video" && (
-        <video controls preload="metadata" src={url} />
+        <LazyVideo
+          src={url}
+          name={name}
+          posterId={node.attrs.posterId}
+          onPoster={
+            app.admin ? (posterId) => updateAttributes({ posterId }) : undefined
+          }
+        />
       )}
       <div className="file-caption">
         <FileText size={19} />
@@ -996,6 +1004,28 @@ function FileView({ node, updateAttributes, getPos, selected }: NodeViewProps) {
               )}
             </Select>
           </label>
+          {supportedMode === "video" && (
+            <div>
+              <button
+                type="button"
+                onClick={() =>
+                  app.chooseImage("image", (file) =>
+                    updateAttributes({ posterId: file.id }),
+                  )
+                }
+              >
+                Choisir la miniature
+              </button>
+              {node.attrs.posterId && (
+                <button
+                  type="button"
+                  onClick={() => updateAttributes({ posterId: "" })}
+                >
+                  Retirer la miniature
+                </button>
+              )}
+            </div>
+          )}
           <small>
             Le même fichier est conservé. Seul son affichage change.
           </small>
@@ -1017,6 +1047,7 @@ export const FileBlock = Node.create({
   atom: true,
   addAttributes() {
     return {
+      posterId: { default: "" },
       fileId: { default: "" },
       name: { default: "" },
       mime: { default: "" },

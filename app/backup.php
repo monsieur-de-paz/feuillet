@@ -79,6 +79,7 @@ function import_backup(): never {
         foreach($manifest['pages'] as $p){if(!is_array($p)||!preg_match('/^[a-f0-9-]{36}$/',$p['id']??'')||isset($pageMap[$p['id']]))fail('Page du manifeste invalide.');$pageMap[$p['id']]=uuid();}
         $databaseData=$manifest['database_data']??[];if(!is_array($databaseData))fail('Sauvegarde des bases invalide.');$databaseMaps=database_import($databaseData,$fileMap,$pageMap);
         $rewrite=function(array $node) use (&$rewrite,$fileMap,$pageMap,$databaseMaps,$categoryMap,$spaceMap): array {
+            if(!empty($node['attrs']['posterId'])){$old=$node['attrs']['posterId'];if(!isset($fileMap[$old]))fail('Miniature manquante.');$node['attrs']['posterId']=$fileMap[$old];}
             if(isset($node['attrs']['fileId'])){$old=$node['attrs']['fileId'];if(!isset($fileMap[$old]))fail('Référence de fichier manquante.');$node['attrs']['fileId']=$fileMap[$old];if($node['type']==='image')$node['attrs']['src']='media.php?id='.$fileMap[$old];}
             if(isset($node['attrs']['pageIds']))$node['attrs']['pageIds']=array_values(array_filter(array_map(fn($id)=>$pageMap[$id]??null,is_array($node['attrs']['pageIds'])?$node['attrs']['pageIds']:[])));
             foreach(['dbId','databaseId'] as $key)if(isset($node['attrs'][$key]))$node['attrs'][$key]=$databaseMaps['databases'][$node['attrs'][$key]]??'';

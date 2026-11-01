@@ -249,3 +249,7 @@ Contrôler les trois commandes de couverture, le zoom, l’annulation et le cadr
 ## Copie indépendante 0.15.2
 
 Les copies de fichiers consomment du stockage supplémentaire. Vérifier les droits d’écriture et l’espace libre. Une copie interrompue ne doit pas laisser de nouvelles lignes ou fichiers ; tester avec tests/block-copy.py. Les références des anciens collages restent inchangées pour préserver les liens intentionnels.
+
+## Onglets et vidéos 0.16
+
+Mettre à jour toute la distribution pour inclure video-lazy.js et video-placeholder.svg. Aucun binaire vidéo à installer sur l’hébergement. Les miniatures consomment le stockage habituel. Les onglets sont des préférences locales ; les effacer du navigateur ne supprime pas les pages. Vérifier qu’un changement d’onglet bloqué par un conflit conserve le brouillon affiché.

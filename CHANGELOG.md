@@ -1,5 +1,13 @@
 # Historique des versions
 
+## 0.16.0 — 2026-11-01
+
+- Vidéos chargées uniquement après clic, dans le lecteur public et l’éditeur ; aperçu visuel et bouton Lecture accessibles.
+- Miniatures personnalisables, capture d’une image après lancement dans l’éditeur ; droits, copie indépendante et sauvegarde des miniatures conservés.
+- Onglets d’administration : ouverture des pages, sauvegarde avant changement, fermeture sans suppression, nouvelle page, titres actualisés et mémorisation locale des identifiants.
+- Navigation clavier et barre horizontale adaptée au mobile et aux thèmes.
+
+
 ## 0.15.2 — 2026-11-01
 
 - Collage indépendant des pages, galeries et pièces jointes ; nouveaux identifiants et fichiers physiques séparés.
