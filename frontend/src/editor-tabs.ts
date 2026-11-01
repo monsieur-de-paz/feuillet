@@ -22,3 +22,15 @@ export function nextEditorTab(ids: string[], id: string) {
   const i = ids.indexOf(id);
   return ids[i + 1] || ids[i - 1] || null;
 }
+
+export function visitEditorTab(
+  ids: string[],
+  id: string,
+  previous: string | null,
+  newTab = false,
+) {
+  if (ids.includes(id)) return ids;
+  if (!newTab && previous && ids.includes(previous))
+    return ids.map((value) => (value === previous ? id : value));
+  return addEditorTab(ids, id);
+}

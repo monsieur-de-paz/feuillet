@@ -309,6 +309,7 @@ export function AdminHome({
             <button
               className="home-page-card"
               key={page.id}
+              data-page-id={String(page.id)}
               onClick={() => onOpen(page.id)}
             >
               <span className="home-card-icon">
@@ -375,7 +376,11 @@ export function AdminHome({
           </header>
           <div className="home-activity">
             {recent.slice(0, notebook ? limit : 12).map((page) => (
-              <button key={page.id} onClick={() => onOpen(page.id)}>
+              <button
+                key={page.id}
+                data-page-id={String(page.id)}
+                onClick={() => onOpen(page.id)}
+              >
                 <FeuilletIcon
                   icon={page.icon}
                   iconId={page.icon_id}

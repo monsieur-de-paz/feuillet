@@ -1470,6 +1470,8 @@ export default function CourseEditor({
         className="editor-content-wrap"
         onContextMenu={(event) => {
           if (!admin || !editor || event.shiftKey) return;
+          if ((event.target as HTMLElement).closest("[data-page-target]"))
+            return;
           if (
             (event.target as HTMLElement).closest(
               'input,textarea,select,[role="combobox"],.feuillet-floating',

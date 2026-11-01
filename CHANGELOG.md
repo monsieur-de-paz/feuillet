@@ -1,5 +1,12 @@
 # Historique des versions
 
+## 0.16.1 — 2026-11-01
+
+- Onglets placés au-dessus du fil d’Ariane dans un groupe fixe commun, sans décalage lié à la hauteur des barres.
+- Navigation ordinaire dans l’onglet actif ; ouverture supplémentaire uniquement par + ou Ouvrir dans un nouvel onglet du menu contextuel.
+- Action contextuelle disponible dans la navigation, les cartes d’accueil et les liens de pages/galeries de l’éditeur.
+
+
 ## 0.16.0 — 2026-11-01
 
 - Vidéos chargées uniquement après clic, dans le lecteur public et l’éditeur ; aperçu visuel et bouton Lecture accessibles.

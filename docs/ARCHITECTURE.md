@@ -270,3 +270,7 @@ Le moteur app/block-copy.php découvre un graphe borné, alloue de nouveaux iden
 ## Onglets et vidéos 0.16
 
 LazyVideo monte la balise video seulement après activation. Le rendu PHP émet data-video-src et video-lazy.js utilise une délégation de clic compatible avec les actualisations du lecteur. Le posterId du fileBlock référence une image de files ; files_in inclut cet identifiant, et les imports/copies le remappent. La capture facultative côté navigateur est bornée à 960 × 540 pixels. EditorTabs persiste au plus 32 UUID, par origine et chemin d’installation ; les navigations et fermetures actives passent par openPage/openDashboard et la sauvegarde habituelle.
+
+## Navigation 0.16.1
+
+page-navigation regroupe EditorTabs puis topbar dans un seul conteneur sticky. Les enfants ne possèdent plus de décalage sticky propre. openPage indique, après une navigation réussie, si l’ouverture a été explicitement demandée dans un nouvel onglet. visitEditorTab réutilise l’onglet actif pour une navigation normale et conserve les autres ; la sélection d’une page déjà ouverte active son onglet.

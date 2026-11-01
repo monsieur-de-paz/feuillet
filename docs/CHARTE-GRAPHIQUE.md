@@ -155,3 +155,7 @@ Les galeries restent transparentes dans l’éditeur, y compris en sélection de
 La pièce jointe publique donne la priorité au nom : icône de 44 px, nom avec retour à la ligne, format/taille discrets, puis deux actions équilibrées. Le téléchargement est une commande ; le nom ne devient pas un long lien souligné. Sur mobile, les actions occupent une ligne dédiée avec une hauteur minimale de 44 px.
 
 Les commandes de couverture flottent au-dessus de l’image, indépendamment du chevauchement avec l’icône et le titre. Zoom et axes s’adaptent à l’espace disponible. La copie des blocs suit les raccourcis de la plateforme avec une confirmation discrète.
+
+## Navigation 0.16.1
+
+Ordre de la navigation dans l’administration : onglets en première rangée, fil d’Ariane et actions en deuxième rangée. Un seul groupe fixe évite les superpositions, y compris quand la barre d’onglets est absente ou sur mobile.

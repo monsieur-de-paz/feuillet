@@ -489,3 +489,9 @@ Distribution 0.15.2 : 16 tests de mise à jour réussis sur SQLite, migration r�
 Tests lazy-video sur SQLite et MySQL : trois blocs sans balise video initiale, poster privé puis public, miniature et vidéo remappées au collage, refus d’un poster non-image et aperçu en preload none. Tests frontend : aucun lecteur avant clic, un lecteur lancé à l’activation, URL distante refusée ; persistance des onglets, déduplication et choix du voisin à la fermeture. Les suites frontend, sécurité (13) et copie (11) passent. Navigateur : trois boutons en attente, zéro lecteur avant clic, puis un lecteur readyState 4 et deux boutons en attente. Onglets : ouverture d’une deuxième page, renommage et changement immédiat avec sauvegarde, titres actualisés, rechargement conservant les onglets, fermeture active vers le voisin et création par +. Les essais utilisent des copies jetables.
 
 Version 0.16 : 16 tests de mise à jour réussis sur SQLite ; migration réelle depuis 0.15.2 validée sur SQLite et MySQL. Contrôle mobile à 390 px : scrollWidth = clientWidth = 390, barre d’onglets contenue dans la largeur. Aucun accès d’administration ni modification sur OVH pendant le diagnostic des trois vidéos.
+
+## Navigation 0.16.1
+
+Build TypeScript/Vite et suites frontend réussis. Les tests de visitEditorTab vérifient remplacement normal, ajout explicite et activation d’un onglet existant. Navigateur sur copie jetable : 1 onglet après clic normal, 2 après clic droit/Ouvrir dans un nouvel onglet, toujours 2 après autre clic normal, 3 après +. Mesure des rangées : onglets y=0–45, fil d’Ariane y=45–104, sans recouvrement.
+
+La migration de la vraie distribution 0.16.0 à la 0.16.1 passe sur SQLite, avec conservation de la configuration, de la page privée, du fichier et de la session.

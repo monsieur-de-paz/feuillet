@@ -1,17 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { Plus, X } from "lucide-react";
 import { FeuilletIcon } from "./IconPicker";
-import { addEditorTab, nextEditorTab, readEditorTabs } from "./editor-tabs";
+import { visitEditorTab, nextEditorTab, readEditorTabs } from "./editor-tabs";
 import type { Page } from "./types";
 export function EditorTabs({
   pages,
   current,
+  navigation,
   onOpen,
   onClose,
   onNew,
 }: {
   pages: Page[];
   current: Page | null;
+  navigation: { id: string; newTab: boolean };
   onOpen: (id: string) => void;
   onClose: (next: string | null) => Promise<boolean>;
   onNew: () => void;
@@ -24,12 +26,25 @@ export function EditorTabs({
         return [];
       }
     }),
-    list = useRef<HTMLDivElement>(null);
+    list = useRef<HTMLDivElement>(null),
+    previous = useRef<string | null>(null);
   const tabs = ids
     .map((id) => pages.find((p) => String(p.id) === id))
     .filter((p): p is Page => !!p);
   useEffect(() => {
-    if (current) setIds((prev) => addEditorTab(prev, String(current.id)));
+    if (current) {
+      const id = String(current.id),
+        old = previous.current;
+      setIds((prev) =>
+        visitEditorTab(
+          prev,
+          id,
+          old,
+          navigation.id === id && navigation.newTab,
+        ),
+      );
+      previous.current = id;
+    }
   }, [current?.id]);
   useEffect(() => {
     try {

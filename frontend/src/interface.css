@@ -3000,3 +3000,16 @@ body.block-selecting .editor-content-wrap iframe {
   background: #111;
   border-radius: 12px;
 }
+
+/* Keep tabs first and breadcrumbs below as one sticky navigation group. */
+.page-navigation {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--surface);
+}
+.page-navigation > .topbar,
+.page-navigation > .editor-tabs {
+  position: static;
+  top: auto;
+}

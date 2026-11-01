@@ -351,6 +351,7 @@ export default function App() {
   const [pages, setPages] = useState<Page[]>([]);
   const [trash, setTrash] = useState<Page[]>([]);
   const [draft, setDraft] = useState<Page | null>(null);
+  const [tabNavigation, setTabNavigation] = useState({ id: "", newTab: false });
   const [loading, setLoading] = useState(true);
   const [pageLoading, setPageLoading] = useState(false);
   const [fatal, setFatal] = useState("");
@@ -811,7 +812,12 @@ export default function App() {
       setBusy(false);
     }
   }
-  async function openPage(id: string, replace = false, skipSave = false) {
+  async function openPage(
+    id: string,
+    replace = false,
+    skipSave = false,
+    newTab = false,
+  ) {
     if (
       !document.dispatchEvent(
         new Event("feuillet:before-page-change", { cancelable: true }),
@@ -835,6 +841,7 @@ export default function App() {
     try {
       const { page } = await api("page", undefined, { id });
       if (request !== navigationRequest.current) return;
+      setTabNavigation({ id: String(page.id), newTab });
       const changedPage = String(draftRef.current?.id) !== String(page.id);
       draftRef.current = page;
       dirtyRef.current = false;
@@ -1052,7 +1059,7 @@ export default function App() {
   }
   async function createPage(
     parent_id: string | null = null,
-    options: { title?: string; open?: boolean } = {},
+    options: { title?: string; open?: boolean; newTab?: boolean } = {},
   ): Promise<Page | null> {
     if (
       !document.dispatchEvent(
@@ -1085,7 +1092,8 @@ export default function App() {
       created = page;
       focusNewTitle.current = String(page.id);
       await loadList();
-      if (options.open !== false) await openPage(String(page.id));
+      if (options.open !== false)
+        await openPage(String(page.id), false, false, !!options.newTab);
     });
     return created;
   }
@@ -1850,6 +1858,14 @@ export default function App() {
       ];
     return [
       {
+        label: "Ouvrir dans un nouvel onglet",
+        icon: <ExternalLink />,
+        group: "navigation",
+        run: () => {
+          void openPage(String(target.id), false, false, true);
+        },
+      },
+      {
         label: "Renommer",
         icon: <Pencil />,
         run: action(() => {
@@ -2164,6 +2180,8 @@ export default function App() {
             return;
           const id =
             target.closest<HTMLElement>("[data-page-id]")?.dataset.pageId ||
+            target.closest<HTMLElement>("[data-page-target]")?.dataset
+              .pageTarget ||
             draft?.id;
           if (!id) return;
           e.preventDefault();
@@ -2537,242 +2555,245 @@ export default function App() {
               <Minimize size={16} /> Quitter le plein écran
             </button>
           )}
-          <header className="topbar">
-            <nav className="breadcrumbs" aria-label="Fil d’Ariane">
-              {admin && (sidebarHidden || focus) && !mobile && (
-                <button
-                  className="icon-button"
-                  aria-label="Afficher la navigation"
-                  title="Afficher la navigation"
-                  onClick={toggleNavigation}
-                >
-                  <PanelLeftOpen size={19} />
-                </button>
-              )}
-              <button
-                className="mobile-menu icon-button"
-                aria-label="Ouvrir la navigation"
-                onClick={() => setSidebar(true)}
-              >
-                <Menu size={20} />
-              </button>
-              <button
-                className="breadcrumb-home"
-                onClick={() => {
-                  if (!draft) {
-                    void openDashboard();
-                    return;
+          <div className="page-navigation">
+            {admin && (
+              <EditorTabs
+                pages={pages}
+                current={draft}
+                navigation={tabNavigation}
+                onOpen={(id) => void openPage(id)}
+                onNew={() => void createPage(null, { newTab: true })}
+                onClose={async (next) => {
+                  if (next) {
+                    await openPage(next);
+                    return String(draftRef.current?.id) === next;
                   }
-                  if (admin && draft.space_id) {
-                    void openDashboard(false, String(draft.space_id));
-                    return;
-                  }
-                  setActiveSpace(String(draft?.space_id || ""));
-                  const rootPage = ancestors[0];
-                  if (rootPage) void openPage(String(rootPage.id));
+                  await openDashboard();
+                  return draftRef.current === null;
                 }}
-              >
-                {spaces.find((s) => String(s.id) === String(draft?.space_id))
-                  ?.name || notebook.title}
-              </button>
-              {admin && dashboard && dashboardNotebook && (
-                <>
-                  <ChevronRight size={12} />
-                  <span className="breadcrumb-current">
-                    <FeuilletIcon icon={dashboardNotebook.icon} size={16} />{" "}
-                    {dashboardNotebook.name}
-                  </span>
-                </>
-              )}
-              {hasPage && (
-                <>
-                  <ChevronRight size={12} />
-                  {ancestors.map((p) => (
-                    <span className="breadcrumb-parent" key={p.id}>
-                      <button onClick={() => void openPage(String(p.id))}>
-                        <FeuilletIcon
-                          icon={p.icon}
-                          iconId={p.icon_id}
-                          size={15}
-                        />{" "}
-                        {titleOf(p)}
-                      </button>
-                      <ChevronRight size={12} />
-                    </span>
-                  ))}
-                  <span className="breadcrumb-current">
-                    <FeuilletIcon
-                      icon={draft?.icon || "📚"}
-                      iconId={draft?.icon_id}
-                      size={16}
-                    />{" "}
-                    {dashboard
-                      ? "Accueil"
-                      : draft
-                        ? titleOf(draft)
-                        : "Ton carnet"}
-                  </span>
-                </>
-              )}
-            </nav>
-            {admin && hasPage && (
-              <div className="topbar-actions">
-                <ThemeToggle
-                  mode={effectiveAppearance.mode}
-                  onChange={changeTheme}
-                  className="desktop-theme-control"
-                />
-                <span className={`save-state state-${saveStatus}`}>
-                  {saveStatus === "saving" ? (
-                    <Spinner />
-                  ) : saveStatus === "saved" ? (
-                    <Check size={14} />
-                  ) : saveStatus === "dirty" ? (
-                    <Cloud size={14} />
-                  ) : (
-                    <AlertCircle size={14} />
-                  )}
-                  <span>
-                    {saveStatus === "saving"
-                      ? "Enregistrement…"
-                      : saveStatus === "saved"
-                        ? "Enregistré"
-                        : saveStatus === "dirty"
-                          ? "Modifications…"
-                          : saveStatus === "conflict"
-                            ? "Conflit de version"
-                            : "Non enregistré"}
-                  </span>
-                </span>
+              />
+            )}
+            <header className="topbar">
+              <nav className="breadcrumbs" aria-label="Fil d’Ariane">
+                {admin && (sidebarHidden || focus) && !mobile && (
+                  <button
+                    className="icon-button"
+                    aria-label="Afficher la navigation"
+                    title="Afficher la navigation"
+                    onClick={toggleNavigation}
+                  >
+                    <PanelLeftOpen size={19} />
+                  </button>
+                )}
                 <button
-                  className="icon-button favorite-button"
-                  title={
-                    favorites.includes(String(draft.id))
-                      ? "Retirer des favoris"
-                      : "Ajouter aux favoris"
-                  }
-                  aria-pressed={favorites.includes(String(draft.id))}
-                  onClick={() => toggleFavorite(String(draft.id))}
+                  className="mobile-menu icon-button"
+                  aria-label="Ouvrir la navigation"
+                  onClick={() => setSidebar(true)}
                 >
-                  <Star
-                    size={17}
-                    fill={
-                      favorites.includes(String(draft.id))
-                        ? "currentColor"
-                        : "none"
+                  <Menu size={20} />
+                </button>
+                <button
+                  className="breadcrumb-home"
+                  onClick={() => {
+                    if (!draft) {
+                      void openDashboard();
+                      return;
                     }
+                    if (admin && draft.space_id) {
+                      void openDashboard(false, String(draft.space_id));
+                      return;
+                    }
+                    setActiveSpace(String(draft?.space_id || ""));
+                    const rootPage = ancestors[0];
+                    if (rootPage) void openPage(String(rootPage.id));
+                  }}
+                >
+                  {spaces.find((s) => String(s.id) === String(draft?.space_id))
+                    ?.name || notebook.title}
+                </button>
+                {admin && dashboard && dashboardNotebook && (
+                  <>
+                    <ChevronRight size={12} />
+                    <span className="breadcrumb-current">
+                      <FeuilletIcon icon={dashboardNotebook.icon} size={16} />{" "}
+                      {dashboardNotebook.name}
+                    </span>
+                  </>
+                )}
+                {hasPage && (
+                  <>
+                    <ChevronRight size={12} />
+                    {ancestors.map((p) => (
+                      <span className="breadcrumb-parent" key={p.id}>
+                        <button onClick={() => void openPage(String(p.id))}>
+                          <FeuilletIcon
+                            icon={p.icon}
+                            iconId={p.icon_id}
+                            size={15}
+                          />{" "}
+                          {titleOf(p)}
+                        </button>
+                        <ChevronRight size={12} />
+                      </span>
+                    ))}
+                    <span className="breadcrumb-current">
+                      <FeuilletIcon
+                        icon={draft?.icon || "📚"}
+                        iconId={draft?.icon_id}
+                        size={16}
+                      />{" "}
+                      {dashboard
+                        ? "Accueil"
+                        : draft
+                          ? titleOf(draft)
+                          : "Ton carnet"}
+                    </span>
+                  </>
+                )}
+              </nav>
+              {admin && hasPage && (
+                <div className="topbar-actions">
+                  <ThemeToggle
+                    mode={effectiveAppearance.mode}
+                    onChange={changeTheme}
+                    className="desktop-theme-control"
                   />
-                </button>
-                <button
-                  className={`publish-button ${draft.visibility === "public" ? "is-public" : ""}`}
-                  disabled={busy || saveStatus === "conflict"}
-                  onClick={() => showModal("publish")}
-                >
-                  {draft.visibility === "public" ? (
-                    <Globe size={15} />
-                  ) : (
-                    <Lock size={15} />
-                  )}
-                  <span>
-                    {draft.visibility === "public"
-                      ? draft.has_unpublished_changes
-                        ? "Mettre à jour"
-                        : "Publiée"
-                      : "Publier"}
+                  <span className={`save-state state-${saveStatus}`}>
+                    {saveStatus === "saving" ? (
+                      <Spinner />
+                    ) : saveStatus === "saved" ? (
+                      <Check size={14} />
+                    ) : saveStatus === "dirty" ? (
+                      <Cloud size={14} />
+                    ) : (
+                      <AlertCircle size={14} />
+                    )}
+                    <span>
+                      {saveStatus === "saving"
+                        ? "Enregistrement…"
+                        : saveStatus === "saved"
+                          ? "Enregistré"
+                          : saveStatus === "dirty"
+                            ? "Modifications…"
+                            : saveStatus === "conflict"
+                              ? "Conflit de version"
+                              : "Non enregistré"}
+                    </span>
                   </span>
-                </button>
-                <button
-                  className="icon-button"
-                  title="Actions sur la page"
-                  aria-label="Actions sur la page"
-                  aria-haspopup="menu"
-                  aria-expanded={!!pageContext}
-                  onClick={(e) =>
-                    setPageContext(
-                      pageContext
-                        ? null
-                        : { id: String(draft.id), anchor: e.currentTarget },
-                    )
-                  }
-                >
-                  <MoreHorizontal size={20} />
-                </button>
-              </div>
-            )}
-            {admin && dashboard && (
-              <div className="topbar-actions">
-                <ThemeToggle
-                  mode={displayAppearance.mode}
-                  onChange={changeTheme}
-                  className="desktop-theme-control"
-                />
-                <button
-                  className="icon-button"
-                  aria-label="Importer une page"
-                  title="Importer une page"
-                  onClick={() => showModal("import-document")}
-                >
-                  <FileInput size={19} />
-                </button>
-                <button
-                  className="icon-button"
-                  aria-label="Réglages généraux"
-                  onClick={() => void showSettings()}
-                >
-                  <Settings size={19} />
-                </button>
-              </div>
-            )}
-            {!admin && (
-              <div className="reader-header-actions">
-                <ThemeToggle
-                  mode={effectiveAppearance.mode}
-                  onChange={changeTheme}
-                />
-                <button
-                  className="small-button reader-login-button"
-                  onClick={() => showModal("login")}
-                >
-                  <LogIn size={16} />
-                  Administration
-                </button>
-              </div>
-            )}
-            {!admin && hasPage && (
-              <div className="reader-actions">
-                <button
-                  className="small-button"
-                  onClick={() => void downloadPdf()}
-                  disabled={busy}
-                >
-                  <Download size={15} /> PDF
-                </button>
-                <a
-                  className="reading-link"
-                  href={`${pageUrl(draft.slug || draft.id)}&read=1`}
-                >
-                  <BookOpen size={15} />
-                  <span>Lecture simple</span>
-                </a>
-              </div>
-            )}
-          </header>
-          {admin && (
-            <EditorTabs
-              pages={pages}
-              current={draft}
-              onOpen={(id) => void openPage(id)}
-              onNew={() => void createPage(null)}
-              onClose={async (next) => {
-                if (next) {
-                  await openPage(next);
-                  return String(draftRef.current?.id) === next;
-                }
-                await openDashboard();
-                return draftRef.current === null;
-              }}
-            />
-          )}
+                  <button
+                    className="icon-button favorite-button"
+                    title={
+                      favorites.includes(String(draft.id))
+                        ? "Retirer des favoris"
+                        : "Ajouter aux favoris"
+                    }
+                    aria-pressed={favorites.includes(String(draft.id))}
+                    onClick={() => toggleFavorite(String(draft.id))}
+                  >
+                    <Star
+                      size={17}
+                      fill={
+                        favorites.includes(String(draft.id))
+                          ? "currentColor"
+                          : "none"
+                      }
+                    />
+                  </button>
+                  <button
+                    className={`publish-button ${draft.visibility === "public" ? "is-public" : ""}`}
+                    disabled={busy || saveStatus === "conflict"}
+                    onClick={() => showModal("publish")}
+                  >
+                    {draft.visibility === "public" ? (
+                      <Globe size={15} />
+                    ) : (
+                      <Lock size={15} />
+                    )}
+                    <span>
+                      {draft.visibility === "public"
+                        ? draft.has_unpublished_changes
+                          ? "Mettre à jour"
+                          : "Publiée"
+                        : "Publier"}
+                    </span>
+                  </button>
+                  <button
+                    className="icon-button"
+                    title="Actions sur la page"
+                    aria-label="Actions sur la page"
+                    aria-haspopup="menu"
+                    aria-expanded={!!pageContext}
+                    onClick={(e) =>
+                      setPageContext(
+                        pageContext
+                          ? null
+                          : { id: String(draft.id), anchor: e.currentTarget },
+                      )
+                    }
+                  >
+                    <MoreHorizontal size={20} />
+                  </button>
+                </div>
+              )}
+              {admin && dashboard && (
+                <div className="topbar-actions">
+                  <ThemeToggle
+                    mode={displayAppearance.mode}
+                    onChange={changeTheme}
+                    className="desktop-theme-control"
+                  />
+                  <button
+                    className="icon-button"
+                    aria-label="Importer une page"
+                    title="Importer une page"
+                    onClick={() => showModal("import-document")}
+                  >
+                    <FileInput size={19} />
+                  </button>
+                  <button
+                    className="icon-button"
+                    aria-label="Réglages généraux"
+                    onClick={() => void showSettings()}
+                  >
+                    <Settings size={19} />
+                  </button>
+                </div>
+              )}
+              {!admin && (
+                <div className="reader-header-actions">
+                  <ThemeToggle
+                    mode={effectiveAppearance.mode}
+                    onChange={changeTheme}
+                  />
+                  <button
+                    className="small-button reader-login-button"
+                    onClick={() => showModal("login")}
+                  >
+                    <LogIn size={16} />
+                    Administration
+                  </button>
+                </div>
+              )}
+              {!admin && hasPage && (
+                <div className="reader-actions">
+                  <button
+                    className="small-button"
+                    onClick={() => void downloadPdf()}
+                    disabled={busy}
+                  >
+                    <Download size={15} /> PDF
+                  </button>
+                  <a
+                    className="reading-link"
+                    href={`${pageUrl(draft.slug || draft.id)}&read=1`}
+                  >
+                    <BookOpen size={15} />
+                    <span>Lecture simple</span>
+                  </a>
+                </div>
+              )}
+            </header>
+          </div>
           {(saveStatus === "error" || saveStatus === "conflict") && (
             <div className="save-error" role="alert">
               <AlertCircle size={18} />

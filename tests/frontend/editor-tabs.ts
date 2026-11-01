@@ -1,3 +1,11 @@
 import assert from 'node:assert/strict';import {readEditorTabs,addEditorTab,nextEditorTab} from '../../frontend/src/editor-tabs';
 const a='11111111-1111-4111-8111-111111111111',b='22222222-2222-4222-8222-222222222222';
 assert.deepEqual(readEditorTabs('invalid'),[]);assert.deepEqual(readEditorTabs(JSON.stringify([a,a,b,'bad',null])),[a,b]);assert.deepEqual(addEditorTab([a],a),[a]);assert.deepEqual(addEditorTab([a],b),[a,b]);assert.equal(nextEditorTab([a,b],a),b);assert.equal(nextEditorTab([a,b],b),a);assert.equal(nextEditorTab([a],a),null);console.log('Editor tabs: persistence validation, deduplication, opening and close neighbour');
+
+import {visitEditorTab} from '../../frontend/src/editor-tabs';
+const c='33333333-3333-4333-8333-333333333333';
+assert.deepEqual(visitEditorTab([a,b],c,a),[c,b]);
+assert.deepEqual(visitEditorTab([a,b],c,a,true),[a,b,c]);
+assert.deepEqual(visitEditorTab([a,b],b,a),[a,b]);
+assert.deepEqual(visitEditorTab([],a,null),[a]);
+console.log('Normal navigation replaces the active tab; explicit opening adds a tab');
