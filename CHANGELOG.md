@@ -1,5 +1,11 @@
 # Historique des versions
 
+## 0.16.2 — 2026-11-01
+
+- Espacement des titres de contenu rééquilibré : davantage d’espace avant, moins après, en édition et en lecture publique.
+- Styles partagés avec les encadrés et titres dépliables, sans ajouter de vide en tête de leur conteneur.
+
+
 ## 0.16.1 — 2026-11-01
 
 - Onglets placés au-dessus du fil d’Ariane dans un groupe fixe commun, sans décalage lié à la hauteur des barres.

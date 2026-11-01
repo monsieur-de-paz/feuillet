@@ -3013,3 +3013,20 @@ body.block-selecting .editor-content-wrap iframe {
   position: static;
   top: auto;
 }
+
+/* A heading belongs visually to the content that follows it. */
+:is(.course-content, .reader-page) .content-heading {
+  margin-block-start: 1.4em;
+  margin-block-end: 0.35em;
+  padding-block: 0;
+}
+.callout .content-heading:first-child {
+  margin-block-start: 0;
+}
+.toggle-heading > summary > .content-heading,
+.toggle-heading-content
+  > [data-node-view-content-react]
+  > .content-heading:first-child {
+  margin-block-start: 0;
+  margin-block-end: 0.35em;
+}

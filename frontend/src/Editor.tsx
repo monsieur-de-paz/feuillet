@@ -212,7 +212,10 @@ export default function CourseEditor({
           defaultProtocol: "https",
           HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" },
         },
-        heading: { levels: [1, 2, 3] },
+        heading: {
+          levels: [1, 2, 3],
+          HTMLAttributes: { class: "content-heading" },
+        },
       }),
       ResizableImage,
       TextStyle,

@@ -495,3 +495,7 @@ Version 0.16 : 16 tests de mise à jour réussis sur SQLite ; migration réelle 
 Build TypeScript/Vite et suites frontend réussis. Les tests de visitEditorTab vérifient remplacement normal, ajout explicite et activation d’un onglet existant. Navigateur sur copie jetable : 1 onglet après clic normal, 2 après clic droit/Ouvrir dans un nouvel onglet, toujours 2 après autre clic normal, 3 après +. Mesure des rangées : onglets y=0–45, fil d’Ariane y=45–104, sans recouvrement.
 
 La migration de la vraie distribution 0.16.0 à la 0.16.1 passe sur SQLite, avec conservation de la configuration, de la page privée, du fichier et de la session.
+
+## Espacement des titres 0.16.2
+
+Build TypeScript/Vite et socle HTTP : 20 scénarios réussis, un test réseau ignoré. Contrôle navigateur public sur copie jetable avec trois titres niveau 1 et fichiers : marges calculées 61,6 px avant / 15,4 px après ; écart réel titre–fichier 18 px. L’espace avant dépasse bien celui après.

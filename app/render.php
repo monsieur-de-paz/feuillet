@@ -15,7 +15,7 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
     if($t==='doc')return $children;
     if($t==='paragraph')return '<p>'.($children?:'<br>').'</p>';
     if($t==='hardBreak')return '<br>';
-    if($t==='heading'){$level=max(1,min(6,(int)($a['level']??2)));return '<h'.$level.'>'.$children.'</h'.$level.'>';}
+    if($t==='heading'){$level=max(1,min(6,(int)($a['level']??2)));return '<h'.$level.' class="content-heading">'.$children.'</h'.$level.'>';}
     if($t==='bulletList'||$t==='taskList')return '<ul class="'.($t==='taskList'?'task-list':'').'">'.$children.'</ul>';
     if($t==='orderedList')return '<ol start="'.max(1,(int)($a['start']??1)).'">'.$children.'</ol>';
     if($t==='listItem')return '<li>'.$children.'</li>';

@@ -159,3 +159,7 @@ Les commandes de couverture flottent au-dessus de l’image, indépendamment du 
 ## Navigation 0.16.1
 
 Ordre de la navigation dans l’administration : onglets en première rangée, fil d’Ariane et actions en deuxième rangée. Un seul groupe fixe évite les superpositions, y compris quand la barre d’onglets est absente ou sur mobile.
+
+## Espacement des titres 0.16.2
+
+Les titres du contenu utilisent une marge avant de 1,4 em et après de 0,35 em. Ils appartiennent visuellement au contenu suivant. Les espaces restent proportionnels à la taille du titre. Le premier titre d’un encadré et l’intitulé d’un titre dépliable n’ajoutent pas de marge haute interne.

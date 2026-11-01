@@ -274,3 +274,7 @@ LazyVideo monte la balise video seulement après activation. Le rendu PHP émet 
 ## Navigation 0.16.1
 
 page-navigation regroupe EditorTabs puis topbar dans un seul conteneur sticky. Les enfants ne possèdent plus de décalage sticky propre. openPage indique, après une navigation réussie, si l’ouverture a été explicitement demandée dans un nouvel onglet. visitEditorTab réutilise l’onglet actif pour une navigation normale et conserve les autres ; la sélection d’une page déjà ouverte active son onglet.
+
+## Espacement des titres 0.16.2
+
+La classe content-heading identifie les titres du document dans le rendu PHP et les HTMLAttributes de l’extension Heading. Les marges communes se trouvent dans interface.css, avec exceptions explicites pour encadrés et titres dépliables. Les titres des cartes, fenêtres et autres composants ne sont pas concernés.
