@@ -38,7 +38,8 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useApp } from "./context";
 import { DatabaseView, FormView } from "./Database";
 import { imageSource } from "./MediaLightbox";
-import { FeuilletIcon } from "./IconPicker";
+import { FeuilletIcon, IconPicker } from "./IconPicker";
+import { createPortal } from "react-dom";
 import {
   api,
   fileUrl,
@@ -353,24 +354,90 @@ export const ResizableImage = Image.extend({
 
 function CalloutView({ node, updateAttributes }: NodeViewProps) {
   const { admin } = useApp();
+  const [choosingEmoji, setChoosingEmoji] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const close = () => {
+    setChoosingEmoji(false);
+    trigger.current?.focus();
+  };
+  useEffect(() => {
+    if (!choosingEmoji) return;
+    const key = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        close();
+      }
+    };
+    document.addEventListener("keydown", key);
+    return () => document.removeEventListener("keydown", key);
+  }, [choosingEmoji]);
+  const icon = node.attrs.icon ?? "💡";
   return (
     <NodeViewWrapper className={`callout tone-${node.attrs.tone}`}>
-      <div contentEditable={false} className="callout-glyph">
-        {admin ? (
-          <button
-            className="icon-edit"
-            title="Changer l’emoji"
-            onClick={() => {
-              const icon = prompt("Emoji de l’encadré", node.attrs.icon);
-              if (icon !== null) updateAttributes({ icon });
+      {(admin || icon) && (
+        <div contentEditable={false} className="callout-glyph">
+          {admin ? (
+            <button
+              ref={trigger}
+              type="button"
+              className={`icon-edit ${icon ? "" : "callout-emoji-empty"}`}
+              aria-label={
+                icon
+                  ? "Changer l’emoji de l’encadré"
+                  : "Ajouter un emoji à l’encadré"
+              }
+              onClick={() => setChoosingEmoji(true)}
+            >
+              {icon || "+"}
+            </button>
+          ) : (
+            icon
+          )}
+        </div>
+      )}
+      {choosingEmoji &&
+        createPortal(
+          <div
+            className="modal-backdrop"
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget) close();
             }}
           >
-            {node.attrs.icon || "💡"}
-          </button>
-        ) : (
-          node.attrs.icon || "💡"
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Emoji de l’encadré"
+              className="modal callout-emoji-dialog"
+              contentEditable={false}
+            >
+              <header>
+                <strong>Emoji de l’encadré</strong>
+                <button
+                  type="button"
+                  autoFocus
+                  aria-label="Fermer le sélecteur d’emoji"
+                  onClick={close}
+                >
+                  ×
+                </button>
+              </header>
+              <IconPicker
+                emojiOnly
+                value={{ emoji: icon, webIcon: null, iconId: null }}
+                onEmoji={(emoji) => {
+                  updateAttributes({ icon: emoji });
+                  close();
+                }}
+                onWebIcon={() => {}}
+                onRemove={() => {
+                  updateAttributes({ icon: "" });
+                  close();
+                }}
+              />
+            </div>
+          </div>,
+          document.body,
         )}
-      </div>
       <NodeViewContent className="callout-content" />
       {admin && (
         <Select

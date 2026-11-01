@@ -474,3 +474,6 @@ Les contrôles natifs ont vérifié Cmd+C/Cmd+V après sélection rectangulaire 
 Le constat OVH portait sur une lecture seule de la ressource publique `.mjs`, dont les en-têtes ne contenaient pas de Content-Type. Aucun fichier du serveur de production n’a été modifié pendant le diagnostic. Le nouvel endpoint PHP assure le type JavaScript indépendamment de cette configuration.
 
 La distribution 0.15 passe les 16 tests de mise à jour sur SQLite et MySQL. Le passage de la véritable archive 0.14.0 à la 0.15.0 a été exécuté sur les deux moteurs : configuration, note privée, média et session conservés, puis toutes les empreintes installées contrôlées. La non-régression SQLite comprend sécurité (13), partage (16), publication automatique (6), lecteur (6), installation (5), éditeur (6) et socle HTTP (20 réussis, un scénario réseau ignoré). Le build, Prettier et la syntaxe des 31 fichiers PHP passent. Le contrôle mobile final confirme des actions de fichiers de 44 px de haut à 390 px.
+
+## Encadrés 0.15.1
+Build TypeScript/Vite réussi. tests/callouts.py vérifie trois cas (emoji absent historique, emoji composé et chaîne vide), les marques de couleur dans un titre, l’enregistrement et la lecture publique anonyme. Diagnostic en lecture seule : les marques étaient présentes dans le HTML de la page signalée ; la neutralisation CSS des descendants des titres les masquait.

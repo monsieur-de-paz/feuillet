@@ -1,5 +1,12 @@
 # Historique des versions
 
+## 0.15.1 — 2026-11-01
+
+- Couleurs explicites des textes et de tous les titres respectées, dans les encadrés et ailleurs, en édition et en lecture publique. Titres neutres par défaut.
+- Sélecteur complet d’emoji partagé avec les pages, recherche et variantes ; action Retirer pour un encadré sans emoji.
+- Absence d’emoji conservée à l’enregistrement et dans le rendu public.
+
+
 ## 0.15.0 — 2026-10-17
 
 - Suppression du fond coloré des galeries dans l’éditeur, y compris en sélection.

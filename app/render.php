@@ -26,7 +26,7 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
     if($t==='table')return '<div class="table-scroll"><table>'.$children.'</table></div>';
     if($t==='tableRow')return '<tr>'.$children.'</tr>';
     if($t==='tableCell'||$t==='tableHeader'){$tag=$t==='tableHeader'?'th':'td';return '<'.$tag.' colspan="'.max(1,min(20,(int)($a['colspan']??1))).'" rowspan="'.max(1,min(20,(int)($a['rowspan']??1))).'">'.$children.'</'.$tag.'>';}
-    if($t==='callout'){$tone=in_array($a['tone']??'', ['blue','green','amber','red','gray'],true)?$a['tone']:'gray';return '<aside class="callout tone-'.$tone.'"><span class="callout-icon">'.h($a['icon']??'💡').'</span><div>'.$children.'</div></aside>';}
+    if($t==='callout'){$tone=in_array($a['tone']??'', ['blue','green','amber','red','gray'],true)?$a['tone']:'gray';return '<aside class="callout tone-'.$tone.'">'.(($a['icon']??'💡')!==''?'<span class="callout-icon">'.h($a['icon']??'💡').'</span>':'').'<div>'.$children.'</div></aside>';}
     if($t==='columns')return '<div class="columns">'.$children.'</div>';
     if($t==='column')return '<div class="column">'.$children.'</div>';
     if($t==='details')return '<details><summary>'.h($a['summary']??'En savoir plus').'</summary>'.$children.'</details>';

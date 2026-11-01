@@ -259,3 +259,6 @@ La sauvegarde code.zip reprend les octets effectivement lus. Après fermeture du
 `pdf-engine.php` sélectionne deux fichiers PDF.js fixes et définit leur MIME explicitement, sans dépendre de la reconnaissance de `.mjs` par Apache. Le lecteur utilise un import dynamique protégé par un traitement d’erreur et des URL versionnées. `public/.htaccess` complète les types MIME statiques. L’endpoint ne publie aucun fichier utilisateur.
 
 Les pièces jointes PHP utilisent `attachment-block / attachment-caption / attachment-info / attachment-actions` et les styles de `file-preview.css`. Les noms sont échappés et l’aperçu utilise le dialogue à accès contrôlé existant.
+
+## Encadrés 0.15.1
+La règle imposant color: inherit !important aux descendants des titres est retirée globalement : toutes les marques textStyle sont respectées. Le champ icon conserve la chaîne vide comme absence explicite ; seuls les anciens champs absents reçoivent 💡. Le sélecteur IconPicker est réutilisé en mode emojiOnly dans une fenêtre dédiée.
