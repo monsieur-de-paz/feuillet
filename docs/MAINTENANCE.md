@@ -245,3 +245,7 @@ Après mise à jour, vérifier l’aperçu public avec un navigateur sans sessio
 La distribution fournit aussi `public/.htaccess` pour JavaScript, CSS et WebAssembly. Conserver ce fichier lors d’un transfert FTP et envoyer toute la distribution, dont `pdf-engine.php` et `public/vendor/pdfjs/`. Les URL versionnées évitent un ancien cache du lecteur. Un document endommagé ou une ressource indisponible doit proposer le téléchargement.
 
 Contrôler les trois commandes de couverture, le zoom, l’annulation et le cadrage après rechargement. Le JSON reste compatible avec les anciennes positions x/y. Pour le presse-papiers, copier une sélection avec titre dépliable et pièce jointe, la coller ailleurs puis annuler le collage en une action.
+
+## Copie indépendante 0.15.2
+
+Les copies de fichiers consomment du stockage supplémentaire. Vérifier les droits d’écriture et l’espace libre. Une copie interrompue ne doit pas laisser de nouvelles lignes ou fichiers ; tester avec tests/block-copy.py. Les références des anciens collages restent inchangées pour préserver les liens intentionnels.

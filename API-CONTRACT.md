@@ -182,3 +182,7 @@ update_status.job ajoute failed_phase (nullable) pour la dernière étape interr
 - `cover_position` conserve `x,y` et accepte `zoom?:number` borné à 1–3. L’absence de `zoom` conserve le contrat historique et signifie 1. Le même validateur s’applique aux pages et carnets. Rendu public et export PDF reprennent le zoom.
 - `GET public/pdf-engine.php?v=<version>` fournit uniquement `pdf.min.mjs`, `worker=1` uniquement `pdf.worker.min.mjs`, avec `Content-Type: text/javascript`. Aucun paramètre de chemin arbitraire. Ces ressources logicielles sont publiques ; les documents restent servis par `media.php` après vérification d’accès.
 - Le presse-papiers utilise `application/x-feuillet-blocks+json` et un attribut HTML de secours `data-feuillet-blocks`. Format : `format=feuillet-blocks`, `version=1`, `scope=URL base de l’installation`, `blocks=nœuds JSON`. Limites : 2 millions de caractères, 500 blocs racines, 12000 nœuds et profondeur 32. Schéma ProseMirror, URL et origine de l’installation sont contrôlés avant insertion. Un format étranger utilise le texte de secours. Le serveur valide ensuite le document lors de la sauvegarde.
+
+## Copie indépendante 0.15.2
+
+POST blocks_copy (administrateur + CSRF) reçoit id, version entière, content (document résultant), paths (chemins des ressources insérées), source_id. Retourne page, files et copied (comptes). Refuse GET, visiteurs, chemins invalides et conflits de version. Toutes les copies SQL et l’écriture destination sont atomiques ; les fichiers physiques créés sont supprimés après échec.

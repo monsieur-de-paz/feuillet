@@ -1,4 +1,4 @@
-import { BlockClipboard } from "./BlockClipboard";
+import { BlockClipboard, applyIndependentPaste } from "./BlockClipboard";
 import { EditorFileDrop } from "./EditorFileDrop";
 import { MapBlock } from "./MapBlock";
 import { BlockMover, blockAtElement } from "./BlockMover";
@@ -879,7 +879,14 @@ export default function CourseEditor({
           state.schema.nodes.paragraph.create(),
         );
     } else if (action === "duplicate") {
-      tr.insert(pos + node.nodeSize, node);
+      const copy = editor.schema.nodeFromJSON(node.toJSON());
+      tr.insert(pos + node.nodeSize, copy);
+      activeBlockRef.current = null;
+      setBlockMenu(false);
+      void applyIndependentPaste(editor, tr, [copy], app, app.currentId)
+        .then(() => app.notify("Bloc dupliqué en copie indépendante."))
+        .catch((error) => app.notify((error as Error).message));
+      return;
     } else {
       const to = blockSiblingDestination(state, pos, action);
       if (to === null) return;

@@ -262,3 +262,7 @@ Les pièces jointes PHP utilisent `attachment-block / attachment-caption / attac
 
 ## Encadrés 0.15.1
 La règle imposant color: inherit !important aux descendants des titres est retirée globalement : toutes les marques textStyle sont respectées. Le champ icon conserve la chaîne vide comme absence explicite ; seuls les anciens champs absents reçoivent 💡. Le sélecteur IconPicker est réutilisé en mode emojiOnly dans une fenêtre dédiée.
+
+## Copie indépendante 0.15.2
+
+Le moteur app/block-copy.php découvre un graphe borné, alloue de nouveaux identifiants, copie les octets des fichiers et remappe les références avant de sauvegarder la destination dans la même transaction SQL. database_import remappe propriétés, relations, formulaires et lignes. Le client repère uniquement les nœuds fraîchement insérés et conserve une annulation du collage. Un verrou temporaire de l’éditeur évite une modification concurrente locale.

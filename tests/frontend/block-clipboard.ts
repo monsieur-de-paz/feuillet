@@ -7,7 +7,7 @@ import { ToggleHeading } from '../../frontend/src/ToggleHeading';
 import { FileBlock,ResizableImage,Gallery,Callout,PageLink } from '../../frontend/src/nodes';
 import { BlockSelection,createBlockSelectionPlugin } from '../../frontend/src/block-selection';
 import { BLOCK_SELECTION_META,movableBlocks } from '../../frontend/src/block-moving';
-import {clipboardPayload,readClipboardBlocks,pasteBlockTransaction} from '../../frontend/src/BlockClipboard';
+import {clipboardPayload,readClipboardBlocks,pasteBlockTransaction,independentCopyPaths} from '../../frontend/src/BlockClipboard';
 import {coverImageStyle,coverOverflow,coverZoom} from '../../frontend/src/cover-position';
 const p=(text:string)=>({type:'paragraph',content:[{type:'text',text,marks:[{type:'bold'}]}]});
 const source=new Editor({element:null,extensions:[StarterKit,ToggleHeading,FileBlock,ResizableImage,Gallery,Callout,PageLink,BlockSelection],content:{type:'doc',content:[p('Premier — été ☀'),{type:'toggleHeading',content:[{type:'heading',attrs:{level:2},content:[{type:'text',text:'Un titre dépliable'}]},p('Texte intérieur')]},{type:'fileBlock',attrs:{fileId:'file-keep',name:'Ma pièce.pdf',mime:'application/pdf',mode:'download'}},{type:'image',attrs:{fileId:'image-keep',src:'media.php?id=image-keep',width:48,align:'right'}},{type:'gallery',attrs:{manual:true,pageIds:['page-keep'],columns:3,aspect:'1/1'}}]}});
@@ -24,3 +24,13 @@ console.log('Block clipboard and cover checks passed: nested blocks, attachment 
 const all=state.apply(state.tr.setSelection(new AllSelection(state.doc)).setMeta(BLOCK_SELECTION_META,[]));assert.equal(clipboardPayload(all,scope)!.blocks.length,5);
 const unsafe={...payload,blocks:[{type:'paragraph',content:[{type:'text',text:'Link',marks:[{type:'link',attrs:{href:'javascript:alert(1)'}}]}]}]};assert.equal(readClipboardBlocks(JSON.stringify(unsafe),state.schema,scope)![0].firstChild!.marks[0].attrs.href,'#');
 console.log('Select-all and unsafe clipboard URL checks passed');
+
+assert.deepEqual(independentCopyPaths(pasted.doc,readClipboardBlocks(JSON.stringify(payload),target.schema,scope)!),[]); // fresh JSON nodes are not inserted nodes
+const insertedNodes=readClipboardBlocks(JSON.stringify(payload),target.schema,scope)!;
+const plan=pasteBlockTransaction(targetState,insertedNodes)!;
+assert.deepEqual(independentCopyPaths(plan.doc,insertedNodes),[[2],[3],[4]]);
+const linkSource=source.schema.nodes.pageLink.create({pageId:'page-original'});
+const linkCopy=source.schema.nodeFromJSON(linkSource.toJSON());
+const docWithBoth=source.schema.nodes.doc.create(null,[linkSource,linkCopy]);
+assert.deepEqual(independentCopyPaths(docWithBoth,[linkCopy]),[[1]]);
+console.log('Independent-copy paths target only inserted pages, galleries and files');

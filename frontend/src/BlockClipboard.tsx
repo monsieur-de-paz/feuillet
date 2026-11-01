@@ -5,6 +5,8 @@ import {
   AllSelection,
   NodeSelection,
   type EditorState,
+  Selection,
+  type Transaction,
 } from "@tiptap/pm/state";
 import { closeHistory } from "@tiptap/pm/history";
 import { selectedBlocks } from "./block-selection";
@@ -13,7 +15,9 @@ import {
   blockRoots,
   BLOCK_SELECTION_META,
 } from "./block-moving";
-import { useApp } from "./context";
+import { useApp, type AppContextType } from "./context";
+import type { Doc } from "./types";
+import type { Node as PMNode } from "@tiptap/pm/model";
 export const blockClipboardType = "application/x-feuillet-blocks+json";
 export function clipboardRoots(state: EditorState) {
   const selected = blockRoots(state.doc, selectedBlocks(state));
@@ -39,13 +43,18 @@ export function clipboardRoots(state: EditorState) {
     ? roots
     : [];
 }
-export function clipboardPayload(state: EditorState, scope: string) {
+export function clipboardPayload(
+  state: EditorState,
+  scope: string,
+  sourceId = "",
+) {
   const roots = clipboardRoots(state);
   if (!roots.length) return null;
   return {
     format: "feuillet-blocks",
     version: 1,
     scope,
+    sourceId,
     blocks: roots.map((b) => b.node.toJSON()),
   };
 }
@@ -119,6 +128,73 @@ export function pasteBlockTransaction(
     return null;
   }
 }
+/** Track only freshly inserted resource nodes, never pre-existing destination blocks. */
+export function independentCopyPaths(doc: PMNode, nodes: PMNode[]) {
+  const dependencies = new Set<PMNode>();
+  const inspect = (node: PMNode) => {
+    if (
+      [
+        "gallery",
+        "pageLink",
+        "fileBlock",
+        "image",
+        "databaseView",
+        "formView",
+        "quiz",
+        "buttonLink",
+        "bookmark",
+      ].includes(node.type.name) ||
+      node.marks.some((m) => m.type.name === "link")
+    )
+      dependencies.add(node);
+    node.forEach(inspect);
+  };
+  nodes.forEach(inspect);
+  const paths: number[][] = [];
+  const walk = (parent: PMNode, path: number[]) =>
+    parent.forEach((node, _offset, index) => {
+      const next = [...path, index];
+      if (dependencies.has(node)) paths.push(next);
+      else walk(node, next);
+    });
+  walk(doc, []);
+  return paths;
+}
+export async function applyIndependentPaste(
+  editor: Editor,
+  planned: Transaction,
+  nodes: PMNode[],
+  app: AppContextType,
+  sourceId: string,
+) {
+  const paths = independentCopyPaths(planned.doc, nodes),
+    before = editor.state.doc;
+  if (!paths.length) {
+    editor.view.dispatch(planned);
+    editor.view.focus();
+    return;
+  }
+  const content = await app.pasteBlocks(
+    planned.doc.toJSON() as Doc,
+    paths,
+    sourceId,
+  );
+  if (editor.isDestroyed || !editor.state.doc.eq(before))
+    throw new Error(
+      "La page a changé pendant le collage. Recharge-la pour retrouver la copie enregistrée.",
+    );
+  const doc = editor.schema.nodeFromJSON(content);
+  doc.check();
+  const tr = editor.state.tr.replaceWith(
+    0,
+    editor.state.doc.content.size,
+    doc.content,
+  );
+  tr.setSelection(Selection.fromJSON(tr.doc, planned.selection.toJSON()));
+  tr.setMeta(BLOCK_SELECTION_META, []);
+  editor.view.dispatch(closeHistory(tr).scrollIntoView());
+  editor.view.focus();
+}
 export function BlockClipboard({ editor }: { editor: Editor }) {
   const app = useApp(),
     appRef = useRef(app);
@@ -139,7 +215,11 @@ export function BlockClipboard({ editor }: { editor: Editor }) {
         writingElsewhere(event.target)
       )
         return;
-      const payload = clipboardPayload(editor.state, scope);
+      const payload = clipboardPayload(
+        editor.state,
+        scope,
+        appRef.current.currentId,
+      );
       if (!payload) return;
       const raw = JSON.stringify(payload);
       if (raw.length > 2000000) {
@@ -225,11 +305,17 @@ export function BlockClipboard({ editor }: { editor: Editor }) {
       }
       event.preventDefault();
       event.stopPropagation();
-      editor.view.dispatch(tr);
-      editor.view.focus();
-      appRef.current.notify(
-        `${nodes.length} bloc${nodes.length > 1 ? "s" : ""} collé${nodes.length > 1 ? "s" : ""}.`,
-      );
+      let sourceId = "";
+      try {
+        sourceId = JSON.parse(raw).sourceId || "";
+      } catch {}
+      void applyIndependentPaste(editor, tr, nodes, appRef.current, sourceId)
+        .then(() =>
+          appRef.current.notify(
+            `${nodes.length} bloc${nodes.length > 1 ? "s" : ""} collé${nodes.length > 1 ? "s" : ""} en copie indépendante.`,
+          ),
+        )
+        .catch((error) => appRef.current.notify((error as Error).message));
     };
     document.addEventListener("copy", copy, true);
     document.addEventListener("paste", paste, true);

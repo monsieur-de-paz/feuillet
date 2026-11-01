@@ -477,3 +477,9 @@ La distribution 0.15 passe les 16 tests de mise à jour sur SQLite et MySQL. Le 
 
 ## Encadrés 0.15.1
 Build TypeScript/Vite réussi. tests/callouts.py vérifie trois cas (emoji absent historique, emoji composé et chaîne vide), les marques de couleur dans un titre, l’enregistrement et la lecture publique anonyme. Diagnostic en lecture seule : les marques étaient présentes dans le HTML de la page signalée ; la neutralisation CSS des descendants des titres les masquait.
+
+## Copie indépendante 0.15.2
+
+Tests block-copy : pages et descendants indépendants dans les deux sens, collages répétés, références préexistantes intactes, fichiers/couvertures/icônes distincts, cycles de liens, galeries historiques figées, CSRF/auth/méthodes, conflits, relations et formulaires, publication héritée, quiz et nettoyage après échec. Frontend : chemins des seuls nouveaux nœuds et annulation. Build et suites frontend passent ; socle HTTP (20 réussis, un réseau ignoré), sécurité (13) et médias (16) passent. Copie et médias validés sur SQLite et MySQL. Navigateur : Cmd+C d’un bloc de page, Cmd+V dans une autre page, ouverture du nouvel identifiant, renommage de la copie et vérification de l’original inchangé, sur une installation jetable.
+
+Distribution 0.15.2 : 16 tests de mise à jour réussis sur SQLite, migration réelle 0.15.1 → 0.15.2 sur SQLite et MySQL avec conservation de la configuration, des notes privées, du fichier et de la session. Les 11 scénarios de copie passent sur les deux moteurs.

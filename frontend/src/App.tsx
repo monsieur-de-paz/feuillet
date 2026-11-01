@@ -656,6 +656,70 @@ export default function App() {
     window.addEventListener("beforeunload", prevent);
     return () => window.removeEventListener("beforeunload", prevent);
   }, []);
+  async function pasteBlocks(
+    content: Doc,
+    paths: number[][],
+    sourceId: string,
+  ): Promise<Doc> {
+    const source = draftRef.current,
+      editor = editorRef.current;
+    if (!source || !editor || transferring.current)
+      throw new Error("Une opération est déjà en cours.");
+    if (
+      !document.dispatchEvent(
+        new Event("feuillet:before-page-change", { cancelable: true }),
+      )
+    )
+      throw new Error(
+        "Enregistre ou annule la modification en cours avant de coller.",
+      );
+    const before = editor.state.doc,
+      root = document.getElementById("root"),
+      wasInert = root?.inert;
+    transferring.current = true;
+    editor.setEditable(false, false);
+    if (root) {
+      root.inert = true;
+      root.setAttribute("aria-busy", "true");
+    }
+    setBusy(true);
+    notify("Création d’une copie indépendante…");
+    const blockNavigation = (event: Event) => event.preventDefault();
+    document.addEventListener("feuillet:before-page-change", blockNavigation);
+    try {
+      if (!(await save()))
+        throw new Error("Enregistre la page avant de coller ces blocs.");
+      if (!editor.state.doc.eq(before) || draftRef.current?.id !== source.id)
+        throw new Error("La page a changé. Recommence le collage.");
+      const result = await api("blocks_copy", {
+        id: source.id,
+        version: draftRef.current!.version,
+        content,
+        paths,
+        source_id: sourceId,
+      });
+      draftRef.current = result.page;
+      setDraft(result.page);
+      dirtyRef.current = false;
+      setSaveStatus("saved");
+      updateList(result.page);
+      if (result.files?.length) setFiles((prev) => [...result.files, ...prev]);
+      await loadList().catch(() => {});
+      return result.page.content;
+    } finally {
+      transferring.current = false;
+      setBusy(false);
+      if (root) {
+        root.inert = !!wasInert;
+        root.removeAttribute("aria-busy");
+      }
+      document.removeEventListener(
+        "feuillet:before-page-change",
+        blockNavigation,
+      );
+      if (!editor.isDestroyed) editor.setEditable(true, false);
+    }
+  }
   async function moveToPage(targetId: string, paths: number[][], content: Doc) {
     const source = draftRef.current,
       editor = editorRef.current;
@@ -2050,6 +2114,7 @@ export default function App() {
       value={{
         admin,
         moveToPage,
+        pasteBlocks,
         uploadedFile: (file) =>
           setFiles((prev) => [file, ...prev.filter((f) => f.id !== file.id)]),
         pages,

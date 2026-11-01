@@ -1,5 +1,14 @@
 # Historique des versions
 
+## 0.15.2 — 2026-11-01
+
+- Collage indépendant des pages, galeries et pièces jointes ; nouveaux identifiants et fichiers physiques séparés.
+- Sous-pages, couvertures, icônes, bases liées, relations, lignes, formulaires et quiz remappés dans la copie.
+- Collage et création des dépendances dans une transaction, conflits sans écrasement et nettoyage des fichiers après échec.
+- Dupliquer le bloc utilise le même moteur ; galeries dynamiques figées sur les pages copiées.
+- Les anciennes copies liées ne sont pas réécrites ; refaire le collage après mise à jour pour les dissocier.
+
+
 ## 0.15.1 — 2026-11-01
 
 - Couleurs explicites des textes et de tous les titres respectées, dans les encadrés et ailleurs, en édition et en lecture publique. Titres neutres par défaut.
