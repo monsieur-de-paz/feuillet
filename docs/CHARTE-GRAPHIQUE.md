@@ -173,3 +173,7 @@ Les cartes enrichies conservent une miniature à droite et un texte limité à t
 ## Contenus 0.19
 
 Les liens de sous-pages sont des destinations visuelles : titre neutre sans soulignement, icône 22/28/36 px, description secondaire, survol discret, flèche de navigation. Trois densités : ligne épurée, carte et compacte. Les colonnes structurent par le vide (16, 28 ou 44 px), sans bordures, et se replient selon la place disponible. Les réglages sont contextuels au survol/focus et restent visibles sur écran tactile. Les encadrés utilisent un rayon de 14 px et une marge intérieure de 20 × 22 px sur ordinateur, 16 px sur mobile. Les valeurs sont communes au lecteur et à l’éditeur. Voir [la revue de design](DESIGN-0.19.md).
+
+## Accent monochrome — 0.20
+
+Le monochrome emploie des gris neutres, sans teinte : #303030 en clair, #E5E5E5 en sombre, #F5F5F5 en OLED. La couleur de texte d’un bouton rempli est calculée selon son contraste. Le mode personnalisé expose trois sélecteurs côte à côte sur ordinateur et empilés sur mobile. Le monochrome dispose d’un choix explicite et nommé dans la palette, en plus du sélecteur de mode. Les couleurs sémantiques (erreurs, états personnalisés) et les couleurs du contenu restent indépendantes de l’accent.

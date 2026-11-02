@@ -30,7 +30,12 @@ import {
   fileUrl,
   sizeLabel,
 } from "./types";
-import { adaptiveAccent, accentForeground, accentHover } from "./theme-colors";
+import {
+  adaptiveAccent,
+  resolveAccent,
+  accentForeground,
+  accentHover,
+} from "./theme-colors";
 export const accentColors = [
   "#38795d",
   "#2563eb",
@@ -60,7 +65,7 @@ export function themeStyle(a: Appearance): CSSProperties {
   const mode = a.mode || "light";
   const dark = mode !== "light";
   const surface = mode === "oled" ? "#000000" : dark ? "#17191d" : "#ffffff";
-  const accent = adaptiveAccent(a.accent, mode, a.background);
+  const accent = resolveAccent(a, mode, a.background);
   return {
     "--ui-font": fonts[a.font] || fonts.sans,
     "--surface": surface,
@@ -75,6 +80,9 @@ export function themeStyle(a: Appearance): CSSProperties {
     "--green": accent,
     "--accent": accent,
     "--accent-base": a.accent,
+    "--accent-mode": a.accentMode || "auto",
+    "--accent-dark": a.accentDark || "",
+    "--accent-oled": a.accentOled || "",
     "--page-accent": accent,
     "--accent-hover": accentHover(accent),
     "--accent-soft": `color-mix(in srgb, ${accent} ${dark ? "22" : "11"}%, ${surface})`,
@@ -142,13 +150,63 @@ export function ThemeControls({
           <option value="oled">Noir OLED</option>
         </Select>
       </label>
+      <label>
+        Style de l’accent
+        <Select
+          aria-label="Style de l’accent"
+          value={value.accentMode || "auto"}
+          onChange={(event) => {
+            const accentMode = event.target.value as Appearance["accentMode"];
+            onChange(
+              accentMode === "custom"
+                ? {
+                    accentMode,
+                    accentDark:
+                      value.accentDark ||
+                      adaptiveAccent(value.accent, "dark", "#17191D"),
+                    accentOled:
+                      value.accentOled ||
+                      adaptiveAccent(
+                        value.accentDark || value.accent,
+                        "oled",
+                        "#000000",
+                      ),
+                  }
+                : { accentMode },
+            );
+          }}
+        >
+          <option value="auto">Couleur adaptative</option>
+          <option value="monochrome">Monochrome</option>
+          <option value="custom">Personnalisé par thème</option>
+        </Select>
+      </label>
+      {value.accentMode === "custom" && (
+        <div className="accent-custom-colors">
+          <ColorControl
+            label="Accent clair"
+            value={value.accent}
+            onChange={(accent) => onChange({ accent })}
+          />
+          <ColorControl
+            label="Accent sombre"
+            value={value.accentDark || value.accent}
+            onChange={(accentDark) => onChange({ accentDark })}
+          />
+          <ColorControl
+            label="Accent OLED"
+            value={value.accentOled || value.accentDark || value.accent}
+            onChange={(accentOled) => onChange({ accentOled })}
+          />
+        </div>
+      )}
       <div
         className="accent-variants"
         aria-label="Variantes automatiques de l’accent"
       >
         {(["light", "dark", "oled"] as const).map((mode) => {
-          const accent = adaptiveAccent(
-            value.accent,
+          const accent = resolveAccent(
+            value,
             mode,
             mode === "light"
               ? "#FFFFFF"
@@ -165,31 +223,51 @@ export function ThemeControls({
         })}
       </div>
       <p className="muted">
-        L’accent choisi garde sa couleur en clair. Ses variantes sombre et OLED
-        sont calculées automatiquement pour rester lisibles.
+        Le mode monochrome utilise du gris foncé en clair et du gris très clair
+        en sombre et OLED. En mode personnalisé, choisis chaque variante ; les
+        couleurs sombres sont ajustées si nécessaire pour rester lisibles.
       </p>
       <div
         className="theme-palette"
         role="group"
         aria-label="Couleurs du thème"
       >
+        <button
+          type="button"
+          className="monochrome-preset"
+          title="Monochrome adaptatif"
+          aria-label="Accent monochrome"
+          aria-pressed={value.accentMode === "monochrome"}
+          onClick={() => onChange({ accentMode: "monochrome" })}
+        >
+          <span className="theme-color-swatch monochrome-swatch">
+            {value.accentMode === "monochrome" && (
+              <Check size={16} aria-hidden="true" />
+            )}
+          </span>
+          <span>Monochrome adaptatif</span>
+        </button>
         {accentColors.map((color) => (
           <button
             key={color}
             type="button"
             title={color}
             aria-label={`Accent ${color}`}
-            aria-pressed={value.accent.toLowerCase() === color}
-            onClick={() => onChange({ accent: color })}
+            aria-pressed={
+              value.accentMode !== "monochrome" &&
+              value.accent.toLowerCase() === color
+            }
+            onClick={() => onChange({ accent: color, accentMode: "auto" })}
           >
             <span className="theme-color-swatch" style={{ background: color }}>
-              {value.accent.toLowerCase() === color && (
-                <Check
-                  size={16}
-                  color={accentForeground(color)}
-                  aria-hidden="true"
-                />
-              )}
+              {value.accentMode !== "monochrome" &&
+                value.accent.toLowerCase() === color && (
+                  <Check
+                    size={16}
+                    color={accentForeground(color)}
+                    aria-hidden="true"
+                  />
+                )}
             </span>
           </button>
         ))}

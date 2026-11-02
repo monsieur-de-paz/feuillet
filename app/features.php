@@ -44,12 +44,13 @@ function ensure_default_notebook(?PDO $pdo=null): string {
     $pdo??=db();$id=$pdo->query('SELECT id FROM spaces ORDER BY sort_order,name')->fetchColumn();if($id)return $id;
     $id=uuid();$pdo->prepare('INSERT INTO spaces (id,name,icon,sort_order) VALUES (?,?,?,?)')->execute([$id,'Mes pages','📚',0]);return $id;
 }
-function appearance_defaults(): array { return ['font'=>'sans','background'=>'#FFFFFF','text'=>'#37352F','accent'=>'#38795D','width'=>'normal','focus'=>false,'mode'=>'light']; }
+function appearance_defaults(): array { return ['font'=>'sans','background'=>'#FFFFFF','text'=>'#37352F','accent'=>'#38795D','accentMode'=>'auto','accentDark'=>'','accentOled'=>'','width'=>'normal','focus'=>false,'mode'=>'light']; }
 function css_color(mixed $value): string { return is_string($value)&&preg_match('/^#[a-fA-F0-9]{6}$/D',$value)?strtoupper($value):''; }
 function validate_appearance(mixed $value,bool $partial=false): array {
     if(!is_array($value))fail('Style de page invalide.');$out=$partial?[]:appearance_defaults();
     foreach(['background','text','accent'] as $key)if(array_key_exists($key,$value)){if(!css_color($value[$key]))fail('Couleur invalide.');$out[$key]=css_color($value[$key]);}
-    foreach(['font'=>['sans','serif','mono','quicksand','fraunces'],'width'=>['normal','wide'],'mode'=>['light','dark','oled']] as $key=>$allowed)if(array_key_exists($key,$value)){if(!in_array($value[$key],$allowed,true))fail('Style invalide.');$out[$key]=$value[$key];}
+    foreach(['accentDark','accentOled'] as $key)if(array_key_exists($key,$value)){if($value[$key]!==''&&!css_color($value[$key]))fail('Couleur invalide.');$out[$key]=$value[$key]===''?'':css_color($value[$key]);}
+    foreach(['accentMode'=>['auto','monochrome','custom'],'font'=>['sans','serif','mono','quicksand','fraunces'],'width'=>['normal','wide'],'mode'=>['light','dark','oled']] as $key=>$allowed)if(array_key_exists($key,$value)){if(!in_array($value[$key],$allowed,true))fail('Style invalide.');$out[$key]=$value[$key];}
     if(array_key_exists('focus',$value)){if(!is_bool($value['focus']))fail('Mode de lecture invalide.');$out['focus']=$value['focus'];}
     return $out;
 }
@@ -58,8 +59,8 @@ function page_appearance(array $page): array { return array_replace(global_appea
 function appearance_css(array $appearance): string {
     $a=validate_appearance($appearance);$font=match($a['font']){'serif'=>'Georgia,serif','mono'=>'monospace','quicksand'=>'Quicksand,system-ui,sans-serif','fraunces'=>'Fraunces,Georgia,serif',default=>'system-ui,sans-serif'};
     $dark=$a['mode']!=='light';$surface=$a['mode']==='oled'?'#000000':($dark?'#17191D':$a['background']);
-    $accent=adaptive_accent($a['accent'],$a['mode'],$a['background']);
-    $variables='--heading-ink:'.($dark?'#F3F4F6':'#272727').';--accent-base:'.$a['accent'].';--accent-contrast:'.accent_foreground($accent).';--accent-hover:'.accent_hover($accent).';--surface-soft:'.($a['mode']==='oled'?'#121212':($dark?'#2A2E35':'#EEEFED')).';--surface:'.$surface.';--surface-muted:'.($a['mode']==='oled'?'#080808':($dark?'#202329':'#F7F7F5')).';--ink:'.$a['text'].';--muted:'.($dark?'#AFB3BD':'#6f716d').';--line:'.($dark?'#373A42':'#E4E5E2').';--accent:'.$accent.';--green:'.$accent.';color-scheme:'.($dark?'dark':'light').';';
+    $accent=resolve_accent($a,$a['mode'],$a['background']);
+    $variables='--heading-ink:'.($dark?'#F3F4F6':'#272727').';--accent-mode:'.$a['accentMode'].';--accent-dark:'.$a['accentDark'].';--accent-oled:'.$a['accentOled'].';--accent-base:'.$a['accent'].';--accent-contrast:'.accent_foreground($accent).';--accent-hover:'.accent_hover($accent).';--surface-soft:'.($a['mode']==='oled'?'#121212':($dark?'#2A2E35':'#EEEFED')).';--surface:'.$surface.';--surface-muted:'.($a['mode']==='oled'?'#080808':($dark?'#202329':'#F7F7F5')).';--ink:'.$a['text'].';--muted:'.($dark?'#AFB3BD':'#6f716d').';--line:'.($dark?'#373A42':'#E4E5E2').';--accent:'.$accent.';--green:'.$accent.';color-scheme:'.($dark?'dark':'light').';';
     return $variables.'--page-background:' .$a['background'].';--page-text:'.$a['text'].';--page-accent:'.$accent.';background:'.$a['background'].';color:'.$a['text'].';font-family:'.$font.';';
 }
 function check_space(?string $id): void { if($id&&!query('SELECT id FROM spaces WHERE id=?',[$id])->fetch())fail('Carnet introuvable.'); }

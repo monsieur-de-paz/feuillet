@@ -523,3 +523,9 @@ Les suites frontend vérifient aussi les valeurs initiales et le regroupement no
 Reproduction distante en lecture seule : import du moteur refusé dans le navigateur ; avec gzip, curl reçoit HTTP/2 INTERNAL_ERROR. La réponse annonce 418 792 octets (taille non compressée) avec Content-Encoding gzip. Le correctif a été testé sur une copie jetable, derrière Apache 2.4 avec mod_deflate : réponses gzip segmentées sans longueur erronée, SHA-256 identiques pour le moteur et le worker ; rendu navigateur anonyme de la première et de la deuxième page, zoom et console sans erreur. Le serveur Apache de test est isolé et ne modifie aucune configuration système. Le protocole de ce test local est HTTP/1.1 ; la panne distante initiale a été observée en HTTP/2.
 
 Validation complémentaire 0.19.1 : suites médias 16/16 sous SQLite et MySQL ; smoke 20 réussis, 1 test réseau non demandé. Le PDF privé a aussi été ouvert dans la modale de l’éditeur après connexion, derrière Apache/gzip ; son accès anonyme avait été refusé.
+
+## Accents par thème — 0.20
+
+Les tests frontend contrôlent le contraste du monochrome, les gris neutres, les trois références personnalisées indépendantes, le repli des anciens réglages et la parité exacte PHP/TypeScript. Le script du lecteur public est testé avec le vrai résolveur lors de bascules clair/sombre/OLED.
+
+`python3 tests/appearance.py` et `--mysql` vérifient sauvegarde, validation, rendu public, surcharges de page et anciens réglages. Validation navigateur sur copie jetable : accents publics #303030 / #E5E5E5 / #F5F5F5, choix personnalisé avec trois contrôles, apparence enregistrée chargée dès une connexion neuve. Les suites frontend complètes, smoke et sécurité ont également été exécutées.

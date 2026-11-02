@@ -1,5 +1,12 @@
 # Historique des versions
 
+## 0.20.0 — 2026-11-02
+
+- Accent monochrome adaptatif : gris foncé en clair, gris très clair en sombre et OLED, avec contraste adapté des boutons.
+- Mode personnalisé avec accents indépendants pour les thèmes clair, sombre et OLED, dans les réglages généraux ou ceux d’une page.
+- Même résolution des couleurs côté PHP, éditeur et lecteur public ; choix conservés et retour aux couleurs de base complet.
+- Apparence sauvegardée appliquée dès la connexion administrateur, sans devoir recharger la page.
+
 ## 0.19.1 — 2026-11-02
 
 - Aperçus PDF sur OVH : suppression de la longueur HTTP forcée du moteur PDF.js et de son worker, incompatible avec la compression gzip appliquée après PHP.

@@ -271,3 +271,7 @@ Après mise à jour : ouvrir une galerie, vérifier une URL `media.php?...&thumb
 Avec 0.19.1, ne pas réintroduire de `Content-Length` manuel dans `public/pdf-engine.php`. Sur l’OVH observé, une réponse `Content-Encoding: gzip` annonçait la longueur non compressée et provoquait `HTTP/2 INTERNAL_ERROR`, puis `Failed to fetch dynamically imported module`. Une simple vérification HTTP 200 sans compression ne détecte pas cette panne.
 
 Vérifier les deux réponses avec `curl --compressed --fail URL` et comparer les SHA-256 du contenu décompressé aux modules de la distribution. Ouvrir aussi l’aperçu dans le navigateur, passer à une autre page et zoomer ; une réponse HTML de lecteur seule ne prouve pas le rendu PDF. Après mise à jour, recharger la page pour utiliser les URL versionnées corrigées.
+
+## Contrôler les accents par thème
+
+Vérifier la sélection Monochrome en clair, sombre et OLED ; les boutons doivent garder un libellé lisible. En mode Personnalisé par thème, choisir trois couleurs distinctes, recharger les réglages et vérifier leur conservation, puis changer le thème en lecture publique. Vérifier aussi une surcharge de page et le retour aux couleurs de base. Une couleur sombre peu contrastée peut être éclaircie automatiquement : l’aperçu indique le résultat. Aucune modification du mot de passe ou de la configuration PHP n’est nécessaire.

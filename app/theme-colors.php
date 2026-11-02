@@ -20,3 +20,9 @@ function adaptive_accent(string $accent,string $mode,string $background): string
 }
 function accent_foreground(string $accent): string {return color_contrast($accent,'#FFFFFF')>=color_contrast($accent,'#000000')?'#FFFFFF':'#000000';}
 function accent_hover(string $accent): string {$target=accent_foreground($accent)==='#000000'?1:0;return color_hex(array_map(fn($i)=>hexdec(substr($accent,$i,2))/255*0.92+$target*0.08,[1,3,5]));}
+
+function resolve_accent(array $a,string $mode,string $background): string {
+    if(($a['accentMode']??'auto')==='monochrome')return $mode==='light'?'#303030':($mode==='oled'?'#F5F5F5':'#E5E5E5');
+    $chosen=(($a['accentMode']??'auto')==='custom'&&$mode!=='light')?(($mode==='oled'?($a['accentOled']??''):'')?:($a['accentDark']??'')?:$a['accent']):$a['accent'];
+    return adaptive_accent($chosen,$mode,$background);
+}

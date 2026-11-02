@@ -146,6 +146,9 @@ export type Appearance = {
   background: string;
   text: string;
   accent: string;
+  accentMode?: "auto" | "monochrome" | "custom";
+  accentDark?: string;
+  accentOled?: string;
   width: "normal" | "wide";
   focus: boolean;
 };
@@ -166,6 +169,9 @@ export const defaultAppearance: Appearance = {
   background: "#ffffff",
   text: "#37352f",
   accent: "#38795d",
+  accentMode: "auto",
+  accentDark: "",
+  accentOled: "",
   width: "normal",
   focus: false,
   mode: "light",

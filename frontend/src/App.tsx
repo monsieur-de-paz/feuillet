@@ -919,12 +919,7 @@ export default function App() {
           return;
         }
         const list = await loadList();
-        const settings = await api("settings");
-        appearanceRef.current = {
-          ...defaultAppearance,
-          ...settings.appearance,
-        };
-        setAppearance(appearanceRef.current);
+        await loadAppearance();
         const selected = new URLSearchParams(location.search).get("page");
         if (selected) {
           const p = list.find(
@@ -1177,6 +1172,11 @@ export default function App() {
       notify("La page a été placée dans la corbeille.");
     });
   }
+  async function loadAppearance() {
+    const settings = await api("settings");
+    appearanceRef.current = { ...defaultAppearance, ...settings.appearance };
+    setAppearance(appearanceRef.current);
+  }
   async function login(e: React.FormEvent) {
     e.preventDefault();
     await perform(async () => {
@@ -1186,6 +1186,7 @@ export default function App() {
       setCsrf(s.csrf);
       setSession(s);
       adminRef.current = true;
+      await loadAppearance();
       setFatal("");
       const list = await loadList();
       const requested = new URLSearchParams(location.search).get("page");
@@ -3294,6 +3295,9 @@ export default function App() {
                   background: "#ffffff",
                   text: "#37352f",
                   accent: "#38795d",
+                  accentMode: "auto",
+                  accentDark: "",
+                  accentOled: "",
                 })
               }
             />
@@ -3310,11 +3314,14 @@ export default function App() {
                 value={editAppearance.text}
                 onChange={(text) => void setAppearanceValues({ text })}
               />
-              <ColorControl
-                label="Accent"
-                value={editAppearance.accent}
-                onChange={(accent) => void setAppearanceValues({ accent })}
-              />
+              {(!editAppearance.accentMode ||
+                editAppearance.accentMode === "auto") && (
+                <ColorControl
+                  label="Accent"
+                  value={editAppearance.accent}
+                  onChange={(accent) => void setAppearanceValues({ accent })}
+                />
+              )}
             </div>
             <label>
               Largeur de lecture

@@ -112,3 +112,26 @@ export function accentHover(accent: string): string {
     ),
   );
 }
+
+export function resolveAccent(
+  a: {
+    accent: string;
+    accentMode?: string;
+    accentDark?: string;
+    accentOled?: string;
+  },
+  mode: string,
+  background: string,
+): string {
+  if (a.accentMode === "monochrome")
+    return mode === "light"
+      ? "#303030"
+      : mode === "oled"
+        ? "#F5F5F5"
+        : "#E5E5E5";
+  const chosen =
+    a.accentMode === "custom" && mode !== "light"
+      ? (mode === "oled" ? a.accentOled : "") || a.accentDark || a.accent
+      : a.accent;
+  return adaptiveAccent(chosen, mode, background);
+}

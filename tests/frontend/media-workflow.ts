@@ -1,3 +1,4 @@
+import * as realThemeColors from '../../frontend/src/theme-colors';
 import assert from 'node:assert/strict';
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
@@ -34,3 +35,7 @@ console.log('Public theme script passed: system default, OS changes, manual pers
 
 const original=editor.state.doc;const tr=insertUploadedFiles(editor.state,[{id:'one',name:'Premier.pdf',mime:'application/pdf',size:12,url:''},{id:'two',name:'Second.zip',mime:'application/zip',size:3,url:''}],original.content.size)!;assert.ok(tr);assert.equal(tr.doc.child(tr.doc.childCount-3).attrs.fileId,'one');assert.equal(tr.doc.child(tr.doc.childCount-2).attrs.fileId,'two');assert.equal(tr.doc.lastChild!.type.name,'paragraph');assert.ok(tr.doc.content.size>original.content.size);assert.equal(editor.state.doc,original);
 console.log('Batch file insertion passed: Finder order, source text preserved, valid trailing paragraph and one atomic insertion');
+
+windowMock.FeuilletThemeColors=realThemeColors;style['--accent-base']='#123456';style['--accent-mode']='monochrome';storeThemePreference('light');listeners.storage({key:'feuillet.theme'});assert.equal(style['--accent'],'#303030');storeThemePreference('dark');listeners.storage({key:'feuillet.theme'});assert.equal(style['--accent'],'#E5E5E5');storeThemePreference('oled');listeners.storage({key:'feuillet.theme'});assert.equal(style['--accent'],'#F5F5F5');
+style['--accent-mode']='custom';style['--accent-dark']='#C6DDF6';style['--accent-oled']='#FFEEDD';listeners.storage({key:'feuillet.theme'});assert.equal(style['--accent'],'#FFEEDD');storeThemePreference('dark');listeners.storage({key:'feuillet.theme'});assert.equal(style['--accent'],'#C6DDF6');
+console.log('Public reader uses the real accent resolver for theme switching');

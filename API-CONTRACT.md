@@ -204,3 +204,7 @@ Attributs de buttonLink/bookmark : icon (texte ou identifiant du catalogue), ico
 `GET/HEAD media.php?id=<id>&thumb=96|320|640|1280` sert une image réduite lorsque GD et les ressources le permettent. Les droits de l’original sont toujours vérifiés en premier. `download=1` impose l’original. Réponses `ETag` et `Cache-Control: private, no-cache` pour les demandes de miniature ; `If-None-Match` peut donner 304 après autorisation. Les tailles non reconnues ne génèrent aucun dérivé. Repli sur l’original si nécessaire.
 
 Attributs `pageLink` : `presentation=row|card|compact`, `iconSize=small|medium|large`, `showIcon=true`, `showDescription=false`, `showCover=false`. Attributs `columns` : `gap=compact|comfortable|airy`, `ratio=equal|wide-left|wide-right` ; le schéma éditeur accepte deux à quatre `column`. Les valeurs de présentation et booléens sont validés côté serveur. Aucun changement de droits ni migration SQL.
+
+## Accents par thème — 0.20
+
+Les apparences acceptent `accentMode: auto|monochrome|custom` (défaut `auto`), `accentDark` et `accentOled` (hexadécimal #RRGGBB ou chaîne vide). `accent` reste la couleur de référence en clair. En mode custom, OLED utilise accentOled, sinon accentDark, sinon l’ancienne couleur de référence ; les variantes sombres restent ajustées pour le contraste. Ces champs sont valides dans l’apparence générale et dans les surcharges de page. Les valeurs inconnues et couleurs invalides sont refusées. Les anciennes apparences sans ces champs restent adaptatives.

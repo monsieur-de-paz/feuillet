@@ -3505,3 +3505,37 @@ a.page-link.subpage-link {
 .subpage-config {
   grid-template-columns: minmax(0, 1fr);
 }
+.accent-custom-colors {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.monochrome-swatch {
+  background: linear-gradient(135deg, #303030 50%, #f5f5f5 50%);
+  color: #fff;
+}
+.monochrome-swatch svg {
+  filter: drop-shadow(0 0 2px #000);
+}
+@media (max-width: 600px) {
+  .accent-custom-colors {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.modal .theme-palette .monochrome-preset {
+  grid-column: 1/-1;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  height: auto;
+  min-height: 44px;
+  color: var(--ink);
+}
+.monochrome-preset .theme-color-swatch {
+  flex-shrink: 0;
+}

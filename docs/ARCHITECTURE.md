@@ -302,3 +302,11 @@ PageLinkView et `render_document(pageLink)` partagent la structure `subpage-link
 ## Transport du lecteur PDF — 0.19.1
 
 `pdf-engine.php` sert les deux modules PDF.js avec un type MIME JavaScript explicite, mais sans `Content-Length` calculé par PHP. Apache ou le proxy peut compresser les octets après PHP : la longueur de la source n’est alors plus celle de la réponse. Laisser la couche HTTP déterminer la longueur ou le transfert segmenté. La version reste présente dans les URL du moteur et du worker pour invalider les réponses antérieures. Les contrôles d’accès restent dans `pdf-viewer.php`, `file-preview.php` et `media.php`, indépendamment des modules publics.
+
+## Accents monochromes et séparés — 0.20
+
+`resolveAccent` et `resolve_accent` choisissent la variante de l’apparence avant le calcul des tokens de contraste et survol. Le mode monochrome utilise les mêmes trois gris dans PHP et TypeScript. Le mode personnalisé conserve une référence claire et deux références indépendantes sombre/OLED, tout en réutilisant l’algorithme de contraste sombre existant. Les champs sont persistés dans les JSON d’apparence, sans migration SQL.
+
+Le rendu PHP expose les références dans `--accent-base`, `--accent-mode`, `--accent-dark` et `--accent-oled`. `public/theme.js` appelle le même résolveur compilé lors d’un changement de thème visiteur. Les variables de boutons, sources et accent suivent la variante active ; les titres neutres et couleurs explicitement choisies dans le contenu ne sont pas remplacés.
+
+Le chargement de l’apparence est partagé entre le démarrage de l’application et la connexion administrateur, pour éviter le retour temporaire au thème par défaut après identification.
