@@ -265,3 +265,9 @@ Le cache `storage/temporary/link-preview-*.json` expire après une heure et peut
 Activer l’extension PHP GD pour obtenir les vignettes réduites. Sans GD, Feuillet reste utilisable avec les originaux. Le cache privé `storage/thumbnails/` peut être vidé sans perte : les fichiers sont recréés lors de la prochaine consultation. Ne pas exposer ce dossier par une URL statique. Les exports portables sauvegardent les originaux et les références, pas ce cache dérivé ; une sauvegarde FTP peut omettre les miniatures pour réduire son poids.
 
 Après mise à jour : ouvrir une galerie, vérifier une URL `media.php?...&thumb=640`, puis ouvrir une image en zoom pour vérifier l’original. Vérifier le refus d’une miniature privée sans connexion et après dépublication. Les très grandes images ou un plafond mémoire faible déclenchent un repli sur l’original. Vérifier un JPEG avec orientation EXIF et les miniatures transparentes si ces formats sont utilisés.
+
+## Erreur d’aperçu PDF sous compression
+
+Avec 0.19.1, ne pas réintroduire de `Content-Length` manuel dans `public/pdf-engine.php`. Sur l’OVH observé, une réponse `Content-Encoding: gzip` annonçait la longueur non compressée et provoquait `HTTP/2 INTERNAL_ERROR`, puis `Failed to fetch dynamically imported module`. Une simple vérification HTTP 200 sans compression ne détecte pas cette panne.
+
+Vérifier les deux réponses avec `curl --compressed --fail URL` et comparer les SHA-256 du contenu décompressé aux modules de la distribution. Ouvrir aussi l’aperçu dans le navigateur, passer à une autre page et zoomer ; une réponse HTML de lecteur seule ne prouve pas le rendu PDF. Après mise à jour, recharger la page pour utiliser les URL versionnées corrigées.

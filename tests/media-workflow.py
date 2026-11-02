@@ -5,6 +5,7 @@ HERE=pathlib.Path(__file__).resolve().parent
 spec=importlib.util.spec_from_file_location('media_harness',HERE/'smoke.py');h=importlib.util.module_from_spec(spec);spec.loader.exec_module(h)
 VERSION=re.search(r"FEUILLET_VERSION = '([^']+)'",(h.ROOT/'app/bootstrap.php').read_text())[1]
 def p(text):return {'type':'paragraph','content':[{'type':'text','text':text}]}
+pdf_spec=importlib.util.spec_from_file_location('pdf_sample',HERE/'pdf-fixture.py');pdf_sample=importlib.util.module_from_spec(pdf_spec);pdf_spec.loader.exec_module(pdf_sample)
 class Features(unittest.TestCase):
  @classmethod
  def setUpClass(cls):h.Integration.setUpClass();cls.admin=h.Integration.admin;cls.visitor=h.Integration.visitor
@@ -45,10 +46,10 @@ class Features(unittest.TestCase):
   result=subprocess.run([h.ARGS.php,'-r',code],cwd=h.ROOT,capture_output=True,text=True);self.assertEqual(result.returncode,0,result.stderr);self.assertEqual(result.stdout,'ok')
  def test_13_pdf_engine_mime_is_public_fixed_and_cacheable(self):
   for query,name in [('', 'pdf.min.mjs'),('&worker=1','pdf.worker.min.mjs')]:
-   response=self.visitor.request('pdf-engine.php?v='+VERSION+query);body=self.ok(response);self.assertIn('text/javascript',response[2].get('Content-Type',''));self.assertIn('immutable',response[2].get('Cache-Control',''));self.assertEqual(body,(h.ROOT/'public/vendor/pdfjs'/name).read_bytes())
+   response=self.visitor.request('pdf-engine.php?v='+VERSION+query);body=self.ok(response);self.assertIn('text/javascript',response[2].get('Content-Type',''));self.assertIn('immutable',response[2].get('Cache-Control',''));self.assertNotIn('Content-Length',response[2]);self.assertEqual(body,(h.ROOT/'public/vendor/pdfjs'/name).read_bytes())
   body=self.ok(self.visitor.request('pdf-engine.php?path=../../config.php'));self.assertNotIn(h.Integration.password.encode(),body)
  def test_14_public_pdf_preview_uses_engine_and_private_is_hidden(self):
-  f=self.ok(self.admin.upload('upload','Essai.pdf',b'%PDF-1.4\n% Test\n%%EOF','application/pdf'))['file'];self.ok(self.visitor.request('file-preview.php?id='+f['id']),404);self.ok(self.visitor.request('pdf-viewer.php?id='+f['id']),404)
+  f=self.ok(self.admin.upload('upload','Essai.pdf',pdf_sample.pdf_bytes(),'application/pdf'))['file'];self.ok(self.visitor.request('file-preview.php?id='+f['id']),404);self.ok(self.visitor.request('pdf-viewer.php?id='+f['id']),404)
   page=self.page('PDF public',[{'type':'fileBlock','attrs':{'fileId':f['id'],'mode':'download'}}]);self.ok(self.admin.api('publish',{'id':page['id'],'version':page['version']}));html=self.ok(self.visitor.request('file-preview.php?id='+f['id'])).decode();self.assertIn('data-version="'+VERSION+'"',html);self.assertIn('pdf-viewer.js?v='+VERSION,html);media=self.visitor.request(f['url'],headers={'Range':'bytes=0-7'});self.ok(media,206);self.assertEqual(media[1],b'%PDF-1.4')
  def test_15_attachment_card_has_separate_actions_and_escaped_name(self):
   f=self.ok(self.admin.upload('upload','Notes <exemple>.txt',b'Notes','text/plain'))['file'];page=self.page('Pièce jointe',[{'type':'fileBlock','attrs':{'fileId':f['id'],'mode':'download'}}]);self.ok(self.admin.api('publish',{'id':page['id'],'version':page['version']}));html=self.ok(self.visitor.request('index.php?page='+page['id']+'&read=1')).decode();self.assertIn('attachment-caption',html);self.assertIn('attachment-info',html);self.assertIn('attachment-actions',html);self.assertIn('Notes &lt;exemple&gt;.txt',html);self.assertNotIn('<exemple>',html);self.assertIn('aria-label="Télécharger ',html)

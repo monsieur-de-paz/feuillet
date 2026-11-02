@@ -515,3 +515,11 @@ Validation du 2 novembre 2026 : compilation TypeScript/Vite et toutes les suites
 `python3 tests/thumbnails.py` (et `--mysql`) : taille et poids des dérivés, originaux inchangés, ETag/304, formats, contrôle d’accès avant cache et révocation, rendu des sous-pages, valeurs validées et confidentialité des cibles privées. Le test utilise une image générée et une installation jetable, pas des données réelles. GD/WebP doivent être présents dans l’environnement de validation de ce test.
 
 Les suites frontend vérifient aussi les valeurs initiales et le regroupement non destructif de colonnes. Vérifications exécutées : compilation TypeScript/Vite, toutes les suites frontend, miniatures 2/2 sous SQLite et MySQL, lecteur 6/6, sécurité 13/13, copies indépendantes 11/11, cartes de liens 3/3, smoke 20 réussis et 1 test Commons réseau non demandé. Le parcours navigateur et les limites de la revue sont décrits dans [DESIGN-0.19.md](DESIGN-0.19.md).
+
+## Régression du lecteur PDF — 0.19.1
+
+`tests/media-workflow.py` vérifie que les deux réponses de `pdf-engine.php` restent publiques, JavaScript, complètes et mises en cache par version, sans longueur forcée par PHP. L’aperçu privé est refusé et le PDF publié reste accessible avec les plages d’octets. Le cas utilise un vrai PDF reproductible de deux pages généré par `tests/pdf-fixture.py`.
+
+Reproduction distante en lecture seule : import du moteur refusé dans le navigateur ; avec gzip, curl reçoit HTTP/2 INTERNAL_ERROR. La réponse annonce 418 792 octets (taille non compressée) avec Content-Encoding gzip. Le correctif a été testé sur une copie jetable, derrière Apache 2.4 avec mod_deflate : réponses gzip segmentées sans longueur erronée, SHA-256 identiques pour le moteur et le worker ; rendu navigateur anonyme de la première et de la deuxième page, zoom et console sans erreur. Le serveur Apache de test est isolé et ne modifie aucune configuration système. Le protocole de ce test local est HTTP/1.1 ; la panne distante initiale a été observée en HTTP/2.
+
+Validation complémentaire 0.19.1 : suites médias 16/16 sous SQLite et MySQL ; smoke 20 réussis, 1 test réseau non demandé. Le PDF privé a aussi été ouvert dans la modale de l’éditeur après connexion, derrière Apache/gzip ; son accès anonyme avait été refusé.

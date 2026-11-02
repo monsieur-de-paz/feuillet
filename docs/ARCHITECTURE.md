@@ -298,3 +298,7 @@ Le NodeView `LinkResourceView` applique les résultats seulement au bloc et à l
 `thumbUrl` côté React et `thumbnail_url` côté PHP adressent le même contrôleur protégé. Les médias d’origine restent les seules références dans les pages et sauvegardes. Les dérivés ne deviennent pas des entrées de bibliothèque.
 
 PageLinkView et `render_document(pageLink)` partagent la structure `subpage-link` et le CSS de `interface.css`. ColumnsView conserve des blocs Tiptap ordinaires dans des colonnes ; `reshapeColumns` regroupe les colonnes supprimées sans mutation de l’original. Le wrapper interne de Tiptap 3 utilise display:contents pour participer à la même grille que le lecteur. Les requêtes de conteneur et le breakpoint mobile adaptent la disposition à la largeur disponible.
+
+## Transport du lecteur PDF — 0.19.1
+
+`pdf-engine.php` sert les deux modules PDF.js avec un type MIME JavaScript explicite, mais sans `Content-Length` calculé par PHP. Apache ou le proxy peut compresser les octets après PHP : la longueur de la source n’est alors plus celle de la réponse. Laisser la couche HTTP déterminer la longueur ou le transfert segmenté. La version reste présente dans les URL du moteur et du worker pour invalider les réponses antérieures. Les contrôles d’accès restent dans `pdf-viewer.php`, `file-preview.php` et `media.php`, indépendamment des modules publics.

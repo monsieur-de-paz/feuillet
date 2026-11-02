@@ -1,5 +1,11 @@
 # Historique des versions
 
+## 0.19.1 — 2026-11-02
+
+- Aperçus PDF sur OVH : suppression de la longueur HTTP forcée du moteur PDF.js et de son worker, incompatible avec la compression gzip appliquée après PHP.
+- Nouvelle version des URL de chargement pour éviter les réponses incorrectes déjà mises en cache.
+- Vérification du rendu de deux pages, du zoom et de la récupération complète des modules derrière Apache/gzip ; tests d’accès privés/publics conservés.
+
 ## 0.19.0 — 2026-11-02
 
 - Miniatures privées de 96 à 1280 px, générées à la demande et réutilisées pour les icônes, galeries, aperçus de liens, vidéos et bibliothèque ; originaux conservés.

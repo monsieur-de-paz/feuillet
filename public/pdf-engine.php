@@ -8,5 +8,6 @@ $worker=($_GET['worker']??'')==='1';$path=__DIR__.'/vendor/pdfjs/'.($worker?'pdf
 if(!is_file($path)){http_response_code(404);header('Content-Type: text/plain; charset=utf-8');echo 'Le moteur PDF est absent. Réinstalle la distribution complète.';exit;}
 header('Content-Type: text/javascript; charset=utf-8');
 header('Cache-Control: public, max-age='.(($_GET['v']??'')===FEUILLET_VERSION?'31536000, immutable':'3600'));
-header('Content-Length: '.filesize($path));
+// Apache/OVH may gzip this response after PHP. Its wire length must be computed
+// by the server, never from the uncompressed JavaScript file (HTTP/2 rejects it).
 if(($_SERVER['REQUEST_METHOD']??'GET')!=='HEAD')readfile($path);
