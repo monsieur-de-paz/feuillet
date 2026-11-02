@@ -4,7 +4,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.17.0-2563eb" alt="Version 0.15.0">
+  <img src="https://img.shields.io/badge/version-0.18.0-2563eb" alt="Version 0.18.0">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour prendre des notes enrichies, les centraliser et les partager sur son propre hébergement.** Inspiré de l’édition par blocs, il permet de rédiger des notes enrichies, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
@@ -229,3 +229,5 @@ La version 0.16 ajoute les onglets de rédaction et les vidéos chargées au cli
 La version 0.16.1 place les onglets au-dessus du fil d’Ariane : un clic normal réutilise l’onglet actif, + ou le menu contextuel ouvre un onglet supplémentaire. [Détails](docs/NOUVEAUTES-0.16.1.md).
 
 [Feuillet 0.17 : boutons, icônes et cartes de liens](docs/NOUVEAUTES-0.17.md).
+
+[Feuillet 0.18 : aperçus de liens automatiques](docs/NOUVEAUTES-0.18.md).

@@ -253,3 +253,9 @@ Les copies de fichiers consomment du stockage supplémentaire. Vérifier les dro
 ## Onglets et vidéos 0.16
 
 Mettre à jour toute la distribution pour inclure video-lazy.js et video-placeholder.svg. Aucun binaire vidéo à installer sur l’hébergement. Les miniatures consomment le stockage habituel. Les onglets sont des préférences locales ; les effacer du navigateur ne supprime pas les pages. Vérifier qu’un changement d’onglet bloqué par un conflit conserve le brouillon affiché.
+
+## Aperçus de cartes de liens
+
+La version 0.18 utilise PHP cURL et DOM ; activer GD pour davantage de favicons ICO. Vérifier une carte HTTPS publique dans une copie de test : titre et miniature automatiques, modification manuelle, changement d’adresse, actualisation et lecture anonyme après publication. Un site renvoyant 403 ou exigeant une connexion peut légitimement refuser l’aperçu. Ne pas désactiver la protection des adresses privées pour résoudre cet échec.
+
+Le cache `storage/temporary/link-preview-*.json` expire après une heure et peut être supprimé sans supprimer les cartes. Les images récupérées font partie de la bibliothèque et des sauvegardes. Les actualisations forcées peuvent ajouter de nouvelles images ; vérifier leur usage avant de les supprimer.

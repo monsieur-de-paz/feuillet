@@ -1,5 +1,11 @@
 # Historique des versions
 
+## 0.18.0 — 2026-11-02
+
+- Cartes de liens : titre, description, favicon et miniature récupérés automatiquement depuis Open Graph, Twitter Cards et les balises HTML.
+- Actualisation explicite depuis le lien, cache d’une heure, images conservées localement et personnalisations faites pendant le chargement préservées.
+- Accès administrateur et CSRF, téléchargements HTTPS bornés, validation DNS et redirections, rejet des réseaux non publics et des images actives.
+
 ## 0.17.0 — 2026-11-02
 
 - Survol et focus des boutons et cartes avec couleur, bordure et léger déplacement ; mouvement réduit respecté.

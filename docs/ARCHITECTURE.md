@@ -282,3 +282,11 @@ La classe content-heading identifie les titres du document dans le rendu PHP et 
 ## Liens 0.17
 
 ButtonLink et Bookmark acceptent icon, iconId, posterId et previewUrl. LinkIconPicker réutilise le sélecteur complet existant. Le rendu PHP et React partage link-card et resource-button. files_in inclut iconId et posterId ; les remappages de sauvegarde et de copie couvrent les deux. previewUrl est limité à HTTPS, échappé au rendu et chargé avec referrerpolicy no-referrer. Aucune requête de scraping serveur n’est ajoutée.
+
+## Métadonnées des liens (0.18)
+
+`app/link-preview.php` reçoit uniquement des requêtes administrateur POST/CSRF. Il résout les liens relatifs, extrait Open Graph/Twitter/HTML avec DOM et `LIBXML_NONET`, puis importe les images dans le stockage privé via `persist_file`. Les favicons ICO compatibles sont convertis localement ; les SVG sont exclus. Cache privé par URL pendant une heure, invalidé si un fichier référencé manque. Les délais sont limités à huit secondes par ressource, deux Mo pour le HTML et cinq Mo par image (plafond d’envoi respecté).
+
+Chaque téléchargement et chaque redirection refait une validation de destination : HTTPS/443 sans authentification, hôte DNS public, adresses IPv4/IPv6 non publiques rejetées, IP épinglée dans cURL, proxy et suivi automatique des redirections désactivés. Quatre sauts maximum. `image_public_ip` complète les filtres PHP avec les plages spéciales (CGNAT, multicast, documentation et tunnels IPv6).
+
+Le NodeView `LinkResourceView` applique les résultats seulement au bloc et à l’adresse encore présents. `linkPreviewPatch` conserve les champs modifiés manuellement pendant la récupération. `metadataHref` empêche les tentatives répétées à chaque montage ; le bouton d’actualisation force une nouvelle lecture. Le lecteur HTML sert les mêmes images par `media.php`, sans requête serveur vers le site source.

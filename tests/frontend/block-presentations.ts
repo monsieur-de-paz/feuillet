@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {linkPresentationContent, transformSelectedLink,FileBlock} from '../../frontend/src/nodes';
+import {linkPreviewPatch,linkPresentationContent, transformSelectedLink,FileBlock} from '../../frontend/src/nodes';
 globalThis.location={href:'https://feuillet.test/index.php'};
 const uri='https://example.org/cours';
 const button=linkPresentationContent('button',uri,'Cours');
@@ -14,3 +14,10 @@ assert.equal(transformSelectedLink(editor,'button'),true);assert.deepEqual(range
 assert.equal(transformSelectedLink({...editor,getAttributes:()=>({href:'javascript:alert(1)'})},'card'),false);
 assert.equal(FileBlock.config.addAttributes().mode.default,'download');
 console.log('6/6 block presentation checks passed');
+
+const before={href:uri,title:'Titre',description:'',iconId:'',icon:'↗',posterId:'',previewUrl:''};
+const meta={title:'Article',description:'Résumé',iconId:'icon-id',posterId:'image-id'};
+assert.deepEqual(linkPreviewPatch(before,before,meta),{metadataHref:uri,...meta,previewUrl:''});
+assert.deepEqual(linkPreviewPatch(before,{...before,title:'Manuel',icon:'🌐',previewUrl:'https://example.org/manual.png'},meta),{metadataHref:uri,description:'Résumé'});
+assert.equal(linkPreviewPatch(before,before,{}).title,undefined);
+console.log('Metadata application preserves concurrent manual edits and missing fields');

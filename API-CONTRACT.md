@@ -194,3 +194,7 @@ fileBlock accepte posterId (vide ou identifiant d’image existante), validé lo
 ## Liens 0.17
 
 Attributs de buttonLink/bookmark : icon (texte ou identifiant du catalogue), iconId (image locale), posterId (image locale de la carte), previewUrl (image HTTPS externe). Les images locales doivent exister et être de type image. Les droits média suivent les références du document publié ; copie et sauvegarde remappent les identifiants.
+
+## Aperçus de liens (0.18)
+
+`POST action=link_preview {url,refresh?:boolean}` : administrateur + CSRF. Renvoie `{metadata:{title,description,iconId?,posterId?},files:[FileRecord],warnings:[string]}`. HTTPS seulement, 60 requêtes par dix minutes ; cache privé d’une heure pour l’adresse exacte, ignoré avec `refresh:true`. Des images manquantes produisent un avertissement ; l’échec de lecture HTML produit une erreur. Les images téléchargées sont locales et restent privées jusqu’à leur utilisation dans une publication. Le client stocke `metadataHref` dans les attributs du bookmark pour mémoriser l’adresse déjà tentée et éviter les récupérations à chaque ouverture. Aucune migration SQL.

@@ -503,3 +503,9 @@ Build TypeScript/Vite et socle HTTP : 20 scénarios réussis, un test réseau ig
 ## Liens 0.17
 
 Build et suites frontend réussis. tests/link-cards.py passe sur SQLite et MySQL : icônes et miniatures privées puis publiques, rendu HTML, copie indépendante, export/import et refus des références invalides. Sécurité : 13 scénarios réussis ; socle HTTP : 20 réussis et un réseau ignoré. Contrôle navigateur public sur une page jetable : bouton avec emoji et carte ; hover actif mesuré avec transform translateY(-2px).
+
+## Aperçus de liens — 0.18
+
+`php tests/link-preview.php` vérifie extraction Open Graph, repli HTML/Twitter, Unicode, URL relatives, protocoles refusés et filtrage des IP spéciales. `python3 tests/link-cards.py` vérifie droits admin, méthode POST, cache, adresses refusées, publication des fichiers, copie indépendante et restauration. Les tests frontend de présentation vérifient l’application des métadonnées et la priorité des modifications manuelles intervenues pendant le chargement. Les tests déterministes n’ont pas besoin d’un site extérieur ; la récupération réseau réelle et le rendu navigateur se vérifient séparément.
+
+Validation du 2 novembre 2026 : compilation TypeScript/Vite et toutes les suites frontend réussies ; extraction/filtrage PHP réussis ; cartes HTTP 3/3 sous SQLite et MySQL ; sécurité 13/13 ; smoke 20 réussis et 1 test réseau Commons non demandé. Dans le navigateur, changement d’adresse vers Firefox : titre, favicon PNG et image Open Graph récupérés automatiquement, persistance après rechargement et rendu public vérifiés. Les deux images sont accessibles sans cookie après publication. La source d’image Open Graph de GitHub a répondu 429 : la carte conserve son titre et son icône, avec avertissement, comme prévu.

@@ -167,3 +167,5 @@ Les titres du contenu utilisent une marge avant de 1,4 em et après de 0,35 em. 
 ## Liens 0.17
 
 Boutons et cartes disposent d’un état hover/focus visible, cohérent avec l’accent du thème : déplacement de 2 px maximum, bordure accentuée et fond teinté. Respecter prefers-reduced-motion. Les miniatures de carte sont latérales, réduites sur mobile, avec textes pouvant revenir à la ligne.
+
+Les cartes enrichies conservent une miniature à droite et un texte limité à trois lignes ; dans l’éditeur, le bouton de présentation passe sous la carte pour préserver la largeur du contenu. Le chargement des métadonnées est signalé sans bloquer l’écriture.

@@ -3099,3 +3099,42 @@ body.block-selecting .editor-content-wrap iframe {
     transform: none !important;
   }
 }
+
+/* Remote metadata actions stay secondary to the resource itself. */
+.link-preview-status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+.link-preview-status small {
+  color: var(--muted);
+  max-width: 60ch;
+  line-height: 1.5;
+}
+/* Keep the preview readable when editor actions share a narrow content column. */
+.bookmark-block .resource-presentation-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.bookmark-block .resource-presentation-row > a {
+  width: 100%;
+}
+.bookmark-block .resource-settings {
+  justify-self: end;
+  margin: 0 10px 6px;
+}
+.link-card-body strong,
+.link-card-body p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+.link-card-body small {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

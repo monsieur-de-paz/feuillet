@@ -662,6 +662,22 @@ export function transformSelectedLink(editor: Editor, mode: LinkPresentation) {
     .insertContentAt({ from, to }, linkPresentationContent(mode, href, label))
     .run();
 }
+export function linkPreviewPatch(
+  initial: Record<string, any>,
+  current: Record<string, any>,
+  metadata: Record<string, string>,
+) {
+  const patch: Record<string, string> = { metadataHref: initial.href };
+  for (const key of ["title", "description", "iconId", "posterId"]) {
+    if (!metadata[key] || current[key] !== initial[key]) continue;
+    if (key === "iconId" && current.icon !== initial.icon) continue;
+    if (key === "posterId" && current.previewUrl !== initial.previewUrl)
+      continue;
+    patch[key] = metadata[key];
+  }
+  if (patch.posterId) patch.previewUrl = "";
+  return patch;
+}
 function LinkResourceView({
   node,
   editor,
@@ -671,6 +687,68 @@ function LinkResourceView({
 }: NodeViewProps) {
   const app = useApp();
   const [iconPicker, setIconPicker] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  const [previewMessage, setPreviewMessage] = useState("");
+  const previewRequest = useRef(0);
+  const refreshPreview = async (force = false) => {
+    const url = node.attrs.href;
+    if (
+      !app.admin ||
+      node.type.name !== "bookmark" ||
+      !url?.startsWith("https://")
+    )
+      return;
+    const request = ++previewRequest.current;
+    setFetching(true);
+    setPreviewMessage("");
+    // Persist the attempt to avoid background retries whenever the page is reopened.
+    updateAttributes({ metadataHref: url });
+    try {
+      const result = await api<{
+        metadata: Record<string, string>;
+        files: FileRecord[];
+        warnings: string[];
+      }>("link_preview", { url, refresh: force });
+      if (request !== previewRequest.current || editor.isDestroyed) return;
+      const pos = getPos();
+      const current =
+        typeof pos === "number" ? editor.state.doc.nodeAt(pos) : null;
+      if (
+        !current ||
+        current.type.name !== "bookmark" ||
+        current.attrs.href !== url
+      )
+        return;
+      result.files.forEach(app.uploadedFile);
+      const patch = linkPreviewPatch(
+        node.attrs,
+        current.attrs,
+        result.metadata,
+      );
+      updateAttributes(patch);
+      setPreviewMessage(result.warnings.join(" "));
+    } catch (error) {
+      if (request === previewRequest.current)
+        setPreviewMessage(
+          error instanceof Error ? error.message : "Aperçu indisponible.",
+        );
+    } finally {
+      if (request === previewRequest.current) setFetching(false);
+    }
+  };
+  useEffect(() => {
+    setFetching(false);
+    setPreviewMessage("");
+    if (
+      node.type.name === "bookmark" &&
+      node.attrs.href !== node.attrs.metadataHref
+    )
+      void refreshPreview();
+    return () => {
+      previewRequest.current++;
+    };
+  }, [node.attrs.href, node.type.name, app.admin]);
+
   const glyph =
     node.attrs.iconId || node.attrs.icon ? (
       <FeuilletIcon
@@ -787,6 +865,22 @@ function LinkResourceView({
         />
       )}
       {app.admin && isCard && (
+        <div className="link-preview-status">
+          <button
+            type="button"
+            className="small-button"
+            disabled={fetching}
+            onClick={() => void refreshPreview(true)}
+          >
+            <RefreshCw size={15} />
+            {fetching
+              ? "Récupération de l’aperçu…"
+              : "Actualiser depuis le lien"}
+          </button>
+          {previewMessage && <small role="status">{previewMessage}</small>}
+        </div>
+      )}
+      {app.admin && isCard && (
         <button
           type="button"
           className="small-button"
@@ -839,6 +933,7 @@ function LinkResourceView({
                     iconId: node.attrs.iconId,
                     posterId: node.attrs.posterId,
                     previewUrl: node.attrs.previewUrl,
+                    metadataHref: node.attrs.metadataHref,
                   },
                 ),
               )
@@ -891,8 +986,8 @@ function LinkResourceView({
                 onChange={(event) => setDescription(event.target.value)}
               />
               <small>
-                Aperçu rédigé ici ; aucune récupération automatique du site
-                distant.
+                Le titre, l’icône et l’image sont récupérés automatiquement. Tu
+                peux ensuite les personnaliser.
               </small>
             </label>
           )}
@@ -931,6 +1026,7 @@ export const ButtonLink = Node.create({
       iconId: { default: "" },
       posterId: { default: "" },
       previewUrl: { default: "" },
+      metadataHref: { default: "" },
     };
   },
   parseHTML() {
@@ -957,6 +1053,7 @@ export const Bookmark = Node.create({
       iconId: { default: "" },
       posterId: { default: "" },
       previewUrl: { default: "" },
+      metadataHref: { default: "" },
     };
   },
   parseHTML() {

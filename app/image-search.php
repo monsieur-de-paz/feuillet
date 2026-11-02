@@ -1,11 +1,19 @@
 <?php
 declare(strict_types=1);
 /** Openverse is queried anonymously; downloads are re-resolved server-side and DNS pinned. */
+function image_public_ip(string $ip): bool {
+    if(!filter_var($ip,FILTER_VALIDATE_IP,FILTER_FLAG_NO_PRIV_RANGE|FILTER_FLAG_NO_RES_RANGE))return false;
+    $packed=inet_pton($ip);$v6=strlen($packed)===16;
+    if($v6 && (ord($packed[0])&0xe0)!==0x20)return false;
+    $ranges=$v6?['2001::/23','2001:db8::/32','2002::/16','3fff::/20']:['0.0.0.0/8','100.64.0.0/10','192.0.0.0/24','192.0.2.0/24','198.18.0.0/15','198.51.100.0/24','203.0.113.0/24','224.0.0.0/3'];
+    foreach($ranges as $range){[$network,$bits]=explode('/',$range);$other=inet_pton($network);$whole=intdiv((int)$bits,8);$rest=(int)$bits%8;if(substr($packed,0,$whole)===substr($other,0,$whole)&&(!$rest||((ord($packed[$whole])^ord($other[$whole]))&(0xff<<(8-$rest)))===0))return false;}
+    return true;
+}
 function image_remote_address(string $url): array {
     $p=parse_url($url);$host=strtolower($p['host']??'');
     if(($p['scheme']??'')!=='https'||!$host||isset($p['user'])||isset($p['pass'])||isset($p['port'])||filter_var(trim($host,'[]'),FILTER_VALIDATE_IP)||!preg_match('/^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/D',$host))fail('Adresse d’image refusée.');
     $records=dns_get_record($host,DNS_A|DNS_AAAA);$ips=[];
-    foreach($records?:[] as $r){$ip=$r['ip']??$r['ipv6']??null;if(!$ip)continue;if(!filter_var($ip,FILTER_VALIDATE_IP,FILTER_FLAG_NO_PRIV_RANGE|FILTER_FLAG_NO_RES_RANGE))fail('Adresse d’image refusée.');$ips[]=$ip;}
+    foreach($records?:[] as $r){$ip=$r['ip']??$r['ipv6']??null;if(!$ip)continue;if(!image_public_ip($ip))fail('Adresse d’image refusée.');$ips[]=$ip;}
     if(!$ips)fail('Serveur d’image introuvable.',502);
     return [$host,$ips[0]];
 }
