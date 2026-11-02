@@ -528,6 +528,21 @@ export default function CourseEditor({
           ],
         }),
     },
+    ...[3, 4].map((count) => ({
+      id: `columns-${count}`,
+      label: `${count === 3 ? "Trois" : "Quatre"} colonnes`,
+      description: "Une grille sans bordures",
+      keywords: `colonnes columns ${count}`,
+      icon: <Columns2 />,
+      run: (ed: Editor) =>
+        insertNode(ed, {
+          type: "columns",
+          content: Array.from({ length: count }, () => ({
+            type: "column",
+            content: [{ type: "paragraph" }],
+          })),
+        }),
+    })),
     {
       id: "table",
       label: "Tableau",

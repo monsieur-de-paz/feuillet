@@ -25,6 +25,7 @@ import {
   ChevronDown,
   Image as ImageIcon,
   BookOpen,
+  Columns2,
   Settings,
   ArrowUp,
   ArrowDown,
@@ -45,6 +46,7 @@ import { createPortal } from "react-dom";
 import {
   api,
   fileUrl,
+  thumbUrl,
   pageUrl,
   safeLink,
   sizeLabel,
@@ -484,16 +486,141 @@ export const Callout = Node.create({
     return ReactNodeViewRenderer(CalloutView);
   },
 });
+export function reshapeColumns(content: any[], count: number) {
+  const n = Math.max(2, Math.min(4, Math.trunc(count) || 2));
+  const columns = Array.from(
+    { length: n },
+    (_, i) =>
+      content[i] || { type: "column", content: [{ type: "paragraph" }] },
+  );
+  if (content.length > n)
+    columns[n - 1] = {
+      ...columns[n - 1],
+      content: [
+        ...(columns[n - 1].content || []),
+        ...content.slice(n).flatMap((column) => column.content || []),
+      ],
+    };
+  return columns;
+}
+function ColumnsView({
+  node,
+  editor,
+  getPos,
+  updateAttributes,
+}: NodeViewProps) {
+  const { admin } = useApp();
+  const [settings, setSettings] = useState(false);
+  return (
+    <NodeViewWrapper
+      className={`columns-block gap-${node.attrs.gap} ratio-${node.attrs.ratio}`}
+      data-column-count={node.childCount}
+    >
+      {admin && (
+        <div className="columns-toolbar" contentEditable={false}>
+          <button
+            className="small-button"
+            aria-label="Configurer les colonnes"
+            aria-expanded={settings}
+            onClick={() => setSettings(!settings)}
+          >
+            <Columns2 size={15} />
+            Colonnes
+          </button>
+          {settings && (
+            <div className="layout-settings">
+              <label>
+                Nombre de colonnes
+                <Select
+                  aria-label="Nombre de colonnes"
+                  value={String(node.childCount)}
+                  onChange={(event) => {
+                    const pos = getPos();
+                    if (typeof pos !== "number") return;
+                    editor
+                      .chain()
+                      .focus()
+                      .insertContentAt(
+                        { from: pos, to: pos + node.nodeSize },
+                        {
+                          type: "columns",
+                          attrs: node.attrs,
+                          content: reshapeColumns(
+                            node.toJSON().content || [],
+                            Number(event.target.value),
+                          ),
+                        },
+                      )
+                      .run();
+                  }}
+                >
+                  {[2, 3, 4].map((n) => (
+                    <option key={n} value={n}>
+                      {n} colonnes
+                    </option>
+                  ))}
+                </Select>
+              </label>
+              <label>
+                Espacement
+                <Select
+                  aria-label="Espacement des colonnes"
+                  value={node.attrs.gap}
+                  onChange={(e) => updateAttributes({ gap: e.target.value })}
+                >
+                  <option value="compact">Serré</option>
+                  <option value="comfortable">Confortable</option>
+                  <option value="airy">Aéré</option>
+                </Select>
+              </label>
+              {node.childCount === 2 && (
+                <label>
+                  Proportions
+                  <Select
+                    aria-label="Proportions des colonnes"
+                    value={node.attrs.ratio}
+                    onChange={(e) =>
+                      updateAttributes({ ratio: e.target.value })
+                    }
+                  >
+                    <option value="equal">Équilibrées</option>
+                    <option value="wide-left">Gauche plus large</option>
+                    <option value="wide-right">Droite plus large</option>
+                  </Select>
+                </label>
+              )}
+              <small>
+                Réduire le nombre de colonnes regroupe leur contenu sans le
+                supprimer.
+              </small>
+            </div>
+          )}
+        </div>
+      )}
+      <NodeViewContent className="columns" />
+    </NodeViewWrapper>
+  );
+}
 export const Columns = Node.create({
   name: "columns",
   group: "block",
-  content: "column{2,3}",
+  content: "column{2,4}",
   defining: true,
+  addAttributes() {
+    return { gap: { default: "comfortable" }, ratio: { default: "equal" } };
+  },
   parseHTML() {
     return [{ tag: "div[data-columns]" }];
   },
-  renderHTML() {
-    return ["div", { "data-columns": "", class: "columns" }, 0];
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "div",
+      mergeAttributes(HTMLAttributes, { "data-columns": "", class: "columns" }),
+      0,
+    ];
+  },
+  addNodeView() {
+    return ReactNodeViewRenderer(ColumnsView);
   },
 });
 export const Column = Node.create({
@@ -564,14 +691,18 @@ export const Details = Node.create({
     return ReactNodeViewRenderer(DetailsView);
   },
 });
-function PageLinkView({ node }: NodeViewProps) {
+function PageLinkView({ node, updateAttributes }: NodeViewProps) {
   const app = useApp();
+  const [settings, setSettings] = useState(false);
   const page = app.pages.find(
     (p) => String(p.id) === String(node.attrs.pageId),
   );
+  const { presentation, iconSize, showIcon, showDescription, showCover } =
+    node.attrs;
   return (
     <NodeViewWrapper contentEditable={false} className="page-link-block">
       <a
+        className={`page-link subpage-link presentation-${presentation} icon-${iconSize}`}
         data-page-target={String(node.attrs.pageId)}
         href={pageUrl(node.attrs.pageId)}
         onClick={(e) => {
@@ -579,16 +710,110 @@ function PageLinkView({ node }: NodeViewProps) {
           app.openPage(String(node.attrs.pageId));
         }}
       >
-        <span>
-          <FeuilletIcon
-            icon={page?.icon || node.attrs.icon || "📄"}
-            iconId={page?.icon_id}
-            size={20}
+        {showCover && page?.cover_id && (
+          <img
+            className="subpage-cover"
+            src={thumbUrl(page.cover_id)}
+            loading="lazy"
+            decoding="async"
+            alt=""
+            style={{
+              objectPosition: `${page.cover_position?.x ?? 50}% ${page.cover_position?.y ?? 50}%`,
+            }}
           />
+        )}
+        <span className="subpage-main">
+          {showIcon && (
+            <span className="subpage-icon">
+              <FeuilletIcon
+                icon={page?.icon || node.attrs.icon || "📄"}
+                iconId={page?.icon_id}
+                size={
+                  iconSize === "large" ? 36 : iconSize === "small" ? 22 : 28
+                }
+              />
+            </span>
+          )}
+          <span className="subpage-copy">
+            <strong>{page?.title || node.attrs.label || "Page"}</strong>
+            {showDescription && page?.description && (
+              <small>{page.description}</small>
+            )}
+          </span>
+          <ArrowUpRight className="subpage-arrow" size={18} />
         </span>
-        <span>{page?.title || node.attrs.label || "Page"}</span>
-        <ArrowUpRight size={17} />
       </a>
+      {app.admin && (
+        <button
+          className="subpage-settings icon-button"
+          aria-label="Personnaliser le lien de sous-page"
+          aria-expanded={settings}
+          onClick={() => setSettings(!settings)}
+        >
+          <Settings size={15} />
+        </button>
+      )}
+      {app.admin && settings && (
+        <div className="layout-settings subpage-config">
+          <label>
+            Présentation
+            <Select
+              aria-label="Présentation de la sous-page"
+              value={presentation}
+              onChange={(e) =>
+                updateAttributes({ presentation: e.target.value })
+              }
+            >
+              <option value="row">Ligne épurée</option>
+              <option value="card">Carte</option>
+              <option value="compact">Compacte</option>
+            </Select>
+          </label>
+          <label>
+            Taille de l’icône
+            <Select
+              aria-label="Taille de l’icône de sous-page"
+              value={iconSize}
+              onChange={(e) => updateAttributes({ iconSize: e.target.value })}
+            >
+              <option value="small">Petite</option>
+              <option value="medium">Moyenne</option>
+              <option value="large">Grande</option>
+            </Select>
+          </label>
+          <label className="layout-check">
+            <input
+              type="checkbox"
+              checked={showIcon}
+              onChange={(e) => updateAttributes({ showIcon: e.target.checked })}
+            />
+            Afficher l’icône
+          </label>
+          <label className="layout-check">
+            <input
+              type="checkbox"
+              checked={showDescription}
+              onChange={(e) =>
+                updateAttributes({ showDescription: e.target.checked })
+              }
+            />
+            Afficher la description
+          </label>
+          <label className="layout-check">
+            <input
+              type="checkbox"
+              checked={showCover}
+              onChange={(e) =>
+                updateAttributes({ showCover: e.target.checked })
+              }
+            />
+            Afficher la couverture
+          </label>
+          <button className="small-button" onClick={() => setSettings(false)}>
+            Terminer
+          </button>
+        </div>
+      )}
     </NodeViewWrapper>
   );
 }
@@ -599,6 +824,11 @@ export const PageLink = Node.create({
   addAttributes() {
     return {
       pageId: { default: "" },
+      presentation: { default: "row" },
+      iconSize: { default: "medium" },
+      showIcon: { default: true },
+      showDescription: { default: false },
+      showCover: { default: false },
       label: { default: "Page" },
       icon: { default: "📄" },
     };
@@ -758,7 +988,7 @@ function LinkResourceView({
       />
     ) : null;
   const preview = node.attrs.posterId
-    ? fileUrl(node.attrs.posterId)
+    ? thumbUrl(node.attrs.posterId, 320)
     : node.attrs.previewUrl;
   const [editing, setEditing] = useState(false);
   const [mode, setMode] = useState<LinkPresentation>(
@@ -1599,7 +1829,7 @@ function GalleryView({ node, updateAttributes }: NodeViewProps) {
             >
               {page.cover_id ? (
                 <img
-                  src={fileUrl(page.cover_id)}
+                  src={thumbUrl(page.cover_id)}
                   alt=""
                   loading="lazy"
                   style={{

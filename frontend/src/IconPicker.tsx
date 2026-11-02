@@ -7,7 +7,7 @@ import {
 } from "react";
 import manifest from "../../public/icons.json";
 import { FeuilletLogo } from "./FeuilletLogo";
-import { fileUrl } from "./types";
+import { thumbUrl } from "./types";
 import type { EmojiEntry } from "./emoji-data";
 import "./IconPicker.css";
 
@@ -74,7 +74,7 @@ export function FeuilletIcon({
       aria-hidden={label ? undefined : true}
     >
       {imageId ? (
-        <img src={fileUrl(imageId)} alt="" loading="lazy" />
+        <img src={thumbUrl(imageId, 96)} alt="" loading="lazy" />
       ) : parsed ? (
         <svg
           viewBox="0 0 24 24"
@@ -652,7 +652,7 @@ export function IconPicker({
             {value.iconId && (
               <img
                 className="icon-picker-image-preview"
-                src={fileUrl(value.iconId)}
+                src={thumbUrl(value.iconId, 96)}
                 alt="Icône actuelle"
               />
             )}

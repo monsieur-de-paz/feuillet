@@ -1,5 +1,12 @@
 # Historique des versions
 
+## 0.19.0 — 2026-11-02
+
+- Miniatures privées de 96 à 1280 px, générées à la demande et réutilisées pour les icônes, galeries, aperçus de liens, vidéos et bibliothèque ; originaux conservés.
+- Sous-pages : lignes épurées, cartes ou format compact, icônes redimensionnables, description et couverture optionnelles ; même structure visuelle en édition et lecture.
+- Colonnes sans bordures : deux à quatre colonnes, espacement et proportions réglables, regroupement sans perte lorsque leur nombre diminue, adaptation aux petites largeurs.
+- Rythme, surfaces des encadrés et galeries et états de survol harmonisés dans les thèmes clair, sombre et OLED.
+
 ## 0.18.0 — 2026-11-02
 
 - Cartes de liens : titre, description, favicon et miniature récupérés automatiquement depuis Open Graph, Twitter Cards et les balises HTML.

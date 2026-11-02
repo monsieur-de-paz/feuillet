@@ -198,3 +198,9 @@ Attributs de buttonLink/bookmark : icon (texte ou identifiant du catalogue), ico
 ## Aperçus de liens (0.18)
 
 `POST action=link_preview {url,refresh?:boolean}` : administrateur + CSRF. Renvoie `{metadata:{title,description,iconId?,posterId?},files:[FileRecord],warnings:[string]}`. HTTPS seulement, 60 requêtes par dix minutes ; cache privé d’une heure pour l’adresse exacte, ignoré avec `refresh:true`. Des images manquantes produisent un avertissement ; l’échec de lecture HTML produit une erreur. Les images téléchargées sont locales et restent privées jusqu’à leur utilisation dans une publication. Le client stocke `metadataHref` dans les attributs du bookmark pour mémoriser l’adresse déjà tentée et éviter les récupérations à chaque ouverture. Aucune migration SQL.
+
+## Miniatures et présentations 0.19
+
+`GET/HEAD media.php?id=<id>&thumb=96|320|640|1280` sert une image réduite lorsque GD et les ressources le permettent. Les droits de l’original sont toujours vérifiés en premier. `download=1` impose l’original. Réponses `ETag` et `Cache-Control: private, no-cache` pour les demandes de miniature ; `If-None-Match` peut donner 304 après autorisation. Les tailles non reconnues ne génèrent aucun dérivé. Repli sur l’original si nécessaire.
+
+Attributs `pageLink` : `presentation=row|card|compact`, `iconSize=small|medium|large`, `showIcon=true`, `showDescription=false`, `showCover=false`. Attributs `columns` : `gap=compact|comfortable|airy`, `ratio=equal|wide-left|wide-right` ; le schéma éditeur accepte deux à quatre `column`. Les valeurs de présentation et booléens sont validés côté serveur. Aucun changement de droits ni migration SQL.

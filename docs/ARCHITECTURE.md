@@ -290,3 +290,11 @@ ButtonLink et Bookmark acceptent icon, iconId, posterId et previewUrl. LinkIconP
 Chaque téléchargement et chaque redirection refait une validation de destination : HTTPS/443 sans authentification, hôte DNS public, adresses IPv4/IPv6 non publiques rejetées, IP épinglée dans cURL, proxy et suivi automatique des redirections désactivés. Quatre sauts maximum. `image_public_ip` complète les filtres PHP avec les plages spéciales (CGNAT, multicast, documentation et tunnels IPv6).
 
 Le NodeView `LinkResourceView` applique les résultats seulement au bloc et à l’adresse encore présents. `linkPreviewPatch` conserve les champs modifiés manuellement pendant la récupération. `metadataHref` empêche les tentatives répétées à chaque montage ; le bouton d’actualisation force une nouvelle lecture. Le lecteur HTML sert les mêmes images par `media.php`, sans requête serveur vers le site source.
+
+## Images et mise en page 0.19
+
+`app/thumbnails.php` génère des dérivés dans `storage/thumbnails/` : clé SHA-256 de l’identité immuable du fichier, de ses attributs source, de la taille et de la version de l’algorithme. Écriture par fichier temporaire puis renommage atomique, permissions privées. GD, plafond de pixels, estimation de mémoire avant décodage ; pas d’agrandissement. WebP qualité 78 ou PNG ; le résultat n’est gardé que s’il est plus léger. Le service média ferme le verrou de session avant la génération pour ne pas bloquer les autres images et l’édition.
+
+`thumbUrl` côté React et `thumbnail_url` côté PHP adressent le même contrôleur protégé. Les médias d’origine restent les seules références dans les pages et sauvegardes. Les dérivés ne deviennent pas des entrées de bibliothèque.
+
+PageLinkView et `render_document(pageLink)` partagent la structure `subpage-link` et le CSS de `interface.css`. ColumnsView conserve des blocs Tiptap ordinaires dans des colonnes ; `reshapeColumns` regroupe les colonnes supprimées sans mutation de l’original. Le wrapper interne de Tiptap 3 utilise display:contents pour participer à la même grille que le lecteur. Les requêtes de conteneur et le breakpoint mobile adaptent la disposition à la largeur disponible.

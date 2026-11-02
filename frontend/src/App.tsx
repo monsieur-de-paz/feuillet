@@ -102,6 +102,7 @@ import {
   type FileRecord,
   emptyDoc,
   fileUrl,
+  thumbUrl,
   pageUrl,
   sizeLabel,
   safeLink,
@@ -3785,7 +3786,7 @@ export default function App() {
                     .map((file) => (
                       <div className="library-file" key={file.id}>
                         {file.mime.startsWith("image/") ? (
-                          <img src={fileUrl(file.id)} alt="" />
+                          <img src={thumbUrl(file.id, 320)} alt="" />
                         ) : (
                           <div className="file-type-icon">
                             {file.mime.startsWith("audio/") ? (

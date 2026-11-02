@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { api, fileUrl } from "./types";
+import { api, fileUrl, thumbUrl } from "./types";
 import { useApp } from "./context";
 export function LazyVideo({
   src,
@@ -54,7 +54,7 @@ export function LazyVideo({
       /* Playback stays available even if thumbnail generation fails. */
     }
   }
-  const poster = posterId ? fileUrl(posterId) : "video-placeholder.svg";
+  const poster = posterId ? thumbUrl(posterId) : "video-placeholder.svg";
   return started ? (
     <video
       ref={video}

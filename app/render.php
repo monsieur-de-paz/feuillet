@@ -27,18 +27,21 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
     if($t==='tableRow')return '<tr>'.$children.'</tr>';
     if($t==='tableCell'||$t==='tableHeader'){$tag=$t==='tableHeader'?'th':'td';return '<'.$tag.' colspan="'.max(1,min(20,(int)($a['colspan']??1))).'" rowspan="'.max(1,min(20,(int)($a['rowspan']??1))).'">'.$children.'</'.$tag.'>';}
     if($t==='callout'){$tone=in_array($a['tone']??'', ['blue','green','amber','red','gray'],true)?$a['tone']:'gray';return '<aside class="callout tone-'.$tone.'">'.(($a['icon']??'💡')!==''?'<span class="callout-icon">'.h($a['icon']??'💡').'</span>':'').'<div>'.$children.'</div></aside>';}
-    if($t==='columns')return '<div class="columns">'.$children.'</div>';
+    if($t==='columns'){ $gap=in_array($a['gap']??'', ['compact','comfortable','airy'],true)?$a['gap']:'comfortable';$ratio=in_array($a['ratio']??'', ['equal','wide-left','wide-right'],true)?$a['ratio']:'equal';return '<div class="columns-block gap-'.$gap.' ratio-'.$ratio.'" data-column-count="'.count($node['content']??[]).'"><div class="columns">'.$children.'</div></div>'; }
     if($t==='column')return '<div class="column">'.$children.'</div>';
     if($t==='details')return '<details><summary>'.h($a['summary']??'En savoir plus').'</summary>'.$children.'</details>';
     if($t==='pageLink'){
         try{$p=get_page(str_limit($a['pageId']??'',36),$public);}catch(Throwable){return '';}
-        return '<a class="page-link" href="'.h($public?reader_page_url($p):'index.php?page='.rawurlencode($p['slug'])).'"><span>'.render_page_icon($p).'</span> '.h($p['title']).'</a>';
+        $presentation=in_array($a['presentation']??'', ['row','card','compact'],true)?$a['presentation']:'row';$size=in_array($a['iconSize']??'', ['small','medium','large'],true)?$a['iconSize']:'medium';
+        $icon=($a['showIcon']??true)?'<span class="subpage-icon">'.render_page_icon($p).'</span>':'';
+        $cover=!empty($a['showCover'])&&!empty($p['cover_id'])?'<img class="subpage-cover" src="'.h(thumbnail_url($p['cover_id'])).'" loading="lazy" decoding="async" alt="" style="object-position:'.h(($p['cover_position']['x']??50).'% '.($p['cover_position']['y']??50).'%').'">':'';
+        return '<a class="page-link subpage-link presentation-'.$presentation.' icon-'.$size.'" href="'.h($public?reader_page_url($p):'index.php?page='.rawurlencode($p['slug'])).'">'.$cover.'<span class="subpage-main">'.$icon.'<span class="subpage-copy"><strong>'.h($p['title']).'</strong>'.(!empty($a['showDescription'])&&!empty($p['description'])?'<small>'.h($p['description']).'</small>':'').'</span><span class="subpage-arrow" aria-hidden="true">↗</span></span></a>';
     }
     if($t==='buttonLink'||$t==='bookmark'){
         $url=safe_url($a['href']??'');if(!$url)return '';
         $icon=(!empty($a['iconId'])||($a['icon']??'↗')!=='')?render_page_icon(['icon'=>$a['icon']??'↗','icon_id'=>$a['iconId']??null]):'';
         if($t==='buttonLink')return '<a class="resource-button" href="'.h($url).'" target="_blank" rel="noopener noreferrer">'.$icon.' <span>'.h($a['label']??$url).'</span></a>';
-        $preview=!empty($a['posterId'])?'media.php?id='.rawurlencode($a['posterId']):safe_url($a['previewUrl']??'');
+        $preview=!empty($a['posterId'])?thumbnail_url($a['posterId'],320):safe_url($a['previewUrl']??'');
         return '<a class="bookmark link-card" href="'.h($url).'" target="_blank" rel="noopener noreferrer">'.$icon.'<div class="link-card-body"><strong>'.h($a['title']??$url).'</strong><p>'.h($a['description']??'').'</p><small>'.h(parse_url($url,PHP_URL_HOST)??'').' ↗</small></div>'.($preview?'<img class="link-card-preview" src="'.h($preview).'" loading="lazy" referrerpolicy="no-referrer" alt="">':'').'</a>';
     }
     if($t==='mapBlock'){
@@ -60,7 +63,7 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
         $media='';
         if($mode==='pdf'&&$f['mime']==='application/pdf')$media='<iframe class="pdf-reader" title="'.h($f['name']).'" loading="lazy" src="pdf-viewer.php?id='.rawurlencode($id).'"></iframe>';
         elseif($mode==='audio'&&str_starts_with($f['mime'],'audio/'))$media='<audio controls preload="metadata" src="'.$url.'"></audio>';
-        elseif($mode==='video'&&str_starts_with($f['mime'],'video/'))$media='<button type="button" class="video-preview" data-video-src="'.$url.'" aria-label="'.h('Lire la vidéo : '.$f['name']).'"><img loading="lazy" src="'.(!empty($a['posterId'])?'media.php?id='.rawurlencode($a['posterId']):'video-placeholder.svg').'" alt=""><span class="video-play" aria-hidden="true">▶</span><span class="video-preview-label">Lire la vidéo</span></button>';
+        elseif($mode==='video'&&str_starts_with($f['mime'],'video/'))$media='<button type="button" class="video-preview" data-video-src="'.$url.'" aria-label="'.h('Lire la vidéo : '.$f['name']).'"><img loading="lazy" src="'.(!empty($a['posterId'])?thumbnail_url($a['posterId'],320):'video-placeholder.svg').'" alt=""><span class="video-play" aria-hidden="true">▶</span><span class="video-preview-label">Lire la vidéo</span></button>';
         return '<section class="file-block attachment-block mode-'.h($media?$mode:'download').'">'.$media.$caption.'</section>';
     }
     if($t==='gallery')return render_gallery($a,$pageId,$public);
@@ -79,7 +82,7 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
 }
 
 function render_page_icon(array $page): string {
-    if(!empty($page['icon_id']))return '<img class="page-icon-image feuillet-icon" src="media.php?id='.rawurlencode($page['icon_id']).'" alt="" style="width:1em;height:1em;object-fit:contain;display:inline-block">';
+    if(!empty($page['icon_id']))return '<img class="page-icon-image feuillet-icon" src="'.h(thumbnail_url($page['icon_id'],96)).'" alt="" style="width:1em;height:1em;object-fit:contain;display:inline-block">';
     return render_feuillet_icon($page['icon']??'📄');
 }
 function render_feuillet_icon(string $value): string {
@@ -166,7 +169,7 @@ function render_gallery(array $attrs,string $pageId,bool $public): string {
     $aspect=in_array($attrs['aspect']??'', ['16/9','4/3','1/1','3/4','auto'],true)?$attrs['aspect']:'16/9';$limit=$rows?$rows*($layout==='list'?1:$columns):500;$count=0;$cards='';
     foreach($selection as $id){$row=$all[$id];if($id===$pageId||$row['deleted_at']||!ancestors_active($row,$all)||($public&&($row['visibility']!=='public'||!$row['published']||!reader_page_allowed($id))))continue;$p=row_page($row,$public);
         if(!$manual&&!empty($attrs['parentId'])&&$p['parent_id']!==$attrs['parentId'])continue;if(!$manual&&!empty($attrs['kind'])&&$p['kind']!==$attrs['kind'])continue;
-        if($count>=500)break;$hidden=$count++ >= $limit;$icon=render_page_icon($p);$preview=$p['cover_id']?'<img loading="lazy" style="object-position:'.h(($p['cover_position']['x']??50).'% '.($p['cover_position']['y']??50).'%').'" src="media.php?id='.rawurlencode($p['cover_id']).'" alt="">':'<div class="gallery-placeholder"><span>'.$icon.'</span></div>';
+        if($count>=500)break;$hidden=$count++ >= $limit;$icon=render_page_icon($p);$preview=$p['cover_id']?'<img loading="lazy" style="object-position:'.h(($p['cover_position']['x']??50).'% '.($p['cover_position']['y']??50).'%').'" src="'.h(thumbnail_url($p['cover_id'])).'" alt="">':'<div class="gallery-placeholder"><span>'.$icon.'</span></div>';
         $cards.='<div class="gallery-card"'.($hidden?' hidden data-gallery-extra="1"':'').'><a class="gallery-card-main" href="'.h($public?reader_page_url($p):'index.php?page='.rawurlencode($p['slug'])).'">'.$preview.'<div class="gallery-card-text"><strong>'.$icon.' '.h($p['title']).'</strong>'.($p['description']?'<p>'.h($p['description']).'</p>':'').($p['kind']==='article'&&$p['source_name']?'<small>'.h($p['source_name']).'</small>':'').'</div></a>';
         foreach(['cover_attribution','icon_attribution'] as $key)if(!empty($p[$key]))$cards.=str_replace('class="image-attribution"','class="image-attribution compact"',render_credit($p[$key]));$cards.='</div>';
     }

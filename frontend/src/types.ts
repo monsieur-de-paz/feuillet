@@ -68,6 +68,9 @@ export function safeLink(value: string) {
 export function fileUrl(id: string, download = false) {
   return `media.php?id=${encodeURIComponent(id)}${download ? "&download=1" : ""}`;
 }
+export function thumbUrl(id: string, size: 96 | 320 | 640 | 1280 = 640) {
+  return `${fileUrl(id)}&thumb=${size}`;
+}
 export function pageUrl(id: string) {
   return `index.php?page=${encodeURIComponent(id)}`;
 }

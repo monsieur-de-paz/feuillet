@@ -259,3 +259,9 @@ Mettre à jour toute la distribution pour inclure video-lazy.js et video-placeho
 La version 0.18 utilise PHP cURL et DOM ; activer GD pour davantage de favicons ICO. Vérifier une carte HTTPS publique dans une copie de test : titre et miniature automatiques, modification manuelle, changement d’adresse, actualisation et lecture anonyme après publication. Un site renvoyant 403 ou exigeant une connexion peut légitimement refuser l’aperçu. Ne pas désactiver la protection des adresses privées pour résoudre cet échec.
 
 Le cache `storage/temporary/link-preview-*.json` expire après une heure et peut être supprimé sans supprimer les cartes. Les images récupérées font partie de la bibliothèque et des sauvegardes. Les actualisations forcées peuvent ajouter de nouvelles images ; vérifier leur usage avant de les supprimer.
+
+## Miniatures 0.19
+
+Activer l’extension PHP GD pour obtenir les vignettes réduites. Sans GD, Feuillet reste utilisable avec les originaux. Le cache privé `storage/thumbnails/` peut être vidé sans perte : les fichiers sont recréés lors de la prochaine consultation. Ne pas exposer ce dossier par une URL statique. Les exports portables sauvegardent les originaux et les références, pas ce cache dérivé ; une sauvegarde FTP peut omettre les miniatures pour réduire son poids.
+
+Après mise à jour : ouvrir une galerie, vérifier une URL `media.php?...&thumb=640`, puis ouvrir une image en zoom pour vérifier l’original. Vérifier le refus d’une miniature privée sans connexion et après dépublication. Les très grandes images ou un plafond mémoire faible déclenchent un repli sur l’original. Vérifier un JPEG avec orientation EXIF et les miniatures transparentes si ces formats sont utilisés.

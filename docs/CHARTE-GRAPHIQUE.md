@@ -169,3 +169,7 @@ Les titres du contenu utilisent une marge avant de 1,4 em et après de 0,35 em. 
 Boutons et cartes disposent d’un état hover/focus visible, cohérent avec l’accent du thème : déplacement de 2 px maximum, bordure accentuée et fond teinté. Respecter prefers-reduced-motion. Les miniatures de carte sont latérales, réduites sur mobile, avec textes pouvant revenir à la ligne.
 
 Les cartes enrichies conservent une miniature à droite et un texte limité à trois lignes ; dans l’éditeur, le bouton de présentation passe sous la carte pour préserver la largeur du contenu. Le chargement des métadonnées est signalé sans bloquer l’écriture.
+
+## Contenus 0.19
+
+Les liens de sous-pages sont des destinations visuelles : titre neutre sans soulignement, icône 22/28/36 px, description secondaire, survol discret, flèche de navigation. Trois densités : ligne épurée, carte et compacte. Les colonnes structurent par le vide (16, 28 ou 44 px), sans bordures, et se replient selon la place disponible. Les réglages sont contextuels au survol/focus et restent visibles sur écran tactile. Les encadrés utilisent un rayon de 14 px et une marge intérieure de 20 × 22 px sur ordinateur, 16 px sur mobile. Les valeurs sont communes au lecteur et à l’éditeur. Voir [la revue de design](DESIGN-0.19.md).

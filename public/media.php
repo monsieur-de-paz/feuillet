@@ -8,6 +8,14 @@ try{
     $id=str_limit($_GET['id']??'',36);$f=query('SELECT * FROM files WHERE id=?',[$id])->fetch();
     if(!$f||(!admin()&&!file_public($id)))fail('Fichier introuvable.',404);
     $path=storage().'/files/'.$f['path'];if(!is_file($path))fail('Fichier introuvable.',404);
+    session_write_close();unset($GLOBALS['feuillet_pdo']);
+    if(isset($_GET['thumb'])&&empty($_GET['download'])){
+        $derivative=thumbnail_file($f,$path,(int)$_GET['thumb']);
+        if($derivative){[$path,$f['mime']]=$derivative;$f['name']='apercu.'.($f['mime']==='image/webp'?'webp':'png');}
+        $etag='"'.hash('sha256',$f['id'].'|'.basename($path).'|'.filesize($path).'|'.filemtime($path)).'"';
+        header('Cache-Control: private, no-cache');header('ETag: '.$etag);
+        if(($_SERVER['HTTP_IF_NONE_MATCH']??'')===$etag){http_response_code(304);exit;}
+    }
     $size=filesize($path);$start=0;$end=$size-1;$partial=false;
     $range=$_SERVER['HTTP_RANGE']??'';
     if($range){
@@ -21,7 +29,6 @@ try{
     header('Content-Disposition: '.($inline?'inline':'attachment').'; filename="document.'.preg_replace('/[^a-z0-9]/i','',pathinfo($f['name'],PATHINFO_EXTENSION)).'"; filename*=UTF-8\'\''.rawurlencode($f['name']));
     if($partial){http_response_code(206);header("Content-Range: bytes $start-$end/$size");}
     header('Content-Length: '.max(0,$end-$start+1));
-    session_write_close();unset($GLOBALS['feuillet_pdo']);
     if(($_SERVER['REQUEST_METHOD']??'GET')==='HEAD')exit;
     $fp=fopen($path,'rb');fseek($fp,$start);$remaining=$end-$start+1;
     while($remaining>0&&!feof($fp)){ $chunk=fread($fp,min(65536,$remaining)); if($chunk===false)break;echo $chunk;$remaining-=strlen($chunk);if(connection_aborted())break; }

@@ -127,3 +127,7 @@ La restauration dépend des droits, de l’espace disque et de SQL. Les médias 
 ## Lecteur PDF sur le mutualisé
 
 La distribution 0.15 fournit `pdf-engine.php`, qui sert PDF.js avec le type JavaScript requis même si Apache ne reconnaît pas `.mjs`. Envoyer tous les fichiers de `public/`, y compris `.htaccess`, ce nouvel endpoint et `vendor/pdfjs/`. La racine web reste exclusivement `feuillet/public`. Vérifier un PDF depuis une session non connectée après installation ; un document privé doit rester inaccessible.
+
+### Optimisation des images
+
+Depuis Feuillet 0.19, l’extension PHP **GD** permet de servir des miniatures réduites pour les icônes, galeries et aperçus. WebP est privilégié lorsqu’il est pris en charge par GD ; sinon Feuillet produit du PNG. Sans GD, le logiciel reste fonctionnel et sert les originaux. Le dossier privé `storage/thumbnails/` est créé automatiquement et doit être inscriptible par PHP. Il reste hors de la racine web, comme le reste de `storage/`. Aucun traitement permanent ni VPS n’est nécessaire.

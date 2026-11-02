@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {linkPreviewPatch,linkPresentationContent, transformSelectedLink,FileBlock} from '../../frontend/src/nodes';
+import {reshapeColumns,Columns,PageLink,linkPreviewPatch,linkPresentationContent, transformSelectedLink,FileBlock} from '../../frontend/src/nodes';
 globalThis.location={href:'https://feuillet.test/index.php'};
 const uri='https://example.org/cours';
 const button=linkPresentationContent('button',uri,'Cours');
@@ -21,3 +21,8 @@ assert.deepEqual(linkPreviewPatch(before,before,meta),{metadataHref:uri,...meta,
 assert.deepEqual(linkPreviewPatch(before,{...before,title:'Manuel',icon:'🌐',previewUrl:'https://example.org/manual.png'},meta),{metadataHref:uri,description:'Résumé'});
 assert.equal(linkPreviewPatch(before,before,{}).title,undefined);
 console.log('Metadata application preserves concurrent manual edits and missing fields');
+
+const cols=[{type:'column',content:[{type:'paragraph',content:[{type:'text',text:'A'}]}]},{type:'column',content:[{type:'paragraph',content:[{type:'text',text:'B'}]}]},{type:'column',content:[{type:'paragraph',content:[{type:'text',text:'C'}]}]}];
+const merged=reshapeColumns(cols,2);assert.equal(merged.length,2);assert.equal(merged[1].content.length,2);assert.equal(cols.length,3);assert.equal(cols[1].content.length,1);
+assert.equal(reshapeColumns(cols,4)[3].content[0].type,'paragraph');assert.equal(Columns.config.content,'column{2,4}');assert.equal(PageLink.config.addAttributes().presentation.default,'row');
+console.log('Subpage defaults and column reshape preserve content');

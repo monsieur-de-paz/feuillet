@@ -39,11 +39,11 @@ class Reader(unittest.TestCase):
   link={'type':'pageLink','attrs':{'pageId':child['id'],'label':'Sans titre','icon':'📄'}}
   root=self.ok(self.admin.api('save',{**root,'content':{'type':'doc','content':[{'type':'columns','content':[{'type':'column','content':[link]}]}]}}))['page']
   child=self.ok(self.admin.api('save',{**child,'title':'4eme & découvertes'}))['page'];root=self.publish(root)
-  html=self.ok(self.visitor.request('index.php?page='+root['id']+'&read=1&root='+root['id'])).decode();self.assertIn('4eme &amp; découvertes</a>',html);self.assertNotIn('Sans titre',html)
-  state=self.state(root);self.assertIn('4eme &amp; découvertes</a>',state['html'])
+  html=self.ok(self.visitor.request('index.php?page='+root['id']+'&read=1&root='+root['id'])).decode();self.assertIn('4eme &amp; découvertes</strong>',html);self.assertNotIn('Sans titre',html)
+  state=self.state(root);self.assertIn('4eme &amp; découvertes</strong>',state['html'])
   child=self.ok(self.admin.api('page',query='&id='+child['id']))['page'];child=self.ok(self.admin.api('save',{**child,'title':'TITRE_BROUILLON_SECRET'}))['page'];unchanged=self.state(root,state['token']);self.assertEqual(unchanged,{'token':state['token']})
-  html=self.ok(self.admin.request('index.php?page='+root['id']+'&read=1&root='+root['id'])).decode();self.assertNotIn('TITRE_BROUILLON_SECRET',html);self.assertIn('4eme &amp; découvertes</a>',html)
-  self.publish(child);updated=self.state(root,state['token']);self.assertIn('TITRE_BROUILLON_SECRET</a>',updated['html']);self.assertNotEqual(updated['token'],state['token'])
+  html=self.ok(self.admin.request('index.php?page='+root['id']+'&read=1&root='+root['id'])).decode();self.assertNotIn('TITRE_BROUILLON_SECRET',html);self.assertIn('4eme &amp; découvertes</strong>',html)
+  self.publish(child);updated=self.state(root,state['token']);self.assertIn('TITRE_BROUILLON_SECRET</strong>',updated['html']);self.assertNotEqual(updated['token'],state['token'])
   self.assertEqual(self.ok(self.admin.api('page',query='&id='+root['id']))['page']['content']['content'][0]['content'][0]['content'][0]['attrs']['label'],'Sans titre')
  def test_05_empty_home_brand_and_theme_controls(self):
   n=self.ok(self.admin.api('settings'))['notebook'];self.ok(self.admin.api('settings',{'notebook':{**n,'icon':'lucide:book-open:#2563EB'}}));state=self.ok(self.visitor.request('reader-state.php'));self.assertIn('icons.svg#book-open',state['breadcrumbs']);self.assertIn('#2563EB',state['breadcrumbs']);html=self.ok(self.visitor.request('index.php?read=1')).decode();self.assertIn('theme-toggle.css',html);self.assertIn('theme.js',html);self.assertIn('data-theme-main',html)

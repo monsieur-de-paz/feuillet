@@ -45,6 +45,7 @@ import {
   ApiError,
   setCsrf,
   fileUrl,
+  thumbUrl,
   safeLink,
   sizeLabel,
   type FileRecord,
@@ -1552,7 +1553,7 @@ function Records({
               .find((id) => files[id]?.mime.startsWith("image/")) && (
               <img
                 className="database-record-cover"
-                src={fileUrl(
+                src={thumbUrl(
                   bundle.properties
                     .filter((property) => property.type === "files")
                     .flatMap((property) => asArray(cellValue(row, property)))
