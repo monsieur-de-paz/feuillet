@@ -8,10 +8,28 @@
   document.title=result.title;window.FeuilletReaderTheme?.setBase(result.appearance,result.mode);window.scrollTo({top:Math.min(previousScroll,document.documentElement.scrollHeight-innerHeight),behavior:'instant'});pending=null;document.querySelector('.reader-update-notice')?.remove();
  }
  function offer(result){pending=result;let notice=document.querySelector('.reader-update-notice');if(!notice){notice=document.createElement('div');notice.className='reader-update-notice';notice.setAttribute('role','status');const text=document.createElement('span');text.textContent='Une nouvelle version est disponible.';const button=document.createElement('button');button.type='button';button.textContent='Afficher la nouvelle version';button.addEventListener('click',()=>{if(pending)replace(pending)});notice.append(text,button);document.body.append(notice);}}
- async function check(){if(busy||document.hidden)return;const root=document.querySelector('#root');if(!root?.hasAttribute('data-reader-token'))return;busy=true;
-  try{const qs=new URLSearchParams({page:root.dataset.readerPage||'',root:root.dataset.readerRoot||root.dataset.readerPage||'',token});const response=await fetch('reader-state.php?'+qs,{credentials:'same-origin',cache:'no-store'});if(!response.ok)return;const result=await response.json();if(result.html){if(result.unavailable||!userBusy())replace(result);else offer(result);}}
+ async function check(){if(busy||document.hidden)return;const root=document.querySelector('#root');if(!root?.hasAttribute('data-reader-token'))return;busy=true;const view=root.dataset.readerPage+'|'+root.dataset.readerRoot;
+  try{const qs=new URLSearchParams({page:root.dataset.readerPage||'',root:root.dataset.readerRoot||root.dataset.readerPage||'',token});const response=await fetch('reader-state.php?'+qs,{credentials:'same-origin',cache:'no-store'});if(!response.ok)return;const result=await response.json();if(view!==root.dataset.readerPage+'|'+root.dataset.readerRoot)return;if(result.token===token&&!result.unavailable)return;if(result.html){if(result.unavailable||!userBusy())replace(result);else offer(result);}}
   catch{}finally{busy=false;}
  }
+
+ const memory=new Map();let navigation=0;
+ const key=url=>JSON.stringify([url.searchParams.get('page')||'',url.searchParams.get('root')||'']);
+ function note(message){let n=document.querySelector('.reader-network-status');if(!message){n?.remove();return}if(!n){n=document.createElement('div');n.className='reader-network-status';n.setAttribute('role','status');document.body.append(n)}n.textContent=message;}
+ function show(result,url){const root=document.querySelector('#root');root.dataset.readerPage=url.searchParams.get('page')||'';root.dataset.readerRoot=result.root||url.searchParams.get('root')||'';replace(result);window.scrollTo(0,0);}
+ async function navigate(url,push=true){
+  const pass=++navigation;let hit=memory.get(key(url));if(hit&&Date.now()-hit.time>=600000){memory.delete(key(url));hit=null;}if(hit){show(hit.result,url);note('Copie affichée · vérification des modifications…');}else note('Ouverture de la page…');
+  if(push)history.pushState({feuillet:true},'',url);
+  const qs=new URLSearchParams({page:url.searchParams.get('page')||''});if(url.searchParams.get('root'))qs.set('root',url.searchParams.get('root'));
+  try{const response=await fetch('reader-state.php?'+qs,{credentials:'same-origin',cache:'no-store',priority:'high'});if(!response.ok)throw Error('Page indisponible');const result=await response.json();if(pass!==navigation)return;if(!result.html)throw Error('Page indisponible');
+   if(result.unavailable)memory.delete(key(url));else{memory.set(key(url),{result,time:Date.now()});while(memory.size>20)memory.delete(memory.keys().next().value);}
+   show(result,url);note(response.headers.get('X-Feuillet-Offline')?'Copie enregistrée · connexion lente ou indisponible.':null);
+  }catch(error){if(pass!==navigation)return;if(hit){note('Copie affichée · impossible de vérifier les modifications.');return;}const root=document.querySelector('#root');root.dataset.readerPage=url.searchParams.get('page')||'';root.dataset.readerRoot=url.searchParams.get('root')||'';token='';const main=document.createElement('main');main.className='reader-page';const h=document.createElement('h1');h.textContent='Cette page nécessite une connexion.';const p=document.createElement('p');p.textContent='Aucune copie enregistrée n’est disponible pour cette page. Reconnecte-toi pour la consulter.';main.append(h,p);root.replaceChildren(main);note('Page non disponible dans le cache.');throw error;}
+ }
+ window.FeuilletReaderClear=()=>memory.clear();
+ window.FeuilletReaderNavigate=navigate;window.FeuilletReaderRefresh=()=>{token='';void check()};
+ window.addEventListener('popstate',()=>void navigate(new URL(location.href),false).catch(()=>{}));
+ document.addEventListener('click',event=>{if(event.defaultPrevented||event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;const a=event.target.closest('a[href]');if(!a||a.target||a.hasAttribute('download'))return;const url=new URL(a.href);if(url.origin!==location.origin||!url.pathname.endsWith('/index.php')||!url.searchParams.has('page')||url.searchParams.has('edit')||url.searchParams.has('form')||url.hash)return;event.preventDefault();void navigate(url).catch(()=>{});});
  function schedule(){clearTimeout(timer);timer=setTimeout(async()=>{await check();schedule()},15000)}
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)void check()});window.addEventListener('focus',()=>void check());schedule();
  document.addEventListener('click',event=>{

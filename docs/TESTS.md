@@ -529,3 +529,9 @@ Validation complémentaire 0.19.1 : suites médias 16/16 sous SQLite et MySQL ; 
 Les tests frontend contrôlent le contraste du monochrome, les gris neutres, les trois références personnalisées indépendantes, le repli des anciens réglages et la parité exacte PHP/TypeScript. Le script du lecteur public est testé avec le vrai résolveur lors de bascules clair/sombre/OLED.
 
 `python3 tests/appearance.py` et `--mysql` vérifient sauvegarde, validation, rendu public, surcharges de page et anciens réglages. Validation navigateur sur copie jetable : accents publics #303030 / #E5E5E5 / #F5F5F5, choix personnalisé avec trois contrôles, apparence enregistrée chargée dès une connexion neuve. Les suites frontend complètes, smoke et sécurité ont également été exécutées.
+
+## Lecture rapide et PWA — 0.21
+
+`node tests/pwa.mjs` utilise le vrai script du worker dans un environnement de stockage contrôlé : activation, absence de stockage avant activation, copies sans réseau, partition des racines, refus de cache des réponses admin/API/médias, actualisation, purge de dépublication, limite de 40 entrées, expiration et effacement. `python3 tests/pwa.py` et `--mysql` vérifient les ressources d’installation, l’éligibilité anonyme uniquement, les permissions et la présence du texte dans les réponses initiales.
+
+Tests existants réussis : lecteur 6/6, sécurité 13/13, médias 16/16, miniatures 2/2, frontend complet et smoke 20 réussis/1 test réseau non demandé. Parcours navigateur : navigation utilisant reader-state sans rechargement du document, activation (2 pages enregistrées), arrêt réel du serveur de test, rechargement de la sous-page depuis la copie locale, redémarrage et republication d’un texte, récupération et rechargement hors connexion de cette nouvelle version, effacement. L’installation native et un débit mobile chiffré n’ont pas été simulés ; aucun gain en millisecondes n’est revendiqué sans mesure reproductible.

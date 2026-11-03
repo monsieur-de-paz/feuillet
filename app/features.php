@@ -54,7 +54,7 @@ function validate_appearance(mixed $value,bool $partial=false): array {
     if(array_key_exists('focus',$value)){if(!is_bool($value['focus']))fail('Mode de lecture invalide.');$out['focus']=$value['focus'];}
     return $out;
 }
-function global_appearance(): array { $json=query("SELECT value FROM app_settings WHERE name='appearance'")->fetchColumn();return array_replace(appearance_defaults(),$json?json_decode($json,true):[]); }
+function global_appearance(): array { if(!empty($GLOBALS['feuillet_readonly'])&&isset($GLOBALS['feuillet_global_appearance']))return $GLOBALS['feuillet_global_appearance'];$json=query("SELECT value FROM app_settings WHERE name='appearance'")->fetchColumn();$result=array_replace(appearance_defaults(),$json?json_decode($json,true):[]);if(!empty($GLOBALS['feuillet_readonly']))$GLOBALS['feuillet_global_appearance']=$result;return $result; }
 function page_appearance(array $page): array { return array_replace(global_appearance(),$page['appearance']??[]); }
 function appearance_css(array $appearance): string {
     $a=validate_appearance($appearance);$font=match($a['font']){'serif'=>'Georgia,serif','mono'=>'monospace','quicksand'=>'Quicksand,system-ui,sans-serif','fraunces'=>'Fraunces,Georgia,serif',default=>'system-ui,sans-serif'};

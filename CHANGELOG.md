@@ -1,5 +1,12 @@
 # Historique des versions
 
+## 0.21.0 — 2026-11-03
+
+- Navigation publique par fragments de contenu, historique conservé et réutilisation des pages déjà consultées en mémoire avec vérification réseau.
+- Moins de lectures SQL répétées pendant une requête publique et libération du verrou de session avant le rendu et les contrôles de médias.
+- Priorité basse des images, décodage asynchrone, audio sans préchargement et préférence pour les emoji natifs.
+- Manifest et service worker PWA : installation navigateur, copies publiques hors connexion sur activation explicite, limites de durée/nombre, actualisation et effacement.
+
 ## 0.20.0 — 2026-11-02
 
 - Accent monochrome adaptatif : gris foncé en clair, gris très clair en sombre et OLED, avec contraste adapté des boutons.

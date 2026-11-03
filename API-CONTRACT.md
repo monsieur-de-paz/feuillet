@@ -208,3 +208,9 @@ Attributs `pageLink` : `presentation=row|card|compact`, `iconSize=small|medium|l
 ## Accents par thème — 0.20
 
 Les apparences acceptent `accentMode: auto|monochrome|custom` (défaut `auto`), `accentDark` et `accentOled` (hexadécimal #RRGGBB ou chaîne vide). `accent` reste la couleur de référence en clair. En mode custom, OLED utilise accentOled, sinon accentDark, sinon l’ancienne couleur de référence ; les variantes sombres restent ajustées pour le contraste. Ces champs sont valides dans l’apparence générale et dans les surcharges de page. Les valeurs inconnues et couleurs invalides sont refusées. Les anciennes apparences sans ces champs restent adaptatives.
+
+## Lecture rapide et PWA — 0.21
+
+Les réponses complètes de `reader-state.php` ajoutent `offlineEligible` et `root`. offlineEligible vaut vrai seulement pour une publication accessible consultée sans authentification administrateur. La réponse inchangée reste `{token}`. Une publication indisponible produit un fragment d’indisponibilité et offlineEligible=false. Les contrôles de portée et publication s’exécutent à chaque demande en ligne.
+
+`manifest.webmanifest`, `sw.js`, `pwa.js`, `offline.html` et `offline.js` fournissent l’installation et la lecture locale. Le worker ne stocke ni API, ni mutations, ni médias, ni documents HTML administrateur ; seulement des fragments explicitement éligibles après activation et une liste de ressources publiques fixes. Les clés incluent page et racine, avec un espace de cache distinct par chemin d’installation. Un en-tête local X-Feuillet-Offline=1 signale le repli sur une copie. Aucun changement SQL.

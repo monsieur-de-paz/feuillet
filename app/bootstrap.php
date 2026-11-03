@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.20.0';
+const FEUILLET_VERSION = '0.21.0';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -59,7 +59,7 @@ function start_session(): void {
 }
 function session_cookie_name(): string { return 'feuillet_'.substr(hash('sha256',(realpath(storage())?:storage()).'|'.cookie_path()),0,16); }
 function cookie_path(): string { $p = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')); return rtrim($p, '/') . '/'; }
-function admin(): bool { start_session(); return !empty($_SESSION['admin']); }
+function admin(): bool { if(isset($GLOBALS['feuillet_read_admin']))return $GLOBALS['feuillet_read_admin'];start_session(); return !empty($_SESSION['admin']); }
 function need_admin(): void { if (!admin()) fail('Connexion nécessaire.', 401, 'authentication_required'); }
 function csrf(): void {
     start_session();
@@ -216,7 +216,7 @@ function ancestors_active(array $row, array $all): bool {
     }
     return true;
 }
-function page_rows(): array { $rows=query('SELECT * FROM pages ORDER BY sort_order, created_at')->fetchAll();return array_column($rows,null,'id'); }
+function page_rows(): array { if(!empty($GLOBALS['feuillet_readonly'])&&isset($GLOBALS['feuillet_page_rows']))return $GLOBALS['feuillet_page_rows'];$rows=array_column(query('SELECT * FROM pages ORDER BY sort_order, created_at')->fetchAll(),null,'id');if(!empty($GLOBALS['feuillet_readonly']))$GLOBALS['feuillet_page_rows']=$rows;return $rows; }
 function get_page(string $id, bool $forcePublic=false): array {
     $row=query('SELECT * FROM pages WHERE id=? OR slug=?',[$id,$id])->fetch();
     if(!$row||$row['deleted_at']||!ancestors_active($row,page_rows())) fail('Page introuvable.',404,'not_found');

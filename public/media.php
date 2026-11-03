@@ -5,10 +5,11 @@ require_once __DIR__.'/../app/bootstrap.php';
 headers_secure();
 try{
     if(!installed())fail('Introuvable.',404);
+    $GLOBALS['feuillet_read_admin']=admin();session_write_close();$GLOBALS['feuillet_readonly']=true;
     $id=str_limit($_GET['id']??'',36);$f=query('SELECT * FROM files WHERE id=?',[$id])->fetch();
     if(!$f||(!admin()&&!file_public($id)))fail('Fichier introuvable.',404);
     $path=storage().'/files/'.$f['path'];if(!is_file($path))fail('Fichier introuvable.',404);
-    session_write_close();unset($GLOBALS['feuillet_pdo']);
+    unset($GLOBALS['feuillet_pdo']);
     if(isset($_GET['thumb'])&&empty($_GET['download'])){
         $derivative=thumbnail_file($f,$path,(int)$_GET['thumb']);
         if($derivative){[$path,$f['mime']]=$derivative;$f['name']='apercu.'.($f['mime']==='image/webp'?'webp':'png');}

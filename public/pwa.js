@@ -1,0 +1,20 @@
+(()=>{
+ let installPrompt=null,registration;
+ const supported='serviceWorker' in navigator&&window.isSecureContext;
+ const worker=async()=>{if(!supported)throw Error('La lecture hors connexion nécessite HTTPS.');registration ||= await navigator.serviceWorker.register('sw.js',{scope:'./',updateViaCache:'none'});await navigator.serviceWorker.ready;return registration.active||navigator.serviceWorker.controller};
+ const command=async(command)=>{const w=await worker(),c=new MessageChannel();return new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Le stockage local ne répond pas.')),3000);c.port1.onmessage=()=>{clearTimeout(timer);resolve()};w.postMessage({command},[c.port2])})};
+ const status=async()=>{const w=await worker(),channel=new MessageChannel();return new Promise(resolve=>{channel.port1.onmessage=e=>resolve(e.data);w.postMessage({command:'status'},[channel.port2]);setTimeout(()=>resolve({enabled:false,pages:0}),2000)})};
+ window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event});
+ const addButton=()=>{const bar=document.querySelector('.reader-header-actions,.topbar-actions');if(!bar||bar.querySelector('[data-pwa-open]'))return;const b=document.createElement('button');b.type='button';b.className='pwa-open';b.dataset.pwaOpen='1';b.textContent='Application';b.title='Installer Feuillet et gérer le hors connexion';bar.append(b)};
+ new MutationObserver(addButton).observe(document.documentElement,{childList:true,subtree:true});addButton();
+ document.addEventListener('click',async event=>{if(!event.target.closest('[data-pwa-open]'))return;
+ const d=document.createElement('dialog');d.className='pwa-dialog';d.innerHTML='<h2>Feuillet sur cet appareil</h2><p>Installe Feuillet depuis le menu de Chrome ou Edge. Sur iPhone et iPad : Partager → Sur l’écran d’accueil.</p><button data-install>Installer Feuillet</button><h3>Lecture hors connexion</h3><p>Conserve le texte et la mise en forme des pages publiques consultées sur cet appareil (40 pages maximum, 24 heures). Les médias et l’édition administrateur nécessitent une connexion.</p><p>Utilise cette option sur un appareil de confiance. Hors ligne, Feuillet ne peut pas vérifier qu’une page vient d’être rendue privée.</p><p role="status"></p><div class="pwa-actions"><button data-enable>Activer sur cet appareil</button><button data-clear>Effacer et désactiver</button><button data-close>Fermer</button></div>';
+ document.body.append(d);d.showModal();d.addEventListener('close',()=>d.remove());const label=d.querySelector('[role=status]');
+ const refresh=async()=>{try{const s=await status();label.textContent=s.enabled?`Activé · ${s.pages} page(s) enregistrée(s).`:'La conservation des pages est désactivée.';}catch(e){label.textContent=e.message}};
+ d.querySelector('[data-close]').onclick=()=>d.close();d.querySelector('[data-install]').disabled=!installPrompt;
+ d.querySelector('[data-install]').onclick=async()=>{await installPrompt?.prompt();installPrompt=null;d.querySelector('[data-install]').disabled=true};
+ d.querySelector('[data-enable]').onclick=async()=>{try{await command('enable');await refresh();window.FeuilletReaderRefresh?.();label.textContent+=' Les pages seront enregistrées à leur consultation.';}catch(e){label.textContent=e.message}};
+ d.querySelector('[data-clear]').onclick=async()=>{await command('clear');window.FeuilletReaderClear?.();await refresh()};await refresh();
+ });
+ if(supported)worker().catch(()=>{});
+})();

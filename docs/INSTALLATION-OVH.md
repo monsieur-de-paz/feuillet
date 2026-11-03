@@ -131,3 +131,7 @@ La distribution 0.15 fournit `pdf-engine.php`, qui sert PDF.js avec le type Java
 ### Optimisation des images
 
 Depuis Feuillet 0.19, l’extension PHP **GD** permet de servir des miniatures réduites pour les icônes, galeries et aperçus. WebP est privilégié lorsqu’il est pris en charge par GD ; sinon Feuillet produit du PNG. Sans GD, le logiciel reste fonctionnel et sert les originaux. Le dossier privé `storage/thumbnails/` est créé automatiquement et doit être inscriptible par PHP. Il reste hors de la racine web, comme le reste de `storage/`. Aucun traitement permanent ni VPS n’est nécessaire.
+
+### Installation comme application web
+
+Depuis 0.21, le sous-domaine doit être servi en HTTPS pour l’installation PWA et les copies publiques hors connexion. Envoyer également manifest.webmanifest, sw.js, pwa.js/pwa.css et les fichiers offline.* de la distribution ; ne pas déplacer sw.js hors du dossier public. Le navigateur doit pouvoir le télécharger depuis le même chemin que index.php. Aucune tâche cron ni service Node n’est requis. Ouvrir Application dans la barre supérieure pour les instructions d’installation et l’activation facultative du cache local.

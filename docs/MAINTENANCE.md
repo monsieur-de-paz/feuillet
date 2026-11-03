@@ -275,3 +275,11 @@ Vérifier les deux réponses avec `curl --compressed --fail URL` et comparer les
 ## Contrôler les accents par thème
 
 Vérifier la sélection Monochrome en clair, sombre et OLED ; les boutons doivent garder un libellé lisible. En mode Personnalisé par thème, choisir trois couleurs distinctes, recharger les réglages et vérifier leur conservation, puis changer le thème en lecture publique. Vérifier aussi une surcharge de page et le retour aux couleurs de base. Une couleur sombre peu contrastée peut être éclaircie automatiquement : l’aperçu indique le résultat. Aucune modification du mot de passe ou de la configuration PHP n’est nécessaire.
+
+## Application et cache de lecture
+
+La PWA nécessite HTTPS (localhost est permis pour les tests). Conserver la même origine et le même chemin d’installation ; déplacer le site crée un autre espace de cache. Le navigateur peut évincer le stockage local : la copie hors ligne n’est jamais une sauvegarde du carnet. Les réglages d’installation du navigateur restent indépendants de l’activation des copies publiques.
+
+Pour diagnostiquer : ouvrir Application, vérifier l’activation et le nombre de pages, consulter une sous-page, couper le réseau de l’environnement de test puis la recharger, rétablir la connexion et publier une modification. Vérifier sa récupération et l’effacement. Les pages privées, médias et formulaires à soumettre nécessitent le réseau. Ne pas rendre le worker cacheur générique de toutes les réponses : cela exposerait des données privées ou des réponses à des formulaires.
+
+Lors d’une nouvelle version, incrémenter FEUILLET_VERSION, les versions npm et VERSION dans sw.js ; actualiser aussi la version affichée dans offline.html. Le cache de ressources publiques est renouvelé, les fragments sont revérifiés en ligne. Le bouton Effacer et désactiver retire le stockage de publications sur cet appareil. Une page dépubliée peut encore être consultée sur un appareil resté hors réseau jusqu’à expiration de sa copie ; cette limite est explicitée avant activation.

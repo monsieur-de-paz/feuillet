@@ -310,3 +310,13 @@ PageLinkView et `render_document(pageLink)` partagent la structure `subpage-link
 Le rendu PHP expose les références dans `--accent-base`, `--accent-mode`, `--accent-dark` et `--accent-oled`. `public/theme.js` appelle le même résolveur compilé lors d’un changement de thème visiteur. Les variables de boutons, sources et accent suivent la variante active ; les titres neutres et couleurs explicitement choisies dans le contenu ne sont pas remplacés.
 
 Le chargement de l’apparence est partagé entre le démarrage de l’application et la connexion administrateur, pour éviter le retour temporaire au thème par défaut après identification.
+
+## Navigation et stockage local — 0.21
+
+`reading.js` intercepte uniquement les liens internes de lecture vers index.php?page=… sans edit/form/target/modificateur. Il charge `reader-state.php`, remplace le contenu et le fil d’Ariane, puis gère history/popstate. Mémoire bornée à 20 réponses/10 minutes, séquence de navigation contre les réponses tardives et identité de page vérifiée avant d’appliquer un polling concurrent. Une copie identique au token courant n’entraîne pas le rechargement périodique des médias.
+
+Le drapeau feuillet_readonly active la réutilisation du catalogue de pages, des réglages de carnet et de l’apparence **uniquement pendant une requête**. L’identité admin est capturée avant fermeture de la session ; ce snapshot ne persiste pas entre requêtes. Aucun cache global d’autorisations. Le service média libère également le verrou avant les contrôles de publication et la création de miniatures.
+
+`sw.js` conserve une enveloppe publique versionnée et, sur consentement, jusqu’à 40 fragments de publications pendant 24 h, 2 Mo maximum par fragment. Clé normalisée par page/racine ; namespace propre au chemin d’installation. Une réponse de dépublication purge la branche correspondante. Les médias, API et mutations restent réseau ; aucun HTML administrateur n’est conservé. Les erreurs de quota ne doivent pas bloquer une réponse réseau valide. Une ressource demandée avec une autre version contourne l’ancienne enveloppe pour éviter de bloquer une mise à jour.
+
+Le repli sur la copie intervient après 1,5 s pour un fragment et 1,8 s pour l’ouverture d’un document. La requête de validation continue. Le shell offline recharge le fragment connu ou propose les pages présentes dans le stockage local. Les copies ne sont pas chiffrées : l’activation doit rester réservée aux appareils de confiance et la révocation distante reste invérifiable hors réseau.

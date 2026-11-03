@@ -37,12 +37,14 @@ function categories_mutate(string $action,array $input): array {
     return ['id'=>$id,'categories'=>categories_list(false,true)];
 }
 function notebook_settings(): array {
+    if(!empty($GLOBALS['feuillet_readonly'])&&isset($GLOBALS['feuillet_notebook_settings']))return $GLOBALS['feuillet_notebook_settings'];
     $old=cfg()['name']??'Feuillet.';
     $title=in_array($old,['Le carnet de Sandro','Mon carnet','Mon carnet de cours'],true)?'Feuillet.':$old;
     $defaults=['title'=>$title,'subtitle'=>'Mes notes, simplement','icon'=>'feuillet','icon_id'=>null,'auto_publish'=>true,'auto_publish_children'=>false,'sidebar_shortcut'=>'Mod+Shift+L','max_upload'=>(int)(cfg()['max_upload']??104857600)];
     $raw=query("SELECT value FROM app_settings WHERE name='notebook'")->fetchColumn();
     $settings=array_replace($defaults,$raw?json_decode($raw,true):[]);
     if($settings['subtitle']==='Mon carnet pédagogique')$settings['subtitle']=$defaults['subtitle'];
+    if(!empty($GLOBALS['feuillet_readonly']))$GLOBALS['feuillet_notebook_settings']=$settings;
     return $settings;
 }
 function notebook_validate(array $input): array {
