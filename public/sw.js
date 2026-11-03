@@ -1,5 +1,5 @@
 /* Feuillet: public reading copies only. No API, media or administrator document cache. */
-const base=new URL('./',self.location),VERSION='0.21.0',PREFIX='feuillet-'+encodeURIComponent(base.pathname)+'-',SHELL=PREFIX+'shell-'+VERSION,PAGES=PREFIX+'public-pages',SETTINGS=PREFIX+'preferences',key=new URL('offline-enabled',base).href;
+const base=new URL('./',self.location),VERSION='0.21.1',PREFIX='feuillet-'+encodeURIComponent(base.pathname)+'-',SHELL=PREFIX+'shell-'+VERSION,PAGES=PREFIX+'public-pages',SETTINGS=PREFIX+'preferences',key=new URL('offline-enabled',base).href;
 const assets=['offline.html','offline.js','reading.js','pwa.js','pwa.css','reader.css','gallery.css','interface.css','theme.js','theme-colors.js','theme-toggle.css','emoji-font.css','file-preview.js','file-preview.css','video-lazy.js','favicon.svg','icons.svg','feuillet-logo.png','manifest.webmanifest'];
 const enabled=async()=>{try{return Boolean(await(await caches.open(SETTINGS)).match(key))}catch{return false}};
 const canonical=url=>{const u=new URL('reader-state.php',base);for(const k of ['page','root'])if(url.searchParams.has(k))u.searchParams.set(k,url.searchParams.get(k));return u.href};

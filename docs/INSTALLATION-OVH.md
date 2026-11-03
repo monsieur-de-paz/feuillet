@@ -24,6 +24,8 @@ racine FTP/
 
 Ne choisir ni `feuillet` ni `feuillet/storage` comme racine web. Seul `feuillet/public` doit être exposé. Les protections `.htaccess` complètent cette disposition ; elles ne remplacent pas le choix de la bonne racine.
 
+Ne pas transférer le dossier `.git`, les fichiers `.env`, les sauvegardes SQL, les clés privées ou les copies d’éditeur dans `public/`. Les `.htaccess` de la version 0.21.1 bloquent les fichiers cachés et plusieurs extensions sensibles en défense complémentaire, tout en autorisant `.well-known/acme-challenge` pour HTTPS. Ces règles exigent Apache et la prise en compte des `.htaccess` ; sous un autre serveur, prévoir des règles équivalentes. Un fichier public comme `.gitignore` n’est pas un secret : il décrit les exclusions de Git, sans contenir vos identifiants.
+
 Le compte FTP doit pouvoir créer `config.php` et écrire dans `storage/`. Utiliser les droits suffisants pour le propriétaire de l'hébergement ; ne pas rendre les fichiers inscriptibles par tous avec `777`.
 
 ## 2. Relier le sous-domaine

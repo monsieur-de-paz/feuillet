@@ -535,3 +535,18 @@ Les tests frontend contrôlent le contraste du monochrome, les gris neutres, les
 `node tests/pwa.mjs` utilise le vrai script du worker dans un environnement de stockage contrôlé : activation, absence de stockage avant activation, copies sans réseau, partition des racines, refus de cache des réponses admin/API/médias, actualisation, purge de dépublication, limite de 40 entrées, expiration et effacement. `python3 tests/pwa.py` et `--mysql` vérifient les ressources d’installation, l’éligibilité anonyme uniquement, les permissions et la présence du texte dans les réponses initiales.
 
 Tests existants réussis : lecteur 6/6, sécurité 13/13, médias 16/16, miniatures 2/2, frontend complet et smoke 20 réussis/1 test réseau non demandé. Parcours navigateur : navigation utilisant reader-state sans rechargement du document, activation (2 pages enregistrées), arrêt réel du serveur de test, rechargement de la sous-page depuis la copie locale, redémarrage et republication d’un texte, récupération et rechargement hors connexion de cette nouvelle version, effacement. L’installation native et un débit mobile chiffré n’ont pas été simulés ; aucun gain en millisecondes n’est revendiqué sans mesure reproductible.
+
+## Sécurité de publication — 0.21.1, 3 novembre 2026
+
+Contrôles réalisés sur des installations et fichiers temporaires possédés par les tests :
+
+- `python3 tests/security.py` : 13 scénarios réussis (authentification, sessions, CSRF, XSS stocké, médias, formulaires, budgets de formules, archives et limites de connexion).
+- `python3 tests/smoke.py` : 20 réussis ; le seul scénario distant Commons est volontairement ignoré sans `--network`.
+- `python3 tests/pwa.py` : 2 réussis ; `node tests/pwa.mjs` : activation explicite, cache public seulement, isolation, actualisation, dépublication et effacement réussis.
+- `python3 tests/apache-guards.py` : neuf chemins sensibles bloqués en 403/404 sur un véritable Apache local ; ressources publiques et ACME accessibles. Au constat initial, les neuf sentinelles étaient accessibles avec les anciennes règles. Ce test n’inspecte pas le serveur de production.
+- `python3 tests/publication.py` : 4 scénarios réussis : sources publiques autorisées, données privées et traversées de chemin refusées, secret fictif détecté sans sa valeur dans les logs, ancien nom privé détecté même lorsque le blob existe aussi sous un nom public.
+- `python3 tests/installation.py` : 5 scénarios réussis ; `python3 tests/updates.py` : 16 réussis, dont restauration après erreur et conservation des données.
+- Mise à jour locale réelle de l’archive 0.21.0 vers 0.21.1 : réussie, avec configuration, notes et médias privés conservés et hashes installés contrôlés.
+- Build TypeScript/Vite réussi. `npm audit --json` : aucun avis connu sur les dépendances verrouillées à cette date.
+
+Le rapport [AUDIT-SECURITE-2026-11-03.md](AUDIT-SECURITE-2026-11-03.md) précise le périmètre historique et les limites du contrôle.

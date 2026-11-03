@@ -16,3 +16,19 @@ __pycache__/
 .env.*
 *.zip
 config.php.*.tmp
+
+# Private credentials, exports and editor/server backups must never be tracked.
+config.php.*
+*.sql
+*.sql.gz
+*.pem
+*.key
+*.p12
+*.pfx
+*.bak
+*.old
+*.orig
+*.swp
+*.swo
+*~
+/.private/

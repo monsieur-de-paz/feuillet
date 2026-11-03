@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
 """Package an installable distribution; exclude all local runtime data."""
-import argparse, hashlib, json, pathlib, re, subprocess, zipfile
+import argparse, hashlib, json, pathlib, re, subprocess, sys, zipfile
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--output',type=pathlib.Path,required=True,help='Directory for the ZIP and SHA-256 file')
 args=parser.parse_args()
 version=re.search(r"const FEUILLET_VERSION = '([^']+)';",(ROOT/'app/bootstrap.php').read_text()).group(1)
 if (ROOT/'.git').exists():
+    subprocess.run([sys.executable,str(ROOT/'tools/audit-publication.py'),'--history'],cwd=ROOT,check=True)
     paths=[ROOT/p for p in subprocess.check_output(['git','-C',str(ROOT),'ls-files','-z']).decode().split('\0') if p]
 else:
     paths=[p for p in ROOT.rglob('*') if p.is_file()]
 def permitted(p):
     relative=p.relative_to(ROOT)
-    if any(part in ['.git','node_modules','__pycache__'] for part in relative.parts):return False
+    if any(part in ['.git','node_modules','__pycache__','.private'] for part in relative.parts):return False
     if relative.parts[0] in ['storage'] and relative.as_posix()!='storage/.htaccess':return False
     if p.name=='config.php' or p.name.startswith(('.env','config.php.')):return False
-    if p.suffix.lower() in ['.log','.sqlite','.db','.zip','.pyc'] or '.sqlite-' in p.name:return False
+    if p.suffix.lower() in ['.log','.sqlite','.db','.zip','.pyc','.sql','.pem','.key','.p12','.pfx','.bak','.old','.orig','.swp','.swo'] or '.sqlite-' in p.name or p.name.endswith(('~','.sql.gz')) or p.is_symlink():return False
     return True
 paths=sorted(p for p in paths if permitted(p) and p.is_file() and p.name!='update-manifest.json')
 manifest={'format':'feuillet-distribution','protocol':1,'version':version,'php_min':'8.3.0','extensions':['pdo','mbstring','fileinfo','zip','curl','tokenizer'],'database_tables':['pages','revisions','files','spaces','app_settings','categories','collections','collection_properties','collection_rows','collection_forms','form_uploads'],'files':{p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in paths if p.relative_to(ROOT).parts[0]!='storage'}}

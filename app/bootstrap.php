@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.21.0';
+const FEUILLET_VERSION = '0.21.1';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -93,6 +93,7 @@ function safe_url(mixed $url): string {
 }
 function headers_secure(): void {
     header('X-Content-Type-Options: nosniff');
+    if(!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off')header('Strict-Transport-Security: max-age=31536000');
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('X-Frame-Options: SAMEORIGIN');
     header("Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; media-src 'self' https: blob:; frame-src 'self' https://www.youtube-nocookie.com https://player.vimeo.com https://www.google.com https://maps.google.com; connect-src 'self'; font-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'");

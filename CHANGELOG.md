@@ -1,5 +1,12 @@
 # Historique des versions
 
+## 0.21.1 — 2026-11-03
+
+- Protection Apache contre les fichiers cachés, métadonnées Git, configurations et sauvegardes copiées accidentellement dans la racine web ; validation HTTPS conservée.
+- HSTS sur les réponses HTTPS et exclusions Git/distribution renforcées pour les données privées, clés et sauvegardes.
+- Contrôle des fichiers suivis, de l’historique et des archives avant publication, workflow GitHub à permissions minimales et suivi des dépendances.
+- Politique de sécurité et bilan daté de l’audit du dépôt et des 36 archives ZIP déjà publiées.
+
 ## 0.21.0 — 2026-11-03
 
 - Navigation publique par fragments de contenu, historique conservé et réutilisation des pages déjà consultées en mémoire avec vérification réseau.
