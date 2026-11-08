@@ -1,5 +1,11 @@
 # Historique des versions
 
+## 0.22.0 — 2026-11-08
+
+- Adresses courtes personnalisées pour les pages publiques et privées, configurables depuis le panneau de partage.
+- Les pages privées exigent toujours la connexion administrateur. Les anciens liens et adresses personnalisées restent valides selon la visibilité de leur page.
+- Les adresses sont uniques par installation. La lecture publique et le cache hors connexion suivent les mêmes droits d’accès que les liens d’origine.
+
 ## 0.21.1 — 2026-11-03
 
 - Protection Apache contre les fichiers cachés, métadonnées Git, configurations et sauvegardes copiées accidentellement dans la racine web ; validation HTTPS conservée.

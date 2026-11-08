@@ -8,9 +8,13 @@ try{
     if(($_SERVER['REQUEST_METHOD']??'GET')!=='GET')fail('Méthode non autorisée.',405);
     start_session();$isAdmin=admin();$GLOBALS['feuillet_read_admin']=$isAdmin;session_write_close();$GLOBALS['feuillet_readonly']=true;
     require_once __DIR__.'/../app/reader.php';
-    $requested=str_limit($_GET['page']??'',190);$id=$requested;$page=null;$unavailable=false;
-    if(!$id){try{reader_scope_request();$page=public_home_page();}catch(AppError){$page=null;}}
-    if($id){try{reader_scope_request($id);$page=get_page($id,true);}catch(AppError $e){if($e->status!==404)throw $e;$unavailable=(bool)$requested;}}
+    $shared=array_key_exists('share',$_GET);$page=null;$unavailable=false;
+    try{
+        if($shared)resolve_share_request();
+        $id=str_limit($_GET['page']??'',190);
+        reader_scope_request($id);
+        $page=$id?get_page($id,true):public_home_page();
+    }catch(AppError $e){if($e->status!==404)throw $e;$unavailable=$shared||!empty($id);}
     $token=reader_token($page);$result=['token'=>$token];
     if(!hash_equals($token,str_limit($_GET['token']??'',64))){
         $a=$page?page_appearance($page):global_appearance();$result+=['offlineEligible'=>!$isAdmin&&$page!==null,'root'=>reader_root_id()??'','html'=>$page?render_reader_page($page):render_reader_empty($unavailable),'breadcrumbs'=>$page?render_reader_breadcrumbs($page):'<span class="reader-brand">'.render_reader_brand().'</span>','header'=>render_reader_header_contents($page),'title'=>$page?$page['title'].' — '.notebook_settings()['title']:notebook_settings()['title'],'appearance'=>appearance_css($a),'mode'=>$a['mode'],'unavailable'=>$unavailable];

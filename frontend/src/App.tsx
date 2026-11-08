@@ -7,6 +7,7 @@ import {
 } from "./Updates";
 import { FeuilletLogo } from "./FeuilletLogo";
 import { PublicLinkSharing } from "./PublicLinkSharing";
+import { publicPageLink } from "./public-sharing";
 import { PublicHomePanel } from "./PublicHomePanel";
 import { AdminHome } from "./AdminHome";
 import { ContextMenu, type MenuAction } from "./ContextMenu";
@@ -1181,6 +1182,10 @@ export default function App() {
     e.preventDefault();
     await perform(async () => {
       await api("login", { password: loginPassword });
+      if (new URLSearchParams(location.search).has("share")) {
+        location.reload();
+        return;
+      }
       setLoginPassword("");
       const s = await api<Session>("session");
       setCsrf(s.csrf);
@@ -1930,7 +1935,7 @@ export default function App() {
         label:
           target.visibility === "public"
             ? "Publication et accès"
-            : "Publier la page",
+            : "Partager la page",
         icon: <Globe />,
         run: action(() => showModal("publish")),
         group: "share",
@@ -1943,10 +1948,11 @@ export default function App() {
               run: () => {
                 void navigator.clipboard
                   ?.writeText(
-                    new URL(
-                      `${pageUrl(target.slug || target.id)}&read=1`,
+                    publicPageLink(
+                      target.slug || target.id,
                       location.href,
-                    ).href,
+                      pages.find((page) => page.id === target.id)?.share_path,
+                    ),
                   )
                   .then(() => notify("Le lien public a été copié."))
                   .catch(() =>
@@ -2716,7 +2722,7 @@ export default function App() {
                         ? draft.has_unpublished_changes
                           ? "Mettre à jour"
                           : "Publiée"
-                        : "Publier"}
+                        : "Partager"}
                     </span>
                   </button>
                   <button
@@ -3463,7 +3469,7 @@ export default function App() {
           title={
             draft.visibility === "public"
               ? "Publication de la page"
-              : "Partager cette page avec tes visiteurs"
+              : "Partager cette page"
           }
           onClose={() => setModal(null)}
         >
@@ -3474,7 +3480,7 @@ export default function App() {
                 ? notebook.auto_publish !== false
                   ? " est accessible publiquement. Chaque modification enregistrée est automatiquement visible aux visiteurs."
                   : " est accessible publiquement. Les modifications du brouillon restent privées jusqu’à leur publication."
-                : " sera accessible à toute personne disposant de son lien, sans connexion."}
+                : " est privée. Son lien nécessite une connexion administrateur. Si tu publies la page, elle devient accessible à toute personne disposant du lien."}
             </p>
             <div className="publication-notice">
               <Globe size={19} />
@@ -3513,13 +3519,30 @@ export default function App() {
               Rendre cette page privée retire aussi ses sous-pages de la
               consultation publique.
             </p>
-            {draft.visibility === "public" && (
-              <PublicLinkSharing key={draft.id} id={draft.slug || draft.id} />
-            )}
+            <PublicLinkSharing
+              key={draft.id}
+              pageId={draft.id}
+              slug={draft.slug}
+              path={
+                pages.find((page) => page.id === draft.id)?.share_path ?? null
+              }
+              privatePage={draft.visibility === "private"}
+              onPathChange={(path) =>
+                setPages((previous) =>
+                  previous.map((page) =>
+                    page.id === draft.id ? { ...page, share_path: path } : page,
+                  ),
+                )
+              }
+            />
             {draft.visibility === "public" && (
               <a
                 className="public-url"
-                href={`${pageUrl(draft.slug || draft.id)}&read=1`}
+                href={publicPageLink(
+                  draft.slug || draft.id,
+                  location.href,
+                  pages.find((page) => page.id === draft.id)?.share_path,
+                )}
                 target="_blank"
                 rel="noopener noreferrer"
               >

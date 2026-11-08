@@ -36,6 +36,8 @@ Configurer l'entrée DNS pour qu'elle pointe vers l'hébergement. Si OVH gère l
 
 [Guide OVH pour le multisite](https://docs.ovhcloud.com/fr/guides/web-cloud/web-hosting/multisites-configure-multisite).
 
+Les adresses personnalisées de Feuillet 0.22 utilisent `mod_rewrite` et le fichier `public/.htaccess` fourni. Si le serveur ne lit pas ce fichier, configurez une réécriture équivalente des chemins courts vers `index.php?share=nom-du-chemin`. Le lien d’origine `index.php?page=…` et la forme `index.php?share=nom-du-chemin` fonctionnent sans réécriture.
+
 ## 3. Vérifier PHP
 
 Choisir PHP **8.3 ou plus récent** parmi les versions proposées pour l'offre. L'installation vérifie les extensions nécessaires : `PDO`, `pdo_mysql`, `mbstring`, `fileinfo`, `zip`, ainsi que le stockage et les sessions. SQLite nécessite `pdo_sqlite` uniquement si ce mode est choisi ; MySQL/MariaDB est recommandé pour cette installation OVH.

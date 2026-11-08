@@ -1,8 +1,8 @@
 /* Feuillet: public reading copies only. No API, media or administrator document cache. */
-const base=new URL('./',self.location),VERSION='0.21.1',PREFIX='feuillet-'+encodeURIComponent(base.pathname)+'-',SHELL=PREFIX+'shell-'+VERSION,PAGES=PREFIX+'public-pages',SETTINGS=PREFIX+'preferences',key=new URL('offline-enabled',base).href;
+const base=new URL('./',self.location),VERSION='0.22.0',PREFIX='feuillet-'+encodeURIComponent(base.pathname)+'-',SHELL=PREFIX+'shell-'+VERSION,PAGES=PREFIX+'public-pages',SETTINGS=PREFIX+'preferences',key=new URL('offline-enabled',base).href;
 const assets=['offline.html','offline.js','reading.js','pwa.js','pwa.css','reader.css','gallery.css','interface.css','theme.js','theme-colors.js','theme-toggle.css','emoji-font.css','file-preview.js','file-preview.css','video-lazy.js','favicon.svg','icons.svg','feuillet-logo.png','manifest.webmanifest'];
 const enabled=async()=>{try{return Boolean(await(await caches.open(SETTINGS)).match(key))}catch{return false}};
-const canonical=url=>{const u=new URL('reader-state.php',base);for(const k of ['page','root'])if(url.searchParams.has(k))u.searchParams.set(k,url.searchParams.get(k));return u.href};
+const canonical=url=>{const u=new URL('reader-state.php',base);const keys=url.searchParams.has('share')?['share']:['page','root'];for(const k of keys)if(url.searchParams.has(k))u.searchParams.set(k,url.searchParams.get(k));return u.href};
 self.addEventListener('install',event=>event.waitUntil((async()=>{const c=await caches.open(SHELL);await c.addAll(assets.map(a=>new Request(new URL(a,base),{cache:'reload'})));self.skipWaiting()})()));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const n of await caches.keys())if(n.startsWith(PREFIX+'shell-')&&n!==SHELL)await caches.delete(n);await self.clients.claim()})()));
 self.addEventListener('message',event=>event.waitUntil((async()=>{const command=event.data?.command;
@@ -23,7 +23,10 @@ self.addEventListener('fetch',event=>{
    if(saved&&Date.now()-Number(saved.headers.get('X-Feuillet-Saved'))>86400000){await cache.delete(cacheKey);saved=null;}
    const network=fetch(request).then(async response=>{
     try{if(response.ok){const text=await response.clone().text();const value=JSON.parse(text);
-     if(value.unavailable){const root=url.searchParams.get('root')||url.searchParams.get('page');for(const k of await cache.keys()){const u=new URL(k.url);if((u.searchParams.get('root')||u.searchParams.get('page'))===root)await cache.delete(k);} }
+     if(value.unavailable){
+      if(url.searchParams.has('share'))await cache.delete(cacheKey);
+      else{const root=url.searchParams.get('root')||url.searchParams.get('page');for(const k of await cache.keys()){const u=new URL(k.url);if((u.searchParams.get('root')||u.searchParams.get('page'))===root)await cache.delete(k);}}
+     }
      if(value.html&&value.offlineEligible&&text.length<2000000&&await enabled()){
       await cache.put(cacheKey,new Response(text,{headers:{'Content-Type':'application/json','X-Feuillet-Saved':String(Date.now()),'X-Feuillet-Title':encodeURIComponent(value.title||'Page')}}));const keys=await cache.keys();while(keys.length>40)await cache.delete(keys.shift());
      }
@@ -36,7 +39,7 @@ self.addEventListener('fetch',event=>{
    let timer;try{return await Promise.race([network,new Promise(resolve=>{timer=setTimeout(()=>resolve(fallback()),1500)})]);}catch{return fallback();}finally{clearTimeout(timer);}
   })());return;
  }
- if(request.mode==='navigate'&&(relative==='index.php'||relative==='')&&!url.searchParams.has('edit')&&!url.searchParams.has('form')&&!url.searchParams.has('dashboard')){
+ if(request.mode==='navigate'&&(relative==='index.php'||relative===''||/^[a-z0-9][a-z0-9-]{0,63}$/.test(relative))&&!url.searchParams.has('edit')&&!url.searchParams.has('form')&&!url.searchParams.has('dashboard')){
   event.respondWith((async()=>{if(!await enabled())return fetch(request);const network=fetch(request);event.waitUntil(network.catch(()=>{}));let timer;try{return await Promise.race([network,new Promise(resolve=>{timer=setTimeout(async()=>resolve((await caches.open(SHELL)).match(new URL('offline.html',base))),1800)})]);}catch{return(await caches.open(SHELL)).match(new URL('offline.html',base));}finally{clearTimeout(timer)}})());
  }
 });

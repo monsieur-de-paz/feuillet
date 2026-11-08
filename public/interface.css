@@ -2456,6 +2456,18 @@ body.block-dragging .editor-content-wrap iframe {
   margin-top: 8px;
   font-size: 12px;
 }
+.share-address-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px 12px;
+  margin-bottom: 16px;
+}
+.share-address-form p {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 12px;
+}
 .public-link-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

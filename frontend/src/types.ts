@@ -15,6 +15,7 @@ export type Attribution = {
 export type Page = {
   id: string;
   slug: string;
+  share_path?: string | null;
   parent_id: string | null;
   title: string;
   icon: string;

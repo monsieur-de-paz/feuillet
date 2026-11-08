@@ -13,3 +13,10 @@ Options -Indexes
 <IfModule mod_alias.c>
     RedirectMatch 404 "(?i)(^|/)\.(git|svn|hg)(/|$)"
 </IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^([a-z0-9][a-z0-9-]{0,63})$ index.php?share=$1 [END]
+</IfModule>

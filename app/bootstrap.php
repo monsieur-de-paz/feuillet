@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.21.1';
+const FEUILLET_VERSION = '0.22.0';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -228,11 +228,13 @@ function get_page(string $id, bool $forcePublic=false): array {
 }
 function list_pages(): array {
     $all=page_rows();$isAdmin=admin();$pages=[];$trash=[];
+    $sharePaths=$isAdmin?share_paths_by_page():[];
     foreach($all as $row){
         if($row['deleted_at']){if($isAdmin){$p=row_page($row);unset($p['content']);$trash[]=$p;}continue;}
         if(!ancestors_active($row,$all))continue;
         if(!$isAdmin&&($row['visibility']!=='public'||empty($row['published'])||!reader_page_allowed($row['id'])))continue;
         $p=row_page($row,!$isAdmin);unset($p['content']);
+        if($isAdmin)$p['share_path']=$sharePaths[$p['id']]??null;
         $pages[]=$p;
     }
     if(!$isAdmin){$ids=array_column($pages,'id');foreach($pages as &$p)if(!in_array($p['parent_id'],$ids,true))$p['parent_id']=null;unset($p);}

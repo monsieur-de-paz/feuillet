@@ -17,6 +17,10 @@ assert.equal(await request('api.php?action=pages'),null);assert.equal(await requ
 online=true;value={...value,html:'ADMIN',offlineEligible:false};await request('reader-state.php?page=admin');assert.equal((await command('status')).pages,1);
 value={...value,html:'new',offlineEligible:true,token:'b'};await request('reader-state.php?page=one&root=root');online=false;assert.equal((await(await request('reader-state.php?page=one&root=root')).json()).html,'new');
 online=true;value={...value,unavailable:true,offlineEligible:false};await request('reader-state.php?page=one&root=root');assert.equal((await command('status')).pages,0);
+value={html:'Cours publiés',title:'Bessières',offlineEligible:true};await request('reader-state.php?share=bessieres');
+online=false;r=await request('reader-state.php?share=bessieres&token=a');assert.equal((await r.json()).html,value.html);
+await assert.rejects(request('reader-state.php?share=prive'));
+online=true;value={html:'Page indisponible',unavailable:true,offlineEligible:false};await request('reader-state.php?share=bessieres');assert.equal((await command('status')).pages,0);
 value={html:'public',title:'Page',offlineEligible:true};for(let i=0;i<42;i++)await request('reader-state.php?page='+i);assert.equal((await command('status')).pages,40);
 clock+=86400001;assert.equal((await command('status')).pages,0);
 await command('clear');assert.equal((await command('status')).enabled,false);assert.equal((await command('status')).pages,0);

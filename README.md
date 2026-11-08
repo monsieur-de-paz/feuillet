@@ -4,7 +4,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.21.1-2563eb" alt="Version 0.21.1">
+  <img src="https://img.shields.io/badge/version-0.22.0-2563eb" alt="Version 0.22.0">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour prendre des notes enrichies, les centraliser et les partager sur son propre hébergement.** Inspiré de l’édition par blocs, il permet de rédiger des notes enrichies, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
@@ -49,6 +49,8 @@ Sur ordinateur, tracez un rectangle depuis une marge pour sélectionner plusieur
 Sélecteurs avec recherche, menus d’actions au clic droit ou par bouton, navigation compacte et thème personnel clair/sombre/OLED. Les menus restent utilisables au clavier et s’adaptent aux petits écrans. La version 0.5.1 harmonise les marges des dialogues, remplace les cadres de sélection par un accent doux et permet un partage sans accueil général. [Nouveautés 0.5](docs/NOUVEAUTES-0.5.1.md) · [Charte graphique](docs/CHARTE-GRAPHIQUE.md).
 
 ## Installation et mises à jour
+
+Depuis Feuillet 0.22, ouvrez **Partager** ou **Publiée** sur une page pour définir son adresse courte. Une page publiée peut par exemple s’ouvrir sur `/bessieres`. Une page privée sur `/prive` exige la connexion administrateur. Les adresses déjà diffusées restent rattachées à leur page. Videz le champ pour afficher de nouveau le lien par défaut.
 
 La version **0.21.1** renforce la protection des fichiers sensibles accidentellement copiés par FTP et les contrôles de publication. [Audit de sécurité du 3 novembre 2026](docs/AUDIT-SECURITE-2026-11-03.md) · [Signaler une vulnérabilité](.github/SECURITY.md).
 

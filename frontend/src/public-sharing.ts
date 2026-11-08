@@ -1,5 +1,15 @@
-export function publicPageLink(id: string, base: string): string {
-  return new URL(`index.php?page=${encodeURIComponent(id)}&read=1`, base).href;
+export function publicPageLink(
+  id: string,
+  base: string,
+  path?: string | null,
+  privatePage = false,
+): string {
+  if (path && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(path) && path.length <= 64)
+    return new URL(`./${path}`, base).href;
+  return new URL(
+    `index.php?page=${encodeURIComponent(id)}&${privatePage ? "edit" : "read"}=1`,
+    base,
+  ).href;
 }
 export async function requestNativeShare(
   url: string,

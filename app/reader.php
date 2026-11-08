@@ -34,6 +34,10 @@ function render_reader_empty(bool $unavailable=false): string {
 function render_reader_header_contents(?array $page): string {
     $home=reader_is_home()||empty($_GET['page']);
     $navigation=$page&&!$home?render_reader_breadcrumbs($page):'<nav class="reader-breadcrumbs" aria-label="Fil d’Ariane"><span class="reader-brand">'.render_reader_brand().'</span></nav>';
-    $id=$page['slug']??str_limit($_GET['page']??'',190);$url='index.php?edit=1'.($id?'&page='.rawurlencode($id):'');
+    $share=$_GET['share']??null;
+    $id=$page['slug']??str_limit($_GET['page']??'',190);
+    $url='index.php?edit=1';
+    if(!$page&&share_path_valid($share))$url.='&share='.rawurlencode($share);
+    elseif($id)$url.='&page='.rawurlencode($id);
     return $navigation.'<div class="reader-header-actions">'.render_reader_theme_toggle().'<a class="reader-edit-link" href="'.h($url).'">'.(admin()?'Modifier':'Administration').'</a></div>';
 }

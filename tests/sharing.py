@@ -88,4 +88,38 @@ class Sharing(unittest.TestCase):
   for suffix in ['', '&read=1']:
    html=self.html(path='index.php?dashboard=1&space='+space+suffix);self.assertNotIn('DASHBOARD_CARNET_PRIVE',html);self.assertNotIn(page['title'],html);self.assertIn('reader-empty',html)
   self.assertEqual(self.ok(self.visitor.api('pages',query='&space='+space))['pages'],[])
+ def test_17_custom_address_preserves_private_access_and_old_links(self):
+  p=self.page('ADRESSE_COURTE_PRIVEE');other=self.publish(self.page('AUTRE_BRANCHE_ADRESSE'))
+  address={'id':p['id'],'path':'/Prive'}
+  self.ok(self.visitor.api('save_share_path',address),401)
+  self.ok(self.admin.api('save_share_path',address,authenticated=False),403)
+  self.assertEqual(self.ok(self.admin.api('save_share_path',address))['path'],'prive')
+  self.assertEqual(next(x for x in self.ok(self.admin.api('pages'))['pages'] if x['id']==p['id'])['share_path'],'prive')
+  for url in ['prive','index.php?share=prive&page='+other['id']+'&root='+other['id']]:
+   private=self.ok(self.visitor.request(url),404).decode()
+   self.assertIn('edit=1&amp;share=prive',private)
+   for value in [p['id'],p['title'],other['title']]:self.assertNotIn(value,private)
+  self.assertIn('assets/app.js',self.html(self.admin,'prive'))
+  self.assertIn('assets/app.js',self.html(self.admin,'index.php?edit=1&share=prive'))
+  state=self.ok(self.visitor.request('reader-state.php?share=prive&page='+other['id']))
+  self.assertTrue(state['unavailable']);self.assertFalse(state['offlineEligible'])
+  published=self.publish(p)
+  self.assertIn(p['title'],self.html(path='prive'))
+  self.assertIn(p['title'],self.html(self.admin,'prive'))
+  self.assertIn('data-reader-share="prive"',self.html(path='prive'))
+  state=self.ok(self.visitor.request('reader-state.php?share=prive&root='+other['id']))
+  self.assertEqual(state['root'],p['id']);self.assertTrue(state['offlineEligible']);self.assertIn(p['title'],state['html'])
+  self.ok(self.admin.api('save_share_path',{'id':p['id'],'path':'bessieres'}))
+  self.ok(self.admin.api('save_share_path',{'id':p['id'],'path':''}))
+  for alias in ['prive','bessieres','index.php?page='+p['slug']+'&read=1']:
+   self.assertIn(p['title'],self.html(path=alias))
+  self.ok(self.admin.api('save_share_path',{'id':other['id'],'path':'prive'}),409)
+  for path,status in [('api',409),('assets',409),('../page',400),('https://example.test',400),('a'*65,400)]:
+   self.ok(self.admin.api('save_share_path',{'id':p['id'],'path':path}),status)
+  self.ok(self.visitor.request('index.php?share=inconnue&page='+p['id']),404)
+  self.ok(self.admin.api('visibility',{'id':p['id'],'version':published['version'],'visibility':'private'}))
+  self.ok(self.visitor.request('bessieres'),404)
+  revoked=self.ok(self.visitor.request('reader-state.php?share=prive&token='+state['token']))
+  self.assertTrue(revoked['unavailable']);self.assertFalse(revoked['offlineEligible'])
+  self.assertNotIn(p['title'],json.dumps(revoked))
 if __name__=='__main__':unittest.main(argv=[__file__,*harness.REMAINING],verbosity=2)
