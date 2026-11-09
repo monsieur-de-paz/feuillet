@@ -21,7 +21,7 @@ Dans **Application**, choisir **Activer sur cet appareil**, puis consulter les p
 
 Les copies contiennent le texte et la mise en forme de **40 pages publiques maximum**, pendant **24 heures**. Les styles et scripts publics nécessaires sont conservés séparément. Les médias (PDF, audio, vidéo, fichiers et images des pages) et l’édition administrateur nécessitent une connexion. Il n’y a ni édition hors ligne ni synchronisation de modifications privées dans cette version.
 
-Sur connexion lente, une copie peut être affichée après environ 1,5 seconde pendant que la vérification continue. Une indication précise qu’il s’agit d’une copie. La vérification habituelle de publication reprend en ligne ; une réponse signalant la dépublication efface les copies de cette branche. Les nouvelles ressources de l’interface sont séparées par version.
+Depuis 0.23.1, une navigation attend la réponse du serveur avant d’afficher une copie déjà en mémoire. Quand la requête réseau échoue, une copie hors connexion peut s’afficher si elle est encore disponible. Une réponse signalant une dépublication efface aussi les copies enregistrées de cette page sous ses autres adresses. Les copies antérieures à 0.23.1 sont supprimées lors de la mise à jour du service worker.
 
 **Important :** un appareil sans réseau ne peut pas savoir qu’une page vient d’être rendue privée. Activer la conservation uniquement sur un appareil de confiance. **Effacer et désactiver** supprime les pages conservées ; les ressources publiques de l’interface peuvent rester en cache. Les caches sont propres au navigateur et au chemin d’installation, pas à l’adresse IP.
 

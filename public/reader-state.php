@@ -17,7 +17,7 @@ try{
     }catch(AppError $e){if($e->status!==404)throw $e;$unavailable=$shared||!empty($id);}
     $token=reader_token($page);$result=['token'=>$token];
     if(!hash_equals($token,str_limit($_GET['token']??'',64))){
-        $a=$page?page_appearance($page):global_appearance();$result+=['offlineEligible'=>!$isAdmin&&$page!==null,'root'=>reader_root_id()??'','html'=>$page?render_reader_page($page):render_reader_empty($unavailable),'breadcrumbs'=>$page?render_reader_breadcrumbs($page):'<span class="reader-brand">'.render_reader_brand().'</span>','header'=>render_reader_header_contents($page),'title'=>$page?$page['title'].' — '.notebook_settings()['title']:notebook_settings()['title'],'appearance'=>appearance_css($a),'mode'=>$a['mode'],'unavailable'=>$unavailable];
+        $a=$page?page_appearance($page):global_appearance();$result+=['offlineEligible'=>!$isAdmin&&$page!==null,'pageId'=>$page['id']??null,'root'=>reader_root_id()??'','html'=>$page?render_reader_page($page):render_reader_empty($unavailable),'breadcrumbs'=>$page?render_reader_breadcrumbs($page):'<span class="reader-brand">'.render_reader_brand().'</span>','header'=>render_reader_header_contents($page),'title'=>$page?$page['title'].' — '.notebook_settings()['title']:notebook_settings()['title'],'appearance'=>appearance_css($a),'mode'=>$a['mode'],'unavailable'=>$unavailable];
     }
     json_out($result);
 }catch(AppError $e){json_out(['error'=>$e->getMessage()],$e->status);}

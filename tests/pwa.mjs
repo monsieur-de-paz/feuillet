@@ -5,10 +5,11 @@ let clock=Date.now();class Clock extends Date { static now(){return clock} }
 const listeners={},stores=new Map();
 const caches={async open(name){if(!stores.has(name))stores.set(name,new Map());const m=stores.get(name);return {async match(k){return m.get(typeof k==='string'?k:k.url)?.clone()},async put(k,v){m.set(typeof k==='string'?k:k.url,v.clone())},async delete(k){return m.delete(typeof k==='string'?k:k.url)},async keys(){return [...m.keys()].map(u=>new Request(u))},async addAll(){}}},async keys(){return [...stores.keys()]},async delete(k){return stores.delete(k)}};
 let online=true,value={html:'<h1>Public</h1>',title:'Une page',token:'a',offlineEligible:true};
-const network=async()=>{if(!online)throw Error('offline');return new Response(JSON.stringify(value),{headers:{'Content-Type':'application/json'}})};
+let networkGate=null;
+const network=async()=>{if(networkGate)await networkGate;if(!online)throw Error('offline');return new Response(JSON.stringify(value),{headers:{'Content-Type':'application/json'}})};
 runInNewContext(readFileSync('public/sw.js','utf8'),{self:{location:'https://example.test/feuillet/sw.js',addEventListener:(n,f)=>listeners[n]=f,clients:{claim:async()=>{}},skipWaiting:()=>{}},URL,Request,Response,caches,fetch:network,setTimeout,clearTimeout,Date:Clock,Boolean,JSON,Number,encodeURIComponent,decodeURIComponent});
 async function command(command){let data;const tasks=[];listeners.message({data:{command},ports:[{postMessage:v=>data=v}],waitUntil:p=>tasks.push(p)});await Promise.all(tasks);return data}
-async function request(path){const tasks=[];let result;listeners.fetch({request:new Request('https://example.test/feuillet/'+path),respondWith:p=>result=p,waitUntil:p=>tasks.push(p)});if(!result)return null;const r=await result;await Promise.all(tasks);return r}
+async function request(path,waitForBackground=true){const tasks=[];let result;listeners.fetch({request:new Request('https://example.test/feuillet/'+path),respondWith:p=>result=p,waitUntil:p=>tasks.push(p)});if(!result)return null;const r=await result;if(waitForBackground)await Promise.all(tasks);return r}
 assert.equal((await command('status')).pages,0);await request('reader-state.php?page=one&root=root');assert.equal((await command('status')).pages,0);
 await command('enable');await request('reader-state.php?page=one&root=root');assert.equal((await command('status')).pages,1);
 online=false;let r=await request('reader-state.php?page=one&root=root&token=a');assert.equal(r.headers.get('X-Feuillet-Offline'),'1');assert.equal((await r.json()).html,value.html);
@@ -21,6 +22,18 @@ value={html:'Cours publiés',title:'Bessières',offlineEligible:true};await requ
 online=false;r=await request('reader-state.php?share=bessieres&token=a');assert.equal((await r.json()).html,value.html);
 await assert.rejects(request('reader-state.php?share=prive'));
 online=true;value={html:'Page indisponible',unavailable:true,offlineEligible:false};await request('reader-state.php?share=bessieres');assert.equal((await command('status')).pages,0);
+value={html:'Ancienne page publique',title:'Page',pageId:'same-id',root:'same-id',offlineEligible:true};
+await request('reader-state.php?share=alias');await request('reader-state.php?page=same-id');
+let releaseNetwork;networkGate=new Promise(resolve=>releaseNetwork=resolve);
+value={html:'Page indisponible',unavailable:true,offlineEligible:false};
+let delivered=false;
+const revoked=request('reader-state.php?share=alias',false).then(response=>{delivered=true;return response.json()});
+await new Promise(resolve=>setTimeout(resolve,1550));
+assert.equal(delivered,false,'No stale copy while online visibility is being checked');
+releaseNetwork();assert.equal((await revoked).html,'Page indisponible');networkGate=null;
+online=false;await assert.rejects(request('reader-state.php?page=same-id'));
+assert.equal((await command('status')).pages,0);
+online=true;
 value={html:'public',title:'Page',offlineEligible:true};for(let i=0;i<42;i++)await request('reader-state.php?page='+i);assert.equal((await command('status')).pages,40);
 clock+=86400001;assert.equal((await command('status')).pages,0);
 await command('clear');assert.equal((await command('status')).enabled,false);assert.equal((await command('status')).pages,0);

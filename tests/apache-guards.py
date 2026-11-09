@@ -5,7 +5,7 @@ ROOT=pathlib.Path(__file__).resolve().parents[1];modules=pathlib.Path('/usr/libe
 if not pathlib.Path(binary).exists() or not modules.exists():raise SystemExit('Use a local Apache with the documented module paths; no server is installed by this test.')
 with tempfile.TemporaryDirectory(prefix='feuillet-apache-security-',dir='/private/tmp') as temporary:
  folder=pathlib.Path(temporary);www=folder/'www';www.mkdir();
- sensitive=['.env','.gitignore','.git/HEAD','sub/.git/config','config.php.bak','config.php.2026.tmp','notes.sql.gz','debug.log','private.key']
+ sensitive=['.env','.gitignore','.git/HEAD','sub/.git/config','config.php.bak','config.php.2026.tmp','notes.sql.gz','debug.log','private.key','feuillet.zip','copy.tar.gz','feuillet.sqlite-wal','storage/files/example','app/private.php']
  for name in sensitive+['manifest.webmanifest','.well-known/acme-challenge/test','index.html','index.php','sub/index.php']:
   p=www/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('OWNED_TEST_SENTINEL')
  with socket.socket() as s:s.bind(('127.0.0.1',0));port=s.getsockname()[1]

@@ -4,7 +4,7 @@ Require all denied
 </FilesMatch>
 
 # Defense in depth against accidental FTP copies of secrets and repository metadata.
-<FilesMatch "(?i)(^\.|~$|\.(bak|old|orig|swp|swo|sql|sqlite|db|log|ini|pem|key|p12|pfx)(\.gz)?$|^config\.php([.~_-].*)?$)">
+<FilesMatch "(?i)(^\.|~$|\.(bak|old|orig|swp|swo|sql|sqlite[3]?(?:-wal|-shm|-journal)?|db|zip|tar|tgz|7z|log|ini|pem|key|p12|pfx)(\.gz)?$|^config\.php([.~_-].*)?$)">
     Require all denied
 </FilesMatch>
 <IfModule mod_alias.c>

@@ -1,5 +1,12 @@
 # Historique des versions
 
+## 0.23.1 — 2026-11-09
+
+- Le code HTML est remis au cadre Feuillet identifié par un défi aléatoire, puis transmis par un canal attaché à ce document. Les lecteurs vidéo dans l’éditeur utilisent des points d’intégration validés.
+- La consultation attend la confirmation de visibilité du serveur avant de réutiliser une page en mémoire. Le cache hors ligne utilise les copies en cas d’échec réseau et retire les autres adresses enregistrées pour une même page lorsqu’il détecte une dépublication. Les anciennes copies sont renouvelées au premier démarrage de cette version.
+- Le plafond des formulaires compte aussi les pièces jointes déjà soumises, avec un total de 1 Go par formulaire. Le contrôle de propriété précède la validation des références de fichiers.
+- Les règles Apache bloquent aussi les archives et journaux SQLite transférés dans la racine web. Les adresses ambiguës sont écartées avant les requêtes serveur vers des services externes.
+
 ## 0.23.0 — 2026-11-09
 
 - Bloc Vidéo avec choix entre fichier local ou bibliothèque et lien Internet. Détection de YouTube, Dailymotion, TikTok, Vimeo et des fichiers vidéo HTTPS directs.

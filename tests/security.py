@@ -76,22 +76,35 @@ class Security(unittest.TestCase):
         a=harness.Client(self.admin.base);b=harness.Client(self.admin.base);a.session();b.session()
         uploaded=self.ok(a.upload('form_upload','réponse.txt',b'REPONSE_PRIVEE_047','text/plain',{'token':form['token']}))['file']
         self.ok(a.request(uploaded['url']),404);self.ok(self.visitor.api('file_info',query='&id='+uploaded['id']),404)
-        self.invalid(b.api('form_submit',{'token':form['token'],'values':{field['id']:[uploaded['id']],text['id']:'Vol de pièce jointe'}}))
+        wrong_attachment=lambda fid: self.ok(b.api('form_submit',{'token':form['token'],'values':{field['id']:[fid],text['id']:'Vol de pièce jointe'}}),400)
+        self.assertEqual(wrong_attachment(uploaded['id']),wrong_attachment(str(uuid.uuid4())))
         self.ok(a.api('form_submit',{'token':form['token'],'values':{field['id']:[uploaded['id']],text['id']:'Une réponse'}}))
         self.invalid(a.api('form_submit',{'token':form['token'],'values':{field['id']:[uploaded['id']],text['id']:'Réutilisation'}}))
         bundle=self.ok(self.admin.api('db_get',query='&id='+db['id']));row=bundle['rows'][0]
         self.invalid(self.admin.api('row_save',{**row,'db_id':db['id'],'visibility':'public'}))
         # No large data allocation: simulate an existing pending file's byte count in the owned test DB.
         fresh=self.ok(b.upload('form_upload','quota.txt',b'audit','text/plain',{'token':form['token']}))['file']
-        sql="UPDATE files SET size=209715198 WHERE id='"+fresh['id']+"';"
         integration=harness.Integration
-        if harness.ARGS.mysql:
-            command=['mysql','--no-defaults','--protocol=TCP','--host=127.0.0.1','--port='+str(integration.mysql_port),'--user=root','feuillet_test','--execute='+sql];result=subprocess.run(command,capture_output=True,text=True);self.assertEqual(result.returncode,0,result.stderr)
-        else:
-            import sqlite3
-            with closing(sqlite3.connect(integration.install/'storage'/'feuillet.sqlite')) as dbconn:dbconn.execute(sql);dbconn.commit()
+        def set_size(file_id, size):
+            self.assertEqual(str(uuid.UUID(file_id)), file_id)
+            if harness.ARGS.mysql:
+                sql=f"UPDATE files SET size={size:d} WHERE id='{file_id}';"
+                command=['mysql','--no-defaults','--protocol=TCP','--host=127.0.0.1','--port='+str(integration.mysql_port),'--user=root','feuillet_test','--execute='+sql]
+                result=subprocess.run(command,capture_output=True,text=True)
+                self.assertEqual(result.returncode,0,result.stderr)
+            else:
+                import sqlite3
+                with closing(sqlite3.connect(integration.install/'storage'/'feuillet.sqlite')) as dbconn:
+                    dbconn.execute("UPDATE files SET size=? WHERE id=?", (size, file_id))
+                    dbconn.commit()
+        set_size(fresh['id'],209715198)
         self.ok(b.upload('form_upload','dépassement.txt',b'four','text/plain',{'token':form['token']}),413)
         self.assertNotIn('dépassement.txt',[f['name'] for f in self.ok(self.admin.api('files'))['files']])
+        set_size(fresh['id'],5)
+        set_size(uploaded['id'],1073741817)
+        blocked=self.ok(b.upload('form_upload','quota-total.txt',b'four','text/plain',{'token':form['token']}),413)
+        self.assertIn('limite totale',blocked['error'])
+        self.assertNotIn('quota-total.txt',[f['name'] for f in self.ok(self.admin.api('files'))['files']])
     def test_07_typed_row_patch_view_config_and_private_labels(self):
         target=self.db('Cible publique',True);title=self.prop(target,'Titre','title');secret=self.ok(self.admin.api('row_save',{'db_id':target['id'],'visibility':'private','values':{title['id']:'ETIQUETTE_PRIVEE_048'}}))['row'];visible=self.ok(self.admin.api('row_save',{'db_id':target['id'],'visibility':'public','values':{title['id']:'Étiquette publique'}}))['row']
         db=self.db('Source',True);required=self.prop(db,'Nom','title',required=True);amount=self.prop(db,'Nombre','number');related=self.prop(db,'Relation','relation',{'target_db_id':target['id']})
@@ -169,6 +182,18 @@ class Security(unittest.TestCase):
         document['content'][0]['content']=[{'type':'text','text':{'malformed':True}}]
         self.invalid(self.admin.api('save',{'title':'Texte invalide','content':document}))
 
+    def test_14_sql_inputs_remain_literal(self):
+        injection="' OR '1'='1' -- "
+        query=urllib.parse.quote(injection)
+        self.ok(self.visitor.api('page',query='&id='+query),404)
+        self.ok(self.visitor.api('form_get',query='&token='+query),404)
+        self.ok(self.visitor.api('public_db_get',query='&id='+query),404)
+        self.ok(self.visitor.request('media.php?id='+query),404)
+        page=self.publish(self.page([],title="SQL text "+injection))
+        visible=self.ok(self.visitor.api('page',query='&id='+page['id']))['page']
+        self.assertEqual(visible['title'],"SQL text "+injection.rstrip())
+        found=self.ok(self.visitor.api('search',query='&root='+page['id']+'&q='+query))['pages']
+        self.assertEqual([item['id'] for item in found],[page['id']])
     def test_99_login_rate_limit(self):
         blocked=None
         for _ in range(12):

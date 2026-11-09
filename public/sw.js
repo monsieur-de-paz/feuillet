@@ -1,10 +1,10 @@
 /* Feuillet: public reading copies only. No API, media or administrator document cache. */
-const base=new URL('./',self.location),VERSION='0.23.0',PREFIX='feuillet-'+encodeURIComponent(base.pathname)+'-',SHELL=PREFIX+'shell-'+VERSION,PAGES=PREFIX+'public-pages',SETTINGS=PREFIX+'preferences',key=new URL('offline-enabled',base).href;
-const assets=['offline.html','offline.js','reading.js','pwa.js','pwa.css','reader.css','gallery.css','interface.css','theme.js','theme-colors.js','theme-toggle.css','emoji-font.css','file-preview.js','file-preview.css','video-lazy.js','favicon.svg','icons.svg','feuillet-logo.png','manifest.webmanifest'];
+const base=new URL('./',self.location),VERSION='0.23.1',PREFIX='feuillet-'+encodeURIComponent(base.pathname)+'-',SHELL=PREFIX+'shell-'+VERSION,PAGES=PREFIX+'public-pages-v2',SETTINGS=PREFIX+'preferences',key=new URL('offline-enabled',base).href;
+const assets=['offline.html','offline.js','reading.js','pwa.js','pwa.css','reader.css','gallery.css','interface.css','theme.js','theme-colors.js','theme-toggle.css','emoji-font.css','file-preview.js','file-preview.css','video-lazy.js','embed-channel.js','favicon.svg','icons.svg','feuillet-logo.png','manifest.webmanifest'];
 const enabled=async()=>{try{return Boolean(await(await caches.open(SETTINGS)).match(key))}catch{return false}};
 const canonical=url=>{const u=new URL('reader-state.php',base);const keys=url.searchParams.has('share')?['share']:['page','root'];for(const k of keys)if(url.searchParams.has(k))u.searchParams.set(k,url.searchParams.get(k));return u.href};
 self.addEventListener('install',event=>event.waitUntil((async()=>{const c=await caches.open(SHELL);await c.addAll(assets.map(a=>new Request(new URL(a,base),{cache:'reload'})));self.skipWaiting()})()));
-self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const n of await caches.keys())if(n.startsWith(PREFIX+'shell-')&&n!==SHELL)await caches.delete(n);await self.clients.claim()})()));
+self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const n of await caches.keys())if((n.startsWith(PREFIX+'shell-')&&n!==SHELL)||n===PREFIX+'public-pages')await caches.delete(n);await self.clients.claim()})()));
 self.addEventListener('message',event=>event.waitUntil((async()=>{const command=event.data?.command;
  if(command==='enable'){await(await caches.open(SETTINGS)).put(key,new Response('yes'));}
  if(command==='clear'){await caches.delete(PAGES);await caches.delete(SETTINGS);}
@@ -21,22 +21,39 @@ self.addEventListener('fetch',event=>{
    if(!await enabled())return fetch(request);
    let cache;try{cache=await caches.open(PAGES)}catch{return fetch(request)}const cacheKey=canonical(url);let saved=await cache.match(cacheKey);
    if(saved&&Date.now()-Number(saved.headers.get('X-Feuillet-Saved'))>86400000){await cache.delete(cacheKey);saved=null;}
-   const network=fetch(request).then(async response=>{
-    try{if(response.ok){const text=await response.clone().text();const value=JSON.parse(text);
+   let response;
+   try {
+    // A slow connection still has to confirm that the page is public.
+    response=await fetch(request);
+   } catch(error) {
+    if(!saved)throw error;
+    return new Response(saved.body,{headers:{'Content-Type':'application/json','X-Feuillet-Offline':'1'}});
+   }
+   try {
+    if(response.ok){
+     const text=await response.clone().text();
+     const value=JSON.parse(text);
      if(value.unavailable){
-      if(url.searchParams.has('share'))await cache.delete(cacheKey);
-      else{const root=url.searchParams.get('root')||url.searchParams.get('page');for(const k of await cache.keys()){const u=new URL(k.url);if((u.searchParams.get('root')||u.searchParams.get('page'))===root)await cache.delete(k);}}
+      const page=saved?.headers.get('X-Feuillet-Page')||url.searchParams.get('page');
+      const root=saved?.headers.get('X-Feuillet-Root')||url.searchParams.get('root')||page;
+      await cache.delete(cacheKey);
+      for(const entry of await cache.keys()){
+       const cached=await cache.match(entry);
+       if((page&&cached?.headers.get('X-Feuillet-Page')===page)
+         ||(root&&cached?.headers.get('X-Feuillet-Root')===root))await cache.delete(entry);
+      }
      }
      if(value.html&&value.offlineEligible&&text.length<2000000&&await enabled()){
-      await cache.put(cacheKey,new Response(text,{headers:{'Content-Type':'application/json','X-Feuillet-Saved':String(Date.now()),'X-Feuillet-Title':encodeURIComponent(value.title||'Page')}}));const keys=await cache.keys();while(keys.length>40)await cache.delete(keys.shift());
+      await cache.put(cacheKey,new Response(text,{headers:{
+       'Content-Type':'application/json','X-Feuillet-Saved':String(Date.now()),
+       'X-Feuillet-Title':encodeURIComponent(value.title||'Page'),
+       'X-Feuillet-Page':value.pageId||'','X-Feuillet-Root':value.root||''
+      }}));
+      const keys=await cache.keys();while(keys.length>40)await cache.delete(keys.shift());
      }
-    }}catch{/* Cache/quota errors must never break an online response. */}return response;
-   });
-   // Continue validation even if a slow connection causes the stored copy to be returned.
-   event.waitUntil(network.catch(()=>{}));
-   if(!saved)return network;
-   const fallback=()=>new Response(saved.body,{headers:{'Content-Type':'application/json','X-Feuillet-Offline':'1'}});
-   let timer;try{return await Promise.race([network,new Promise(resolve=>{timer=setTimeout(()=>resolve(fallback()),1500)})]);}catch{return fallback();}finally{clearTimeout(timer);}
+    }
+   } catch { /* Cache/quota errors must never break an online response. */ }
+   return response;
   })());return;
  }
  if(request.mode==='navigate'&&(relative==='index.php'||relative===''||/^[a-z0-9][a-z0-9-]{0,63}$/.test(relative))&&!url.searchParams.has('edit')&&!url.searchParams.has('form')&&!url.searchParams.has('dashboard')){

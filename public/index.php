@@ -48,4 +48,4 @@ try{
 </div>
 <?php if($read):?><?=render_powered_by()?><?php endif;?>
 <?php if(!$read):?><script type="module" src="assets/app.js?v=<?=h(FEUILLET_VERSION)?>"></script><?php else:?><script src="theme-colors.js?v=<?=h(FEUILLET_VERSION)?>" defer></script><script src="theme.js?v=<?=h(FEUILLET_VERSION)?>" defer></script><script src="reading.js?v=<?=h(FEUILLET_VERSION)?>" defer></script><?php endif;?>
-<script src="pwa.js?v=<?=h(FEUILLET_VERSION)?>" defer></script><script src="video-lazy.js?v=<?=h(FEUILLET_VERSION)?>" defer></script><script src="file-preview.js?v=<?=h(FEUILLET_VERSION)?>" defer></script></body></html>
+<script src="pwa.js?v=<?=h(FEUILLET_VERSION)?>" defer></script><script src="embed-channel.js?v=<?=h(FEUILLET_VERSION)?>" defer></script><script src="video-lazy.js?v=<?=h(FEUILLET_VERSION)?>" defer></script><script src="file-preview.js?v=<?=h(FEUILLET_VERSION)?>" defer></script></body></html>

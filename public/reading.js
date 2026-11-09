@@ -17,7 +17,7 @@
  }
  function offer(result){pending=result;let notice=document.querySelector('.reader-update-notice');if(!notice){notice=document.createElement('div');notice.className='reader-update-notice';notice.setAttribute('role','status');const text=document.createElement('span');text.textContent='Une nouvelle version est disponible.';const button=document.createElement('button');button.type='button';button.textContent='Afficher la nouvelle version';button.addEventListener('click',()=>{if(pending)replace(pending)});notice.append(text,button);document.body.append(notice);}}
  async function check(){if(busy||document.hidden)return;const root=document.querySelector('#root');if(!root?.hasAttribute('data-reader-token'))return;busy=true;const view=readerView(root);
-  try{const qs=root.dataset.readerShare?new URLSearchParams({share:root.dataset.readerShare,token}):new URLSearchParams({page:root.dataset.readerPage||'',root:root.dataset.readerRoot||root.dataset.readerPage||'',token});const response=await fetch('reader-state.php?'+qs,{credentials:'same-origin',cache:'no-store'});if(!response.ok)return;const result=await response.json();if(view!==readerView(root))return;if(result.token===token&&!result.unavailable)return;if(result.html){if(result.unavailable||!userBusy())replace(result);else offer(result);}}
+  try{const qs=root.dataset.readerShare?new URLSearchParams({share:root.dataset.readerShare,token}):new URLSearchParams({page:root.dataset.readerPage||'',root:root.dataset.readerRoot||root.dataset.readerPage||'',token});const response=await fetch('reader-state.php?'+qs,{credentials:'same-origin',cache:'no-store'});if(!response.ok)return;const result=await response.json();if(view!==readerView(root))return;if(result.token===token&&!result.unavailable)return;if(result.html){if(result.unavailable){memory.clear();replace(result);}else if(!userBusy())replace(result);else offer(result);}}
   catch{}finally{busy=false;}
  }
 
@@ -33,13 +33,37 @@
  function note(message){let n=document.querySelector('.reader-network-status');if(!message){n?.remove();return}if(!n){n=document.createElement('div');n.className='reader-network-status';n.setAttribute('role','status');document.body.append(n)}n.textContent=message;}
  function show(result,url){const root=document.querySelector('#root');setReaderLocation(root,url,result.root);replace(result);window.scrollTo(0,0);}
  async function navigate(url,push=true){
-  const pass=++navigation;let hit=memory.get(key(url));if(hit&&Date.now()-hit.time>=600000){memory.delete(key(url));hit=null;}if(hit){show(hit.result,url);note('Copie affichée · vérification des modifications…');}else note('Ouverture de la page…');
+  const pass=++navigation;
+  const cacheKey=key(url);
+  let hit=memory.get(cacheKey);
+  if(hit&&Date.now()-hit.time>=600000){memory.delete(cacheKey);hit=null;}
+  note('Ouverture de la page…');
   if(push)history.pushState({feuillet:true},'',url);
   const qs=readerQuery(url);
-  try{const response=await fetch('reader-state.php?'+qs,{credentials:'same-origin',cache:'no-store',priority:'high'});if(!response.ok)throw Error('Page indisponible');const result=await response.json();if(pass!==navigation)return;if(!result.html)throw Error('Page indisponible');
-   if(result.unavailable)memory.delete(key(url));else{memory.set(key(url),{result,time:Date.now()});while(memory.size>20)memory.delete(memory.keys().next().value);}
-   show(result,url);note(response.headers.get('X-Feuillet-Offline')?'Copie enregistrée · connexion lente ou indisponible.':null);
-  }catch(error){if(pass!==navigation)return;if(hit){note('Copie affichée · impossible de vérifier les modifications.');return;}const root=document.querySelector('#root');setReaderLocation(root,url);token='';const main=document.createElement('main');main.className='reader-page';const h=document.createElement('h1');h.textContent='Cette page nécessite une connexion.';const p=document.createElement('p');p.textContent='Aucune copie enregistrée n’est disponible pour cette page. Reconnecte-toi pour la consulter.';main.append(h,p);root.replaceChildren(main);note('Page non disponible dans le cache.');throw error;}
+  if(hit)qs.set('token',hit.result.token);
+  try{
+   const response=await fetch('reader-state.php?'+qs,{credentials:'same-origin',cache:'no-store',priority:'high'});
+   if(!response.ok)throw Error('Page indisponible');
+   let result=await response.json();
+   if(pass!==navigation)return;
+   const offline=response.headers.get('X-Feuillet-Offline')==='1';
+   if(!result.html&&!offline&&hit&&result.token===hit.result.token)result=hit.result;
+   if(!result.html)throw Error('Page indisponible');
+   if(result.unavailable)memory.clear();
+   else if(!offline){
+    memory.set(cacheKey,{result,time:Date.now()});
+    while(memory.size>20)memory.delete(memory.keys().next().value);
+   }
+   show(result,url);
+   note(offline?'Copie enregistrée · connexion indisponible.':null);
+  }catch(error){
+   if(pass!==navigation)return;
+   const root=document.querySelector('#root');setReaderLocation(root,url);token='';
+   const main=document.createElement('main');main.className='reader-page';
+   const h=document.createElement('h1');h.textContent='Cette page est indisponible.';
+   const p=document.createElement('p');p.textContent='La consultation nécessite une réponse du serveur ou une copie enregistrée hors connexion.';
+   main.append(h,p);root.replaceChildren(main);note('');throw error;
+  }
  }
  window.FeuilletReaderClear=()=>memory.clear();
  window.FeuilletReaderNavigate=navigate;window.FeuilletReaderRefresh=()=>{token='';void check()};

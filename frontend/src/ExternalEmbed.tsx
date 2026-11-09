@@ -83,6 +83,58 @@ export function OnlineVideoForm({
   );
 }
 
+declare global {
+  interface Window {
+    FeuilletMountEmbed?: (frame: HTMLIFrameElement, code: string) => () => void;
+  }
+}
+
+function HtmlFrame({ code, height }: { code: string; height: number }) {
+  const frame = useRef<HTMLIFrameElement>(null);
+  useEffect(() => {
+    if (frame.current) return window.FeuilletMountEmbed?.(frame.current, code);
+  }, [code]);
+  return (
+    <iframe
+      ref={frame}
+      title="Intégration externe"
+      sandbox="allow-scripts allow-forms"
+      allow="fullscreen"
+      style={{ height }}
+    />
+  );
+}
+
+function httpsLink(value: unknown): URL | null {
+  if (typeof value !== "string") return null;
+  try {
+    const link = new URL(value);
+    return link.protocol === "https:" &&
+      !link.username &&
+      !link.password &&
+      !link.port
+      ? link
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function videoPlayer(link: URL): boolean {
+  switch (link.hostname) {
+    case "www.youtube-nocookie.com":
+      return /^\/embed\/[A-Za-z0-9_-]{11}$/.test(link.pathname);
+    case "player.vimeo.com":
+      return /^\/video\/[0-9]{1,15}$/.test(link.pathname);
+    case "geo.dailymotion.com":
+      return /^\/player\/[a-z0-9]{2,30}\.html$/.test(link.pathname);
+    case "www.tiktok.com":
+      return /^\/player\/v1\/[0-9]{10,25}$/.test(link.pathname);
+    default:
+      return false;
+  }
+}
+
 function ExternalEmbedView({ node, editor, updateAttributes }: NodeViewProps) {
   const isHtml = node.type.name === "htmlEmbed";
   const { code, height, url, src, kind, label, portrait } = node.attrs;
@@ -90,10 +142,13 @@ function ExternalEmbedView({ node, editor, updateAttributes }: NodeViewProps) {
     editor.isEditable && (isHtml ? !code : !url),
   );
   const [loaded, setLoaded] = useState(false);
-  const safeUrl =
-    typeof url === "string" && url.startsWith("https://") ? url : "";
+  const safeUrl = httpsLink(url);
+  const source = httpsLink(src);
   const safeSrc =
-    typeof src === "string" && src.startsWith("https://") ? src : "";
+    source &&
+    (kind === "media" ? source.href === safeUrl?.href : videoPlayer(source))
+      ? source.href
+      : "";
   const [html, setHtml] = useState(code ?? "");
   const [frameHeight, setFrameHeight] = useState(height ?? 450);
   const [error, setError] = useState("");
@@ -166,19 +221,7 @@ function ExternalEmbedView({ node, editor, updateAttributes }: NodeViewProps) {
                 {isHtml ? "Afficher l’intégration" : `▶ Lire sur ${label}`}
               </button>
             ) : isHtml ? (
-              <iframe
-                title="Intégration externe"
-                src="embed-frame.php"
-                sandbox="allow-scripts allow-forms"
-                allow="fullscreen"
-              style={{ height: Number(height) }}
-                onLoad={(event) =>
-                  event.currentTarget.contentWindow?.postMessage(
-                    { feuilletEmbed: code },
-                    "*",
-                  )
-                }
-              />
+              <HtmlFrame code={code} height={Number(height)} />
             ) : kind === "media" ? (
               <video
                 controls
@@ -197,7 +240,7 @@ function ExternalEmbedView({ node, editor, updateAttributes }: NodeViewProps) {
               />
             )}
             {safeUrl && (
-              <a href={safeUrl} target="_blank" rel="noopener noreferrer">
+              <a href={safeUrl.href} target="_blank" rel="noopener noreferrer">
                 Ouvrir la vidéo ↗
               </a>
             )}

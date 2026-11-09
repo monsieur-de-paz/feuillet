@@ -35,15 +35,13 @@
       frame.setAttribute("sandbox", "allow-scripts allow-forms");
       frame.allow = "fullscreen";
       frame.style.height = button.dataset.embedHeight + "px";
-      frame.addEventListener("load", () => {
-        frame.contentWindow?.postMessage({ feuilletEmbed: html }, "*");
-      }, { once: true });
-      frame.src = "embed-frame.php";
+
     } else {
       frame.allow = "autoplay; fullscreen; encrypted-media; picture-in-picture";
       frame.src = source;
     }
     button.replaceWith(frame);
+    if (html) window.FeuilletMountEmbed?.(frame, html);
     frame.focus();
   });
 })();

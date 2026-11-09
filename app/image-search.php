@@ -10,6 +10,7 @@ function image_public_ip(string $ip): bool {
     return true;
 }
 function image_remote_address(string $url): array {
+    if(strlen($url)>8000 || preg_match('/[\x00-\x20\x7f<>"\\\\]/',$url))fail('Adresse distante refusée.');
     $p=parse_url($url);$host=strtolower($p['host']??'');
     if(($p['scheme']??'')!=='https'||!$host||isset($p['user'])||isset($p['pass'])||isset($p['port'])||filter_var(trim($host,'[]'),FILTER_VALIDATE_IP)||!preg_match('/^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/D',$host))fail('Adresse d’image refusée.');
     $records=dns_get_record($host,DNS_A|DNS_AAAA);$ips=[];

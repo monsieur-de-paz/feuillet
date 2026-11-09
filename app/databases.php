@@ -121,16 +121,23 @@ function database_dispatch(string $action,string $method): void {
             try{
                 form_prune_uploads($form['id']);
                 $pending=(int)query('SELECT COUNT(*) FROM form_uploads WHERE form_id=? AND owner=? AND used_row_id IS NULL',[$form['id'],$owner])->fetchColumn();if($pending>=10)fail('10 fichiers en attente maximum.',429);
-                $total=(int)query('SELECT SUM(files.size) FROM files JOIN form_uploads ON files.id=form_uploads.file_id WHERE form_uploads.form_id=? AND form_uploads.used_row_id IS NULL',[$form['id']])->fetchColumn();
+                $totals=query('SELECT SUM(files.size) AS total, SUM(CASE WHEN form_uploads.used_row_id IS NULL THEN files.size ELSE 0 END) AS pending FROM files JOIN form_uploads ON files.id=form_uploads.file_id WHERE form_uploads.form_id=?',[$form['id']])->fetch();
                 if(empty($_FILES['file'])||($_FILES['file']['error']??1)!==UPLOAD_ERR_OK)fail('Fichier manquant ou trop volumineux.',413);
-                $incoming=filesize($_FILES['file']['tmp_name']);if($incoming===false||$incoming>209715200-$total)fail('Ce formulaire a atteint sa limite de fichiers en attente.',413);
+                $incoming=filesize($_FILES['file']['tmp_name']);if($incoming===false||$incoming>209715200-(int)$totals['pending'])fail('Ce formulaire a atteint sa limite de fichiers en attente.',413);
+                if($incoming>1073741824-(int)$totals['total'])fail('Ce formulaire a atteint sa limite totale de pièces jointes (1 Go).',413);
                 $stored=receive_file($_FILES['file']);query('INSERT INTO form_uploads (file_id,form_id,owner,used_row_id,created_at) VALUES (?,?,?,?,?)',[$stored['id'],$form['id'],$owner,null,now()]);
             }catch(Throwable $e){if($stored){$row=query('SELECT path FROM files WHERE id=?',[$stored['id']])->fetch();if($row&&is_file(storage().'/files/'.$row['path']))unlink(storage().'/files/'.$row['path']);query('DELETE FROM files WHERE id=?',[$stored['id']]);}throw $e;}
             finally{flock($lock,LOCK_UN);fclose($lock);}$stored['expires_at']=gmdate('Y-m-d\TH:i:s\Z',time()+86400);json_out(['file'=>$stored,'message'=>'Les pièces jointes non envoyées expirent après 24 heures.']);
         }
         $submissionLock=form_upload_lock($form['id']);try{
-        $props=array_values(array_filter(database_properties($form['db_id']),fn($p)=>in_array($p['id'],$form['fields'],true)&&!in_array($p['type'],['relation','formula','rollup'],true)));$values=database_values($props,$in['values']??[]);$fileIds=[];
-        foreach($props as $p)if($p['type']==='files')foreach($values[$p['id']]??[] as $fid){if(!query('SELECT file_id FROM form_uploads WHERE file_id=? AND form_id=? AND owner=? AND used_row_id IS NULL AND created_at>=?',[$fid,$form['id'],$owner,gmdate('Y-m-d\TH:i:s\Z',time()-86400)])->fetch())fail('Cette pièce jointe est expirée ou ne correspond pas à ton envoi. Ajoute-la à nouveau.');$fileIds[]=$fid;}
+        $props=array_values(array_filter(database_properties($form['db_id']),fn($p)=>in_array($p['id'],$form['fields'],true)&&!in_array($p['type'],['relation','formula','rollup'],true)));$rawValues=$in['values']??[];$fileIds=[];
+        if(!is_array($rawValues))fail('Valeurs de ligne invalides.');
+        foreach($props as $p)if($p['type']==='files'){
+            $ids=$rawValues[$p['id']]??[];
+            if($ids===''||$ids===null)continue;
+            if(!is_array($ids)||!array_is_list($ids)||count($ids)>200)fail('Liste de fichiers invalide.');
+            foreach($ids as $fid){if(!is_string($fid))fail('Liste de fichiers invalide.');if(!query('SELECT file_id FROM form_uploads WHERE file_id=? AND form_id=? AND owner=? AND used_row_id IS NULL AND created_at>=?',[$fid,$form['id'],$owner,gmdate('Y-m-d\TH:i:s\Z',time()-86400)])->fetch())fail('Cette pièce jointe est expirée ou ne correspond pas à ton envoi. Ajoute-la à nouveau.');$fileIds[]=$fid;}}
+        $values=database_values($props,$rawValues);
         $pdo=db();$pdo->beginTransaction();try{$row=database_row_save(['db_id'=>$form['db_id'],'values'=>$values,'source_form_id'=>$form['id']],array_column($props,'id'),true);foreach($fileIds as $fid)query('UPDATE form_uploads SET used_row_id=? WHERE file_id=? AND used_row_id IS NULL',[$row['id'],$fid]);$pdo->commit();}catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}}finally{flock($submissionLock,LOCK_UN);fclose($submissionLock);}json_out(['ok'=>true,'message'=>'Ta réponse a bien été envoyée.']);
     }
     need_admin();
