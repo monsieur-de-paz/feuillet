@@ -1,5 +1,6 @@
 import { BlockClipboard, applyIndependentPaste } from "./BlockClipboard";
 import { EditorFileDrop } from "./EditorFileDrop";
+import { HtmlEmbed, WebVideo } from "./ExternalEmbed";
 import { MapBlock } from "./MapBlock";
 import { BlockMover, blockAtElement } from "./BlockMover";
 import { BlockSelection } from "./block-selection";
@@ -239,6 +240,8 @@ export default function CourseEditor({
       Details,
       ToggleHeading,
       MapBlock,
+      WebVideo,
+      HtmlEmbed,
       PageLink,
       ButtonLink,
       Bookmark,
@@ -627,9 +630,9 @@ export default function CourseEditor({
         {
           id: "video",
           label: "Vidéo",
-          description: "Un lecteur vidéo",
+          description: "Un fichier ou un lien vidéo sur Internet",
           icon: <Video />,
-          keywords: "video film",
+          keywords: "video film youtube dailymotion tiktok vimeo",
         },
         {
           id: "file",
@@ -715,6 +718,14 @@ export default function CourseEditor({
           if (!ed.isDestroyed)
             insertNode(ed, { type: "formView", attrs: { formId } });
         }),
+    },
+    {
+      id: "htmlEmbed",
+      label: "Intégration HTML",
+      description: "Colle le code d’intégration d’un fournisseur",
+      keywords: "html iframe embed widget intégration",
+      icon: <Code />,
+      run: (ed) => insertNode(ed, { type: "htmlEmbed" }),
     },
     {
       id: "map",

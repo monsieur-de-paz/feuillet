@@ -1,5 +1,11 @@
 # Historique des versions
 
+## 0.23.0 — 2026-11-09
+
+- Bloc Vidéo avec choix entre fichier local ou bibliothèque et lien Internet. Détection de YouTube, Dailymotion, TikTok, Vimeo et des fichiers vidéo HTTPS directs.
+- Bloc Intégration HTML avec hauteur ajustable et chargement au clic dans un cadre isolé.
+- Le bouton Ajouter un bloc est placé au-dessus du sélecteur de thème sur mobile.
+
 ## 0.22.0 — 2026-11-08
 
 - Adresses courtes personnalisées pour les pages publiques et privées, configurables depuis le panneau de partage.

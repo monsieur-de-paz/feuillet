@@ -7,7 +7,7 @@ function api_dispatch(string $action): never {
     $method=$_SERVER['REQUEST_METHOD']??'GET';
     if(str_starts_with($action,'update_')){require_once __DIR__.'/updates.php';updates_dispatch($action,$method);}
     if(function_exists('database_dispatch'))database_dispatch($action,$method);
-    $postActions=['blocks_copy','blocks_transfer','blocks_restore','login','logout','save','publish','visibility','duplicate','trash','restore','move','restore_revision','upload','import','quiz','spaces','save_space','delete_space','settings','rename_file','link_preview','image_import','import_markdown','import_document','save_category','delete_category','restore_category','homepage','public_home','save_share_path'];
+    $postActions=['blocks_copy','blocks_transfer','blocks_restore','login','logout','save','publish','visibility','duplicate','trash','restore','move','restore_revision','upload','import','quiz','spaces','save_space','delete_space','settings','rename_file','link_preview','image_import','import_markdown','import_document','save_category','delete_category','restore_category','homepage','public_home','save_share_path','video_resolve'];
     if(in_array($action,$postActions,true)&&!(in_array($action,['spaces','settings','public_home'],true)&&$method==='GET')) {if($method!=='POST')fail('Méthode non autorisée.',405);csrf();}
     elseif($method!=='GET')fail('Méthode non autorisée.',405);
     if($action==='session')json_out(['authenticated'=>admin(),'csrf'=>$_SESSION['csrf'],'name'=>notebook_settings()['title'],'installed'=>true,'version'=>FEUILLET_VERSION]);
@@ -53,6 +53,7 @@ function api_dispatch(string $action): never {
         json_out(['score'=>$score,'total'=>count($results),'results'=>$results]);
     }
     need_admin();
+    if($action==='video_resolve')json_out(['video'=>resolve_video_embed(json_in()['url']??null)]);
     if($action==='save_share_path')json_out(save_share_path(json_in()));
     if(in_array($action,['blocks_transfer','blocks_restore'],true)){require_once __DIR__.'/block-transfer.php';json_out(blocks_transfer(json_in(),$action==='blocks_restore'));}
     if($action==='blocks_copy'){require_once __DIR__.'/block-copy.php';json_out(blocks_copy(json_in()));}

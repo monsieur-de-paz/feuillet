@@ -220,3 +220,9 @@ Les réponses complètes de `reader-state.php` ajoutent `offlineEligible` et `ro
 L’action `save_share_path` reçoit en POST un identifiant de page `id` et un champ `path`. Elle exige une session administrateur et le jeton CSRF. Le serveur normalise les majuscules et accepte un slash initial. Le chemin enregistré contient au maximum 64 caractères avec des lettres ASCII minuscules, chiffres et tirets entre les segments. Un chemin réservé ou utilisé par une autre page produit une réponse 409. Une chaîne vide rétablit le lien par défaut. La réponse contient le chemin préféré dans `path` ou `null`. La liste administrateur expose ce chemin dans `share_path`.
 
 Les chemins sont propres à une installation et les anciens restent rattachés à leur page. Ils sont conservés dans la base SQL et ses sauvegardes complètes. Les imports de contenus ne reprennent pas les adresses des pages copiées. La lecture par adresse courte part de sa propre racine et suit les contrôles de visibilité existants. Une page privée reste accessible uniquement dans l’éditeur authentifié.
+
+## Vidéos et intégrations externes — 0.23
+
+`video_resolve` reçoit en POST un champ `url`. L’action exige une session administrateur et le jeton CSRF. Elle renvoie `video` avec les attributs `url`, `src`, `label`, `kind` et `portrait` du bloc `webVideo`. Le lecteur reconstruit les adresses à partir du lien d’origine et charge la ressource au clic. Seules les redirections courtes TikTok déclenchent une requête serveur, limitée aux hôtes TikTok et soumise aux contrôles réseau existants.
+
+Le bloc `htmlEmbed` conserve `code` (32 Ko UTF-8 maximum) et `height` (200 à 1200 px). Le code est transmis au cadre `embed-frame.php` après activation et exécuté dans un sous-cadre sandboxé à origine opaque, sans accès à la page parente, à son stockage ni à sa navigation. Le serveur ne télécharge pas le code du fournisseur.

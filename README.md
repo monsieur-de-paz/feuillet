@@ -4,7 +4,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.22.0-2563eb" alt="Version 0.22.0">
+  <img src="https://img.shields.io/badge/version-0.23.0-2563eb" alt="Version 0.23.0">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour prendre des notes enrichies, les centraliser et les partager sur son propre hébergement.** Inspiré de l’édition par blocs, il permet de rédiger des notes enrichies, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
@@ -47,6 +47,12 @@ Sur ordinateur, tracez un rectangle depuis une marge pour sélectionner plusieur
 ![Feuillet 0.5 — menus et rédaction sur une page de démonstration](docs/feuillet-v05-interface.jpg)
 
 Sélecteurs avec recherche, menus d’actions au clic droit ou par bouton, navigation compacte et thème personnel clair/sombre/OLED. Les menus restent utilisables au clavier et s’adaptent aux petits écrans. La version 0.5.1 harmonise les marges des dialogues, remplace les cadres de sélection par un accent doux et permet un partage sans accueil général. [Nouveautés 0.5](docs/NOUVEAUTES-0.5.1.md) · [Charte graphique](docs/CHARTE-GRAPHIQUE.md).
+
+## Vidéos et intégrations externes
+
+Ajoutez un bloc **Vidéo**, puis choisissez **Fichier vidéo** pour utiliser la bibliothèque ou importer un fichier, ou **Vidéo en ligne** pour coller un lien YouTube, Dailymotion, TikTok, Vimeo ou un fichier vidéo HTTPS direct. Le fournisseur est détecté automatiquement. Le lecteur se charge au clic et l’adresse d’origine reste accessible si le fournisseur refuse l’intégration.
+
+Choisissez **Intégration HTML** pour coller le code fourni par un service et régler la hauteur. Le code s’exécute au clic dans un cadre isolé. Certains fournisseurs limitent l’affichage aux domaines autorisés ou exigent des permissions que le cadre isolé ne donne pas. Le bloc reste éditable sur la page.
 
 ## Installation et mises à jour
 

@@ -13,10 +13,11 @@ function link_absolute(string $base,string $reference): string {
     $parts=explode('/', $path);$out=[];foreach($parts as $part){if($part==='..')array_pop($out);elseif($part!=='.')$out[]=$part;}
     return $origin.implode('/',$out);
 }
-function link_fetch(string $url,int $maximum,string &$final): string {
+function link_fetch(string $url,int $maximum,string &$final,?callable $stopAtRedirect=null): string {
     if(!extension_loaded('curl'))fail('L’extension PHP cURL est nécessaire aux aperçus.',503);
     $deadline=microtime(true)+8;
     for($hop=0;$hop<4;$hop++){
+        if($hop && $stopAtRedirect && $stopAtRedirect($url)){$final=$url;return '';}
         if(microtime(true)>=$deadline)fail('Le site met trop de temps à répondre.',502);
         [$host,$ip]=image_remote_address($url);$data='';$location='';$curl=curl_init($url);
         curl_setopt_array($curl,[CURLOPT_FOLLOWLOCATION=>false,CURLOPT_PROTOCOLS=>CURLPROTO_HTTPS,CURLOPT_CONNECTTIMEOUT=>3,CURLOPT_TIMEOUT_MS=>max(1,(int)(1000*($deadline-microtime(true)))),CURLOPT_PROXY=>'',CURLOPT_RESOLVE=>[$host.':443:'.(str_contains($ip,':')?'['.$ip.']':$ip)],CURLOPT_USERAGENT=>'Feuillet/'.FEUILLET_VERSION.' (+https://github.com/monsieur-de-paz/feuillet)',CURLOPT_HEADERFUNCTION=>function($c,$line)use(&$location){if(str_starts_with(strtolower($line),'location:'))$location=trim(substr($line,9));return strlen($line);},CURLOPT_WRITEFUNCTION=>function($c,$chunk)use(&$data,$maximum){if(strlen($data)+strlen($chunk)>$maximum)return 0;$data.=$chunk;return strlen($chunk);}]);

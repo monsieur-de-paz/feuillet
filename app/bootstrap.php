@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.22.0';
+const FEUILLET_VERSION = '0.23.0';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -96,7 +96,7 @@ function headers_secure(): void {
     if(!empty($_SERVER['HTTPS'])&&$_SERVER['HTTPS']!=='off')header('Strict-Transport-Security: max-age=31536000');
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('X-Frame-Options: SAMEORIGIN');
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; media-src 'self' https: blob:; frame-src 'self' https://www.youtube-nocookie.com https://player.vimeo.com https://www.google.com https://maps.google.com; connect-src 'self'; font-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'");
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; media-src 'self' https: blob:; frame-src 'self' https://www.youtube-nocookie.com https://player.vimeo.com https://geo.dailymotion.com https://www.tiktok.com https://www.google.com https://maps.google.com; connect-src 'self'; font-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'");
     header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
     header('Cache-Control: no-store');
 }
@@ -113,7 +113,7 @@ function normalize_doc(mixed $doc): array {
     if (!is_array($doc) || ($doc['type']??'') !== 'doc') fail('Document invalide.');
     $count=0; $walk=function($node,$depth) use (&$walk,&$count): array {
         if (!is_array($node) || ++$count>12000 || $depth>32) fail('Document trop complexe.');
-        $types=['doc','paragraph','text','heading','bulletList','orderedList','listItem','taskList','taskItem','blockquote','horizontalRule','hardBreak','codeBlock','table','tableRow','tableCell','tableHeader','callout','columns','column','details','toggleHeading','mapBlock','pageLink','buttonLink','bookmark','fileBlock','image','gallery','quiz','databaseView','formView'];
+        $types=['doc','paragraph','text','heading','bulletList','orderedList','listItem','taskList','taskItem','blockquote','horizontalRule','hardBreak','codeBlock','table','tableRow','tableCell','tableHeader','callout','columns','column','details','toggleHeading','mapBlock','pageLink','buttonLink','bookmark','fileBlock','webVideo','htmlEmbed','image','gallery','quiz','databaseView','formView'];
         if(!in_array($node['type']??'', $types, true)) fail('Type de bloc inconnu : '.str_limit($node['type']??'',40));
         $out=['type'=>$node['type']];
         if($node['type']==='text'){if(!is_string($node['text']??null))fail('Texte de bloc invalide.');$out['text']=$node['text'];}
@@ -121,6 +121,17 @@ function normalize_doc(mixed $doc): array {
             if(!is_array($node['attrs'])) fail('Attributs de bloc invalides.');
             $out['attrs']=$node['attrs'];
             if(strlen(encoded($out['attrs']))>250000) fail('Bloc trop volumineux.');
+            if($node['type']==='webVideo'){
+                $url=$out['attrs']['url']??'';
+                $video=video_embed_source($url);
+                if($url!==''&&!$video)fail('Lien vidéo invalide.');
+                $out['attrs']=$video??[];
+            }
+            if($node['type']==='htmlEmbed'){
+                $code=$out['attrs']['code']??'';
+                if(!is_string($code)||strlen($code)>32000)fail('Le code d’intégration doit faire au maximum 32 Ko.');
+                $out['attrs']=['code'=>$code,'height'=>html_embed_height($out['attrs']['height']??450)];
+            }
             if($node['type']==='mapBlock')$out['attrs']=['address'=>str_limit($out['attrs']['address']??'',500),'embedUrl'=>map_embed_url($out['attrs']['embedUrl']??'')];
             if($node['type']==='quiz') validate_quiz($out['attrs']);
             foreach(['href','src'] as $key)if(isset($out['attrs'][$key]))$out['attrs'][$key]=safe_url($out['attrs'][$key]);
@@ -325,6 +336,7 @@ function descendants(string $id): array {
 require_once __DIR__.'/features.php';
 
 require_once __DIR__.'/sharing.php';
+require_once __DIR__.'/video-embed.php';
 
 function map_embed_url(mixed $value): string {
     if(!is_string($value)||strlen($value)>6000)return '';

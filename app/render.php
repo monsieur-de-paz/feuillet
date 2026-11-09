@@ -44,6 +44,7 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
         $preview=!empty($a['posterId'])?thumbnail_url($a['posterId'],320):safe_url($a['previewUrl']??'');
         return '<a class="bookmark link-card" href="'.h($url).'" target="_blank" rel="noopener noreferrer">'.$icon.'<div class="link-card-body"><strong>'.h($a['title']??$url).'</strong><p>'.h($a['description']??'').'</p><small>'.h(parse_url($url,PHP_URL_HOST)??'').' ↗</small></div>'.($preview?'<img class="link-card-preview" src="'.h($preview).'" loading="lazy" referrerpolicy="no-referrer" alt="">':'').'</a>';
     }
+    if($t==='webVideo'||$t==='htmlEmbed')return render_external_embed($t,$a);
     if($t==='mapBlock'){
         $address=str_limit($a['address']??'',500);if(!$address)return '';
         $src=map_embed_url($a['embedUrl']??'')?:'https://maps.google.com/maps?q='.rawurlencode($address).'&z=14&output=embed';
@@ -79,6 +80,19 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
         return $html.'<button type="submit" class="primary">Vérifier mes réponses</button> <button type="reset">Recommencer</button><p class="quiz-score" aria-live="polite"></p><noscript>Active JavaScript pour obtenir une correction immédiate.</noscript></form>';
     }
     return $children;
+}
+
+function render_external_embed(string $type,array $attrs): string {
+    if($type==='htmlEmbed'){
+        $code=$attrs['code']??'';
+        if(!is_string($code)||!trim($code)||strlen($code)>32000)return '';
+        $button='<button type="button" class="external-embed-trigger" data-embed-html="'.h($code).'" data-embed-height="'.html_embed_height($attrs['height']??450).'">Afficher l’intégration</button>';
+        return '<section class="external-embed">'.$button.'</section>';
+    }
+    $video=video_embed_source($attrs['url']??'');
+    if(!$video)return '';
+    $title='Vidéo · '.$video['label'];
+    return '<section class="external-embed external-video'.($video['portrait']?' portrait-video':'').'"><button type="button" class="external-embed-trigger" data-embed-src="'.h($video['src']).'" data-embed-kind="'.h($video['kind']).'" data-embed-title="'.h($title).'"><span aria-hidden="true">▶</span> Lire sur '.h($video['label']).'</button><a href="'.h($video['url']).'" target="_blank" rel="noopener noreferrer">Ouvrir la vidéo ↗</a></section>';
 }
 
 function render_page_icon(array $page): string {

@@ -365,6 +365,13 @@ export async function exportPdf(
         line(n.type === "callout" ? "À retenir" : "Citation", 9, true, indent);
         for (const item of c) await node(item, indent + 5);
         break;
+      case "webVideo":
+        line(a.label || "Vidéo en ligne", 10, true, indent);
+        if (a.url) line(a.url, 9, false, indent);
+        break;
+      case "htmlEmbed":
+        line("Intégration HTML", 10, false, indent);
+        break;
       case "mapBlock":
         line("Lieu : " + (a.address || ""), 10, true, indent);
         line(

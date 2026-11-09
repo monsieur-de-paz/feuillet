@@ -79,6 +79,7 @@ import {
   type ThemePreference,
 } from "./ThemeToggle";
 import { PoweredBy } from "./PoweredBy";
+import { OnlineVideoForm } from "./ExternalEmbed";
 import CourseEditor, { type EditorRequest } from "./Editor";
 import { AppContext } from "./context";
 import { ImageLightbox, type ZoomImage } from "./MediaLightbox";
@@ -3647,13 +3648,15 @@ export default function App() {
       {modal === "files" && (
         <Modal
           title={
-            requested === "cover"
-              ? "Choisir une couverture"
-              : requested === "icon"
-                ? "Choisir une icône"
-                : requested
-                  ? "Insérer une ressource"
-                  : "Bibliothèque de fichiers"
+            requested === "video"
+              ? "Ajouter une vidéo"
+              : requested === "cover"
+                ? "Choisir une couverture"
+                : requested === "icon"
+                  ? "Choisir une icône"
+                  : requested
+                    ? "Insérer une ressource"
+                    : "Bibliothèque de fichiers"
           }
           wide
           onClose={() => {
@@ -3685,7 +3688,47 @@ export default function App() {
                 </p>
               </>
             )}
-            {imageTab === "internet" && (
+            {requested === "video" && (
+              <div className="picker-tabs" aria-label="Source de la vidéo">
+                <button
+                  type="button"
+                  className={imageTab === "files" ? "selected" : ""}
+                  aria-pressed={imageTab === "files"}
+                  disabled={busy}
+                  onClick={() => setImageTab("files")}
+                >
+                  Fichier vidéo
+                </button>
+                <button
+                  type="button"
+                  className={imageTab === "internet" ? "selected" : ""}
+                  aria-pressed={imageTab === "internet"}
+                  disabled={busy}
+                  onClick={() => setImageTab("internet")}
+                >
+                  Vidéo en ligne
+                </button>
+              </div>
+            )}
+            {requested === "video" && imageTab === "internet" && (
+              <OnlineVideoForm
+                onInsert={(video) => {
+                  const editor = insertEditor.current;
+                  if (!editor || editor.isDestroyed) return;
+                  editor
+                    .chain()
+                    .focus()
+                    .insertContent([
+                      { type: "webVideo", attrs: video },
+                      { type: "paragraph" },
+                    ])
+                    .run();
+                  setRequested(null);
+                  setModal(null);
+                }}
+              />
+            )}
+            {requested !== "video" && imageTab === "internet" && (
               <div className="internet-picker">
                 <form onSubmit={searchInternet} className="internet-search">
                   <input
