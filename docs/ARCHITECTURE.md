@@ -330,3 +330,5 @@ Le repli sur la copie intervient après 1,5 s pour un fragment et 1,8 s pour l�
 ## Tableaux : commandes contextuelles (0.24)
 
 `TableControls.tsx` mesure la table active et son défilement pour positionner les poignées hors du contenu éditable. Les commandes utilisent les transactions ProseMirror natives et des groupes d’historique distincts. `table-selection.ts` s’appuie sur `TableMap` et `CellSelection` pour sélectionner des lignes, colonnes ou plages, y compris avec des cellules fusionnées. Les menus réutilisent `ContextMenu` et les variables de thème. La largeur minimale des colonnes évite de comprimer le texte sur mobile ; le conteneur défile horizontalement. Ces outils sont réservés à l’administrateur, sans changement du document JSON ni du rendu public.
+
+Les poignées utilisent les limites géométriques des lignes et colonnes pour apparaître au survol, y compris dans leur marge. Le focus clavier et les écrans sans survol conservent un accès visible. Le menu conserve la poignée de son axe jusqu’à sa fermeture.

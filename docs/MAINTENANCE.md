@@ -295,3 +295,5 @@ Le workflow GitHub hebdomadaire et à chaque push/PR utilise les actions épingl
 ## Vérifier les commandes des tableaux (0.24)
 
 `node tests/frontend.mjs` inclut les sélections de lignes/colonnes, les plages, la suppression suivie d’une annulation, les cellules fusionnées et les ajouts sans perte. Dans le navigateur intégré, vérifier les deux boutons +, les menus des poignées et le clic droit, Maj + clic, fusion/séparation, annulation et persistance après rechargement. À 390 px, le défilement doit rester dans le tableau et les commandes dans le viewport. En lecture publique, aucune commande d’édition ne doit être présente. Aucun réglage serveur ni migration n’est requis.
+
+Les poignées de tableau apparaissent au survol de la ligne/colonne correspondante, au focus clavier ou sur écran tactile. Vérifier aussi leur disparition à la sortie du tableau et le passage de la cellule à la poignée sans clignotement.

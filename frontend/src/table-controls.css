@@ -26,10 +26,12 @@
   border-radius: 6px;
   cursor: pointer;
   transition:
+    opacity 120ms,
     background 120ms,
     color 120ms;
 }
 .table-axis-handle {
+  opacity: 0;
   width: 26px;
   height: 26px;
 }
@@ -73,4 +75,13 @@
   .feuillet-table-controls {
     display: none;
   }
+}
+
+.table-axis-handle.is-revealed,
+.table-axis-handle:hover,
+.table-axis-handle:focus-visible {
+  opacity: 1;
+}
+@media (hover: none) {
+  .table-axis-handle { opacity: 1; }
 }

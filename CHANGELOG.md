@@ -1,5 +1,9 @@
 # Historique des versions
 
+## 0.24.1 — 2026-11-11
+
+- Les poignées des tableaux apparaissent uniquement au survol de la ligne ou de la colonne correspondante, avec une transition discrète. Elles restent accessibles au clavier, visibles sur écran tactile et maintenues pendant leur menu.
+
 ## 0.24.0 — 2026-11-11
 
 - Tableaux : boutons + en bas et à droite pour ajouter une ligne ou une colonne, poignées de sélection et menus contextuels près des cellules.

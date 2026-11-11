@@ -50,13 +50,16 @@ type Metrics = {
   bottom: number;
   visibleTop: number;
   visibleBottom: number;
-  rows: { index: number; center: number }[];
-  columns: { index: number; center: number }[];
+  rows: { index: number; center: number; start: number; end: number }[];
+  columns: { index: number; center: number; start: number; end: number }[];
 };
-type Menu = { axis: TableAxis | "cell"; x: number; y: number };
+type Menu = { axis: TableAxis | "cell"; x: number; y: number; index?: number };
 
 export function TableControls({ editor }: { editor: Editor }) {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
+  const [hovered, setHovered] = useState({ row: -1, column: -1, corner: false });
+  const measured = useRef<Metrics | null>(null);
+  measured.current = metrics;
   const [menu, setMenu] = useState<Menu | null>(null);
   const tablePos = useRef<number | null>(null);
   const rangeAnchor = useRef<{
@@ -106,7 +109,7 @@ export function TableControls({ editor }: { editor: Editor }) {
         rows: [...table.rows]
           .map((row, index) => {
             const box = row.getBoundingClientRect();
-            return { index, center: (box.top + box.bottom) / 2 };
+            return { index, center: (box.top + box.bottom) / 2, start: box.top, end: box.bottom };
           })
           .filter(
             (row) => row.center >= visibleTop && row.center <= visibleBottom,
@@ -115,6 +118,8 @@ export function TableControls({ editor }: { editor: Editor }) {
           const box = columns[index]?.getBoundingClientRect();
           return {
             index,
+            start: box && box.width > 0 ? box.left : rect.left + rect.width * index / map.width,
+            end: box && box.width > 0 ? box.right : rect.left + rect.width * (index + 1) / map.width,
             center:
               box && box.width > 0
                 ? box.left + box.width / 2
@@ -142,6 +147,17 @@ export function TableControls({ editor }: { editor: Editor }) {
         schedule();
       }
     };
+    const reveal = (event: PointerEvent) => {
+      if ((event.target as Element).closest?.(".feuillet-floating")) return;
+      const m = measured.current;
+      const x = event.clientX, y = event.clientY;
+      const nearby = m && x >= m.left - 32 && x <= m.right + 32 && y >= m.visibleTop - 32 && y <= m.visibleBottom + 32;
+      const row = nearby ? m.rows.find(r => y >= r.start && y <= r.end)?.index ?? -1 : -1;
+      const column = nearby ? m.columns.find(c => x >= c.start && x <= c.end)?.index ?? -1 : -1;
+      const corner = !!nearby && x < m.left && y < m.top;
+      setHovered(old => old.row === row && old.column === column && old.corner === corner ? old : { row, column, corner });
+    };
+    const hide = () => setHovered({ row: -1, column: -1, corner: false });
     const update = () => {
       const selected = tableAtSelection(editor.state);
       tablePos.current = selected;
@@ -193,6 +209,8 @@ export function TableControls({ editor }: { editor: Editor }) {
     window.addEventListener("scroll", schedule, true);
     window.addEventListener("resize", schedule);
     document.addEventListener("pointerdown", outside);
+    document.addEventListener("pointermove", reveal);
+    document.documentElement.addEventListener("pointerleave", hide);
     const observer = new ResizeObserver(schedule);
     observer.observe(editor.view.dom);
     update();
@@ -205,6 +223,8 @@ export function TableControls({ editor }: { editor: Editor }) {
       window.removeEventListener("scroll", schedule, true);
       window.removeEventListener("resize", schedule);
       document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("pointermove", reveal);
+      document.documentElement.removeEventListener("pointerleave", hide);
     };
   }, [editor]);
 
@@ -242,7 +262,7 @@ export function TableControls({ editor }: { editor: Editor }) {
     if (!select(axis, index, event.shiftKey)) return;
     const rect = event.currentTarget.getBoundingClientRect();
     // Keep the row gutter reachable for Shift-click range selection.
-    setMenu({ axis, x: axis === "row" ? metrics!.left + 10 : rect.left, y: rect.bottom + 4 });
+    setMenu({ axis, index, x: axis === "row" ? metrics!.left + 10 : rect.left, y: rect.bottom + 4 });
   }
   function append(axis: "row" | "column") {
     if (!metrics || metrics.pos !== tablePos.current) return;
@@ -380,7 +400,7 @@ export function TableControls({ editor }: { editor: Editor }) {
       {metrics.rows.map((row) => (
         <button
           type="button"
-          className="table-axis-handle table-row-handle"
+          className={`table-axis-handle table-row-handle ${hovered.row === row.index || (menu?.axis === "row" && menu.index === row.index) ? "is-revealed" : ""}`}
           style={{ left: metrics.left - 29, top: row.center - 13 }}
           key={row.index}
           aria-haspopup="menu"
@@ -396,7 +416,7 @@ export function TableControls({ editor }: { editor: Editor }) {
         metrics.columns.map((column) => (
           <button
             type="button"
-            className="table-axis-handle table-column-handle"
+            className={`table-axis-handle table-column-handle ${hovered.column === column.index || (menu?.axis === "column" && menu.index === column.index) ? "is-revealed" : ""}`}
             style={{ left: column.center - 13, top: metrics.top - 29 }}
             key={column.index}
             aria-haspopup="menu"
@@ -411,7 +431,7 @@ export function TableControls({ editor }: { editor: Editor }) {
       {topVisible && (
         <button
           type="button"
-          className="table-axis-handle"
+          className={`table-axis-handle ${hovered.corner || menu?.axis === "table" ? "is-revealed" : ""}`}
           style={{ left: metrics.left - 29, top: metrics.top - 29 }}
           aria-label="Sélectionner tout le tableau"
           onMouseDown={(event) => event.preventDefault()}
