@@ -4,7 +4,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.24.1-2563eb" alt="Version 0.24.1">
+  <img src="https://img.shields.io/badge/version-0.25.0-2563eb" alt="Version 0.25.0">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour prendre des notes enrichies, les centraliser et les partager sur son propre hébergement.** Inspiré de l’édition par blocs, il permet de rédiger des notes enrichies, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
@@ -251,3 +251,5 @@ La version 0.16.1 place les onglets au-dessus du fil d’Ariane : un clic normal
 ### Modifier un tableau
 
 Clique dans un tableau pour afficher ses commandes. Le **+** du bas ajoute une ligne ; celui de droite ajoute une colonne. Les poignées apparaissent au survol de la ligne ou de la colonne concernée (et au focus clavier ; elles restent visibles sur écran tactile). À gauche et au-dessus, elles sélectionnent une ligne ou une colonne et ouvrent leurs actions. **Maj + clic** sur une autre poignée étend la sélection. Un clic droit dans une cellule propose les insertions, suppressions, en-têtes, fusions et séparations ; **Annuler** rétablit le contenu après une action. Les menus sont utilisables avec les flèches, Entrée et Échap. Les colonnes restent redimensionnables en faisant glisser leur bordure.
+
+Le menu d’un tableau propose **Couleur de fond…** pour la cellule ou la sélection (ligne, colonne, plage), et **Modèles de tableau…** pour l’ensemble du tableau. Choisis un modèle à simple entrée (en haut ou à gauche), double entrée ou à lignes alternées, puis sa couleur. **Fond par défaut** retire seulement la couleur sélectionnée ; **Tableau neutre** retire toutes les couleurs et en-têtes du modèle.

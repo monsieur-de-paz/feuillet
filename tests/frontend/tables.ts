@@ -5,9 +5,10 @@ import { Table, TableCell, TableHeader, TableRow } from "@tiptap/extension-table
 import { EditorState } from "@tiptap/pm/state";
 import { history, undo } from "@tiptap/pm/history";
 import { TableMap, CellSelection, addRowAfter, addColumnAfter, deleteRow, deleteColumn, mergeCells, splitCell } from "@tiptap/pm/tables";
+import { ColoredTableCell, ColoredTableHeader, colorTableCells, styleTable } from "../../frontend/src/table-formatting";
 import { selectTableAxis } from "../../frontend/src/table-selection";
 
-const editor = new Editor({element:null, extensions:[StarterKit,Table,TableRow,TableHeader,TableCell],content:{type:"doc",content:[{type:"paragraph"}]}});
+const editor = new Editor({element:null, extensions:[StarterKit,Table,TableRow,ColoredTableHeader,ColoredTableCell],content:{type:"doc",content:[{type:"paragraph"}]}});
 const cell = (text:string, attrs={}) => ({type:"tableCell",attrs,content:[{type:"paragraph",content:[{type:"text",text}]}]});
 const doc = editor.schema.nodeFromJSON({type:"doc",content:[{type:"table",content:[
   {type:"tableRow",content:[cell("A"),cell("B"),cell("C")]},
@@ -50,3 +51,22 @@ state.doc.check();
 assert.equal(selectTableAxis(state,0,"row",999),null);
 assert.equal(selectTableAxis(state,999999,"column",0),null);
 console.log("Tables: whole rows/columns, ranges, deletion/undo, merged cells, append and merge/split passed");
+
+state=EditorState.create({schema:editor.schema,doc,plugins:[history()]});
+select("row",1);assert.ok(colorTableCells("violet")(state,dispatch));
+assert.equal(state.doc.firstChild!.child(1).child(0).attrs.cellTone,"violet");
+assert.equal(state.doc.firstChild!.child(0).child(0).attrs.cellTone,null);
+assert.ok(styleTable("double","blue")(state,dispatch));
+assert.equal(state.doc.firstChild!.child(0).child(2).type.name,"tableHeader");
+assert.equal(state.doc.firstChild!.child(2).child(0).type.name,"tableHeader");
+assert.equal(state.doc.firstChild!.child(2).child(1).type.name,"tableCell");
+assert.equal(state.doc.firstChild!.child(2).child(1).attrs.cellTone,null);
+assert.equal(state.doc.textContent,doc.textContent);
+assert.ok(styleTable("plain")(state,dispatch));
+assert.equal(state.doc.firstChild!.child(0).child(0).attrs.cellTone,null);
+assert.ok(undo(state,dispatch));
+state=EditorState.create({schema:editor.schema,doc:merged});select("table");
+assert.ok(styleTable("left","green")(state,dispatch));state.doc.check();
+assert.equal(state.doc.firstChild!.firstChild!.firstChild!.attrs.colspan,2);
+assert.equal(state.doc.textContent,merged.textContent);
+console.log("Table colours: scoped selections, double entry, reset, undo and merged content preserved");

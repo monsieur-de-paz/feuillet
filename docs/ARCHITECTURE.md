@@ -332,3 +332,7 @@ Le repli sur la copie intervient après 1,5 s pour un fragment et 1,8 s pour l�
 `TableControls.tsx` mesure la table active et son défilement pour positionner les poignées hors du contenu éditable. Les commandes utilisent les transactions ProseMirror natives et des groupes d’historique distincts. `table-selection.ts` s’appuie sur `TableMap` et `CellSelection` pour sélectionner des lignes, colonnes ou plages, y compris avec des cellules fusionnées. Les menus réutilisent `ContextMenu` et les variables de thème. La largeur minimale des colonnes évite de comprimer le texte sur mobile ; le conteneur défile horizontalement. Ces outils sont réservés à l’administrateur, sans changement du document JSON ni du rendu public.
 
 Les poignées utilisent les limites géométriques des lignes et colonnes pour apparaître au survol, y compris dans leur marge. Le focus clavier et les écrans sans survol conservent un accès visible. Le menu conserve la poignée de son axe jusqu’à sa fermeture.
+
+## Coloration des tableaux (0.25)
+
+`table-formatting.ts` étend les cellules et en-têtes avec `cellTone` (palette fermée) et `cellShade` (intensité). Les commandes ciblent `CellSelection` ou appliquent un modèle à toute la table avec `TableMap`, sans réécrire le contenu ni les fusions. Les attributs sont validés par le serveur et rendus en attributs data, sans CSS arbitraire. La palette de `interface.css` est commune à l’éditeur et au lecteur ; les pigments sont mélangés à la surface du thème pour préserver les textes. Aucun changement SQL.

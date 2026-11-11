@@ -1,5 +1,6 @@
 import { BlockClipboard, applyIndependentPaste } from "./BlockClipboard";
 import { EditorFileDrop } from "./EditorFileDrop";
+import { ColoredTableCell, ColoredTableHeader } from "./table-formatting";
 import { TableControls } from "./TableControls";
 import { HtmlEmbed, WebVideo } from "./ExternalEmbed";
 import { MapBlock } from "./MapBlock";
@@ -29,8 +30,6 @@ import TaskItem from "@tiptap/extension-task-item";
 import {
   Table,
   TableRow,
-  TableHeader,
-  TableCell,
 } from "@tiptap/extension-table";
 import Highlight from "@tiptap/extension-highlight";
 import { useEffect, useRef, useState } from "react";
@@ -232,8 +231,8 @@ export default function CourseEditor({
       TaskItem.configure({ nested: true }),
       Table.configure({ resizable: admin, cellMinWidth: 100 }),
       TableRow,
-      TableHeader,
-      TableCell,
+      ColoredTableHeader,
+      ColoredTableCell,
       Highlight.configure({ multicolor: true }),
       Callout,
       Columns,

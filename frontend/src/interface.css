@@ -3607,3 +3607,28 @@ a.page-link.subpage-link {
   font-family: monospace;
   resize: vertical;
 }
+
+/* Shared table palette. Mix with the current surface to adapt to light, dark and OLED. */
+[data-cell-tone="gray"] { --cell-pigment: #808080; }
+[data-cell-tone="blue"] { --cell-pigment: #4285e8; }
+[data-cell-tone="green"] { --cell-pigment: #39a57a; }
+[data-cell-tone="amber"] { --cell-pigment: #d6aa26; }
+[data-cell-tone="orange"] { --cell-pigment: #dd8244; }
+[data-cell-tone="red"] { --cell-pigment: #d65d66; }
+[data-cell-tone="violet"] { --cell-pigment: #9c72d8; }
+[data-cell-tone="accent"] { --cell-pigment: var(--accent, #38795d); }
+.course-content table :is(td,th)[data-cell-tone],
+body[style] .reader-page table :is(td,th)[data-cell-tone] {
+  background: color-mix(in srgb, var(--cell-pigment) 17%, var(--surface, #fff));
+}
+.course-content table :is(td,th)[data-cell-tone][data-cell-shade="strong"],
+body[style] .reader-page table :is(td,th)[data-cell-tone][data-cell-shade="strong"] {
+  background: color-mix(in srgb, var(--cell-pigment) 32%, var(--surface, #fff));
+}
+.table-color-swatch {
+  display: inline-block; width: 18px; height: 18px; border-radius: 5px;
+  background: var(--cell-pigment, var(--surface)); border: 1px solid var(--line);
+}
+@media print {
+  [data-cell-tone] { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}

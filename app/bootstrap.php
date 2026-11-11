@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.24.1';
+const FEUILLET_VERSION = '0.25.0';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -121,6 +121,10 @@ function normalize_doc(mixed $doc): array {
             if(!is_array($node['attrs'])) fail('Attributs de bloc invalides.');
             $out['attrs']=$node['attrs'];
             if(strlen(encoded($out['attrs']))>250000) fail('Bloc trop volumineux.');
+            if(in_array($node['type'], ['tableCell','tableHeader'],true)){
+                if(array_key_exists('cellTone',$out['attrs']))$out['attrs']['cellTone']=in_array($out['attrs']['cellTone']??null,['gray','blue','green','amber','orange','red','violet','accent'],true)?$out['attrs']['cellTone']:null;
+                if(array_key_exists('cellShade',$out['attrs']))$out['attrs']['cellShade']=($out['attrs']['cellShade']??null)==='strong'?'strong':null;
+            }
             if($node['type']==='webVideo'){
                 $url=$out['attrs']['url']??'';
                 $video=video_embed_source($url);

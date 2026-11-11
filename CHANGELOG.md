@@ -1,5 +1,11 @@
 # Historique des versions
 
+## 0.25.0 — 2026-11-11
+
+- Couleurs de fond des cellules, lignes, colonnes et sélections multiples, avec une palette de huit couleurs adaptées aux thèmes.
+- Modèles colorés : simple entrée en haut ou à gauche, double entrée et lignes alternées. Choix de la couleur du modèle et retour à un tableau neutre.
+- Contenu, cellules fusionnées et largeurs conservés ; commandes annulables et même palette dans le lecteur public.
+
 ## 0.24.1 — 2026-11-11
 
 - Les poignées des tableaux apparaissent uniquement au survol de la ligne ou de la colonne correspondante, avec une transition discrète. Elles restent accessibles au clavier, visibles sur écran tactile et maintenues pendant leur menu.

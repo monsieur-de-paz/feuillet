@@ -52,4 +52,10 @@ class Editor(unittest.TestCase):
   public=self.ok(self.visitor.api('page',query='&id='+p['id']))['page'];self.assertEqual(public['content'],p['content'])
   html=self.ok(self.visitor.request('index.php?page='+p['id']+'&read=1')).decode()
   self.assertIn('colspan="2"',html);self.assertIn('Fusion',html);self.assertNotIn('feuillet-table-controls',html)
+ def test_08_table_palette_rendered_safely(self):
+  cell={'type':'tableHeader','attrs':{'colspan':1,'rowspan':1,'cellTone':'blue','cellShade':'strong'},'content':[{'type':'paragraph','content':[{'type':'text','text':'Bleu'}]}]}
+  p=self.page([{'type':'table','content':[{'type':'tableRow','content':[cell]}]}]);self.ok(self.admin.api('publish',{'id':p['id'],'version':p['version']}))
+  html=self.ok(self.visitor.request('index.php?page='+p['id']+'&read=1')).decode();self.assertIn('data-cell-tone="blue" data-cell-shade="strong"',html)
+  cell['attrs']['cellTone']='red" onmouseover="alert(1)'
+  p=self.page([{'type':'table','content':[{'type':'tableRow','content':[cell]}]}]);self.assertIsNone(p['content']['content'][0]['content'][0]['content'][0]['attrs']['cellTone'])
 if __name__=='__main__':unittest.main(argv=[__file__]+h.REMAINING,verbosity=2)

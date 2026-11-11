@@ -33,6 +33,9 @@ import {
   Merge,
   Split,
   Heading,
+  Palette,
+  Paintbrush,
+  ArrowLeft as Back,
 } from "lucide-react";
 import { ContextMenu, type MenuAction } from "./ContextMenu";
 import {
@@ -41,6 +44,7 @@ import {
   type TableAxis,
 } from "./table-selection";
 import "./table-controls.css";
+import { tableTones, colorTableCells, styleTable, type TableTemplate } from "./table-formatting";
 
 type Metrics = {
   pos: number;
@@ -53,7 +57,7 @@ type Metrics = {
   rows: { index: number; center: number; start: number; end: number }[];
   columns: { index: number; center: number; start: number; end: number }[];
 };
-type Menu = { axis: TableAxis | "cell"; x: number; y: number; index?: number };
+type Menu = { axis: TableAxis | "cell"; x: number; y: number; index?: number; panel?: "colors" | "templates"; template?: TableTemplate };
 
 export function TableControls({ editor }: { editor: Editor }) {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
@@ -273,6 +277,21 @@ export function TableControls({ editor }: { editor: Editor }) {
       run(axis === "row" ? addRowAfter : addColumnAfter);
   }
   function actions(): MenuAction[] {
+    const back: MenuAction = { label: "Retour aux actions", icon: <Back />, group: "back", run: () => setMenu({ ...menu!, panel: undefined, template: undefined }) };
+    if (menu?.panel === "colors") return [back,
+      ...tableTones.map(([tone, label]) => ({ label, icon: <span className="table-color-swatch" data-cell-tone={tone} />, group: "palette", run: () => run(menu.template ? styleTable(menu.template, tone) : colorTableCells(tone)) })),
+      ...(!menu.template ? [{label: "Fond par défaut", group: "reset", run: () => run(colorTableCells(null))}] : []),
+    ];
+    if (menu?.panel === "templates") return [back,
+      ...([
+        ["top", "Simple entrée · en-tête en haut"],
+        ["left", "Simple entrée · en-tête à gauche"],
+        ["double", "Double entrée · haut et gauche"],
+        ["striped", "Lignes alternées"],
+      ] as [TableTemplate, string][]).map(([template, label]) => ({ label, icon: <Table2 />, group: "templates", run: () => setMenu({ ...menu, panel: "colors", template }) })),
+      { label: "Tableau neutre · retirer le modèle", icon: <Table2 />, group: "reset", run: () => run(styleTable("plain")) },
+    ];
+
     const action = (
       label: string,
       command: Command,
@@ -287,7 +306,9 @@ export function TableControls({ editor }: { editor: Editor }) {
       disabled: !command(editor.state),
       run: () => run(command),
     });
-    const items = [
+    const items: MenuAction[] = [
+      { label: "Couleur de fond…", icon: <Palette />, group: "appearance", run: () => setMenu({ ...menu!, panel: "colors" }) },
+      { label: "Modèles de tableau…", icon: <Paintbrush />, group: "appearance", run: () => setMenu({ ...menu!, panel: "templates" }) },
       action("Insérer une ligne au-dessus", addRowBefore, <ArrowUp />, "rows"),
       action(
         "Insérer une ligne en dessous",
@@ -474,9 +495,13 @@ export function TableControls({ editor }: { editor: Editor }) {
       </button>
       {menu && (
         <ContextMenu
+          key={`${menu.axis}-${menu.panel ?? "actions"}-${menu.template ?? "selection"}`}
           point={{ x: menu.x, y: menu.y }}
           title={
-            menu.axis === "row"
+            menu.panel === "colors"
+              ? menu.template ? "Couleur du modèle" : "Couleur de la sélection"
+              : menu.panel === "templates" ? "Modèles · tout le tableau"
+              : menu.axis === "row"
               ? "Lignes sélectionnées"
               : menu.axis === "column"
                 ? "Colonnes sélectionnées"

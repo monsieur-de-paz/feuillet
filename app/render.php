@@ -25,7 +25,7 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
     if($t==='codeBlock')return '<pre><code>'.$children.'</code></pre>';
     if($t==='table')return '<div class="table-scroll"><table>'.$children.'</table></div>';
     if($t==='tableRow')return '<tr>'.$children.'</tr>';
-    if($t==='tableCell'||$t==='tableHeader'){$tag=$t==='tableHeader'?'th':'td';return '<'.$tag.' colspan="'.max(1,min(20,(int)($a['colspan']??1))).'" rowspan="'.max(1,min(20,(int)($a['rowspan']??1))).'">'.$children.'</'.$tag.'>';}
+    if($t==='tableCell'||$t==='tableHeader'){$tag=$t==='tableHeader'?'th':'td';$tone=in_array($a['cellTone']??null,['gray','blue','green','amber','orange','red','violet','accent'],true)?' data-cell-tone="'.h($a['cellTone']).'"'.(($a['cellShade']??null)==='strong'?' data-cell-shade="strong"':''):'';return '<'.$tag.' colspan="'.max(1,min(20,(int)($a['colspan']??1))).'" rowspan="'.max(1,min(20,(int)($a['rowspan']??1))).'"'.$tone.'>'.$children.'</'.$tag.'>';}
     if($t==='callout'){$tone=in_array($a['tone']??'', ['blue','green','amber','red','gray'],true)?$a['tone']:'gray';return '<aside class="callout tone-'.$tone.'">'.(($a['icon']??'💡')!==''?'<span class="callout-icon">'.h($a['icon']??'💡').'</span>':'').'<div>'.$children.'</div></aside>';}
     if($t==='columns'){ $gap=in_array($a['gap']??'', ['compact','comfortable','airy'],true)?$a['gap']:'comfortable';$ratio=in_array($a['ratio']??'', ['equal','wide-left','wide-right'],true)?$a['ratio']:'equal';return '<div class="columns-block gap-'.$gap.' ratio-'.$ratio.'" data-column-count="'.count($node['content']??[]).'"><div class="columns">'.$children.'</div></div>'; }
     if($t==='column')return '<div class="column">'.$children.'</div>';
