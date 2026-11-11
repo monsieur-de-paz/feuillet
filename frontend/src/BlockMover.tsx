@@ -32,7 +32,10 @@ export function blockAtElement(editor: Editor, target: Element): Hit | null {
         element: editor.view.nodeDOM(b.pos) as HTMLElement,
       }))
       .filter(
-        (b) => b.element instanceof HTMLElement && b.element.contains(target),
+        (b) =>
+          b.element instanceof HTMLElement &&
+          b.element.contains(target) &&
+          !b.element.closest("td,th"),
       )
       .sort(
         (a, b) => b.depth - a.depth || a.node.nodeSize - b.node.nodeSize,
@@ -197,7 +200,7 @@ export function BlockMover({
             ),
           }))
           .sort((a, b) => a.distance - b.distance)[0];
-        if (nearby && nearby.distance <= 12) hit = nearby;
+        if (parent.node.type.name !== "table" && nearby && nearby.distance <= 12) hit = nearby;
       }
       if (hit) setHover(hit);
       else {
@@ -225,7 +228,7 @@ export function BlockMover({
         const block = selectedBlock(editor.state),
           element = block ? editor.view.nodeDOM(block.pos) : null;
         if (block && element instanceof HTMLElement)
-          setHover({ ...block, element });
+          setHover(blockAtElement(editor, element));
       }
       const previous = hovered.current;
       if (previous && !editor.state.doc.nodeAt(previous.pos)) setHover(null);
@@ -340,7 +343,7 @@ export function BlockMover({
       <div
         className="block-mover"
         style={{
-          top: rect.top - base.top,
+          top: rect.top - base.top - (hover.node.type.name === "table" ? 62 : 0),
           left: matchMedia("(max-width:600px)").matches
             ? Math.max(0, rect.right - base.left - 44)
             : rect.left - base.left - 52,

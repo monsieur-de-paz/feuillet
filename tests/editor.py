@@ -18,7 +18,7 @@ class Editor(unittest.TestCase):
   self.ok(self.admin.api('publish',{'id':p['id'],'version':p['version']}))
   html=self.ok(self.visitor.request('index.php?page='+p['id']+'&read=1')).decode()
   self.assertEqual(html.count('<details class="toggle-heading">'),3)
-  for i in [1,2,3]:self.assertIn(f'<summary><h{i}><strong>TITRE_{i}</strong></h{i}></summary>',html)
+  for i in [1,2,3]:self.assertIn(f'<summary><h{i} class="content-heading"><strong>TITRE_{i}</strong></h{i}></summary>',html)
   self.assertEqual(html.count('CONTENU_DEPLIABLE'),3)
   self.assertNotIn('floating-insert',html)
  def test_02_nested_content_retained(self):
@@ -44,4 +44,12 @@ class Editor(unittest.TestCase):
   public=self.ok(self.visitor.api('page',query='&id='+p['id']))['page'];self.assertEqual(public['content'],p['content'])
   history=self.ok(self.admin.api('history',query='&id='+p['id']))['history'];old=next(r for r in history if int(r['version'])==1)
   restored=self.ok(self.admin.api('restore_revision',{'id':p['id'],'version':p['version'],'revision_id':old['id']}))['page'];self.assertEqual(restored['content']['content'][0]['content'][0]['attrs']['level'],1)
+ def test_07_table_cells_survive_publication(self):
+  def cell(text,**attrs):return {'type':'tableCell','attrs':{'colspan':1,'rowspan':1,**attrs},'content':[{'type':'paragraph','content':[{'type':'text','text':text}]}]}
+  block={'type':'table','content':[{'type':'tableRow','content':[cell('Fusion',colspan=2),cell('Fin')]},{'type':'tableRow','content':[cell('A'),cell('B'),cell('C')]}]}
+  p=self.page([block]);self.assertEqual(p['content']['content'][0],block)
+  self.ok(self.admin.api('publish',{'id':p['id'],'version':p['version']}))
+  public=self.ok(self.visitor.api('page',query='&id='+p['id']))['page'];self.assertEqual(public['content'],p['content'])
+  html=self.ok(self.visitor.request('index.php?page='+p['id']+'&read=1')).decode()
+  self.assertIn('colspan="2"',html);self.assertIn('Fusion',html);self.assertNotIn('feuillet-table-controls',html)
 if __name__=='__main__':unittest.main(argv=[__file__]+h.REMAINING,verbosity=2)

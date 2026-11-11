@@ -1,5 +1,11 @@
 # Historique des versions
 
+## 0.24.0 — 2026-11-11
+
+- Tableaux : boutons + en bas et à droite pour ajouter une ligne ou une colonne, poignées de sélection et menus contextuels près des cellules.
+- Insertion au-dessus, en dessous, à gauche ou à droite ; suppression, en-têtes, fusion, séparation et vidage des cellules. Maj + clic étend la sélection à plusieurs lignes ou colonnes.
+- Actions annulables, commandes accessibles au clavier, couleurs adaptées aux thèmes et tableaux larges défilants sur petit écran. Aucun changement de base de données.
+
 ## 0.23.1 — 2026-11-09
 
 - Le code HTML est remis au cadre Feuillet identifié par un défi aléatoire, puis transmis par un canal attaché à ce document. Les lecteurs vidéo dans l’éditeur utilisent des points d’intégration validés.

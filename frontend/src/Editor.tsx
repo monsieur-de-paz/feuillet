@@ -1,5 +1,6 @@
 import { BlockClipboard, applyIndependentPaste } from "./BlockClipboard";
 import { EditorFileDrop } from "./EditorFileDrop";
+import { TableControls } from "./TableControls";
 import { HtmlEmbed, WebVideo } from "./ExternalEmbed";
 import { MapBlock } from "./MapBlock";
 import { BlockMover, blockAtElement } from "./BlockMover";
@@ -229,7 +230,7 @@ export default function CourseEditor({
       }),
       TaskList,
       TaskItem.configure({ nested: true }),
-      Table.configure({ resizable: admin }),
+      Table.configure({ resizable: admin, cellMinWidth: 100 }),
       TableRow,
       TableHeader,
       TableCell,
@@ -1489,25 +1490,6 @@ export default function CourseEditor({
           <kbd>Ctrl/Cmd + Z</kbd> annule la dernière action.
         </div>
       )}
-      {admin && editor?.isActive("table") && (
-        <div className="table-tools">
-          <button onClick={() => editor.chain().focus().addRowAfter().run()}>
-            + Ligne
-          </button>
-          <button onClick={() => editor.chain().focus().addColumnAfter().run()}>
-            + Colonne
-          </button>
-          <button onClick={() => editor.chain().focus().deleteRow().run()}>
-            − Ligne
-          </button>
-          <button onClick={() => editor.chain().focus().deleteColumn().run()}>
-            − Colonne
-          </button>
-          <button onClick={() => editor.chain().focus().deleteTable().run()}>
-            Supprimer le tableau
-          </button>
-        </div>
-      )}
       <div
         ref={contentRef}
         className="editor-content-wrap"
@@ -1600,6 +1582,7 @@ export default function CourseEditor({
           />
         )}
         <EditorContent editor={editor} />
+        {admin && editor && <TableControls editor={editor} />}
       </div>
       {admin &&
         bubble &&
