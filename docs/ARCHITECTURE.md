@@ -336,3 +336,5 @@ Les poignées utilisent les limites géométriques des lignes et colonnes pour a
 ## Coloration des tableaux (0.25)
 
 `table-formatting.ts` étend les cellules et en-têtes avec `cellTone` (palette fermée) et `cellShade` (intensité). Les commandes ciblent `CellSelection` ou appliquent un modèle à toute la table avec `TableMap`, sans réécrire le contenu ni les fusions. Les attributs sont validés par le serveur et rendus en attributs data, sans CSS arbitraire. La palette de `interface.css` est commune à l’éditeur et au lecteur ; les pigments sont mélangés à la surface du thème pour préserver les textes. Aucun changement SQL.
+
+`TableTemplatePicker.tsx` propose les cartes et la palette. `table-template-preview.ts` utilise exclusivement des décorations ProseMirror, supprimées à la fermeture ou dès un changement réel du document. Aucun aperçu ne modifie le JSON, l’historique ou le contenu envoyé à la sauvegarde automatique. `templateCell` partage la classification des cellules entre aperçu et application.

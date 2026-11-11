@@ -43,6 +43,11 @@ export function colorTableCells(tone: TableTone | null): Command {
   };
 }
 
+export function templateCell(box: {top: number; left: number}, template: TableTemplate) {
+  const header = (template === 'top' || template === 'double' || template === 'striped') && box.top === 0 || (template === 'left' || template === 'double') && box.left === 0;
+  return { header, colored: header || template === 'striped' && box.top % 2 === 0 };
+}
+
 /** Whole-table preset: keep spans, column widths, contents and marks unchanged. */
 export function styleTable(template: TableTemplate, tone: TableTone = 'blue'): Command {
   return (state, dispatch) => {
@@ -51,10 +56,9 @@ export function styleTable(template: TableTemplate, tone: TableTone = 'blue'): C
       const rect = selectedRect(state), map = TableMap.get(rect.table), tr = state.tr;
       for (const offset of new Set(map.map)) {
         const box = map.findCell(offset), pos = rect.tableStart + offset, cell = state.doc.nodeAt(pos)!;
-        const header = (template === 'top' || template === 'double' || template === 'striped') && box.top === 0 || (template === 'left' || template === 'double') && box.left === 0;
-        const stripe = template === 'striped' && box.top % 2 === 0;
+        const {header, colored} = templateCell(box, template);
         tr.setNodeMarkup(pos, state.schema.nodes[header ? 'tableHeader' : 'tableCell'], {
-          ...cell.attrs, cellTone: header || stripe ? tone : null, cellShade: header ? 'strong' : null,
+          ...cell.attrs, cellTone: colored ? tone : null, cellShade: header ? 'strong' : null,
         });
       }
       if (dispatch) dispatch(tr);

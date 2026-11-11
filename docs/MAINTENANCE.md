@@ -299,3 +299,5 @@ Le workflow GitHub hebdomadaire et à chaque push/PR utilise les actions épingl
 Les poignées de tableau apparaissent au survol de la ligne/colonne correspondante, au focus clavier ou sur écran tactile. Vérifier aussi leur disparition à la sortie du tableau et le passage de la cellule à la poignée sans clignotement.
 
 Pour la coloration 0.25, vérifier cellule seule, ligne/colonne et plage, modèle simple/double entrée, lignes alternées, fond par défaut, tableau neutre et annulation. Les suites frontend et HTTP couvrent la conservation des textes et fusions ainsi que le rendu et le rejet d’attributs de couleur malveillants. Contrôler visuellement les fonds en clair, sombre et lecture publique.
+
+Pour les aperçus de modèles : survoler plusieurs modèles et couleurs, sortir du panneau, fermer avec Échap, vérifier le retour au rendu précédent. Appliquer ensuite un modèle, annuler et recharger. La suite frontend vérifie que les décorations ne modifient ni document ni historique.

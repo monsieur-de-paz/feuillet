@@ -1,5 +1,10 @@
 # Historique des versions
 
+## 0.25.1 — 2026-11-11
+
+- Sélecteur visuel des modèles de tableau avec miniatures et palette de couleurs. Aperçu dans le tableau au survol ou au focus clavier, application au clic.
+- Les aperçus sont temporaires : sortir du sélecteur ou fermer restaure le rendu enregistré, sans modifier le document ni son historique.
+
 ## 0.25.0 — 2026-11-11
 
 - Couleurs de fond des cellules, lignes, colonnes et sélections multiples, avec une palette de huit couleurs adaptées aux thèmes.

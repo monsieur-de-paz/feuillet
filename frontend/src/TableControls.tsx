@@ -44,6 +44,7 @@ import {
   type TableAxis,
 } from "./table-selection";
 import "./table-controls.css";
+import { TableTemplatePicker } from "./TableTemplatePicker";
 import { tableTones, colorTableCells, styleTable, type TableTemplate } from "./table-formatting";
 
 type Metrics = {
@@ -282,16 +283,6 @@ export function TableControls({ editor }: { editor: Editor }) {
       ...tableTones.map(([tone, label]) => ({ label, icon: <span className="table-color-swatch" data-cell-tone={tone} />, group: "palette", run: () => run(menu.template ? styleTable(menu.template, tone) : colorTableCells(tone)) })),
       ...(!menu.template ? [{label: "Fond par défaut", group: "reset", run: () => run(colorTableCells(null))}] : []),
     ];
-    if (menu?.panel === "templates") return [back,
-      ...([
-        ["top", "Simple entrée · en-tête en haut"],
-        ["left", "Simple entrée · en-tête à gauche"],
-        ["double", "Double entrée · haut et gauche"],
-        ["striped", "Lignes alternées"],
-      ] as [TableTemplate, string][]).map(([template, label]) => ({ label, icon: <Table2 />, group: "templates", run: () => setMenu({ ...menu, panel: "colors", template }) })),
-      { label: "Tableau neutre · retirer le modèle", icon: <Table2 />, group: "reset", run: () => run(styleTable("plain")) },
-    ];
-
     const action = (
       label: string,
       command: Command,
@@ -493,7 +484,13 @@ export function TableControls({ editor }: { editor: Editor }) {
       >
         <Plus size={16} />
       </button>
-      {menu && (
+      {menu?.panel === "templates" && <TableTemplatePicker
+        editor={editor} pos={metrics.pos} point={{x:menu.x,y:menu.y}}
+        onBack={()=>setMenu({...menu,panel:undefined})}
+        onClose={()=>{setMenu(null);editor.view.focus();}}
+        onApply={(template,tone)=>{setMenu(null);run(styleTable(template,tone));}}
+      />}
+      {menu && menu.panel !== "templates" && (
         <ContextMenu
           key={`${menu.axis}-${menu.panel ?? "actions"}-${menu.template ?? "selection"}`}
           point={{ x: menu.x, y: menu.y }}

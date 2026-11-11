@@ -70,3 +70,13 @@ assert.ok(styleTable("left","green")(state,dispatch));state.doc.check();
 assert.equal(state.doc.firstChild!.firstChild!.firstChild!.attrs.colspan,2);
 assert.equal(state.doc.textContent,merged.textContent);
 console.log("Table colours: scoped selections, double entry, reset, undo and merged content preserved");
+
+// A live preview is a decoration, never a document edit or an undo step.
+const {tablePreviewKey,tablePreviewPlugin}=await import("../../frontend/src/table-template-preview");
+state=EditorState.create({schema:editor.schema,doc,plugins:[history(),tablePreviewPlugin()]});
+const before=state.doc;
+dispatch(state.tr.setMeta(tablePreviewKey,{pos:0,template:"double",tone:"blue"}).setMeta('addToHistory',false));
+assert.ok(state.doc.eq(before));assert.equal(tablePreviewKey.getState(state)!.find().length,9);
+dispatch(state.tr.setMeta(tablePreviewKey,null));assert.equal(tablePreviewKey.getState(state)!.find().length,0);
+assert.equal(undo(state),false);
+console.log("Table preview: document and undo untouched; decorations cleared on dismissal");
