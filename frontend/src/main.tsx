@@ -6,6 +6,8 @@ import { themeStyle } from "./Customization";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./interface.css";
+import "../../public/atelier.css";
+import "../../public/atelier.js";
 import { PoweredBy } from "./PoweredBy";
 import { PublicForm } from "./Database";
 import { FeuilletIcon } from "./IconPicker";

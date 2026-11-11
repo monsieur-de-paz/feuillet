@@ -1,3 +1,6 @@
+import { LibraryNavigator } from "./LibraryNavigator";
+import { GlobalAppearanceControls } from "./Customization";
+import { SettingsWorkspace } from "./SettingsWorkspace";
 import { EditorTabs } from "./EditorTabs";
 import {
   useUpdates,
@@ -131,13 +134,29 @@ function Modal({
   closeDisabled?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const modalControls = useRef({ onClose, closeDisabled });
-  modalControls.current = { onClose, closeDisabled };
+  const closing = useRef(false);
+  function requestClose() {
+    if (closing.current || modalControls.current.closeDisabled) return;
+    const node = ref.current;
+    const closingTitle = modalControls.current.title;
+    if(node?.querySelector('.settings-workspace')) { modalControls.current.onClose(); return; }
+    if (!node?.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) { modalControls.current.onClose(); return; }
+    closing.current = true;
+    const backdrop = node.parentElement;
+    if(backdrop)backdrop.animate([{backgroundColor:getComputedStyle(backdrop).backgroundColor},{backgroundColor:'transparent'}],{duration:140,easing:'ease-out'});
+    const animation=node.animate([{translate:'0 0',scale:1},{translate:'0 4px',scale:.99}],{duration:140,easing:'ease-out'});
+    animation.finished.catch(()=>{}).then(()=>{
+      closing.current=false;
+      if (ref.current===node && node.getAttribute('aria-label')===closingTitle) modalControls.current.onClose();
+    });
+  }
+  const modalControls = useRef({ onClose, closeDisabled, title });
+  modalControls.current = { onClose, closeDisabled, title };
   useEffect(() => {
     const before = document.activeElement as HTMLElement;
     const handle = (e: KeyboardEvent) => {
       if (e.key === "Escape" && !modalControls.current.closeDisabled)
-        modalControls.current.onClose();
+        requestClose();
       if (e.key === "Tab") {
         const nodes = ref.current?.querySelectorAll<HTMLElement>(
           'button:not(:disabled),input:not(:disabled),select:not(:disabled):not([aria-hidden="true"]),textarea:not(:disabled),a[href],[tabindex="0"]',
@@ -167,7 +186,7 @@ function Modal({
     <div
       className="modal-backdrop"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget && !closeDisabled) onClose();
+        if (e.target === e.currentTarget && !closeDisabled) requestClose();
       }}
     >
       <div
@@ -183,7 +202,7 @@ function Modal({
             className="icon-button"
             aria-label="Fermer"
             disabled={closeDisabled}
-            onClick={onClose}
+            onClick={requestClose}
           >
             <X size={20} />
           </button>
@@ -346,10 +365,12 @@ export default function App() {
   const modalRef = useRef<string | null>(null);
 
   const [session, setSession] = useState<Session | null>(null);
+  const notebookFlush = useRef<(() => Promise<void>) | null>(null);
+  const publicHomeFlush = useRef<(() => Promise<void>) | null>(null);
   const updates = useUpdates(
     !!session?.authenticated,
     session?.csrf || "",
-    save,
+    async () => (await flushSettings()) && (await save()),
   );
   const [pages, setPages] = useState<Page[]>([]);
   const [trash, setTrash] = useState<Page[]>([]);
@@ -974,7 +995,8 @@ export default function App() {
       setBusy(false);
     }
   }
-  function showModal(name: string) {
+  async function showModal(name: string) {
+    if(modalRef.current === "settings" && name !== "settings" && !(await flushSettings())) return;
     setModalError("");
     setModal(name);
     setPageContext(null);
@@ -1018,6 +1040,12 @@ export default function App() {
     setDatabaseMode("form");
     showModal("databases");
   }
+  async function flushSettings() {
+    try { await notebookFlush.current?.(); await publicHomeFlush.current?.();
+      try { await appearanceSave.current; } catch { appearanceSave.current=api("settings",{appearance:appearanceRef.current});await appearanceSave.current; }
+      return true; }
+    catch(error) { setModalError((error as Error).message); return false; }
+  }
   async function saveNotebook(value: Notebook) {
     if (!(await save()))
       throw new Error("Enregistre la page avant de modifier ces réglages.");
@@ -1053,7 +1081,7 @@ export default function App() {
     setSession((prev) =>
       prev ? { ...prev, name: result.notebook.title } : prev,
     );
-    notify("Ton carnet a été mis à jour.");
+
   }
   async function createPage(
     parent_id: string | null = null,
@@ -1567,8 +1595,8 @@ export default function App() {
       );
     });
   }
-  async function setAppearanceValues(patch: Partial<Appearance>) {
-    if (appearanceScope === "page")
+  async function setAppearanceValues(patch: Partial<Appearance>, scope = appearanceScope) {
+    if (scope === "page")
       updateDraft({
         appearance: { ...draftRef.current?.appearance, ...patch },
       });
@@ -2910,6 +2938,7 @@ export default function App() {
             />
           ) : draft ? (
             <article
+              data-page-key={draft.id}
               className={`course-page page-font-${effectiveAppearance.font} ${effectiveAppearance.width === "wide" ? "page-wide" : ""} ${draft.cover_id ? "has-cover" : ""}`}
             >
               <div
@@ -3839,8 +3868,8 @@ export default function App() {
                   <Spinner /> Chargement des fichiers…
                 </div>
               ) : (
-                <div className="library-list">
-                  {files
+                <LibraryNavigator files={files} query={fileQuery} requested={requested} onOpenPage={async id=>{if(await save()){setModal(null);void openPage(id);}}}>{visibleFiles=>(<div className="library-list">
+                  {visibleFiles
                     .filter((f) => {
                       if (
                         !f.name.toLowerCase().includes(fileQuery.toLowerCase())
@@ -3926,6 +3955,7 @@ export default function App() {
                     </div>
                   )}
                 </div>
+                )}</LibraryNavigator>
               )}
             </div>
             <p className="library-note">
@@ -4360,14 +4390,10 @@ export default function App() {
         </Modal>
       )}
       {modal === "settings" && !updates.progress && (
-        <Modal title="Réglages & sauvegardes" onClose={() => setModal(null)}>
+        <Modal wide title="Réglages & sauvegardes" onClose={async () => { if(await flushSettings())setModal(null); }}>
           <div className="modal-form settings-form">
-            <PublicHomePanel
-              pages={pages}
-              onEdit={() => void editPublicHome()}
-            />
-            <UpdatePanel updates={updates} />
-            <button className="small-button" onClick={showNotebookIcon}>
+            <SettingsWorkspace panels={[
+              {id:"notebook",title:"Votre espace",description:"Identité, publication et préférences du carnet.",content:<>            <button className="small-button" onClick={showNotebookIcon}>
               <ImageIcon size={17} />
               Changer le logo du site
             </button>
@@ -4375,17 +4401,17 @@ export default function App() {
               value={notebook}
               serverLimit={serverLimit}
               onSave={saveNotebook}
+              saveRef={notebookFlush}
             />
-            <button
-              className="small-button"
-              onClick={() => {
-                setAppearanceScope("global");
-                showModal("appearance");
-              }}
-            >
-              <Palette size={17} /> Apparence générale du carnet
-            </button>
-            <div className="settings-card">
+</>},
+              {id:"appearance",title:"Apparence",description:"Couleurs, polices et présentation de vos pages.",content:<GlobalAppearanceControls value={appearance} onChange={patch=>void setAppearanceValues(patch,"global")} />},
+              {id:"public",title:"Accueil public",description:"Choisissez ce que découvrent vos visiteurs.",content:<>            <PublicHomePanel
+              pages={pages}
+              saveRef={publicHomeFlush}
+              onEdit={() => void flushSettings().then(ok=>{if(ok)void editPublicHome();})}
+            />
+</>},
+              {id:"backup",title:"Vos données",description:"Importer, sauvegarder et emporter votre travail.",content:<>            <div className="settings-card">
               <FileText size={25} />
               <div>
                 <h3>Importer un document</h3>
@@ -4453,6 +4479,8 @@ export default function App() {
                 </label>
               </div>
             </div>
+</>},
+              {id:"updates",title:"Mises à jour",description:"Version de Feuillet et état de l’hébergement.",content:<>            <UpdatePanel updates={updates} />
             {health && (
               <div className="health-grid">
                 <span>
@@ -4477,6 +4505,8 @@ export default function App() {
                 </span>
               </div>
             )}
+</>},
+            ]} />
             {modalError && <p className="form-error">{modalError}</p>}
             <p className="muted">
               Feuillet · logiciel libre. Interface avec le cœur libre de Tiptap,

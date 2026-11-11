@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type MutableRefObject } from "react";
 import { Home, Pencil, ArrowUpRight } from "lucide-react";
 import { api, type Page } from "./types";
 import { Select } from "./Select";
@@ -6,13 +6,20 @@ type HomeState = { page_id: string | null; published: boolean };
 export function PublicHomePanel({
   pages,
   onEdit,
+  saveRef,
 }: {
   pages: Page[];
   onEdit: () => void;
+  saveRef?: MutableRefObject<(() => Promise<void>) | null>;
 }) {
   const [state, setState] = useState<HomeState | null>(null);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
+  const pending = useRef<Promise<void>>(Promise.resolve());
+  useEffect(() => {
+    if (saveRef) saveRef.current = () => pending.current;
+    return () => { if (saveRef) saveRef.current = null; };
+  }, [saveRef]);
   useEffect(() => {
     let alive = true;
     void api<HomeState>("public_home")
@@ -26,16 +33,14 @@ export function PublicHomePanel({
       alive = false;
     };
   }, []);
-  async function choose(id: string) {
+  function choose(id: string) {
     setBusy(true);
     setError("");
-    try {
-      setState(await api("public_home", { page_id: id || null }));
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
+    pending.current = api<HomeState>("public_home", { page_id: id || null })
+      .then(value => { setState(value); })
+      .catch(e => { setError((e as Error).message); throw e; })
+      .finally(() => setBusy(false));
+    void pending.current.catch(() => {});
   }
   return (
     <section className="public-home-panel" aria-label="Accueil public">

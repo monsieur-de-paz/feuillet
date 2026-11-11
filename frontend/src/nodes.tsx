@@ -1,3 +1,4 @@
+import { coverImageStyle } from "./cover-position";
 import { LinkIconPicker } from "./LinkIconPicker";
 import { LazyVideo } from "./LazyVideo";
 import { Select } from "./Select";
@@ -1828,14 +1829,12 @@ function GalleryView({ node, updateAttributes }: NodeViewProps) {
               }}
             >
               {page.cover_id ? (
-                <img
+                <span className="gallery-cover-frame"><img
                   src={thumbUrl(page.cover_id)}
                   alt=""
                   loading="lazy"
-                  style={{
-                    objectPosition: `${page.cover_position?.x ?? 50}% ${page.cover_position?.y ?? 50}%`,
-                  }}
-                />
+                  style={coverImageStyle(page.cover_position || {x:50,y:50})}
+                /></span>
               ) : (
                 <div className="gallery-placeholder">
                   <span>

@@ -91,8 +91,11 @@ function render_external_embed(string $type,array $attrs): string {
     }
     $video=video_embed_source($attrs['url']??'');
     if(!$video)return '';
-    $title='Vidéo · '.$video['label'];
-    return '<section class="external-embed external-video'.($video['portrait']?' portrait-video':'').'"><button type="button" class="external-embed-trigger" data-embed-src="'.h($video['src']).'" data-embed-kind="'.h($video['kind']).'" data-embed-title="'.h($title).'"><span aria-hidden="true">▶</span> Lire sur '.h($video['label']).'</button><a href="'.h($video['url']).'" target="_blank" rel="noopener noreferrer">Ouvrir la vidéo ↗</a></section>';
+    $title=str_limit($attrs['title']??'',300)?:'Vidéo '.$video['label'];
+    $player=$video['kind']==='player'
+        ? '<iframe title="'.h($title).'" src="'.h($video['src']).'" loading="eager" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen; encrypted-media; picture-in-picture"></iframe>'
+        : '<button type="button" class="external-embed-trigger" data-embed-src="'.h($video['src']).'" data-embed-kind="media" data-embed-title="'.h($title).'"><span aria-hidden="true">▶</span> Lire la vidéo</button>';
+    return '<section class="external-embed external-video'.($video['portrait']?' portrait-video':'').'">'.$player.'<div class="web-video-caption"><strong>'.h($title).'</strong><span>Lecture intégrée · '.h($video['label']).'</span></div><a href="'.h($video['url']).'" target="_blank" rel="noopener noreferrer">Ouvrir la vidéo ↗</a></section>';
 }
 
 function render_page_icon(array $page): string {
@@ -183,7 +186,7 @@ function render_gallery(array $attrs,string $pageId,bool $public): string {
     $aspect=in_array($attrs['aspect']??'', ['16/9','4/3','1/1','3/4','auto'],true)?$attrs['aspect']:'16/9';$limit=$rows?$rows*($layout==='list'?1:$columns):500;$count=0;$cards='';
     foreach($selection as $id){$row=$all[$id];if($id===$pageId||$row['deleted_at']||!ancestors_active($row,$all)||($public&&($row['visibility']!=='public'||!$row['published']||!reader_page_allowed($id))))continue;$p=row_page($row,$public);
         if(!$manual&&!empty($attrs['parentId'])&&$p['parent_id']!==$attrs['parentId'])continue;if(!$manual&&!empty($attrs['kind'])&&$p['kind']!==$attrs['kind'])continue;
-        if($count>=500)break;$hidden=$count++ >= $limit;$icon=render_page_icon($p);$preview=$p['cover_id']?'<img decoding="async" fetchpriority="low" loading="lazy" style="object-position:'.h(($p['cover_position']['x']??50).'% '.($p['cover_position']['y']??50).'%').'" src="'.h(thumbnail_url($p['cover_id'])).'" alt="">':'<div class="gallery-placeholder"><span>'.$icon.'</span></div>';
+        if($count>=500)break;$hidden=$count++ >= $limit;$icon=render_page_icon($p);$preview=$p['cover_id']?'<span class="gallery-cover-frame"><img decoding="async" fetchpriority="low" loading="lazy" style="'.h(cover_image_style($p['cover_position']??null)).'" src="'.h(thumbnail_url($p['cover_id'])).'" alt=""></span>' :'<div class="gallery-placeholder"><span>'.$icon.'</span></div>';
         $cards.='<div class="gallery-card"'.($hidden?' hidden data-gallery-extra="1"':'').'><a class="gallery-card-main" href="'.h($public?reader_page_url($p):'index.php?page='.rawurlencode($p['slug'])).'">'.$preview.'<div class="gallery-card-text"><strong>'.$icon.' '.h($p['title']).'</strong>'.($p['description']?'<p>'.h($p['description']).'</p>':'').($p['kind']==='article'&&$p['source_name']?'<small>'.h($p['source_name']).'</small>':'').'</div></a>';
         foreach(['cover_attribution','icon_attribution'] as $key)if(!empty($p[$key]))$cards.=str_replace('class="image-attribution"','class="image-attribution compact"',render_credit($p[$key]));$cards.='</div>';
     }

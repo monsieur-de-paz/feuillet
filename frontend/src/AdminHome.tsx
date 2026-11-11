@@ -1,3 +1,4 @@
+import { coverImageStyle } from "./cover-position";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ArrowUpRight,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 import { FeuilletIcon } from "./IconPicker";
 import type { Page, Space, Category } from "./types";
+import { thumbUrl } from "./types";
 import { CoverTools } from "./Customization";
 import { notebookHomePages } from "./notebook-home";
 
@@ -104,6 +106,7 @@ export function AdminHome({
   const recent = notebook
     ? notebookHomePages(pages, notebook.id, categoryId, query)
     : scoped;
+  const publicCount = scoped.filter(page => page.visibility === "public").length;
   const ownCategories = categories.filter(
     (category) => !category.deleted_at && category.space_id === notebook?.id,
   );
@@ -121,6 +124,7 @@ export function AdminHome({
   return (
     <section
       className="admin-home"
+      data-page-key={`home-${notebook?.id || "global"}`}
       aria-label={
         notebook
           ? `Accueil du carnet ${notebook.name}`
@@ -233,17 +237,17 @@ export function AdminHome({
       {notebook && <div className="page-media-credits">{mediaCredits}</div>}
       <div className="home-stats">
         <span>
-          <strong>{scoped.length}</strong> pages
+          <strong>{scoped.length}</strong> {scoped.length === 1 ? "page" : "pages"}
         </span>
         <span>
           <strong>{notebook ? ownCategories.length : spaces.length}</strong>{" "}
-          {notebook ? "catégories" : "carnets"}
+          {notebook ? ownCategories.length === 1 ? "catégorie" : "catégories" : spaces.length === 1 ? "carnet" : "carnets"}
         </span>
         <span>
           <strong>
-            {scoped.filter((page) => page.visibility === "public").length}
+            {publicCount}
           </strong>{" "}
-          pages publiques
+          {publicCount === 1 ? "page publique" : "pages publiques"}
         </span>
         <button className="small-button" onClick={onImport}>
           <FileInput size={16} />
@@ -312,6 +316,7 @@ export function AdminHome({
               data-page-id={String(page.id)}
               onClick={() => onOpen(page.id)}
             >
+              {page.cover_id && <span className="home-card-cover-frame"><img className="home-card-cover" src={thumbUrl(page.cover_id,640)} style={coverImageStyle(page.cover_position || {x:50,y:50})} alt="" loading="lazy" decoding="async" /></span>}
               <span className="home-card-icon">
                 <FeuilletIcon
                   icon={page.icon}
@@ -320,6 +325,7 @@ export function AdminHome({
                 />
               </span>
               <strong>{page.title || "Sans titre"}</strong>
+              {page.description && <p className="home-card-description">{page.description}</p>}
               <span>
                 {notebook
                   ? parent(page)
@@ -388,6 +394,7 @@ export function AdminHome({
                 />
                 <span>
                   <strong>{page.title || "Sans titre"}</strong>
+              {page.description && <p className="home-card-description">{page.description}</p>}
                   <small>
                     {notebook && parent(page)
                       ? `Sous-page de ${parent(page)?.title || "Sans titre"}`

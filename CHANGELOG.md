@@ -1,5 +1,15 @@
 # Historique des versions
 
+## 0.26.0 — 2026-11-11
+
+- Refonte de l’interface administrateur et du lecteur : accueil éditorial, navigation, surfaces, menus, cartes et marges harmonisés dans les thèmes clair, sombre et OLED.
+- Transitions courtes pour la navigation, les blocs et les fenêtres, sans fondus du contenu ni traces fantômes. Respect de la réduction des animations.
+- Réglages organisés en cinq sections, dont Apparence, avec dimensions constantes et sauvegarde automatique des préférences à la fermeture. Les installations de mises à jour attendent les écritures en cours.
+- Bibliothèque avec dossiers virtuels Documents, Images, Audio, Vidéos, Autres fichiers et Liens ; vue en liste conservée et choix mémorisé sur l’appareil.
+- Recadrage des couvertures directement sur l’image : repères, zoom, recentrage, annulation et clavier. Position et zoom respectés par les miniatures.
+- Lecteurs vidéo en ligne reconnus chargés dès l’ouverture, sans lecture automatique ajoutée. YouTube affiche sa miniature et son titre ; récupération facultative du titre à l’insertion. Fichiers vidéo locaux et intégrations HTML toujours activés au clic.
+- Marges symétriques du bandeau public et réglages adaptés au mobile. Aucun changement de schéma SQL.
+
 ## 0.25.1 — 2026-11-11
 
 - Sélecteur visuel des modèles de tableau avec miniatures et palette de couleurs. Aperçu dans le tableau au survol ou au focus clavier, application au clic.

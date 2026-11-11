@@ -24,7 +24,7 @@ function reader_token(?array $page): string {
 function render_reader_page(array $page,bool $public=true): string {
     $cover=$page['cover_id']?'<div class="page-cover"><img loading="lazy" decoding="async" fetchpriority="low" style="'.h(cover_image_style($page['cover_position']??null)).'" src="media.php?id='.rawurlencode($page['cover_id']).'" alt=""></div>':'';
     $a=page_appearance($page);$style=($a['width']==='wide'?'max-width:1200px;':'').($a['focus']?'min-height:100vh;':'');
-    return $cover.'<main class="reader-page" style="'.h($style).'"><div class="page-emoji">'.render_page_icon($page).'</div>'.render_credit($page['cover_attribution']??null).render_credit($page['icon_attribution']??null).'<h1>'.h($page['title']).'</h1>'.($page['description']?'<p class="page-description">'.h($page['description']).'</p>':'').render_document($page['content'],$page['id'],$public).'</main>';
+    return $cover.'<main class="reader-page" data-page-key="'.h($page['id']).'" style="'.h($style).'"><div class="page-emoji">'.render_page_icon($page).'</div>'.render_credit($page['cover_attribution']??null).render_credit($page['icon_attribution']??null).'<h1>'.h($page['title']).'</h1>'.($page['description']?'<p class="page-description">'.h($page['description']).'</p>':'').render_document($page['content'],$page['id'],$public).'</main>';
 }
 function render_reader_empty(bool $unavailable=false): string {
     if($unavailable)return '<main class="reader-page"><h1>Page indisponible</h1><p>Cette page est privée, retirée ou ne fait pas partie de ce partage.</p></main>';

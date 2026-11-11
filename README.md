@@ -4,18 +4,18 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.25.1-2563eb" alt="Version 0.25.1">
+  <img src="https://img.shields.io/badge/version-0.26.0-2563eb" alt="Version 0.26.0">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour prendre des notes enrichies, les centraliser et les partager sur son propre hébergement.** Inspiré de l’édition par blocs, il permet de rédiger des notes enrichies, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
 
 Il fonctionne sur un hébergement **PHP + MySQL/MariaDB**, y compris un mutualisé compatible. Un seul compte rédige ; les lecteurs consultent les pages et répondent aux formulaires depuis leur navigateur, sur ordinateur ou mobile. Aucun VPS ni abonnement n’est nécessaire. Node.js sert uniquement à développer l’interface ; les fichiers compilés sont fournis.
 
-<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.15.md">Nouveautés</a></p>
+<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.26.md">Nouveautés</a></p>
 
 Un journal personnel, un espace de projets, une collection de lectures ou une documentation : vous choisissez vos carnets, leurs catégories et ce que vous partagez.
 
-La version **0.15** ajoute le copier-coller de groupes de blocs entre pages et le zoom des couvertures. Elle simplifie les galeries, modernise les pièces jointes publiques et corrige le chargement du lecteur PDF sur les hébergements mutualisés. [Découvrir ces fonctions](docs/NOUVEAUTES-0.15.md).
+La version **0.26** renouvelle l’interface administrateur et le lecteur, avec des transitions discrètes, des réglages à sauvegarde automatique, une bibliothèque par dossiers et un recadrage direct des couvertures. Les lecteurs vidéo en ligne affichent leur aperçu dès l’ouverture. [Découvrir la version 0.26](docs/NOUVEAUTES-0.26.md).
 
 ## Ce que vous pouvez faire
 
@@ -46,11 +46,11 @@ Sur ordinateur, tracez un rectangle depuis une marge pour sélectionner plusieur
 
 ![Feuillet 0.5 — menus et rédaction sur une page de démonstration](docs/feuillet-v05-interface.jpg)
 
-Sélecteurs avec recherche, menus d’actions au clic droit ou par bouton, navigation compacte et thème personnel clair/sombre/OLED. Les menus restent utilisables au clavier et s’adaptent aux petits écrans. La version 0.5.1 harmonise les marges des dialogues, remplace les cadres de sélection par un accent doux et permet un partage sans accueil général. [Nouveautés 0.5](docs/NOUVEAUTES-0.5.1.md) · [Charte graphique](docs/CHARTE-GRAPHIQUE.md).
+Accueil éditorial, navigation compacte, menus d’actions au clic droit ou par bouton, surfaces et marges cohérentes. Les transitions accompagnent les changements de page et de blocs sans rendre le contenu translucide. Les thèmes clair, sombre et OLED, le clavier et les petits écrans restent pris en charge. [Charte et fonctionnement de l’interface 0.26](docs/INTERFACE-0.26.md).
 
 ## Vidéos et intégrations externes
 
-Ajoutez un bloc **Vidéo**, puis choisissez **Fichier vidéo** pour utiliser la bibliothèque ou importer un fichier, ou **Vidéo en ligne** pour coller un lien YouTube, Dailymotion, TikTok, Vimeo ou un fichier vidéo HTTPS direct. Le fournisseur est détecté automatiquement. Le lecteur se charge au clic et l’adresse d’origine reste accessible si le fournisseur refuse l’intégration.
+Ajoutez un bloc **Vidéo**, puis choisissez **Fichier vidéo** pour utiliser la bibliothèque ou importer un fichier, ou **Vidéo en ligne** pour coller un lien YouTube, Dailymotion, TikTok, Vimeo ou un fichier vidéo HTTPS direct. Le fournisseur est détecté automatiquement. Les lecteurs YouTube, Dailymotion, TikTok et Vimeo se chargent dès l’ouverture, sans lecture automatique ajoutée ; l’adresse d’origine reste accessible si le fournisseur refuse l’intégration. Ces lecteurs contactent leur fournisseur dès le chargement de la page. Les fichiers vidéo locaux et HTTPS directs attendent une activation au clic.
 
 Choisissez **Intégration HTML** pour coller le code fourni par un service et régler la hauteur. Le code s’exécute au clic dans un cadre isolé. Certains fournisseurs limitent l’affichage aux domaines autorisés ou exigent des permissions que le cadre isolé ne donne pas. Le bloc reste éditable sur la page.
 
@@ -81,7 +81,7 @@ SQLite est aussi disponible avec `pdo_sqlite` pour une installation locale ou un
 
 ### 2. Télécharger et transférer le logiciel
 
-Télécharger **`Feuillet-0.11.0.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
+Télécharger **`Feuillet-0.26.0.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
 
 Utiliser l’archive installable de la release : elle contient les assets compilés et le manifeste nécessaire aux mises à jour intégrées. Le ZIP automatique « Source code » n’est pas la distribution recommandée.
 
@@ -132,11 +132,11 @@ La version a été testée localement sur SQLite et MySQL. La configuration exac
 
 ## Navigation, texte et bibliothèque
 
-Le bouton à droite du titre du site masque la barre latérale ; un bouton dans l’en-tête la réaffiche. Le raccourci initial est **Ctrl/Cmd + Maj + L**. Dans **Réglages & sauvegardes → Mon carnet**, choisir une autre touche ou désactiver ce raccourci. Le masquage est mémorisé dans le navigateur.
+Le bouton à droite du titre du site masque la barre latérale ; un bouton dans l’en-tête la réaffiche. Le raccourci initial est **Ctrl/Cmd + Maj + L**. Dans **Réglages & sauvegardes → Votre espace**, choisir une autre touche ou désactiver ce raccourci. Le masquage est mémorisé dans le navigateur.
 
 L’accent général possède des variantes automatiques pour les thèmes sombre et OLED, également appliquées dans la vue publique. Dans les outils de couleur, **Texte par défaut** suit le thème clair, sombre ou OLED. Les couleurs choisies explicitement restent fixes. Pour une propriété **État / Choix unique** ou **Choix multiples**, ouvrir le menu de colonne puis **Modifier la propriété** pour attribuer une couleur à chaque choix.
 
-Dans **Bibliothèque**, le bouton **Utilisations** de chaque fichier liste ses pages, bases, galeries et anciennes versions, avec leur état public ou privé. Il distingue le brouillon et le fichier réellement publié. Cet inventaire est réservé à l’administrateur. [Guide 0.4.1](docs/NOUVEAUTES-0.4.1.md).
+Dans **Bibliothèque**, choisissez les dossiers Documents, Images, Audio, Vidéos, Autres fichiers ou Liens, ou retrouvez la vue en liste. Ce choix est mémorisé sur votre appareil. Les dossiers regroupent les fichiers sans les déplacer. Le bouton **Utilisations** de chaque fichier liste ses pages, bases, galeries et anciennes versions, avec leur état public ou privé. Il distingue le brouillon et le fichier réellement publié. Cet inventaire est réservé à l’administrateur. [Guide 0.4.1](docs/NOUVEAUTES-0.4.1.md).
 
 ## Les premières commandes
 
@@ -151,7 +151,7 @@ Dans **Bibliothèque**, le bouton **Utilisations** de chaque fichier liste ses p
 | `/formulaire` | Créer ou choisir un formulaire lié à une base |
 | `/quiz` | Ajouter un quiz avec correction |
 
-Le bouton **Ajouter** propose les mêmes insertions sur mobile. Sélectionner du texte ouvre les outils de mise en forme. Le nom, le sous-titre, la limite d’envoi et le thème général se règlent dans **Réglages & sauvegardes**. Les propriétés d’une page permettent de personnaliser son apparence et sa catégorie. Le bouton **Présentation** transforme les fichiers déjà présents en lecteurs ou téléchargements, et les liens en boutons ou cartes. [Modifier les blocs](docs/BLOCS-0.4.md).
+Le bouton **Ajouter** propose les mêmes insertions sur mobile. Sélectionner du texte ouvre les outils de mise en forme. Le nom, le sous-titre et la limite d’envoi se règlent dans **Réglages & sauvegardes → Votre espace** ; les couleurs, polices et largeurs dans **Apparence**. Les préférences sont sauvegardées à la fermeture, sans bouton Enregistrer. La fermeture et les installations de mise à jour attendent les écritures en cours. Les propriétés d’une page permettent de personnaliser son apparence et sa catégorie. Le bouton **Présentation** transforme les fichiers déjà présents en lecteurs ou téléchargements, et les liens en boutons ou cartes. [Modifier les blocs](docs/BLOCS-0.4.md).
 
 ## Comprendre ce qui est public
 

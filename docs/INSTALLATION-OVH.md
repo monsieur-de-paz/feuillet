@@ -2,6 +2,8 @@
 
 Ce guide prépare une installation sur un hébergement mutualisé OVHcloud. Remplacer **`notes.exemple.fr`** par votre domaine ou sous-domaine. Une base SQL et un dossier suffisent ; la compatibilité de l’offre exacte et les limites PHP se vérifient dans l’installateur. Ce guide ne constitue pas une validation sur votre compte OVH réel.
 
+Pour la version **0.26**, utiliser l’archive compilée **Feuillet-0.26.0.zip** disponible dans les releases GitHub. Elle inclut les nouveaux fichiers d’interface `public/atelier.css` et `public/atelier.js`. Sur une installation existante, utiliser les mises à jour de Feuillet ou remplacer le code en conservant `config.php` et tout `storage/` ; ne pas relancer l’installateur. [Nouveautés et parcours de mise à jour 0.26](NOUVEAUTES-0.26.md).
+
 ## 1. Préparer le dossier et la base
 
 Créer une base MySQL/MariaDB dédiée depuis l'espace client OVH. Conserver son nom, son utilisateur, son mot de passe et **son nom d'hôte exact** ; sur un mutualisé OVH, ce nom n'est généralement pas `localhost`. L'application ne requiert qu'une base.

@@ -242,7 +242,7 @@ body,
   accent-color: var(--accent);
 }
 .cover-reposition-tools button {
-  background: var(--surface-soft) !important;
+  background: var(--surface-soft);
   color: var(--ink);
 }
 @media (max-width: 760px) {

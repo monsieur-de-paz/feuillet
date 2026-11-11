@@ -46,7 +46,7 @@ class VideoEmbeds(unittest.TestCase):
         self.check(self.admin.api("video_resolve", {"url": next(iter(cases))}, authenticated=False), 403)
         self.check(self.visitor.api("video_resolve", {"url": next(iter(cases))}), 401)
 
-    def test_published_video_is_lazy_and_html_is_inert_in_reader(self):
+    def test_published_player_is_immediate_and_html_stays_inert(self):
         code = '<script>document.body.dataset.example = "loaded"</script><p>Contenu</p>'
         blocks = [
             {"type": "webVideo", "attrs": {"url": "https://youtu.be/M7lc1UVf-VE", "src": "https://example.test/forged"}},
@@ -60,9 +60,10 @@ class VideoEmbeds(unittest.TestCase):
         self.check(self.admin.api("publish", {"id": page["id"], "version": page["version"]}))
         result = self.visitor.request("index.php?read=1&page=" + page["id"])
         reader = self.check(result).decode()
-        self.assertIn('data-embed-src="https://www.youtube-nocookie.com/embed/M7lc1UVf-VE"', reader)
+        self.assertIn('src="https://www.youtube-nocookie.com/embed/M7lc1UVf-VE" loading="eager"', reader)
         self.assertIn(html.escape(code), reader)
-        self.assertNotIn("<iframe", reader)
+        self.assertEqual(reader.count("<iframe"),1)
+        self.assertNotIn("autoplay=1", reader)
         self.assertNotIn(code, reader)
         self.assertNotIn("example.test/forged", reader)
         self.assertIn("https://www.tiktok.com", result[2]["Content-Security-Policy"])

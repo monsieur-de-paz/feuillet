@@ -338,3 +338,16 @@ Les poignées utilisent les limites géométriques des lignes et colonnes pour a
 `table-formatting.ts` étend les cellules et en-têtes avec `cellTone` (palette fermée) et `cellShade` (intensité). Les commandes ciblent `CellSelection` ou appliquent un modèle à toute la table avec `TableMap`, sans réécrire le contenu ni les fusions. Les attributs sont validés par le serveur et rendus en attributs data, sans CSS arbitraire. La palette de `interface.css` est commune à l’éditeur et au lecteur ; les pigments sont mélangés à la surface du thème pour préserver les textes. Aucun changement SQL.
 
 `TableTemplatePicker.tsx` propose les cartes et la palette. `table-template-preview.ts` utilise exclusivement des décorations ProseMirror, supprimées à la fermeture ou dès un changement réel du document. Aucun aperçu ne modifie le JSON, l’historique ou le contenu envoyé à la sauvegarde automatique. `templateCell` partage la classification des cellules entre aperçu et application.
+
+## Interface Atelier — 0.26
+
+La couche partagée `public/atelier.css`, les transitions `public/atelier.js`, l’extension de présentation `block-motion.ts` et `SettingsWorkspace.tsx` sont documentés dans [INTERFACE-0.26.md](INTERFACE-0.26.md). La version 0.26.0 fournit cette couche dans le paquet compilé et le cache public PWA. Aucun changement SQL ni dépendance supplémentaire.
+
+
+### Services et persistance de l’interface Atelier
+
+`GET api.php?action=library_links` exige une session administrateur. `app/library.php` parcourt les documents actifs avec une requête fixe et une lecture progressive ; liens de texte, cartes, boutons et vidéos sont dédupliqués par page/URL, avec un plafond de 1 000 entrées. Seuls les liens HTTP(S) déjà enregistrés sont renvoyés. Aucun appel réseau, schéma SQL ni dossier physique supplémentaire. La visibilité renvoyée est celle de la page source, sans donner accès à cette API aux visiteurs.
+
+L’attribut optionnel `webVideo.title` est borné à 300 caractères à la normalisation et échappé au rendu. La résolution de YouTube peut consulter son endpoint oEmbed avec le client HTTP sécurisé existant ; le rendu public et les sauvegardes ne recherchent pas les métadonnées. L’URL du lecteur est toujours recalculée avec la liste des fournisseurs autorisés. Le HTML libre reste isolé dans son environnement d’intégration et activé au clic.
+
+Les préférences générales utilisent une file d’écriture et des références de sauvegarde enregistrées par les panneaux. `flushSettings()` attend ces écritures avant fermeture et avant `update_start`. L’apparence garde sa sauvegarde immédiate. Le choix de l’accueil public est lui aussi attendu. Les erreurs bloquent la sortie demandée ou l’installation et ne déclenchent aucun remplacement de fichiers.

@@ -58,4 +58,9 @@ class Editor(unittest.TestCase):
   html=self.ok(self.visitor.request('index.php?page='+p['id']+'&read=1')).decode();self.assertIn('data-cell-tone="blue" data-cell-shade="strong"',html)
   cell['attrs']['cellTone']='red" onmouseover="alert(1)'
   p=self.page([{'type':'table','content':[{'type':'tableRow','content':[cell]}]}]);self.assertIsNone(p['content']['content'][0]['content'][0]['content'][0]['attrs']['cellTone'])
+ def test_09_library_links_require_admin_and_track_private_pages(self):
+  p=self.page([{'type':'bookmark','attrs':{'href':'https://example.org/article','title':'Un article privé'}},{'type':'paragraph','content':[{'type':'text','text':'Même lien','marks':[{'type':'link','attrs':{'href':'https://example.org/article'}}]}]}])
+  self.assertIn(self.visitor.api('library_links')[0],[401,403])
+  links=self.ok(self.admin.api('library_links'))['links'];rows=[l for l in links if l['page_id']==p['id']]
+  self.assertEqual(len(rows),1);self.assertEqual(rows[0]['visibility'],'private');self.assertEqual(rows[0]['href'],'https://example.org/article')
 if __name__=='__main__':unittest.main(argv=[__file__]+h.REMAINING,verbosity=2)

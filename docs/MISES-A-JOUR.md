@@ -67,7 +67,11 @@ Le bouton **Sauvegarde avant installation** télécharge une archive privée du 
 
 ## Publier une prochaine release
 
-Mettre à jour `FEUILLET_VERSION`, les versions npm et les docs, construire l’interface, préparer les fichiers Git, puis exécuter `python3 tools/package-release.py --output <dossier>`. Cet outil reconstruit le manifeste à partir des fichiers suivis et génère le ZIP, son SHA-256 et `Feuillet-release.json`. Committer aussi le manifeste généré et joindre **les trois fichiers** à une release stable portant `vX.Y.Z`. Ne pas remplacer l’archive par le ZIP automatique « Source code » de GitHub. Une future migration qui ajoute des tables doit mettre à jour `database_tables` dans le générateur et les tests de restauration.
+Mettre à jour `FEUILLET_VERSION`, les versions npm, la version de cache dans `public/sw.js`, le pied de page de `public/offline.html`, le changelog et la documentation. Construire l’interface avec `npm --prefix frontend run build`, préparer les fichiers Git, puis exécuter `python3 tools/package-release.py --output <dossier>`. Cet outil reconstruit le manifeste à partir des fichiers suivis et génère le ZIP, son SHA-256 et `Feuillet-release.json`. Les nouveaux fichiers doivent être ajoutés à Git avant cette étape pour être inclus dans le paquet.
+
+Contrôler l’archive avec `python3 tools/audit-publication.py --history --archive <archive.zip>`, vérifier les empreintes du manifeste et exécuter les tests d’installation et de mise à jour sur des copies jetables. Committer aussi le manifeste généré et joindre **les trois fichiers** à une release stable portant `vX.Y.Z`. Ne pas remplacer l’archive par le ZIP automatique « Source code » de GitHub. Une future migration qui ajoute des tables doit mettre à jour `database_tables` dans le générateur et les tests de restauration.
+
+Depuis 0.26, la fermeture des réglages et le lancement de l’installation attendent la sauvegarde des préférences du carnet, de l’apparence, du choix d’accueil public et de la page en cours. Une erreur d’écriture ou de validation empêche le démarrage de l’installation. Les ressources `atelier.css` et `atelier.js` font partie du paquet et du cache d’enveloppe publique ; elles doivent être transférées avec les autres fichiers.
 
 ### Sessions d’installation
 

@@ -125,16 +125,15 @@ export function useUpdates(
   }
   async function install() {
     if (busyRef.current || !status?.release || !status.ready) return;
-    if (!(await saveRef.current())) {
-      setError("Enregistre la page avant de mettre Feuillet à jour.");
-      return;
-    }
+    busyRef.current = true;setBusy(true);setError("");
+    try {
+      if (!(await saveRef.current())) { busyRef.current=false;setBusy(false);setError("Vérifie l’enregistrement des réglages et de la page avant la mise à jour.");return; }
+    } catch(cause) { busyRef.current=false;setBusy(false);setError((cause as Error).message);return; }
     if (
       !document.dispatchEvent(
         new Event("feuillet:before-page-change", { cancelable: true }),
       )
-    )
-      return;
+    ) { busyRef.current=false;setBusy(false);return; }
     busyRef.current = true;
     setBusy(true);
     setError("");

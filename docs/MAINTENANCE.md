@@ -301,3 +301,16 @@ Les poignées de tableau apparaissent au survol de la ligne/colonne correspondan
 Pour la coloration 0.25, vérifier cellule seule, ligne/colonne et plage, modèle simple/double entrée, lignes alternées, fond par défaut, tableau neutre et annulation. Les suites frontend et HTTP couvrent la conservation des textes et fusions ainsi que le rendu et le rejet d’attributs de couleur malveillants. Contrôler visuellement les fonds en clair, sombre et lecture publique.
 
 Pour les aperçus de modèles : survoler plusieurs modèles et couleurs, sortir du panneau, fermer avec Échap, vérifier le retour au rendu précédent. Appliquer ensuite un modèle, annuler et recharger. La suite frontend vérifie que les décorations ne modifient ni document ni historique.
+
+## Maintenance de l’interface Atelier — 0.26
+
+Voir [la charte et le bilan de revue](INTERFACE-0.26.md). Distribuer ensemble les sources, ressources compilées et manifeste de la même release. Les mouvements sont de présentation uniquement ; vérifier la frappe, sélection, menus, déplacements et annulations, thèmes et lecture mobile avant de préparer une distribution.
+
+
+### Contrôles complémentaires de l’interface Atelier
+
+Vérifier le passage entre les cinq sections sans changement de dimensions. Modifier le sous-titre, fermer sans autre bouton puis recharger : il doit être conservé. Tester aussi une valeur invalide, la corriger et réessayer. Sur réseau lent, une installation ne doit pas appeler `update_start` avant la fin des sauvegardes carnet/apparence/accueil et de la page. Conserver le mécanisme de restauration des mises à jour existant.
+
+La vue dossiers est un classement virtuel par MIME ; la vue liste reste disponible et la préférence est locale à l’appareil. `library_links` est exclusivement administrateur et ne doit jamais entrer dans le cache public du service worker. Les tests HTTP vérifient le refus anonyme et la déduplication des liens. Les miniatures doivent respecter position et zoom sans déborder des cartes, en édition et en lecture.
+
+Les fournisseurs vidéo reconnus chargent maintenant leur lecteur au chargement du document, sans autoplay ajouté ; ils peuvent donc contacter leur fournisseur dès cette ouverture. Les fichiers locaux restent différés. Vérifier une URL YouTube existante ainsi qu’une nouvelle insertion (titre oEmbed), et conserver le repli si les métadonnées sont indisponibles. Ne pas transformer la résolution vidéo en proxy arbitraire.

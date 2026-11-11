@@ -12,6 +12,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type MutableRefObject,
 } from "react";
 import {
   ArrowUp,
@@ -21,6 +22,8 @@ import {
   Trash2,
   Check,
   Move,
+  X,
+  ZoomIn,
 } from "lucide-react";
 import {
   api,
@@ -429,31 +432,39 @@ export function NotebookControls({
   value,
   serverLimit,
   onSave,
+  saveRef,
 }: {
   value: Notebook;
   serverLimit: number;
   onSave: (v: Notebook) => Promise<void>;
+  saveRef?: MutableRefObject<(() => Promise<void>) | null>;
 }) {
-  const [draft, setDraft] = useState(value);
-  useEffect(() => setDraft(value), [value]);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
+  const [draft, setDraftState] = useState(value);
+  const draftRef = useRef(value), saved = useRef(value), queue = useRef(Promise.resolve());
+  const form = useRef<HTMLFormElement>(null), alive = useRef(true), saveHandler = useRef(onSave);
+  saveHandler.current = onSave;
+  const [busy,setBusy] = useState(false), [error,setError] = useState("");
+  function setDraft(next: Notebook) { draftRef.current = next; setDraftState(next); }
+  useEffect(()=>{ if(JSON.stringify(draftRef.current)===JSON.stringify(saved.current)) setDraft(value); saved.current=value; },[value]);
+  async function flush() {
+    const job=queue.current.catch(()=>{}).then(async()=>{
+      const next=draftRef.current;
+      if(JSON.stringify(next)===JSON.stringify(saved.current)) return;
+      if(!next.title.trim() || !Number.isFinite(next.max_upload) || next.max_upload<1048576 || next.max_upload>1073741824) {
+        const message="Vérifie le titre du carnet et la taille maximale des fichiers (1 à 1024 Mo).";
+        if(alive.current)setError(message);throw new Error(message);
+      }
+      if(alive.current){setBusy(true);setError("");}
+      try { await saveHandler.current(next); saved.current=next; }
+      catch(cause){if(alive.current)setError((cause as Error).message);throw cause;}
+      finally {if(alive.current)setBusy(false);}
+    });
+    queue.current=job;return job;
+  }
+  useEffect(()=>{alive.current=true;if(saveRef)saveRef.current=flush;return()=>{alive.current=false;if(saveRef)saveRef.current=null;};},[saveRef]);
   return (
-    <form
-      className="modal-form notebook-controls"
-      onSubmit={async (e) => {
-        e.preventDefault();
-        setBusy(true);
-        setError("");
-        try {
-          await onSave(draft);
-        } catch (e) {
-          setError((e as Error).message);
-        } finally {
-          setBusy(false);
-        }
-      }}
-    >
+    <form ref={form} className="modal-form notebook-controls" onSubmit={e=>{e.preventDefault();void flush().catch(()=>{});}}
+      onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node))void flush().catch(()=>{});}}>
       <h3>Mon carnet</h3>
       <label>
         Titre du carnet
@@ -554,9 +565,7 @@ export function NotebookControls({
           {error}
         </p>
       )}
-      <button className="primary-button" disabled={busy}>
-        <Check size={16} /> Enregistrer le carnet
-      </button>
+      <p className="settings-save-status" role="status">{busy ? "Enregistrement…" : "Les changements sont enregistrés en quittant les réglages."}</p>
     </form>
   );
 }
@@ -703,8 +712,19 @@ export function CoverTools({
           if (e.currentTarget.hasPointerCapture(e.pointerId))
             e.currentTarget.releasePointerCapture(e.pointerId);
         }}
+        tabIndex={editing ? 0 : undefined}
+        onKeyDown={event=>{
+          if(!editing)return;
+          const step=event.shiftKey?10:2;
+          if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)) {
+            event.preventDefault();onPosition({...position,x:clamp(position.x+(event.key==='ArrowLeft'?-step:event.key==='ArrowRight'?step:0)),y:clamp(position.y+(event.key==='ArrowUp'?-step:event.key==='ArrowDown'?step:0))});
+          }
+          if(event.key==='Escape'){onPosition(initial.current);setEditing(false);onDone?.(initial.current);}
+          if(event.key==='Enter'){setEditing(false);onDone?.(position);}
+        }}
         onPointerCancel={() => (drag.current = null)}
       />
+      {editing && bounds && createPortal(<div className="crop-guides" aria-hidden="true" style={{left:bounds.left,top:bounds.top,width:bounds.width,height:bounds.height}}><i/><i/><i/><i/></div>,document.body)}
       {visible &&
         createPortal(
           <div
@@ -719,16 +739,9 @@ export function CoverTools({
           >
             {editing ? (
               <>
-                <span>
-                  {!overflow.ready
-                    ? "Chargement de la couverture…"
-                    : overflow.x < 1 && overflow.y < 1
-                      ? "Agrandis l’image pour ajuster son cadrage."
-                      : "Glisse l’image ou utilise les réglages pour ajuster le cadrage."}{" "}
-                  Les changements sont enregistrés automatiquement.
-                </span>
-                <label>
-                  Zoom
+                <span className="crop-hint"><Move size={15} /> Glisser pour cadrer</span>
+                <label className="crop-zoom">
+                  <ZoomIn size={15} /> Zoom
                   <input
                     type="range"
                     aria-label="Zoom de la couverture"
@@ -742,39 +755,11 @@ export function CoverTools({
                   />
                   <output>{Math.round(zoom * 100)} %</output>
                 </label>
-                <label>
-                  Horizontal
-                  <input
-                    type="range"
-                    aria-label="Position horizontale de la couverture"
-                    min="0"
-                    max="100"
-                    value={position.x}
-                    disabled={!overflow.ready || overflow.x < 1}
-                    onChange={(e) =>
-                      onPosition({ ...position, x: Number(e.target.value) })
-                    }
-                  />
-                </label>
-                <label>
-                  Vertical
-                  <input
-                    type="range"
-                    aria-label="Position verticale de la couverture"
-                    min="0"
-                    max="100"
-                    value={position.y}
-                    disabled={!overflow.ready || overflow.y < 1}
-                    onChange={(e) =>
-                      onPosition({ ...position, y: Number(e.target.value) })
-                    }
-                  />
-                </label>
                 <button
                   type="button"
                   onClick={() => onPosition({ x: 50, y: 50, zoom: 1 })}
                 >
-                  Centrer
+                  <RotateCcw size={15} /> Centrer
                 </button>
                 <button
                   type="button"
@@ -784,7 +769,7 @@ export function CoverTools({
                     onDone?.(initial.current);
                   }}
                 >
-                  Annuler
+                  <X size={15} /> Annuler
                 </button>
                 <button
                   type="button"
@@ -793,7 +778,7 @@ export function CoverTools({
                     onDone?.(position);
                   }}
                 >
-                  Terminer
+                  <Check size={15} /> Terminer
                 </button>
               </>
             ) : (
@@ -822,3 +807,83 @@ export function CoverTools({
     </>
   );
 }
+
+export function GlobalAppearanceControls({value,onChange}:{value:Appearance;onChange:(patch:Partial<Appearance>)=>void}) { return <div className="appearance-form">            <label>
+              Police
+              <Select
+                value={value.font}
+                onChange={(e) =>
+                  void onChange({
+                    font: e.target.value as Appearance["font"],
+                  })
+                }
+              >
+                <option value="sans">Sans empattements</option>
+                <option value="serif">Avec empattements</option>
+                <option value="mono">Monospace</option>
+                <option value="quicksand">Quicksand</option>
+                <option value="fraunces">Fraunces</option>
+              </Select>
+            </label>
+            <ThemeControls
+              value={value}
+              onChange={(patch) => void onChange(patch)}
+              onReset={() =>
+                void onChange({
+                  mode: "light",
+                  background: "#ffffff",
+                  text: "#37352f",
+                  accent: "#38795d",
+                  accentMode: "auto",
+                  accentDark: "",
+                  accentOled: "",
+                })
+              }
+            />
+            <div className="appearance-colors">
+              <ColorControl
+                label="Fond"
+                value={value.background}
+                onChange={(background) =>
+                  void onChange({ background })
+                }
+              />
+              <ColorControl
+                label="Texte"
+                value={value.text}
+                onChange={(text) => void onChange({ text })}
+              />
+              {(!value.accentMode ||
+                value.accentMode === "auto") && (
+                <ColorControl
+                  label="Accent"
+                  value={value.accent}
+                  onChange={(accent) => void onChange({ accent })}
+                />
+              )}
+            </div>
+            <label>
+              Largeur de lecture
+              <Select
+                value={value.width}
+                onChange={(e) =>
+                  void onChange({
+                    width: e.target.value as Appearance["width"],
+                  })
+                }
+              >
+                <option value="normal">Confortable</option>
+                <option value="wide">Large</option>
+              </Select>
+            </label>
+            <label className="appearance-checkbox">
+              <input
+                type="checkbox"
+                checked={value.focus}
+                onChange={(e) =>
+                  void onChange({ focus: e.target.checked })
+                }
+              />{" "}
+              Ouvrir en mode plein écran
+            </label>
+</div>; }

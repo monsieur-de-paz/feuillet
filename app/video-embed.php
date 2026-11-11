@@ -69,7 +69,18 @@ function video_embed_source(mixed $value): ?array {
 }
 
 function resolve_video_embed(mixed $value): array {
-    if ($video = video_embed_source($value)) return $video;
+    if ($video = video_embed_source($value)) {
+        $video['title']='';
+        // Metadata is resolved when inserting a link, never while rendering a page.
+        if($video['label']==='YouTube') {
+            require_once __DIR__.'/link-preview.php';
+            try {
+                $final='';$raw=link_fetch('https://www.youtube.com/oembed?format=json&url='.rawurlencode($video['url']),65536,$final);
+                $meta=json_decode($raw,true);if(is_string($meta['title']??null))$video['title']=str_limit($meta['title'],300);
+            } catch(Throwable) { /* The native player still displays its own title. */ }
+        }
+        return $video;
+    }
     $parts = video_embed_url($value);
     if ($parts) {
         [$url, $host, $path] = $parts;

@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.25.1';
+const FEUILLET_VERSION = '0.26.0';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -129,7 +129,7 @@ function normalize_doc(mixed $doc): array {
                 $url=$out['attrs']['url']??'';
                 $video=video_embed_source($url);
                 if($url!==''&&!$video)fail('Lien vidéo invalide.');
-                $out['attrs']=$video??[];
+                $out['attrs']=($video??[])+['title'=>str_limit($out['attrs']['title']??'',300)];
             }
             if($node['type']==='htmlEmbed'){
                 $code=$out['attrs']['code']??'';

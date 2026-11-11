@@ -13,6 +13,7 @@ export type VideoSource = {
   label: string;
   kind: "player" | "media";
   portrait: boolean;
+  title?: string;
 };
 
 export function OnlineVideoForm({
@@ -137,7 +138,7 @@ function videoPlayer(link: URL): boolean {
 
 function ExternalEmbedView({ node, editor, updateAttributes }: NodeViewProps) {
   const isHtml = node.type.name === "htmlEmbed";
-  const { code, height, url, src, kind, label, portrait } = node.attrs;
+  const { code, height, url, src, kind, label, portrait, title } = node.attrs;
   const [editing, setEditing] = useState(
     editor.isEditable && (isHtml ? !code : !url),
   );
@@ -212,7 +213,7 @@ function ExternalEmbedView({ node, editor, updateAttributes }: NodeViewProps) {
       ) : (
         (isHtml ? code : safeSrc) && (
           <>
-            {!loaded ? (
+            {!loaded && (isHtml || kind === "media") ? (
               <button
                 type="button"
                 className="external-embed-trigger"
@@ -233,12 +234,15 @@ function ExternalEmbedView({ node, editor, updateAttributes }: NodeViewProps) {
               />
             ) : (
               <iframe
-                title={`Vidéo · ${label}`}
+                title={title || `Vidéo · ${label}`}
+                loading="eager"
+                allowFullScreen
                 src={safeSrc}
                 referrerPolicy="strict-origin-when-cross-origin"
                 allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
               />
             )}
+            {!isHtml && <div className="web-video-caption"><strong>{title || `Vidéo ${label}`}</strong><span>Lecture intégrée · {label}</span></div>}
             {safeUrl && (
               <a href={safeUrl.href} target="_blank" rel="noopener noreferrer">
                 Ouvrir la vidéo ↗
@@ -280,6 +284,7 @@ export const WebVideo = Node.create({
       kind: { default: "player" },
       label: { default: "Vidéo en ligne" },
       portrait: { default: false },
+      title: { default: "" },
     };
   },
   addNodeView() {

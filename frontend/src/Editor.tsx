@@ -1,3 +1,4 @@
+import { BlockMotion } from "./block-motion";
 import { BlockClipboard, applyIndependentPaste } from "./BlockClipboard";
 import { EditorFileDrop } from "./EditorFileDrop";
 import { ColoredTableCell, ColoredTableHeader } from "./table-formatting";
@@ -206,6 +207,7 @@ export default function CourseEditor({
   const editor = useEditor({
     extensions: [
       BlockSelection,
+      BlockMotion,
       StarterKit.configure({
         link: {
           openOnClick: !admin,
