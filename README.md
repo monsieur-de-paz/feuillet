@@ -1,13 +1,38 @@
-# Feuillet
+<p align="center">
+  <img src="docs/assets/feuillet-banner.svg" alt="Feuillet. — Écrire, organiser, transmettre. Un carnet web libre, hébergé chez vous." width="100%">
+</p>
 
-[![Version](https://img.shields.io/github/v/release/monsieur-de-paz/feuillet?label=version)](https://github.com/monsieur-de-paz/feuillet/releases/latest)
-[![Licence MIT](https://img.shields.io/badge/licence-MIT-38795d)](LICENSE)
+<h1 align="center">Vos notes. Votre espace.</h1>
 
-**Un carnet web gratuit et open source pour écrire, organiser et partager vos notes depuis votre propre hébergement.**
+<p align="center">
+  <strong>Un carnet web gratuit et open source pour donner une place à vos idées.</strong><br>
+  Écrivez, organisez vos documents et partagez ce qui compte,<br>
+  depuis votre propre hébergement, sur ordinateur comme sur mobile.
+</p>
 
-Rassemblez vos pages, documents et bases de données dans des carnets, gardez vos notes privées ou partagez-les par un lien. Feuillet s’utilise dans le navigateur, sur ordinateur et mobile, avec un seul compte administrateur et des lecteurs sans compte.
+<p align="center">
+  <a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><img src="https://img.shields.io/github/v/release/monsieur-de-paz/feuillet?label=version&amp;color=38795d&amp;style=flat-square" alt="Dernière version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d?style=flat-square" alt="Licence MIT"></a>
+  <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4?style=flat-square" alt="PHP 8.3 ou plus récent">
+</p>
 
-**[Télécharger Feuillet](https://github.com/monsieur-de-paz/feuillet/releases/latest)** · [Guide d’installation](docs/INSTALLATION-OVH.md) · [Aperçus récents](docs/NOUVEAUTES-0.29.md#aperçus-sur-données-fictives)
+<p align="center">
+  <a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet →</strong></a>
+  &nbsp; · &nbsp;
+  <a href="#installation">Installer</a>
+  &nbsp; · &nbsp;
+  <a href="#fonctionnalités">Fonctionnalités</a>
+  &nbsp; · &nbsp;
+  <a href="docs/NOUVEAUTES-0.29.md#aperçus-sur-données-fictives">Voir les aperçus</a>
+</p>
+
+<br>
+
+| Écrire librement | Tout rassembler | Partager simplement |
+| :--- | :--- | :--- |
+| Composez vos pages avec des blocs, des tableaux, des images et des médias. | Retrouvez vos notes, fichiers et bases de données dans vos carnets. | Publiez une page, partagez son lien ou recueillez des réponses par formulaire. |
+
+Feuillet fonctionne sur un hébergement mutualisé compatible, **sans VPS ni abonnement**. Un seul compte administrateur rédige ; les lecteurs consultent les pages publiées et répondent aux formulaires sans créer de compte.
 
 ## Installation
 
