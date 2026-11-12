@@ -1,6 +1,6 @@
 /* Feuillet: public reading copies only. No API, media or administrator document cache. */
 const base = new URL("./", self.location),
-  VERSION = "0.27.1",
+  VERSION = "0.28.0",
   PREFIX = "feuillet-" + encodeURIComponent(base.pathname) + "-",
   SHELL = PREFIX + "shell-" + VERSION,
   PAGES = PREFIX + "public-pages-v2",
@@ -8,6 +8,7 @@ const base = new URL("./", self.location),
   key = new URL("offline-enabled", base).href;
 const assets = [
   "atelier.css",
+  "forms.css",
   "atelier.js",
   "offline.html",
   "offline.js",
@@ -374,6 +375,7 @@ self.addEventListener("fetch", (event) => {
     !url.searchParams.has("reader-direct") &&
     !url.searchParams.has("edit") &&
     !url.searchParams.has("form") &&
+    !url.searchParams.has("project") &&
     !url.searchParams.has("dashboard")
   ) {
     event.respondWith(

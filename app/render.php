@@ -40,7 +40,7 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
     if($t==='buttonLink'||$t==='bookmark'){
         $url=safe_url($a['href']??'');if(!$url)return '';
         $icon=(!empty($a['iconId'])||($a['icon']??'↗')!=='')?render_page_icon(['icon'=>$a['icon']??'↗','icon_id'=>$a['iconId']??null]):'';
-        if($t==='buttonLink')return '<a class="resource-button" href="'.h($url).'" target="_blank" rel="noopener noreferrer">'.$icon.' <span>'.h($a['label']??$url).'</span></a>';
+        if($t==='buttonLink')return '<a class="'.h(button_classes($a)).'" href="'.h($url).'" target="_blank" rel="noopener noreferrer">'.$icon.' <span>'.h($a['label']??$url).'</span></a>';
         $preview=!empty($a['posterId'])?thumbnail_url($a['posterId'],320):safe_url($a['previewUrl']??'');
         return '<a class="bookmark link-card" href="'.h($url).'" target="_blank" rel="noopener noreferrer">'.$icon.'<div class="link-card-body"><strong>'.h($a['title']??$url).'</strong><p>'.h($a['description']??'').'</p><small>'.h(parse_url($url,PHP_URL_HOST)??'').' ↗</small></div>'.($preview?'<img class="link-card-preview" src="'.h($preview).'" loading="lazy" referrerpolicy="no-referrer" alt="">':'').'</a>';
     }
@@ -69,7 +69,7 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
     }
     if($t==='gallery')return render_gallery($a,$pageId,$public);
     if($t==='databaseView')return render_database_view(str_limit($a['dbId']??'',36),$public,is_array($a['viewConfig']??null)?$a['viewConfig']:[]);
-    if($t==='formView')return render_form_view(str_limit($a['formId']??'',36),$public);
+    if($t==='formView')return render_form_view(str_limit($a['formId']??'',36),$public,$a);
     if($t==='quiz'){
         $html='<form class="quiz" data-page="'.h($pageId).'" data-quiz="'.h($a['quizId']??'').'"><h3>'.h($a['title']??'À toi de jouer').'</h3>';
         foreach($a['questions']??[] as $i=>$q){$html.='<fieldset data-question="'.h($q['id']).'" data-type="'.h($q['type']).'"><legend>'.($i+1).'. '.h($q['prompt']??'').'</legend>';
@@ -144,14 +144,15 @@ function render_database_view(string $id,bool $public,array $config=[]): string 
     }
     return '<section class="embedded-database">'.$title.'<div class="table-scroll"><table><thead><tr>'.$head.'</tr></thead><tbody>'.$body.'</tbody></table></div>'.$more.'</section>';
 }
-function render_form_view(string $id,bool $public): string {
+function render_form_view(string $id,bool $public,array $appearance=[]): string {
     // Force the published reference gate even when an admin reads the public version.
     if($public){$record=query('SELECT is_public FROM collection_forms WHERE id=?',[$id])->fetch();if(!$record||!(bool)$record['is_public']||!database_node_reference('formView',$id))return '<section class="embedded-form reader-embed-unavailable"><p>Ce formulaire n’est pas disponible.</p></section>';}
     try{$bundle=database_form_get($id);}catch(Throwable){return '<section class="embedded-form reader-embed-unavailable"><p>Ce formulaire n’est pas disponible.</p></section>';}
     $form=$bundle['form'];$title='<h2>'.h($form['name']).'</h2>';
     if(empty($form['public']))return '<section class="embedded-form">'.$title.'<p>Ce formulaire est privé. Ouvre ses réglages pour activer le partage.</p></section>';
-    $link='index.php?form='.rawurlencode($form['token']);$fields='';foreach($bundle['properties'] as $property)$fields.='<li>'.h($property['name']).(!empty($property['required'])?' <span class="muted">(obligatoire)</span>':'').'</li>';
-    return '<section class="embedded-form">'.$title.'<p>Les réponses sont envoyées à l’administrateur du site et restent privées.</p>'.($fields?'<ul class="form-fields-preview">'.$fields.'</ul>':'').'<a class="resource-button" href="'.h($link).'">Ouvrir et remplir le formulaire ↗</a><noscript><p>JavaScript est nécessaire pour envoyer les réponses et les pièces jointes.</p></noscript></section>';
+    $link='index.php?form='.rawurlencode($form['token']);$fields='';foreach($form['fields'] as $id)foreach($bundle['properties'] as $property)if($property['id']===$id)$fields.='<li>'.h($property['name']).(!empty($property['required'])?' <span aria-label="obligatoire">*</span>':'').'</li>';
+    return '<section class="embedded-form form-invitation"><div class="form-invitation-symbol" aria-hidden="true">'.render_feuillet_icon('lucide:clipboard-list').'</div><div class="form-invitation-body"><span class="form-eyebrow">Formulaire</span>'.$title.'<p>Une réponse à transmettre, simplement.</p>'.($fields?'<ul class="form-fields-preview">'.$fields.'</ul>':'').'<a class="'.h(button_classes($appearance)).'" href="'.h($link).'">Remplir le formulaire <span aria-hidden="true">↗</span></a><small class="form-private-note">Réponses et fichiers privés · Seul l’administrateur peut les consulter.</small><noscript><p>JavaScript est nécessaire pour envoyer les réponses et les pièces jointes.</p></noscript></div></section>';
+
 }
 
 /** Public breadcrumbs use only active published snapshots, even for logged-in readers. */

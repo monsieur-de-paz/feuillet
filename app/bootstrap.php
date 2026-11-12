@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.27.1';
+const FEUILLET_VERSION = '0.28.0';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -109,6 +109,10 @@ function limit_rate(string $scope, int $max, int $window): void {
     if(count($rows)>=$max){flock($fp,LOCK_UN);fclose($fp);fail('Trop de tentatives. Réessaie dans quelques minutes.',429,'rate_limit');}
     $rows[]=time(); ftruncate($fp,0);rewind($fp);fwrite($fp,encoded($rows));flock($fp,LOCK_UN);fclose($fp);
 }
+function button_appearance(array $a): array {
+    return ['buttonStyle'=>in_array($a['buttonStyle']??null,['solid','soft','outline','minimal'],true)?$a['buttonStyle']:'soft','buttonSize'=>in_array($a['buttonSize']??null,['compact','regular','large'],true)?$a['buttonSize']:'regular'];
+}
+function button_classes(array $a): string { $value=button_appearance($a);return 'resource-button feuillet-action action-'.$value['buttonStyle'].' action-'.$value['buttonSize']; }
 function normalize_doc(mixed $doc): array {
     if (!is_array($doc) || ($doc['type']??'') !== 'doc') fail('Document invalide.');
     $count=0; $walk=function($node,$depth) use (&$walk,&$count): array {
@@ -136,11 +140,12 @@ function normalize_doc(mixed $doc): array {
                 if(!is_string($code)||strlen($code)>32000)fail('Le code d’intégration doit faire au maximum 32 Ko.');
                 $out['attrs']=['code'=>$code,'height'=>html_embed_height($out['attrs']['height']??450)];
             }
+            if($node['type']==='buttonLink')$out['attrs']=array_replace($out['attrs'],button_appearance($out['attrs']));
             if($node['type']==='mapBlock')$out['attrs']=['address'=>str_limit($out['attrs']['address']??'',500),'embedUrl'=>map_embed_url($out['attrs']['embedUrl']??'')];
             if($node['type']==='quiz') validate_quiz($out['attrs']);
             foreach(['href','src'] as $key)if(isset($out['attrs'][$key]))$out['attrs'][$key]=safe_url($out['attrs'][$key]);
             if($node['type']==='databaseView'){$id=str_limit($out['attrs']['dbId']??'',36);database_record($id);$out['attrs']=['dbId'=>$id,'viewConfig'=>database_view_config($id,$out['attrs']['viewConfig']??[])];}
-            if($node['type']==='formView'){$id=str_limit($out['attrs']['formId']??'',36);if(!query('SELECT id FROM collection_forms WHERE id=?',[$id])->fetch())fail('Formulaire introuvable.');$out['attrs']=['formId'=>$id];}
+            if($node['type']==='formView'){$id=str_limit($out['attrs']['formId']??'',36);if(!query('SELECT id FROM collection_forms WHERE id=?',[$id])->fetch())fail('Formulaire introuvable.');$out['attrs']=button_appearance($out['attrs'])+['formId'=>$id];}
             if($node['type']==='pageLink'){
                 foreach(['presentation'=>['row','card','compact'],'iconSize'=>['small','medium','large']] as $key=>$choices)$out['attrs'][$key]=in_array($out['attrs'][$key]??'', $choices,true)?$out['attrs'][$key]:($key==='presentation'?'row':'medium');
                 foreach(['showIcon'=>true,'showDescription'=>false,'showCover'=>false] as $key=>$default)$out['attrs'][$key]=is_bool($out['attrs'][$key]??null)?$out['attrs'][$key]:$default;

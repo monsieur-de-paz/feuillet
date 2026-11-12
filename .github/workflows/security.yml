@@ -25,5 +25,6 @@ jobs:
       - run: node tests/pwa.mjs
       - run: npm ci --ignore-scripts
         working-directory: frontend
+      - run: node tests/frontend.mjs
       - run: npm audit --audit-level=moderate
         working-directory: frontend

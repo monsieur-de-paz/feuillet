@@ -1,5 +1,13 @@
 # Historique des versions
 
+## 0.28.0 — 2026-11-12
+
+- Formulaires publics : squelette de chargement dès le HTML initial, sans écran d’accueil intermédiaire ni double titre Feuillet. Présentation des questions, pièces jointes et confirmation d’envoi modernisée dans les thèmes clair, sombre et OLED.
+- Projection administrateur des bases et des réponses : plein écran, compteur, filtre par formulaire, choix des colonnes, actualisation toutes les dix secondes, pause et reprise. Les 200 dernières lignes sont affichées avec le nombre total.
+- Réponse de projection limitée aux colonnes choisies. Aucun token de formulaire, ID ou lien de fichier n’est transmis ; les pièces jointes apparaissent sous forme de compte. Authentification administrateur obligatoire, réponses sans cache et aucune publication automatique des envois.
+- Cartes d’accès aux formulaires renouvelées et boutons de contenu personnalisables : doux, accentué, contour ou discret ; compact, standard ou grand. Styles partagés entre éditeur et lecteur et filtrés côté serveur.
+- Délai de chargement des formulaires avec bouton Réessayer ; annulation et délai des rafraîchissements de projection. Animations respectant la réduction des mouvements. Aucune migration SQL ni changement des limites de dépôt.
+
 ## 0.27.1 — 2026-11-12
 
 - Navigation publique : délai couvrant les en-têtes et le corps JSON, annulation des requêtes dépassées et priorité à la navigation sur la vérification périodique.

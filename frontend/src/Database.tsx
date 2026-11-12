@@ -1,3 +1,9 @@
+import { FormSkeleton } from "./FormSkeleton";
+import {
+  ButtonAppearanceFields,
+  buttonClasses,
+  type ButtonAppearance,
+} from "./ButtonAppearance";
 import { ContextMenu, type MenuAction } from "./ContextMenu";
 import { Select } from "./Select";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
@@ -38,6 +44,8 @@ import {
   Link as LinkIcon,
   RefreshCw,
   Pencil,
+  Monitor,
+  Send,
 } from "lucide-react";
 import { useApp } from "./context";
 import {
@@ -2913,76 +2921,102 @@ function PublicFormFields({
   }
   if (submitted)
     return (
-      <div className="database-success" role="status">
-        <Check size={22} />
-        <h3>Ta réponse a bien été envoyée.</h3>
+      <main className="form-page form-complete" role="status">
+        <div className="form-success-orbit">
+          <Check size={32} />
+        </div>
+        <span className="form-eyebrow">Envoi confirmé</span>
+        <h1>Ta réponse est bien arrivée.</h1>
         <p>
           Merci ! Elle sera consultable uniquement par l’administrateur du site.
         </p>
         <button className="small-button" onClick={() => setSubmitted(false)}>
           Envoyer une autre réponse
         </button>
-      </div>
+      </main>
     );
   return (
-    <form className="public-database-form" onSubmit={submit}>
-      {!preview && <h2>{form.name}</h2>}
-      <ErrorBox message={error} />
-      {properties.map((property) => (
-        <Field
-          key={property.id}
-          property={property}
-          value={values[property.id]}
-          onChange={(value) => change(property.id, value)}
-          onUpload={(incoming) => void upload(property, incoming)}
-          files={files}
-          progress={progress[property.id]}
-          disabled={busy || (preview && property.type === "files")}
-          error={fieldErrors[property.id]}
-        />
-      ))}
-      {!preview && properties.some((property) => property.type === "files") && (
-        <p className="database-field-help">
-          Les pièces jointes non envoyées avec ta réponse expirent après 24
-          heures. Les fichiers envoyés restent privés et accessibles à
-          l’administrateur du site.
-        </p>
+    <form
+      className={`public-database-form ${preview ? "" : "form-page"}`}
+      onSubmit={submit}
+    >
+      {!preview && (
+        <header className="form-heading">
+          <div className="form-heading-icon">
+            <FormInput size={26} />
+          </div>
+          <span className="form-eyebrow">À vous de jouer</span>
+          <h1>{form.name}</h1>
+          <p>Complète les champs ci-dessous, puis envoie ta réponse.</p>
+          <span className="form-confidential">
+            <ShieldCheck size={15} /> Réponse privée et sécurisée
+          </span>
+        </header>
       )}
-      <div className="database-honeypot" aria-hidden="true">
-        <label>
-          Site web
-          <input
-            tabIndex={-1}
-            autoComplete="off"
-            value={website}
-            onChange={(event) => setWebsite(event.target.value)}
-          />
-        </label>
-      </div>
-      {preview ? (
-        <p className="database-form-footer">
-          Aperçu des questions : aucune réponse n’est envoyée ici.
-        </p>
-      ) : (
-        <>
-          <button
-            className="primary-button"
-            disabled={busy || Object.keys(progress).length > 0}
-          >
-            {busy ? (
-              <LoaderCircle className="spin" size={16} />
-            ) : (
-              <ArrowUpRight size={16} />
-            )}{" "}
-            Envoyer ma réponse
-          </button>
+      <div className="form-sheet">
+        <ErrorBox message={error} />
+        {properties.map((property, index) => (
+          <section className="form-question" key={property.id}>
+            <span className="form-question-number" aria-hidden="true">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            <Field
+              key={property.id}
+              property={property}
+              value={values[property.id]}
+              onChange={(value) => change(property.id, value)}
+              onUpload={(incoming) => void upload(property, incoming)}
+              files={files}
+              progress={progress[property.id]}
+              disabled={busy || (preview && property.type === "files")}
+              error={fieldErrors[property.id]}
+            />
+          </section>
+        ))}
+        {!preview &&
+          properties.some((property) => property.type === "files") && (
+            <p className="database-field-help">
+              Les pièces jointes non envoyées avec ta réponse expirent après 24
+              heures. Les fichiers envoyés restent privés et accessibles à
+              l’administrateur du site.
+            </p>
+          )}
+        <div className="database-honeypot" aria-hidden="true">
+          <label>
+            Site web
+            <input
+              tabIndex={-1}
+              autoComplete="off"
+              value={website}
+              onChange={(event) => setWebsite(event.target.value)}
+            />
+          </label>
+        </div>
+        {preview ? (
           <p className="database-form-footer">
-            Les champs marqués * sont obligatoires. Tes réponses et tes fichiers
-            sont transmis à l’administrateur du site et ne sont pas affichés aux
-            autres visiteurs.
+            Aperçu des questions : aucune réponse n’est envoyée ici.
           </p>
-        </>
-      )}
+        ) : (
+          <>
+            <button
+              className="primary-button form-submit"
+              disabled={busy || Object.keys(progress).length > 0}
+            >
+              {busy ? (
+                <LoaderCircle className="spin" size={16} />
+              ) : (
+                <Send size={17} />
+              )}{" "}
+              {busy ? "Envoi en cours…" : "Envoyer ma réponse"}
+            </button>
+            <p className="database-form-footer">
+              Les champs marqués * sont obligatoires. Tes réponses et tes
+              fichiers sont transmis à l’administrateur du site et ne sont pas
+              affichés aux autres visiteurs.
+            </p>
+          </>
+        )}
+      </div>
     </form>
   );
 }
@@ -2993,37 +3027,56 @@ export function PublicForm({ token }: { token: string }) {
     properties: Property[];
   } | null>(null);
   const [error, setError] = useState("");
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let cancelled = false;
+    const controller = new AbortController();
+    const deadline = setTimeout(() => controller.abort(), 12000);
     setData(null);
     setError("");
-    void api<{ csrf: string }>("session")
+    void api<{ csrf: string }>("session", undefined, {}, controller.signal)
       .then((session) => {
         setCsrf(session.csrf);
         return api<{ form: DatabaseForm; properties: Property[] }>(
           "form_get",
           undefined,
           { token },
+          controller.signal,
         );
       })
       .then((response) => {
         if (!cancelled) setData(response);
       })
       .catch((error) => {
-        if (!cancelled) setError(errorText(error));
-      });
+        if (!cancelled)
+          setError(
+            controller.signal.aborted
+              ? "La connexion prend trop de temps. Réessaie dans un instant."
+              : errorText(error),
+          );
+      })
+      .finally(() => clearTimeout(deadline));
     return () => {
       cancelled = true;
+      controller.abort();
+      clearTimeout(deadline);
     };
-  }, [token]);
+  }, [token, attempt]);
   if (error)
     return (
-      <div className="public-database-form">
+      <main className="form-page form-complete">
         <h2>Formulaire indisponible</h2>
         <ErrorBox message={error} />
-      </div>
+        <button
+          type="button"
+          className="small-button"
+          onClick={() => setAttempt((value) => value + 1)}
+        >
+          Réessayer
+        </button>
+      </main>
     );
-  if (!data) return <Loading />;
+  if (!data) return <FormSkeleton />;
   const properties = data.form.fields
     .map((id) => data.properties.find((property) => property.id === id))
     .filter(
@@ -3602,6 +3655,14 @@ export function DatabaseManager({
               <div className="database-title-bar">
                 <h3>{bundle.database.name}</h3>
                 <div className="database-title-actions">
+                  <a
+                    className="small-button"
+                    href={`index.php?edit=1&project=${encodeURIComponent(bundle.database.id)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Monitor size={15} /> Projeter les réponses
+                  </a>
                   <button
                     className="small-button"
                     disabled={busy}
@@ -4283,9 +4344,13 @@ export function DatabaseView({
 export function FormView({
   formId,
   token,
+  buttonAppearance = {},
+  onAppearanceChange,
 }: {
   formId: string;
   token?: string;
+  buttonAppearance?: ButtonAppearance;
+  onAppearanceChange?: (value: ButtonAppearance) => void;
 }) {
   const app = useApp();
   const [data, setData] = useState<{
@@ -4321,7 +4386,7 @@ export function FormView({
         <ErrorBox message={error} />
       </section>
     );
-  if (!data) return <Loading />;
+  if (!data) return <FormSkeleton />;
   const properties = data.form.fields
     .map((id) => data.properties.find((property) => property.id === id))
     .filter(
@@ -4348,6 +4413,14 @@ export function FormView({
             Les réponses restent privées.
           </p>
           <div className="database-tools">
+            <a
+              className="small-button"
+              href={`index.php?edit=1&project=${encodeURIComponent(data.form.db_id)}&source=${encodeURIComponent(data.form.id)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Monitor size={14} /> Projeter les réponses
+            </a>
             <button
               className="small-button"
               onClick={() => setPreview(!preview)}
@@ -4356,7 +4429,7 @@ export function FormView({
             </button>
             {data.form.public && (
               <a
-                className="small-button"
+                className={buttonClasses(buttonAppearance)}
                 href={formUrl(data.form.token)}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -4365,6 +4438,15 @@ export function FormView({
               </a>
             )}
           </div>
+          {onAppearanceChange && (
+            <details className="form-button-options">
+              <summary>Apparence du bouton</summary>
+              <ButtonAppearanceFields
+                value={buttonAppearance}
+                onChange={onAppearanceChange}
+              />
+            </details>
+          )}
           {preview && (
             <PublicFormFields
               form={data.form}

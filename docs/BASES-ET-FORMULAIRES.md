@@ -1,4 +1,4 @@
-# Bases structurées, formules et formulaires — Feuillet 0.3
+# Bases structurées, formules et formulaires — Feuillet
 
 Les bases stockent de vrais enregistrements dans MySQL/MariaDB ou SQLite. Une base, ses propriétés, ses lignes et ses formulaires persistent séparément des pages. Les vues du navigateur utilisent ces mêmes données ; changer de vue ne crée pas une deuxième copie.
 
@@ -130,3 +130,20 @@ python3 tests/databases.py --mysql
 Les tests créent une copie jetable et ne modifient aucun carnet réel. Ils vérifient types et conflits, calculs et cycles, relations/agrégations, publication et filtrage, formulaires et provenance privée, fichiers et propriété de session, export CSV et remappage des sauvegardes. La variante MySQL utilise une instance locale dédiée avec un binaire déjà installé.
 
 Validation locale du 13 octobre 2026 : **11/11 scénarios réussis avec SQLite et MySQL**. Le scénario ZIP utilise les véritables routes export/import, puis vérifie catégories/espaces, positions, nœuds de bases/formulaires, relations, fichiers privés, réglages conditionnels et compatibilité d’import version 2.
+
+
+## Formulaires et projection — version 0.28
+
+Le formulaire public affiche un squelette dès le premier HTML, avant le chargement du JavaScript. Les questions et les pièces jointes utilisent une carte aérée, des numéros de repère et une confirmation d’envoi. Le mode clair, sombre ou OLED suit le choix du lecteur. Les URL existantes et les limites d’envoi sont conservées.
+
+Pour afficher les réceptions sur un vidéoprojecteur :
+
+1. Dans **Bases de données**, ouvrir la base puis **Projeter les réponses**. Le même bouton existe sur le bloc formulaire dans l’éditeur ; il présélectionne ce formulaire.
+2. Dans la fenêtre de projection, choisir un formulaire ou toutes les lignes de la base.
+3. Ouvrir **Colonnes** pour choisir ce qui sera visible. Par défaut, seul le premier champ Titre, ou à défaut Texte, apparaît, avec l’état de réception et la date.
+4. Cliquer sur **Plein écran**. Les nouveaux envois apparaissent au prochain contrôle, toutes les dix secondes lorsque la fenêtre est visible. Le compteur comprend toutes les lignes du filtre ; la liste montre les 200 dernières.
+5. Utiliser **Mettre en pause**, **Reprendre** ou **Actualiser maintenant** si nécessaire. La reprise interroge immédiatement le serveur.
+
+La projection exige une session administrateur et ne crée aucun lien public vers les réponses. Les colonnes non choisies ne sont pas renvoyées par cette API. Les pièces jointes affichent seulement leur nombre. Relations, formules et agrégations ne sont pas proposées dans cette vue de réception. En cas de perte de connexion, les dernières données restent visibles avec un message ; une réponse 401/403 retire les données de l’écran et demande de se reconnecter. Choisir les colonnes adaptées avant de projeter des données personnelles.
+
+Dans l’éditeur, le bloc formulaire propose **Apparence du bouton**. Les autres boutons ajoutés avec `/bouton` proposent ces réglages dans **Présentation** : quatre styles et trois tailles. Ces changements utilisent l’enregistrement habituel de la page ; selon les réglages de publication, publier le brouillon peut être nécessaire pour les visiteurs. Ils ne changent ni le texte, ni l’URL, ni les icônes du bouton.

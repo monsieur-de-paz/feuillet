@@ -9,6 +9,8 @@ import "./interface.css";
 import "../../public/atelier.css";
 import "../../public/atelier.js";
 import { PoweredBy } from "./PoweredBy";
+import "../../public/forms.css";
+import { DatabaseProjection } from "./DatabaseProjection";
 import { PublicForm } from "./Database";
 import { FeuilletIcon } from "./IconPicker";
 import {
@@ -19,7 +21,7 @@ import {
   storeThemePreference,
   type ThemePreference,
 } from "./ThemeToggle";
-function PublicFormScreen({ token }: { token: string }) {
+function PublicFormScreen({ children }: { children: React.ReactNode }) {
   const [base, setBase] = useState(defaultAppearance);
   const [brand, setBrand] = useState({
     title: "Feuillet.",
@@ -50,11 +52,14 @@ function PublicFormScreen({ token }: { token: string }) {
   useEffect(() => {
     Object.entries(themeStyle(appearance)).forEach(([key, value]) => {
       if (key.startsWith("--"))
-        document.documentElement.style.setProperty(key, String(value));
+        document.body.style.setProperty(key, String(value));
     });
     document.documentElement.style.colorScheme =
       appearance.mode === "light" ? "light" : "dark";
     document.documentElement.dataset.theme = appearance.mode;
+    document.body.dataset.theme = appearance.mode;
+    document.body.style.setProperty("--page-background", appearance.background);
+    document.body.style.setProperty("--page-text", appearance.text);
     document.body.style.background = appearance.background;
     document.body.style.color = appearance.text;
   }, [base, preference, systemDark]);
@@ -88,7 +93,7 @@ function PublicFormScreen({ token }: { token: string }) {
           </a>
         </div>
       </header>
-      <PublicForm token={token} />
+      {children}
       <PoweredBy />
     </>
   );
@@ -99,9 +104,17 @@ if (target)
   createRoot(target).render(
     <React.StrictMode>
       {new URLSearchParams(location.search).get("form") ? (
-        <PublicFormScreen
-          token={new URLSearchParams(location.search).get("form")!}
-        />
+        <PublicFormScreen>
+          <PublicForm
+            token={new URLSearchParams(location.search).get("form")!}
+          />
+        </PublicFormScreen>
+      ) : new URLSearchParams(location.search).get("project") ? (
+        <PublicFormScreen>
+          <DatabaseProjection
+            id={new URLSearchParams(location.search).get("project")!}
+          />
+        </PublicFormScreen>
       ) : (
         <App />
       )}

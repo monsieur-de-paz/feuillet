@@ -97,6 +97,7 @@ export async function api<T = any>(
   action: string,
   body?: any,
   query: Record<string, string> = {},
+  signal?: AbortSignal,
 ): Promise<T> {
   const scope = new URLSearchParams(location.search);
   const root = scope.get("root") || scope.get("page");
@@ -114,6 +115,7 @@ export async function api<T = any>(
   const response = await fetch(`api.php?${qs}`, {
     method: body === undefined ? "GET" : "POST",
     credentials: "same-origin",
+    signal,
     headers,
     body:
       body === undefined

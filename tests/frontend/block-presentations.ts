@@ -26,3 +26,12 @@ const cols=[{type:'column',content:[{type:'paragraph',content:[{type:'text',text
 const merged=reshapeColumns(cols,2);assert.equal(merged.length,2);assert.equal(merged[1].content.length,2);assert.equal(cols.length,3);assert.equal(cols[1].content.length,1);
 assert.equal(reshapeColumns(cols,4)[3].content[0].type,'paragraph');assert.equal(Columns.config.content,'column{2,4}');assert.equal(PageLink.config.addAttributes().presentation.default,'row');
 console.log('Subpage defaults and column reshape preserve content');
+
+import {ButtonLink,FormEmbed} from '../../frontend/src/nodes';
+import {buttonClasses} from '../../frontend/src/ButtonAppearance';
+assert.equal(ButtonLink.config.addAttributes().buttonStyle.default,'soft');
+assert.equal(FormEmbed.config.addAttributes().buttonSize.default,'regular');
+const styled=linkPresentationContent('button',uri,'Déposer','',{buttonStyle:'solid',buttonSize:'large'});
+assert.equal(styled.attrs.buttonStyle,'solid');assert.equal(styled.attrs.buttonSize,'large');
+assert.equal(buttonClasses({buttonStyle:'evil',buttonSize:'evil'}),'resource-button feuillet-action action-soft action-regular');
+console.log('Shared action styles, defaults and link transforms preserve button appearance');

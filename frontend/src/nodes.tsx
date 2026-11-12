@@ -1,3 +1,4 @@
+import { ButtonAppearanceFields, buttonClasses } from "./ButtonAppearance";
 import { coverImageStyle } from "./cover-position";
 import { LinkIconPicker } from "./LinkIconPicker";
 import { LazyVideo } from "./LazyVideo";
@@ -998,6 +999,10 @@ function LinkResourceView({
   const [label, setLabel] = useState("");
   const [href, setHref] = useState("");
   const [description, setDescription] = useState("");
+  const [buttonAppearance, setButtonAppearance] = useState({
+    buttonStyle: "soft",
+    buttonSize: "regular",
+  });
   const [error, setError] = useState("");
   const first = useRef<HTMLInputElement>(null);
   const edit = () => {
@@ -1005,6 +1010,10 @@ function LinkResourceView({
     setLabel(node.attrs.label || node.attrs.title || "");
     setHref(node.attrs.href || "");
     setDescription(node.attrs.description || "");
+    setButtonAppearance({
+      buttonStyle: node.attrs.buttonStyle || "soft",
+      buttonSize: node.attrs.buttonSize || "regular",
+    });
     setError("");
     setEditing(true);
   };
@@ -1056,7 +1065,7 @@ function LinkResourceView({
           </a>
         ) : (
           <a
-            className="resource-button"
+            className={buttonClasses(node.attrs)}
             href={safeLink(node.attrs.href)}
             target="_blank"
             rel="noopener noreferrer"
@@ -1160,6 +1169,7 @@ function LinkResourceView({
                   label.trim(),
                   description.trim(),
                   {
+                    ...buttonAppearance,
                     icon: node.attrs.icon,
                     iconId: node.attrs.iconId,
                     posterId: node.attrs.posterId,
@@ -1208,6 +1218,14 @@ function LinkResourceView({
               placeholder="https://…"
             />
           </label>
+          {mode === "button" && (
+            <ButtonAppearanceFields
+              value={buttonAppearance}
+              onChange={(value) =>
+                setButtonAppearance((previous) => ({ ...previous, ...value }))
+              }
+            />
+          )}
           {mode === "card" && (
             <label>
               Description de l’aperçu
@@ -1251,6 +1269,8 @@ export const ButtonLink = Node.create({
   atom: true,
   addAttributes() {
     return {
+      buttonStyle: { default: "soft" },
+      buttonSize: { default: "regular" },
       href: { default: "" },
       label: { default: "Ouvrir la ressource" },
       icon: { default: "↗" },
@@ -1829,12 +1849,16 @@ function GalleryView({ node, updateAttributes }: NodeViewProps) {
               }}
             >
               {page.cover_id ? (
-                <span className="gallery-cover-frame"><img
-                  src={thumbUrl(page.cover_id)}
-                  alt=""
-                  loading="lazy"
-                  style={coverImageStyle(page.cover_position || {x:50,y:50})}
-                /></span>
+                <span className="gallery-cover-frame">
+                  <img
+                    src={thumbUrl(page.cover_id)}
+                    alt=""
+                    loading="lazy"
+                    style={coverImageStyle(
+                      page.cover_position || { x: 50, y: 50 },
+                    )}
+                  />
+                </span>
               ) : (
                 <div className="gallery-placeholder">
                   <span>
@@ -2310,10 +2334,14 @@ function DatabaseBlockView({ node, updateAttributes }: NodeViewProps) {
     </NodeViewWrapper>
   );
 }
-function FormBlockView({ node }: NodeViewProps) {
+function FormBlockView({ node, updateAttributes }: NodeViewProps) {
   return (
     <NodeViewWrapper contentEditable={false} className="embedded-form-block">
-      <FormView formId={String(node.attrs.formId || "")} />
+      <FormView
+        formId={String(node.attrs.formId || "")}
+        buttonAppearance={node.attrs}
+        onAppearanceChange={updateAttributes}
+      />
     </NodeViewWrapper>
   );
 }
@@ -2342,7 +2370,11 @@ export const FormEmbed = Node.create({
   group: "block",
   atom: true,
   addAttributes() {
-    return { formId: { default: "" } };
+    return {
+      formId: { default: "" },
+      buttonStyle: { default: "soft" },
+      buttonSize: { default: "regular" },
+    };
   },
   parseHTML() {
     return [{ tag: "div[data-form-view]" }];

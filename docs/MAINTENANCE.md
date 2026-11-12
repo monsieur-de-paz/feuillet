@@ -324,3 +324,12 @@ Les fournisseurs vidéo reconnus chargent maintenant leur lecteur au chargement 
 Lancer `node tests/frontend.mjs`, puis vérifier dans le navigateur le menu d’une poignée de colonne et le clic droit d’une cellule : choisir une autre colonne et un mode, trier dans les deux sens, changer la conservation des en-têtes, annuler et rétablir. Utiliser notamment `2`, `10`, `1,5`, `-3`, des cellules vides et des textes accentués. Après navigation puis rechargement, l’ordre doit rester enregistré ; après publication, le lecteur doit suivre le même ordre.
 
 Contrôler que les lignes gardent toutes leurs cellules, mises en forme et largeurs, que plusieurs en-têtes restent en haut et que les fusions verticales empêchent le tri avec une explication. À 390 px, le panneau et ses contrôles doivent rester dans le viewport. Le changement de colonne et la case d’en-tête doivent recevoir les clics malgré le conteneur de poignées non interactif. Aucun nouveau paramètre serveur ou schéma SQL.
+
+
+## Contrôle des formulaires et de la projection 0.28
+
+Exécuter `python3 tests/forms.py`, puis `python3 tests/forms.py --mysql` si MySQL local est disponible. Ces tests utilisent des installations jetables : squelette initial sans accueil générique, authentification obligatoire, filtre de formulaire appartenant à la base, absence de valeurs masquées/tokens/IDs de fichiers, compte des pièces jointes, styles filtrés, liste limitée et ordre des dates. `node tests/frontend.mjs` vérifie aussi les styles et conversions des boutons ; ce contrôle est ajouté au workflow GitHub.
+
+Après installation, ouvrir un formulaire existant en visiteur, déposer un petit document de test, envoyer une réponse, puis ouvrir **Projeter les réponses** depuis l’administration. Laisser cette fenêtre visible pour vérifier la réception automatique au prochain contrôle de dix secondes, changer les colonnes, passer en plein écran puis quitter. Vérifier également que le même lien de projection sans session ne renvoie aucune donnée.
+
+Les formulaires et les projections ne sont pas disponibles hors connexion. Si une ancienne interface reste ouverte pendant la mise à jour, recharger une fois l’onglet. Les limites de fichiers, de quota et d’anti-abus n’ont pas été modifiées par cette version.

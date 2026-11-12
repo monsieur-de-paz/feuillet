@@ -109,7 +109,7 @@ function database_form_get(string $value,bool $token=false): array {
 function form_upload_owner(): string { start_session();return hash_hmac('sha256',session_id(),cfg()['secret']); }
 function form_owned_file(string $id): bool { $owner=form_upload_owner();return (bool)query('SELECT file_id FROM form_uploads WHERE file_id=? AND owner=?',[$id,$owner])->fetch(); }
 function database_dispatch(string $action,string $method): void {
-    $actions=['db_list','db_get','db_save','db_delete','property_save','property_delete','row_save','row_patch','row_delete','form_save','form_get','form_submit','form_upload','db_export','public_db_get','formula_preview'];if(!in_array($action,$actions,true))return;
+    $actions=['db_projection','db_list','db_get','db_save','db_delete','property_save','property_delete','row_save','row_patch','row_delete','form_save','form_get','form_submit','form_upload','db_export','public_db_get','formula_preview'];if(!in_array($action,$actions,true))return;
     $mutations=['db_save','db_delete','property_save','property_delete','row_save','row_patch','row_delete','form_save','form_submit','form_upload','formula_preview'];$expected=in_array($action,$mutations,true)?'POST':'GET';if($method!==$expected)fail('Méthode non autorisée.',405);if($expected==='POST')csrf();
     if($action==='form_get')json_out(database_form_get(str_limit($_GET['token']??$_GET['id']??'',64),isset($_GET['token'])));
     if($action==='public_db_get')json_out(database_bundle(str_limit($_GET['id']??'',36),true));
@@ -143,6 +143,20 @@ function database_dispatch(string $action,string $method): void {
     need_admin();
     if($action==='db_list')json_out(['databases'=>array_map(fn($r)=>array_replace($r,['version'=>(int)$r['version']]),query('SELECT * FROM collections ORDER BY created_at,id')->fetchAll())]);
     if($action==='db_get')json_out(database_bundle(str_limit($_GET['id']??'',36)));
+    if($action==='db_projection'){
+        $id=str_limit($_GET['id']??'',36);$database=database_record($id);
+        $properties=array_values(array_filter(database_properties($id),fn($p)=>!in_array($p['type'],['relation','formula','rollup'],true)));
+        $requested=isset($_GET['columns'])?explode(',',str_limit($_GET['columns'],3700)):null;
+        $default=null;foreach($properties as $p)if($p['type']==='title'){$default=$p['id'];break;}if(!$default)foreach($properties as $p)if($p['type']==='text'){$default=$p['id'];break;}
+        $columns=$requested??($default?[$default]:[]);$selected=array_values(array_filter($properties,fn($p)=>in_array($p['id'],$columns,true)));
+        $source=str_limit($_GET['source']??'',36);$where='db_id=?';$args=[$id];
+        if($source){if(!query('SELECT id FROM collection_forms WHERE db_id=? AND id=?',[$id,$source])->fetch())fail('Formulaire introuvable.',404);$where.=' AND source_form_id=?';$args[]=$source;}
+        $total=(int)query('SELECT COUNT(*) FROM collection_rows WHERE '.$where,$args)->fetchColumn();
+        $records=query('SELECT id,values_json,created_at FROM collection_rows WHERE '.$where.' ORDER BY created_at DESC,id DESC LIMIT 200',$args)->fetchAll();$rows=[];
+        foreach($records as $row){$raw=json_decode($row['values_json'],true)?:[];$values=[];foreach($selected as $p){$value=$raw[$p['id']]??null;$values[$p['id']]=$p['type']==='files'?(is_array($value)?count($value):0):$value;}$rows[]=['id'=>$row['id'],'created_at'=>$row['created_at'],'values'=>(object)$values];}
+        // Never return form tokens, file IDs/URLs, related records or unselected cell values.
+        json_out(['database'=>['id'=>$id,'name'=>$database['name']],'properties'=>array_map(fn($p)=>['id'=>$p['id'],'name'=>$p['name'],'type'=>$p['type']],$properties),'columns'=>array_column($selected,'id'),'forms'=>query('SELECT id,name FROM collection_forms WHERE db_id=? ORDER BY created_at,id',[$id])->fetchAll(),'rows'=>$rows,'total'=>$total,'limit'=>200]);
+    }
     if($action==='db_export'){
         $bundle=database_bundle(str_limit($_GET['id']??'',36));header('Content-Type: text/csv; charset=utf-8');header('Content-Disposition: attachment; filename="base.csv"');$out=fopen('php://output','wb');fwrite($out,"\xEF\xBB\xBF");$cell=function($v){$s=is_array($v)?implode(', ',$v):(string)($v??'');return !is_int($v)&&!is_float($v)&&preg_match('/^(?:\s*[=+\-@]|[\t\r\n]|[＝＋－＠])/u',$s)?"'".$s:$s;};fputcsv($out,array_map(fn($p)=>$cell($p['name']),$bundle['properties']),',','"','');foreach($bundle['rows'] as $r)fputcsv($out,array_map(fn($p)=>$cell($r['derived'][$p['id']]??$r['values'][$p['id']]??null),$bundle['properties']),',','"','');fclose($out);exit;
     }
