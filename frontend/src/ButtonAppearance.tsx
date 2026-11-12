@@ -1,5 +1,9 @@
 import { Select } from "./Select";
-export type ButtonAppearance = { buttonStyle?: string; buttonSize?: string };
+export type ButtonAppearance = {
+  buttonStyle?: string;
+  buttonSize?: string;
+  buttonLabel?: string;
+};
 export function buttonClasses(value: ButtonAppearance = {}) {
   const style = ["solid", "soft", "outline", "minimal"].includes(
     value.buttonStyle || "",
@@ -14,12 +18,26 @@ export function buttonClasses(value: ButtonAppearance = {}) {
 export function ButtonAppearanceFields({
   value,
   onChange,
+  showLabel = true,
 }: {
+  showLabel?: boolean;
   value: ButtonAppearance;
   onChange: (value: ButtonAppearance) => void;
 }) {
   return (
     <div className="button-appearance-fields">
+      {showLabel && (
+        <label>
+          Texte du bouton
+          <input
+            aria-label="Texte du bouton"
+            maxLength={120}
+            value={value.buttonLabel || ""}
+            placeholder="Texte du formulaire"
+            onChange={(e) => onChange({ buttonLabel: e.target.value })}
+          />
+        </label>
+      )}
       <label>
         Style du bouton
         <Select
@@ -46,7 +64,7 @@ export function ButtonAppearanceFields({
         </Select>
       </label>
       <span className={buttonClasses(value)} aria-hidden="true">
-        Aperçu du bouton <span>↗</span>
+        {value.buttonLabel || "Aperçu du bouton"} <span>↗</span>
       </span>
     </div>
   );

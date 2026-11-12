@@ -1,5 +1,15 @@
 # Historique des versions
 
+## 0.29.0 — 2026-11-12
+
+- Studio de formulaires : modèles Atelier, Éditorial, Studio, Aurore et Essentiel ; aperçu en direct avant/après l’envoi, côte à côte quand la largeur le permet.
+- Textes d’accueil, de carte, boutons d’ouverture et d’envoi, messages de confirmation, aides, exemples et libellés de questions personnalisables. Le caractère obligatoire peut être propre au formulaire sans modifier les colonnes de la base.
+- Couverture depuis un fichier ou la bibliothèque, police, accent adapté aux thèmes clair/sombre/OLED, alignement, densité et numérotation. Animations douces ou immersives, halos et célébration d’envoi, avec réduction des mouvements respectée.
+- Texte du bouton d’un bloc formulaire modifiable indépendamment du libellé par défaut du formulaire ; les boutons de liens conservent leur éditeur de texte.
+- Regroupement des vues de bases par propriété, sections repliables et comptées, tri et filtres conservés. Regroupement également dans la projection mise à jour toutes les dix secondes. Les choix multiples sont regroupés par combinaison sans dupliquer les lignes.
+- Configuration sauvegardée, importée et copiée avec remappage des questions, couvertures et regroupements. Les copies restent privées avec de nouveaux liens de formulaire. Migration additive et idempotente du schéma des formulaires.
+- Sécurité : énumérations fermées, textes affichés sans HTML exécutable, colonnes de regroupement validées et droits publics conservés. Couvertures publiques seulement pour les formulaires publiés ; aucun fichier de réponse rendu public.
+
 ## 0.28.0 — 2026-11-12
 
 - Formulaires publics : squelette de chargement dès le HTML initial, sans écran d’accueil intermédiaire ni double titre Feuillet. Présentation des questions, pièces jointes et confirmation d’envoi modernisée dans les thèmes clair, sombre et OLED.

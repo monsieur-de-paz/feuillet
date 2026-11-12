@@ -40,7 +40,7 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
     if($t==='buttonLink'||$t==='bookmark'){
         $url=safe_url($a['href']??'');if(!$url)return '';
         $icon=(!empty($a['iconId'])||($a['icon']??'↗')!=='')?render_page_icon(['icon'=>$a['icon']??'↗','icon_id'=>$a['iconId']??null]):'';
-        if($t==='buttonLink')return '<a class="'.h(button_classes($a)).'" href="'.h($url).'" target="_blank" rel="noopener noreferrer">'.$icon.' <span>'.h($a['label']??$url).'</span></a>';
+        if($t==='buttonLink')return '<a class="'.h(button_classes($a)).'" href="'.h($url).'" target="_blank" rel="noopener noreferrer">'.$icon.' <span>'.h(($a['buttonLabel']??'')!==''?$a['buttonLabel']:($a['label']??$url)).'</span></a>';
         $preview=!empty($a['posterId'])?thumbnail_url($a['posterId'],320):safe_url($a['previewUrl']??'');
         return '<a class="bookmark link-card" href="'.h($url).'" target="_blank" rel="noopener noreferrer">'.$icon.'<div class="link-card-body"><strong>'.h($a['title']??$url).'</strong><p>'.h($a['description']??'').'</p><small>'.h(parse_url($url,PHP_URL_HOST)??'').' ↗</small></div>'.($preview?'<img class="link-card-preview" src="'.h($preview).'" loading="lazy" referrerpolicy="no-referrer" alt="">':'').'</a>';
     }
@@ -114,9 +114,12 @@ function render_feuillet_icon(string $value): string {
 
 
 /** Same visibility policy as public_db_get; never render private/form responses. */
-function render_database_view(string $id,bool $public,array $config=[]): string {
-    try{$bundle=database_bundle($id,$public||!admin());}catch(Throwable){return '<section class="embedded-database reader-embed-unavailable"><p>Cette base n’est pas disponible.</p></section>';}
-    $rows=database_view_rows($bundle,$config);$hidden=is_array($config['hiddenPropertyIds']??null)?$config['hiddenPropertyIds']:[];$properties=array_values(array_filter($bundle['properties'],fn($p)=>$p['type']==='title'||!in_array($p['id'],$hidden,true)));$files=array_column($bundle['files'],null,'id');$head='';$body='';
+function render_database_view(string $id,bool $public,array $config=[],?array $provided=null): string {
+    try{$bundle=$provided??database_bundle($id,$public||!admin());}catch(Throwable){return '<section class="embedded-database reader-embed-unavailable"><p>Cette base n’est pas disponible.</p></section>';}
+    $rows=database_view_rows($bundle,$config);
+    $byId=array_column($bundle['properties'],null,'id');$group=$byId[$config['groupBy']??'']??null;
+    if($group&&!in_array($group['type'],['files','relation'],true)){$groups=[];foreach(array_slice($rows,0,500) as $row){$value=database_view_value($row,$group,$bundle);if(is_array($value)){sort($value,SORT_STRING);}$key=encoded($value===null||$value===''||$value===[]?null:$value);if(!isset($groups[$key]))$groups[$key]=['empty'=>$key==='null','label'=>$key==='null'?'Non renseigné':(is_bool($value)?($value?'Oui':'Non'):(is_array($value)?implode(' · ',$value):database_view_text($value))),'rows'=>[]];$groups[$key]['rows'][]=$row;}uasort($groups,fn($a,$b)=>$a['empty']!==$b['empty']?($a['empty']?1:-1):strnatcasecmp(database_view_normalize($a['label']),database_view_normalize($b['label'])));$html='<section class="embedded-database database-groups"><h2>'.h($bundle['database']['name']).'</h2>';foreach($groups as $g){$child=$bundle;$child['rows']=$g['rows'];$view=$config;unset($view['groupBy']);$view['filters']=[];$html.='<details class="database-record-group" open><summary><span>'.h($g['label']).'</span><small>'.count($g['rows']).' fiche(s)</small></summary>'.render_database_view($id,$public,$view,$child).'</details>';}return $html.'</section>';}
+    $hidden=is_array($config['hiddenPropertyIds']??null)?$config['hiddenPropertyIds']:[];$properties=array_values(array_filter($bundle['properties'],fn($p)=>$p['type']==='title'||!in_array($p['id'],$hidden,true)));$files=array_column($bundle['files'],null,'id');$head='';$body='';
     foreach($properties as $property)$head.='<th scope="col">'.h($property['name']).'</th>';
     foreach(array_slice($rows,0,500) as $row){$cells='';foreach($properties as $property){$value=$row['derived'][$property['id']]??$row['values'][$property['id']]??null;
         if($property['type']==='files'){$text='';foreach(is_array($value)?$value:[] as $fileId){$file=$files[$fileId]??null;if(!$file)continue;$text.='<a class="database-file" href="media.php?id='.rawurlencode($fileId).'&download=1">'.h($file['name']).'</a>';}}
@@ -148,10 +151,10 @@ function render_form_view(string $id,bool $public,array $appearance=[]): string 
     // Force the published reference gate even when an admin reads the public version.
     if($public){$record=query('SELECT is_public FROM collection_forms WHERE id=?',[$id])->fetch();if(!$record||!(bool)$record['is_public']||!database_node_reference('formView',$id))return '<section class="embedded-form reader-embed-unavailable"><p>Ce formulaire n’est pas disponible.</p></section>';}
     try{$bundle=database_form_get($id);}catch(Throwable){return '<section class="embedded-form reader-embed-unavailable"><p>Ce formulaire n’est pas disponible.</p></section>';}
-    $form=$bundle['form'];$title='<h2>'.h($form['name']).'</h2>';
+    $form=$bundle['form'];$design=$form['config']??form_design_defaults();$title='<h2>'.h($form['name']).'</h2>';
     if(empty($form['public']))return '<section class="embedded-form">'.$title.'<p>Ce formulaire est privé. Ouvre ses réglages pour activer le partage.</p></section>';
-    $link='index.php?form='.rawurlencode($form['token']);$fields='';foreach($form['fields'] as $id)foreach($bundle['properties'] as $property)if($property['id']===$id)$fields.='<li>'.h($property['name']).(!empty($property['required'])?' <span aria-label="obligatoire">*</span>':'').'</li>';
-    return '<section class="embedded-form form-invitation"><div class="form-invitation-symbol" aria-hidden="true">'.render_feuillet_icon('lucide:clipboard-list').'</div><div class="form-invitation-body"><span class="form-eyebrow">Formulaire</span>'.$title.'<p>Une réponse à transmettre, simplement.</p>'.($fields?'<ul class="form-fields-preview">'.$fields.'</ul>':'').'<a class="'.h(button_classes($appearance)).'" href="'.h($link).'">Remplir le formulaire <span aria-hidden="true">↗</span></a><small class="form-private-note">Réponses et fichiers privés · Seul l’administrateur peut les consulter.</small><noscript><p>JavaScript est nécessaire pour envoyer les réponses et les pièces jointes.</p></noscript></div></section>';
+    $link='index.php?form='.rawurlencode($form['token']);$fields='';foreach($form['fields'] as $id)foreach($bundle['properties'] as $property)if($property['id']===$id)$fields.='<li>'.h(($design['questions'][$property['id']]['label']??'')!==''?$design['questions'][$property['id']]['label']:$property['name']).(!empty($design['questions'][$property['id']]['required']??$property['required'])?' <span aria-label="obligatoire">*</span>':'').'</li>';
+    return '<section class="embedded-form form-invitation"><div class="form-invitation-symbol" aria-hidden="true">'.render_feuillet_icon('lucide:clipboard-list').'</div><div class="form-invitation-body"><span class="form-eyebrow">'.h($design['cardEyebrow']).'</span>'.$title.'<p>'.h($design['introText']).'</p>'.($fields?'<ul class="form-fields-preview">'.$fields.'</ul>':'').'<a class="'.h(button_classes($appearance)).'" href="'.h($link).'">'.h(($appearance['buttonLabel']??'')!==''?$appearance['buttonLabel']:$design['openLabel']).' <span aria-hidden="true">↗</span></a><small class="form-private-note">'.h($design['cardNote']).'</small><noscript><p>JavaScript est nécessaire pour envoyer les réponses et les pièces jointes.</p></noscript></div></section>';
 
 }
 

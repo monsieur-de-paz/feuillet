@@ -1,0 +1,22 @@
+<?php
+declare(strict_types=1);
+function form_design_defaults(): array {
+    return ['template'=>'atelier','animation'=>'gentle','font'=>'sans','accent'=>'','alignment'=>'center','density'=>'comfortable','showNumbers'=>true,'showAgain'=>true,'coverId'=>'','eyebrow'=>'À vous de jouer','description'=>'Complète les champs ci-dessous, puis envoie ta réponse.','badge'=>'Réponse privée','cardEyebrow'=>'Formulaire','cardNote'=>'Réponses et fichiers privés · Seul l’administrateur peut les consulter.','introText'=>'Une réponse à transmettre, simplement.','openLabel'=>'Remplir le formulaire','submitLabel'=>'Envoyer ma réponse','submittingLabel'=>'Envoi en cours…','successEyebrow'=>'Envoi confirmé','successTitle'=>'Ta réponse est bien arrivée.','successText'=>'Merci ! Elle sera consultable uniquement par l’administrateur du site.','againLabel'=>'Envoyer une autre réponse','footer'=>'Les champs marqués * sont obligatoires. Tes réponses et tes fichiers sont transmis à l’administrateur du site et ne sont pas affichés aux autres visiteurs.','attachmentNotice'=>'Les pièces jointes non envoyées avec ta réponse expirent après 24 heures. Les fichiers envoyés restent privés et accessibles à l’administrateur du site.','uploadLabel'=>'Ajouter des fichiers','previewHint'=>'Aperçu : aucune réponse n’est envoyée ici.','questions'=>[]];
+}
+function form_design(mixed $input,?array $ids=null,bool $validateCover=false): array {
+    if(!is_array($input))fail('Personnalisation du formulaire invalide.');$out=form_design_defaults();
+    foreach(['template'=>['atelier','editorial','canvas','aurora','minimal'],'animation'=>['none','gentle','immersive'],'font'=>['sans','quicksand','fraunces','mono'],'alignment'=>['left','center'],'density'=>['comfortable','compact']] as $key=>$allowed)if(array_key_exists($key,$input)){if(!in_array($input[$key],$allowed,true))fail('Option de formulaire invalide : '.$key);$out[$key]=$input[$key];}
+    foreach(['showNumbers','showAgain'] as $key)if(array_key_exists($key,$input)){if(!is_bool($input[$key]))fail('Option de formulaire invalide.');$out[$key]=$input[$key];}
+    foreach(['cardEyebrow'=>120,'cardNote'=>1000,'eyebrow'=>120,'description'=>2000,'badge'=>200,'introText'=>1000,'openLabel'=>120,'submitLabel'=>120,'submittingLabel'=>120,'successEyebrow'=>120,'successTitle'=>300,'successText'=>2000,'againLabel'=>120,'footer'=>2000,'attachmentNotice'=>2000,'uploadLabel'=>120,'previewHint'=>300] as $key=>$max)if(array_key_exists($key,$input)){if(!is_string($input[$key])||mb_strlen($input[$key])>$max)fail('Texte de formulaire invalide : '.$key);$out[$key]=trim($input[$key]);}
+    foreach(['openLabel','submitLabel','submittingLabel','successTitle','againLabel','uploadLabel'] as $key)if($out[$key]==='')fail('Renseigne le texte : '.$key);
+    $accent=$input['accent']??'';if(!is_string($accent)||($accent!==''&&!preg_match('/^#[0-9a-fA-F]{6}$/D',$accent)))fail('Couleur de formulaire invalide.');$out['accent']=$accent;
+    $cover=$input['coverId']??'';if(!is_string($cover)||($cover!==''&&!preg_match('/^[a-zA-Z0-9-]{36}$/D',$cover)))fail('Couverture de formulaire invalide.');
+    if($cover&&$validateCover){$f=query('SELECT mime FROM files WHERE id=?',[$cover])->fetch();if(!$f||!str_starts_with($f['mime'],'image/'))fail('Choisis une image pour la couverture.');}$out['coverId']=$cover;
+    $questions=$input['questions']??[];if(!is_array($questions)||count($questions)>100)fail('Questions personnalisées invalides.');$out['questions']=[];
+    foreach($questions as $id=>$value){if($ids!==null&&!in_array($id,$ids,true))continue;if(!is_string($id)||strlen($id)>100||!is_array($value))fail('Question personnalisée invalide.');$q=[];foreach(['label'=>300,'help'=>1000,'placeholder'=>300] as $key=>$max)if(isset($value[$key])){if(!is_string($value[$key])||mb_strlen($value[$key])>$max)fail('Texte de question invalide.');$q[$key]=trim($value[$key]);}if(array_key_exists('required',$value)){if(!is_bool($value['required']))fail('Option de question invalide.');$q['required']=$value['required'];}$out['questions'][$id]=$q;}
+    return $out;
+}
+function form_properties(array $form): array {
+    $props=array_values(array_filter(database_properties($form['db_id']),fn($p)=>in_array($p['id'],$form['fields'],true)&&!in_array($p['type'],['relation','formula','rollup'],true)));
+    foreach($props as &$p){$q=$form['config']['questions'][$p['id']]??[];if(isset($q['label'])&&$q['label']!=='')$p['name']=$q['label'];if(isset($q['required']))$p['required']=$q['required'];}unset($p);return $props;
+}

@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.28.0';
+const FEUILLET_VERSION = '0.29.0';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -110,7 +110,7 @@ function limit_rate(string $scope, int $max, int $window): void {
     $rows[]=time(); ftruncate($fp,0);rewind($fp);fwrite($fp,encoded($rows));flock($fp,LOCK_UN);fclose($fp);
 }
 function button_appearance(array $a): array {
-    return ['buttonStyle'=>in_array($a['buttonStyle']??null,['solid','soft','outline','minimal'],true)?$a['buttonStyle']:'soft','buttonSize'=>in_array($a['buttonSize']??null,['compact','regular','large'],true)?$a['buttonSize']:'regular'];
+    return ['buttonLabel'=>str_limit($a['buttonLabel']??'',120),'buttonStyle'=>in_array($a['buttonStyle']??null,['solid','soft','outline','minimal'],true)?$a['buttonStyle']:'soft','buttonSize'=>in_array($a['buttonSize']??null,['compact','regular','large'],true)?$a['buttonSize']:'regular'];
 }
 function button_classes(array $a): string { $value=button_appearance($a);return 'resource-button feuillet-action action-'.$value['buttonStyle'].' action-'.$value['buttonSize']; }
 function normalize_doc(mixed $doc): array {

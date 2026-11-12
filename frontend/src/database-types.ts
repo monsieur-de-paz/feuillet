@@ -1,3 +1,4 @@
+import type { FormDesign } from "./form-design";
 import { api, ApiError, setCsrf, type FileRecord } from "./types";
 
 export type PropertyType =
@@ -23,6 +24,8 @@ export type Database = {
   version: number;
 };
 export type Property = {
+  help?: string;
+  placeholder?: string;
   id: string;
   db_id: string;
   name: string;
@@ -52,6 +55,7 @@ export type DatabaseRow = {
   version: number;
 };
 export type DatabaseForm = {
+  config?: Partial<FormDesign>;
   id: string;
   db_id: string;
   name: string;
@@ -203,6 +207,7 @@ export type DatabaseViewFilter = {
   value: string | number | boolean;
 };
 export type DatabaseViewConfiguration = {
+  groupBy?: string | null;
   layout: "table" | "gallery" | "chart";
   filters: DatabaseViewFilter[];
   sort: { propertyId: string; direction: "asc" | "desc" } | null;
@@ -260,6 +265,14 @@ export function normalizeDatabaseView(
             : String(filter.value ?? "").slice(0, 1000),
     }));
   return {
+    ...(validId(source.groupBy) &&
+    (!properties ||
+      properties.some(
+        (p) =>
+          p.id === source.groupBy && !["files", "relation"].includes(p.type),
+      ))
+      ? { groupBy: source.groupBy }
+      : {}),
     layout: ["table", "gallery", "chart"].includes(source.layout || "")
       ? source.layout!
       : "table",

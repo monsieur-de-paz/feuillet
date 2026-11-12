@@ -1,3 +1,7 @@
+import { FormDesigner } from "./FormDesigner";
+import { formDesign, formQuestion } from "./form-design";
+import { FormAppearance } from "./FormAppearance";
+import { groupRecords } from "./database-grouping";
 import { FormSkeleton } from "./FormSkeleton";
 import {
   ButtonAppearanceFields,
@@ -208,6 +212,7 @@ type FieldProps = {
   progress?: { name: string; value: number };
   disabled?: boolean;
   error?: string;
+  uploadLabel?: string;
 };
 function Field({
   property,
@@ -219,6 +224,7 @@ function Field({
   progress,
   disabled = false,
   error,
+  uploadLabel = "Ajouter des fichiers",
 }: FieldProps) {
   const controlId = useId();
   const id = `field-${property.id}-${controlId}`;
@@ -251,7 +257,7 @@ function Field({
         value={typeof value === "string" ? value : ""}
         onChange={(event) => onChange(event.target.value)}
       >
-        <option value="">Choisir…</option>
+        <option value="">{property.placeholder || "Choisir…"}</option>
         {options.map((option) => (
           <option key={option} value={option}>
             {option}
@@ -314,7 +320,7 @@ function Field({
           ))}
         </div>
         <label className="database-file-input">
-          <FileInput size={15} /> Ajouter des fichiers
+          <FileInput size={15} /> {uploadLabel}
           <input
             type="file"
             multiple
@@ -343,6 +349,7 @@ function Field({
       <textarea
         id={id}
         rows={3}
+        placeholder={property.placeholder}
         required={required}
         disabled={disabled}
         value={typeof value === "string" ? value : ""}
@@ -371,11 +378,12 @@ function Field({
         disabled={disabled}
         value={value === null || value === undefined ? "" : String(value)}
         placeholder={
-          property.type === "url"
+          property.placeholder ||
+          (property.type === "url"
             ? "https://…"
             : property.type === "phone"
               ? "+33 …"
-              : undefined
+              : undefined)
         }
         onChange={(event) =>
           onChange(
@@ -398,6 +406,11 @@ function Field({
           </span>
         )}
       </label>
+      {property.help && (
+        <p className="database-field-help form-question-help">
+          {property.help}
+        </p>
+      )}
       {input}
       {property.type === "relation" && (
         <small className="database-field-help">
@@ -1031,9 +1044,9 @@ function ViewControls({
   search: string;
   onSearch: (query: string) => void;
 }) {
-  const [panel, setPanel] = useState<"filters" | "sort" | "properties" | null>(
-    null,
-  );
+  const [panel, setPanel] = useState<
+    "filters" | "sort" | "properties" | "groups" | null
+  >(null);
   function changeFilter(index: number, patch: Partial<DatabaseViewFilter>) {
     onChange({
       ...config,
@@ -1067,6 +1080,12 @@ function ViewControls({
         </div>
         <div className="database-view-actionbar">
           <button
+            className={config.groupBy ? "has-setting" : ""}
+            onClick={() => setPanel(panel === "groups" ? null : "groups")}
+          >
+            <List size={14} /> Grouper
+          </button>
+          <button
             className={config.filters.length ? "has-setting" : ""}
             onClick={() => setPanel(panel === "filters" ? null : "filters")}
           >
@@ -1098,6 +1117,34 @@ function ViewControls({
           </div>
         </div>
       </div>
+      {panel === "groups" && (
+        <div className="database-view-panel">
+          <label>
+            Regrouper par
+            <Select
+              aria-label="Regrouper les fiches par"
+              value={config.groupBy || ""}
+              onChange={(e) =>
+                onChange({ ...config, groupBy: e.target.value || null })
+              }
+            >
+              <option value="">Aucun regroupement</option>
+              {bundle.properties
+                .filter((p) => !["files", "relation"].includes(p.type))
+                .map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+            </Select>
+          </label>
+          <small>
+            Les réponses identiques sont réunies. Les listes à plusieurs choix
+            sont regroupées par combinaison, sans compter une fiche plusieurs
+            fois.
+          </small>
+        </div>
+      )}
       {panel === "filters" && (
         <div className="database-view-panel">
           <small>
@@ -1548,6 +1595,48 @@ function Records({
         {search
           ? "Aucune fiche ne correspond à la recherche."
           : "Cette base ne contient aucune fiche accessible."}
+      </div>
+    );
+  const groupProperty = bundle.properties.find(
+    (p) =>
+      p.id === effective.groupBy && !["files", "relation"].includes(p.type),
+  );
+  if (groupProperty)
+    return (
+      <div className="database-groups">
+        {groupRecords(rows, (row) => cellValue(row, groupProperty)).map(
+          (group) => (
+            <details className="database-record-group" key={group.key} open>
+              <summary>
+                <span>{group.label}</span>
+                <small>
+                  {group.rows.length} fiche{group.rows.length > 1 ? "s" : ""}
+                </small>
+              </summary>
+              <Records
+                bundle={{ ...bundle, rows: group.rows }}
+                view={view}
+                config={{ ...effective, groupBy: null }}
+                onConfigChange={
+                  onConfigChange
+                    ? (next) =>
+                        onConfigChange({ ...next, groupBy: effective.groupBy })
+                    : undefined
+                }
+                search=""
+                relationLabels={relationLabels}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onCellSaved={onCellSaved}
+                editingDisabled={editingDisabled}
+                onPropertyEdit={onPropertyEdit}
+                onPropertyDelete={onPropertyDelete}
+                onPropertyRename={onPropertyRename}
+                onAddProperty={onAddProperty}
+              />
+            </details>
+          ),
+        )}
       </div>
     );
   if (effective.layout === "gallery")
@@ -2571,7 +2660,11 @@ function FormBuilder({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [conflict, setConflict] = useState(false);
-  const [preview, setPreview] = useState(false);
+  const [preview, setPreview] = useState(true);
+  const [previewStage, setPreviewStage] = useState<"before" | "after">(
+    "before",
+  );
+  const [design, setDesign] = useState(() => formDesign(form?.config));
   const eligible = bundle.properties.filter(canUseInForm);
   useEffect(() => {
     onDirtyChange?.(dirty);
@@ -2593,6 +2686,7 @@ function FormBuilder({
         id: form?.id,
         db_id: bundle.database.id,
         name,
+        config: design,
         fields: fields.filter((id) =>
           eligible.some((property) => property.id === id),
         ),
@@ -2609,17 +2703,20 @@ function FormBuilder({
       setBusy(false);
     }
   }
-  async function toggleRequired(property: Property) {
-    setBusy(true);
-    setError("");
-    try {
-      await api("property_save", { ...property, required: !property.required });
-      await onSaved();
-    } catch (error) {
-      setError(errorText(error));
-    } finally {
-      setBusy(false);
-    }
+  function toggleRequired(property: Property) {
+    setDesign((previous) => ({
+      ...previous,
+      questions: {
+        ...previous.questions,
+        [property.id]: {
+          ...previous.questions[property.id],
+          required: !(
+            previous.questions[property.id]?.required ?? property.required
+          ),
+        },
+      },
+    }));
+    setDirty(true);
   }
   function reorder(id: string, direction: number) {
     const next = [...fields];
@@ -2634,7 +2731,7 @@ function FormBuilder({
     setDirty(true);
   }
   return (
-    <section className="database-editor-card">
+    <section className="database-editor-card form-studio">
       <h4>{form ? "Configurer le formulaire" : "Créer un formulaire"}</h4>
       <ErrorBox message={error}>
         {conflict && (
@@ -2643,7 +2740,7 @@ function FormBuilder({
               className="small-button"
               onClick={() =>
                 downloadDraft(
-                  { name, fields, public: published },
+                  { name, fields, config: design, public: published },
                   "formulaire-brouillon.json",
                 )
               }
@@ -2664,180 +2761,232 @@ function FormBuilder({
           </div>
         )}
       </ErrorBox>
-      <form onSubmit={submit}>
-        <label>
-          Titre du formulaire
-          <input
-            required
-            value={name}
-            onChange={(event) => {
-              setName(event.target.value);
-              setDirty(true);
-            }}
-          />
-        </label>
-        <p className="database-field-help">
-          Sélectionne les questions à présenter. Le nom et le type des questions
-          viennent des champs de la base. Le réglage « Obligatoire » est partagé
-          avec les fiches et les autres formulaires qui utilisent ce champ. Les
-          relations et les calculs restent internes.
-        </p>
-        <div className="database-form-fields">
-          {eligible.map((property) => (
-            <div key={property.id} className="database-form-field-row">
-              <input
-                type="checkbox"
-                aria-label={`Inclure ${property.name}`}
-                checked={fields.includes(property.id)}
-                onChange={() => {
-                  setFields(
-                    fields.includes(property.id)
-                      ? fields.filter((id) => id !== property.id)
-                      : [...fields, property.id],
-                  );
-                  setDirty(true);
-                }}
-              />
-              <span>
-                {property.name}
-                {property.required && " *"}
-                <small>
-                  {propertyLabel(property.type)}
-                  {fields.includes(property.id)
-                    ? ` · question ${fields.indexOf(property.id) + 1}`
-                    : ""}
-                </small>
-              </span>
-              {fields.includes(property.id) && (
-                <>
-                  <label className="database-checkline database-question-required">
-                    <input
-                      type="checkbox"
-                      aria-label={`Question ${property.name} obligatoire`}
-                      checked={property.required}
-                      disabled={busy}
-                      onChange={() => void toggleRequired(property)}
-                    />{" "}
-                    Obligatoire
-                  </label>
-                  <button
-                    type="button"
-                    title="Monter la question"
-                    disabled={fields.indexOf(property.id) === 0}
-                    onClick={() => reorder(property.id, -1)}
-                  >
-                    <ArrowUp size={14} />
-                  </button>
-                  <button
-                    type="button"
-                    title="Descendre la question"
-                    disabled={fields.indexOf(property.id) === fields.length - 1}
-                    onClick={() => reorder(property.id, 1)}
-                  >
-                    <ArrowDown size={14} />
-                  </button>
-                </>
-              )}
+      <div className="form-studio-layout">
+        <form className="form-studio-controls" onSubmit={submit}>
+          <label>
+            Titre du formulaire
+            <input
+              required
+              value={name}
+              onChange={(event) => {
+                setName(event.target.value);
+                setDirty(true);
+              }}
+            />
+          </label>
+          <details className="form-source-fields" open={!fields.length}>
+            <summary>
+              Questions du formulaire{" "}
+              <small>{fields.length} sélectionnée(s)</small>
+            </summary>
+            <p className="database-field-help">
+              Sélectionne les questions à présenter. Le nom et le type des
+              questions viennent des champs de la base. Les textes personnalisés
+              et le réglage « Obligatoire » restent propres à ce formulaire. Les
+              relations et les calculs restent internes.
+            </p>
+            <div className="database-form-fields">
+              {eligible.map((property) => (
+                <div key={property.id} className="database-form-field-row">
+                  <input
+                    type="checkbox"
+                    aria-label={`Inclure ${property.name}`}
+                    checked={fields.includes(property.id)}
+                    onChange={() => {
+                      setFields(
+                        fields.includes(property.id)
+                          ? fields.filter((id) => id !== property.id)
+                          : [...fields, property.id],
+                      );
+                      setDirty(true);
+                    }}
+                  />
+                  <span>
+                    {property.name}
+                    {(design.questions[property.id]?.required ??
+                      property.required) &&
+                      " *"}
+                    <small>
+                      {propertyLabel(property.type)}
+                      {fields.includes(property.id)
+                        ? ` · question ${fields.indexOf(property.id) + 1}`
+                        : ""}
+                    </small>
+                  </span>
+                  {fields.includes(property.id) && (
+                    <>
+                      <label className="database-checkline database-question-required">
+                        <input
+                          type="checkbox"
+                          aria-label={`Question ${property.name} obligatoire`}
+                          checked={
+                            design.questions[property.id]?.required ??
+                            property.required
+                          }
+                          disabled={busy}
+                          onChange={() => void toggleRequired(property)}
+                        />{" "}
+                        Obligatoire
+                      </label>
+                      <button
+                        type="button"
+                        title="Monter la question"
+                        disabled={fields.indexOf(property.id) === 0}
+                        onClick={() => reorder(property.id, -1)}
+                      >
+                        <ArrowUp size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        title="Descendre la question"
+                        disabled={
+                          fields.indexOf(property.id) === fields.length - 1
+                        }
+                        onClick={() => reorder(property.id, 1)}
+                      >
+                        <ArrowDown size={14} />
+                      </button>
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        {!eligible.length && (
-          <p className="database-empty">
-            Ajoute un champ texte, choix, date, fichier ou coordonnées pour
-            commencer.
-          </p>
-        )}
-        <label className="database-checkline">
-          <input
-            type="checkbox"
-            checked={published}
-            onChange={(event) => {
-              setPublished(event.target.checked);
+            {!eligible.length && (
+              <p className="database-empty">
+                Ajoute un champ texte, choix, date, fichier ou coordonnées pour
+                commencer.
+              </p>
+            )}
+          </details>
+          <FormDesigner
+            value={design}
+            properties={selected}
+            onChange={(patch) => {
+              setDesign((previous) => ({ ...previous, ...patch }));
               setDirty(true);
             }}
           />
-          Rendre le formulaire accessible par son lien
-        </label>
-        <div className="database-private-note">
-          <ShieldCheck size={17} />
-          <span>
-            Le formulaire collecte les réponses dans cette base. Ces réponses et
-            leurs pièces jointes restent privées, même si le formulaire ou la
-            base est public.
-          </span>
-        </div>
-        {form?.public && (
-          <a
-            href={formUrl(form.token)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="database-form-link"
-          >
-            {formUrl(form.token)}
-          </a>
+          <label className="database-checkline">
+            <input
+              type="checkbox"
+              checked={published}
+              onChange={(event) => {
+                setPublished(event.target.checked);
+                setDirty(true);
+              }}
+            />
+            Rendre le formulaire accessible par son lien
+          </label>
+          <div className="database-private-note">
+            <ShieldCheck size={17} />
+            <span>
+              Le formulaire collecte les réponses dans cette base. Ces réponses
+              et leurs pièces jointes restent privées, même si le formulaire ou
+              la base est public.
+            </span>
+          </div>
+          {form?.public && (
+            <a
+              href={formUrl(form.token)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="database-form-link"
+            >
+              {formUrl(form.token)}
+            </a>
+          )}
+          <div className="database-editor-actions">
+            <button
+              type="button"
+              className="small-button"
+              onClick={() => setPreview(!preview)}
+            >
+              {preview ? "Fermer l’aperçu" : "Prévisualiser les questions"}
+            </button>
+            <button
+              className="small-button"
+              type="button"
+              onClick={() => {
+                if (
+                  !dirty ||
+                  confirm("Quitter sans enregistrer le formulaire ?")
+                )
+                  onClose();
+              }}
+            >
+              Annuler
+            </button>
+            <button
+              className="primary-button"
+              disabled={busy || !selected.length}
+            >
+              {busy ? (
+                <LoaderCircle className="spin" size={15} />
+              ) : (
+                <Check size={15} />
+              )}{" "}
+              Enregistrer le formulaire
+            </button>
+          </div>
+        </form>
+        {preview && (
+          <aside className="database-form-preview form-studio-preview">
+            <header className="form-preview-heading">
+              <h4>Aperçu en direct</h4>
+              <div>
+                <button
+                  type="button"
+                  className="small-button"
+                  aria-pressed={previewStage === "before"}
+                  onClick={() => setPreviewStage("before")}
+                >
+                  Avant l’envoi
+                </button>
+                <button
+                  type="button"
+                  className="small-button"
+                  aria-pressed={previewStage === "after"}
+                  onClick={() => setPreviewStage("after")}
+                >
+                  Après l’envoi
+                </button>
+              </div>
+            </header>
+            <PublicFormFields
+              form={{
+                id: form?.id || "",
+                db_id: bundle.database.id,
+                name,
+                config: design,
+                fields,
+                public: false,
+                token: "",
+                version: 0,
+              }}
+              properties={selected}
+              preview
+              previewSuccess={previewStage === "after"}
+            />
+          </aside>
         )}
-        <div className="database-editor-actions">
-          <button
-            type="button"
-            className="small-button"
-            onClick={() => setPreview(!preview)}
-          >
-            {preview ? "Fermer l’aperçu" : "Prévisualiser les questions"}
-          </button>
-          <button
-            className="small-button"
-            type="button"
-            onClick={() => {
-              if (!dirty || confirm("Quitter sans enregistrer le formulaire ?"))
-                onClose();
-            }}
-          >
-            Annuler
-          </button>
-          <button
-            className="primary-button"
-            disabled={busy || !selected.length}
-          >
-            {busy ? (
-              <LoaderCircle className="spin" size={15} />
-            ) : (
-              <Check size={15} />
-            )}{" "}
-            Enregistrer le formulaire
-          </button>
-        </div>
-      </form>
-      {preview && (
-        <div className="database-form-preview">
-          <h4>{name || "Aperçu du formulaire"}</h4>
-          <PublicFormFields
-            form={{
-              id: form?.id || "",
-              db_id: bundle.database.id,
-              name,
-              fields,
-              public: false,
-              token: "",
-              version: 0,
-            }}
-            properties={selected}
-            preview
-          />
-        </div>
-      )}
+      </div>
     </section>
   );
 }
 
 function PublicFormFields({
   form,
-  properties,
+  properties: originalProperties,
   preview = false,
+  previewSuccess = false,
 }: {
   form: DatabaseForm;
   properties: Property[];
   preview?: boolean;
+  previewSuccess?: boolean;
 }) {
+  const design = formDesign(form.config);
+  const properties = originalProperties.map((p) => formQuestion(p, design));
   const [values, setValues] = useState<Record<string, CellValue>>(() =>
     emptyValues(properties),
   );
@@ -2919,105 +3068,132 @@ function PublicFormFields({
       setBusy(false);
     }
   }
-  if (submitted)
+  if (submitted || (preview && previewSuccess))
     return (
-      <main className="form-page form-complete" role="status">
-        <div className="form-success-orbit">
-          <Check size={32} />
-        </div>
-        <span className="form-eyebrow">Envoi confirmé</span>
-        <h1>Ta réponse est bien arrivée.</h1>
-        <p>
-          Merci ! Elle sera consultable uniquement par l’administrateur du site.
-        </p>
-        <button className="small-button" onClick={() => setSubmitted(false)}>
-          Envoyer une autre réponse
-        </button>
-      </main>
+      <FormAppearance design={design} complete>
+        <main className="form-page form-complete" role="status">
+          {design.animation === "immersive" && (
+            <div className="form-celebration" aria-hidden="true">
+              {Array.from({ length: 18 }, (_, i) => (
+                <i key={i} style={{ "--burst": i } as React.CSSProperties} />
+              ))}
+            </div>
+          )}
+          <div className="form-success-orbit">
+            <Check size={32} />
+          </div>
+          <span className="form-eyebrow">{design.successEyebrow}</span>
+          <h1>{design.successTitle}</h1>
+          <p>{design.successText}</p>
+          {design.showAgain && (
+            <button
+              type="button"
+              className="small-button"
+              disabled={preview}
+              onClick={() => setSubmitted(false)}
+            >
+              {design.againLabel}
+            </button>
+          )}
+        </main>
+      </FormAppearance>
     );
   return (
-    <form
-      className={`public-database-form ${preview ? "" : "form-page"}`}
-      onSubmit={submit}
-    >
-      {!preview && (
-        <header className="form-heading">
-          <div className="form-heading-icon">
-            <FormInput size={26} />
-          </div>
-          <span className="form-eyebrow">À vous de jouer</span>
-          <h1>{form.name}</h1>
-          <p>Complète les champs ci-dessous, puis envoie ta réponse.</p>
-          <span className="form-confidential">
-            <ShieldCheck size={15} /> Réponse privée et sécurisée
-          </span>
-        </header>
-      )}
-      <div className="form-sheet">
-        <ErrorBox message={error} />
-        {properties.map((property, index) => (
-          <section className="form-question" key={property.id}>
-            <span className="form-question-number" aria-hidden="true">
-              {String(index + 1).padStart(2, "0")}
-            </span>
-            <Field
-              key={property.id}
-              property={property}
-              value={values[property.id]}
-              onChange={(value) => change(property.id, value)}
-              onUpload={(incoming) => void upload(property, incoming)}
-              files={files}
-              progress={progress[property.id]}
-              disabled={busy || (preview && property.type === "files")}
-              error={fieldErrors[property.id]}
-            />
-          </section>
-        ))}
-        {!preview &&
-          properties.some((property) => property.type === "files") && (
-            <p className="database-field-help">
-              Les pièces jointes non envoyées avec ta réponse expirent après 24
-              heures. Les fichiers envoyés restent privés et accessibles à
-              l’administrateur du site.
-            </p>
-          )}
-        <div className="database-honeypot" aria-hidden="true">
-          <label>
-            Site web
-            <input
-              tabIndex={-1}
-              autoComplete="off"
-              value={website}
-              onChange={(event) => setWebsite(event.target.value)}
-            />
-          </label>
-        </div>
-        {preview ? (
-          <p className="database-form-footer">
-            Aperçu des questions : aucune réponse n’est envoyée ici.
-          </p>
-        ) : (
-          <>
-            <button
-              className="primary-button form-submit"
-              disabled={busy || Object.keys(progress).length > 0}
-            >
-              {busy ? (
-                <LoaderCircle className="spin" size={16} />
-              ) : (
-                <Send size={17} />
-              )}{" "}
-              {busy ? "Envoi en cours…" : "Envoyer ma réponse"}
-            </button>
-            <p className="database-form-footer">
-              Les champs marqués * sont obligatoires. Tes réponses et tes
-              fichiers sont transmis à l’administrateur du site et ne sont pas
-              affichés aux autres visiteurs.
-            </p>
-          </>
+    <FormAppearance design={design}>
+      <form className="public-database-form form-page" onSubmit={submit}>
+        {design.coverId && (
+          <img
+            className="form-design-cover"
+            src={thumbUrl(design.coverId, 1280)}
+            alt=""
+          />
         )}
-      </div>
-    </form>
+        {
+          <header className="form-heading">
+            <div className="form-heading-icon">
+              <FormInput size={26} />
+            </div>
+            <span className="form-eyebrow">{design.eyebrow}</span>
+            <h1>{form.name}</h1>
+            <p>{design.description}</p>
+            {design.badge && (
+              <span className="form-confidential">
+                <ShieldCheck size={15} />
+                {design.badge}
+              </span>
+            )}
+          </header>
+        }
+        <div className="form-sheet">
+          <ErrorBox message={error} />
+          {properties.map((property, index) => (
+            <section className="form-question" key={property.id}>
+              {design.showNumbers && (
+                <span className="form-question-number" aria-hidden="true">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+              )}
+              <Field
+                key={property.id}
+                property={property}
+                value={values[property.id]}
+                onChange={(value) => change(property.id, value)}
+                onUpload={(incoming) => void upload(property, incoming)}
+                files={files}
+                progress={progress[property.id]}
+                disabled={busy || (preview && property.type === "files")}
+                error={fieldErrors[property.id]}
+                uploadLabel={design.uploadLabel}
+              />
+            </section>
+          ))}
+          {!preview &&
+            properties.some((property) => property.type === "files") && (
+              <p className="database-field-help">{design.attachmentNotice}</p>
+            )}
+          <div className="database-honeypot" aria-hidden="true">
+            <label>
+              Site web
+              <input
+                tabIndex={-1}
+                autoComplete="off"
+                value={website}
+                onChange={(event) => setWebsite(event.target.value)}
+              />
+            </label>
+          </div>
+          {preview ? (
+            <>
+              <button
+                type="button"
+                className="primary-button form-submit"
+                disabled
+              >
+                <Send size={17} />
+                {design.submitLabel}
+              </button>
+              <p className="database-form-footer">{design.footer}</p>
+              <p className="database-form-footer">{design.previewHint}</p>
+            </>
+          ) : (
+            <>
+              <button
+                className="primary-button form-submit"
+                disabled={busy || Object.keys(progress).length > 0}
+              >
+                {busy ? (
+                  <LoaderCircle className="spin" size={16} />
+                ) : (
+                  <Send size={17} />
+                )}{" "}
+                {busy ? design.submittingLabel : design.submitLabel}
+              </button>
+              <p className="database-form-footer">{design.footer}</p>
+            </>
+          )}
+        </div>
+      </form>
+    </FormAppearance>
   );
 }
 
@@ -3028,6 +3204,10 @@ export function PublicForm({ token }: { token: string }) {
   } | null>(null);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
+  const siteTitle = useRef(document.title);
+  useEffect(() => {
+    if (data) document.title = `${data.form.name} — ${siteTitle.current}`;
+  }, [data?.form.name]);
   useEffect(() => {
     let cancelled = false;
     const controller = new AbortController();
@@ -4361,6 +4541,15 @@ export function FormView({
   const [editing, setEditing] = useState(false);
   const [preview, setPreview] = useState(false);
   const [revision, setRevision] = useState(0);
+  useDatabaseChanges(data?.form.db_id || "", () => {
+    void api<{ form: DatabaseForm; properties: Property[] }>(
+      "form_get",
+      undefined,
+      token ? { token } : { id: formId },
+    )
+      .then(setData)
+      .catch(() => {});
+  });
   useEffect(() => {
     let cancelled = false;
     setData(null);
@@ -4434,7 +4623,9 @@ export function FormView({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <ExternalLink size={13} /> Ouvrir le formulaire
+                <ExternalLink size={13} />{" "}
+                {buttonAppearance.buttonLabel ||
+                  formDesign(data.form.config).openLabel}
               </a>
             )}
           </div>

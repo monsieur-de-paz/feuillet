@@ -147,3 +147,13 @@ Pour afficher les réceptions sur un vidéoprojecteur :
 La projection exige une session administrateur et ne crée aucun lien public vers les réponses. Les colonnes non choisies ne sont pas renvoyées par cette API. Les pièces jointes affichent seulement leur nombre. Relations, formules et agrégations ne sont pas proposées dans cette vue de réception. En cas de perte de connexion, les dernières données restent visibles avec un message ; une réponse 401/403 retire les données de l’écran et demande de se reconnecter. Choisir les colonnes adaptées avant de projeter des données personnelles.
 
 Dans l’éditeur, le bloc formulaire propose **Apparence du bouton**. Les autres boutons ajoutés avec `/bouton` proposent ces réglages dans **Présentation** : quatre styles et trois tailles. Ces changements utilisent l’enregistrement habituel de la page ; selon les réglages de publication, publier le brouillon peut être nécessaire pour les visiteurs. Ils ne changent ni le texte, ni l’URL, ni les icônes du bouton.
+
+## Studio des formulaires et regroupements — version 0.29
+
+**Configurer** ouvre le studio. Le volet **Apparence** propose cinq modèles, une couverture, une police, l’accent, la densité, l’alignement et les animations. **Avant l’envoi**, **Questions** et **Après l’envoi** règlent les textes et contraintes du formulaire. L’aperçu en direct permet de contrôler les deux états avant d’enregistrer. Voir [le guide complet 0.29](NOUVEAUTES-0.29.md).
+
+Le réglage Obligatoire peut maintenant être spécifique au formulaire, comme le libellé et la consigne d’une question. Il ne modifie pas la propriété de base. Les anciens formulaires héritent des contraintes de leurs propriétés tant qu’aucun réglage spécifique n’est choisi.
+
+Pour organiser une vue de base, utiliser **Grouper**, choisir une propriété puis replier les groupes si nécessaire. Dans une page, le réglage de la vue est enregistré avec le bloc. La vue de gestion seule reste une préférence de cette session, comme ses filtres et son tri. Dans la projection, le sélecteur **Regrouper les réponses par** agit sur les lignes affichées et conserve le rafraîchissement automatique.
+
+Les fichiers et relations ne sont pas proposés comme clés de groupe ; les valeurs calculées sont disponibles dans les vues de bases, tandis que la projection reste limitée à ses propriétés simples. Un choix multiple est regroupé par combinaison exacte sans répétition de la même fiche dans plusieurs groupes.

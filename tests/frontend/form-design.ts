@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import { formDesign, formQuestion, formAccent } from '../../frontend/src/form-design';
+import { groupRecords } from '../../frontend/src/database-grouping';
+import { normalizeDatabaseView } from '../../frontend/src/database-types';
+const p={id:'name',name:'Nom interne',type:'title',required:true,config:{}} as any;
+const d=formDesign({questions:{name:{label:'Votre projet',required:false,help:'Une consigne',placeholder:'Exemple'}}});
+assert.equal(formQuestion(p,d).name,'Votre projet');assert.equal(formQuestion(p,d).required,false);assert.equal(p.name,'Nom interne');assert.equal(p.required,true);
+assert.equal(formDesign({}).submitLabel,'Envoyer ma réponse');assert.deepEqual(formDesign({questions:[] as any}).questions,{});
+const items=[{v:'Classe 10'},{v:'Classe 2'},{v:'Classe 2'},{v:''},{v:null},{v:0},{v:false},{v:['B','A']},{v:['A','B']},{v:'Non renseigné'}];
+const groups=groupRecords(items,r=>r.v as any);
+assert.equal(groups.reduce((n,g)=>n+g.rows.length,0),items.length);assert.equal(groups.find(g=>g.label==='Classe 2')?.rows.length,2);
+assert.equal(groups.find(g=>g.label==='A · B')?.rows.length,2);assert.equal(groups.at(-1)?.rows.length,2);
+assert.equal(groups.filter(g=>g.label==='Non renseigné').length,2);assert.ok(groups.some(g=>g.label==='0'));assert.ok(groups.some(g=>g.label==='Non'));
+assert.equal(normalizeDatabaseView({groupBy:'name'},[p]).groupBy,'name');assert.equal(normalizeDatabaseView({groupBy:'unknown'},[p]).groupBy,undefined);
+assert.equal(normalizeDatabaseView({groupBy:'file'},[{...p,id:'file',type:'files'}]).groupBy,undefined);
+console.log('Form customisation preserves DB fields; grouping covers missing, false, zero, exact combinations and natural order without duplication');
+
+import {contrast} from '../../frontend/src/theme-colors';
+for(const bg of ['#ffffff','#17191d','#000000'])for(const accent of ['#ffffff','#000000','#eab308','#2563eb'])assert.ok(contrast(formAccent(accent,bg),bg)>=4.5);
+console.log('Custom form accents remain legible in light, dark and OLED without changing stored colours');

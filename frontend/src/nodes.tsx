@@ -1007,7 +1007,9 @@ function LinkResourceView({
   const first = useRef<HTMLInputElement>(null);
   const edit = () => {
     setMode(node.type.name === "bookmark" ? "card" : "button");
-    setLabel(node.attrs.label || node.attrs.title || "");
+    setLabel(
+      node.attrs.buttonLabel || node.attrs.label || node.attrs.title || "",
+    );
     setHref(node.attrs.href || "");
     setDescription(node.attrs.description || "");
     setButtonAppearance({
@@ -1071,7 +1073,7 @@ function LinkResourceView({
             rel="noopener noreferrer"
           >
             {glyph}
-            <span>{node.attrs.label}</span>
+            <span>{node.attrs.buttonLabel || node.attrs.label}</span>
             <ExternalLink size={16} />
           </a>
         )}
@@ -1170,6 +1172,7 @@ function LinkResourceView({
                   description.trim(),
                   {
                     ...buttonAppearance,
+                    buttonLabel: label.trim(),
                     icon: node.attrs.icon,
                     iconId: node.attrs.iconId,
                     posterId: node.attrs.posterId,
@@ -1220,6 +1223,7 @@ function LinkResourceView({
           </label>
           {mode === "button" && (
             <ButtonAppearanceFields
+              showLabel={false}
               value={buttonAppearance}
               onChange={(value) =>
                 setButtonAppearance((previous) => ({ ...previous, ...value }))
@@ -1269,6 +1273,7 @@ export const ButtonLink = Node.create({
   atom: true,
   addAttributes() {
     return {
+      buttonLabel: { default: "" },
       buttonStyle: { default: "soft" },
       buttonSize: { default: "regular" },
       href: { default: "" },
@@ -2372,6 +2377,7 @@ export const FormEmbed = Node.create({
   addAttributes() {
     return {
       formId: { default: "" },
+      buttonLabel: { default: "" },
       buttonStyle: { default: "soft" },
       buttonSize: { default: "regular" },
     };

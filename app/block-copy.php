@@ -67,7 +67,7 @@ final class BlockCopy {
             $id=array_keys($this->databaseQueue)[$i];$data['databases'][]=database_record($id);
             foreach(query('SELECT * FROM collection_properties WHERE db_id=? ORDER BY sort_order,id',[$id])->fetchAll() as $p){$p['config']=json_decode($p['config'],true);if($p['type']==='relation')$this->database($p['config']['target_db_id']);$data['properties'][]=$p;}
             foreach(query('SELECT * FROM collection_rows WHERE db_id=? ORDER BY created_at,id LIMIT 5001',[$id])->fetchAll() as $r){$r['values']=json_decode($r['values_json'],true);unset($r['values_json']);$data['rows'][]=$r;}
-            foreach(query('SELECT * FROM collection_forms WHERE db_id=?',[$id])->fetchAll() as $f){$f['fields']=json_decode($f['fields'],true);$data['forms'][]=$f;}
+            foreach(query('SELECT * FROM collection_forms WHERE db_id=?',[$id])->fetchAll() as $f){$f['fields']=json_decode($f['fields'],true);$design=json_decode($f['config']??'null',true);if(!empty($design['coverId']))$this->file($design['coverId']);$data['forms'][]=$f;}
             if(count($data['rows'])>20000||count($data['properties'])>10000||count($data['forms'])>1000)fail('Cette copie contient trop de données liées.',413);
         }
         $props=array_column($data['properties'],null,'id');foreach($data['rows'] as $r)foreach($r['values'] as $id=>$value)if(($props[$id]['type']??'')==='files')foreach($value??[] as $fid)$this->file($fid);
@@ -94,7 +94,7 @@ final class BlockCopy {
         if(isset($a['formId'])){$a['formId']=$maps['forms'][$a['formId']]??'';unset($a['token']);}
         if(isset($a['viewConfig'])){
             $v=$a['viewConfig'];$p=$maps['properties']??[];
-            if(isset($v['hiddenPropertyIds']))$v['hiddenPropertyIds']=array_map(fn($id)=>$p[$id]??'', $v['hiddenPropertyIds']);
+            if(isset($v['groupBy']))$v['groupBy']=$p[$v['groupBy']]??null;if(isset($v['hiddenPropertyIds']))$v['hiddenPropertyIds']=array_map(fn($id)=>$p[$id]??'', $v['hiddenPropertyIds']);
             if(isset($v['filters']))foreach($v['filters'] as &$f)$f['propertyId']=$p[$f['propertyId']]??'';unset($f);
             if(!empty($v['sort']))$v['sort']['propertyId']=$p[$v['sort']['propertyId']]??'';$a['viewConfig']=$v;
         }

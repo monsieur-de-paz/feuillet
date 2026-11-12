@@ -333,3 +333,12 @@ Exécuter `python3 tests/forms.py`, puis `python3 tests/forms.py --mysql` si MyS
 Après installation, ouvrir un formulaire existant en visiteur, déposer un petit document de test, envoyer une réponse, puis ouvrir **Projeter les réponses** depuis l’administration. Laisser cette fenêtre visible pour vérifier la réception automatique au prochain contrôle de dix secondes, changer les colonnes, passer en plein écran puis quitter. Vérifier également que le même lien de projection sans session ne renvoie aucune donnée.
 
 Les formulaires et les projections ne sont pas disponibles hors connexion. Si une ancienne interface reste ouverte pendant la mise à jour, recharger une fois l’onglet. Les limites de fichiers, de quota et d’anti-abus n’ont pas été modifiées par cette version.
+
+## Contrôles du studio 0.29
+
+- Exécuter `python3 tests/form-design.py`, puis la variante `--mysql` : migration depuis l’ancien schéma avec huit requêtes concurrentes, anciens tokens conservés, contraintes de questions indépendantes, validation des configurations, protection des textes, couverture publique/privée, copie indépendante et import avec remappage, regroupement et permissions.
+- Exécuter `node tests/frontend.mjs` : combinaisons de choix, valeurs vides/Non/zéro, ordre naturel, normalisation des clés de groupe et contraste des accents personnalisés.
+- Vérifier un formulaire existant après mise à jour. Dans le studio, changer un modèle, un libellé de bouton et le message final, contrôler l’aperçu et enregistrer. Répondre depuis une session visiteur et contrôler le résultat dans une projection groupée.
+- La migration ajoute `collection_forms.config` ; conserver la sauvegarde complète code/base/configuration avant intervention. Utiliser le mécanisme de restauration de Feuillet si la validation échoue, plutôt que remplacer seulement les fichiers PHP.
+
+Les tests et captures de cette version utilisent des noms et projets fictifs. Aucun envoi de test n’est effectué vers les formulaires de production.

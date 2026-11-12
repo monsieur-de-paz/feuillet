@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { groupRecords } from "./database-grouping";
+import { Fragment, useEffect, useRef, useState } from "react";
 import {
   Check,
   ChevronLeft,
@@ -20,13 +21,19 @@ type Projection = {
   properties: { id: string; name: string; type: string }[];
   columns: string[];
   forms: { id: string; name: string }[];
-  rows: { id: string; created_at: string; values: Record<string, CellValue> }[];
+  rows: {
+    id: string;
+    created_at: string;
+    values: Record<string, CellValue>;
+    groupValue?: CellValue;
+  }[];
   total: number;
   limit: number;
 };
 export function DatabaseProjection({ id }: { id: string }) {
   const [data, setData] = useState<Projection | null>(null);
   const [columns, setColumns] = useState<string[] | null>(null);
+  const [groupBy, setGroupBy] = useState("");
   const [source, setSource] = useState(
     new URLSearchParams(location.search).get("source") || "",
   );
@@ -61,6 +68,7 @@ export function DatabaseProjection({ id }: { id: string }) {
           action: "db_projection",
           id,
           source,
+          group: groupBy,
           ...(columns ? { columns: columns.join(",") } : {}),
         });
         const response = await fetch(`api.php?${query}`, {
@@ -127,7 +135,7 @@ export function DatabaseProjection({ id }: { id: string }) {
       document.removeEventListener("visibilitychange", visible);
       request.current = null;
     };
-  }, [id, source, columns, paused]);
+  }, [id, source, columns, paused, groupBy]);
   async function toggleFullscreen() {
     try {
       if (document.fullscreenElement) await document.exitFullscreen();
@@ -193,6 +201,20 @@ export function DatabaseProjection({ id }: { id: string }) {
                     {f.name}
                   </option>
                 ))}
+              </Select>
+              <Select
+                aria-label="Regrouper les réponses par"
+                value={groupBy}
+                onChange={(e) => setGroupBy(e.target.value)}
+              >
+                <option value="">Aucun regroupement</option>
+                {data?.properties
+                  .filter((p) => p.type !== "files")
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      Par {p.name}
+                    </option>
+                  ))}
               </Select>
               <details className="projection-column-picker">
                 <summary>
@@ -274,42 +296,63 @@ export function DatabaseProjection({ id }: { id: string }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.rows.map((row) => (
-                    <tr
-                      key={row.id}
-                      className={recent.has(row.id) ? "projection-new" : ""}
-                    >
-                      <td>
-                        <span className="projection-received">
-                          <Check size={16} /> Reçu
-                        </span>
-                      </td>
-                      {selected.map((p) => {
-                        const value = row.values[p.id];
-                        const text =
-                          p.type === "files"
-                            ? `${value || 0} fichier${value === 1 ? "" : "s"}`
-                            : Array.isArray(value)
-                              ? value.join(", ")
-                              : typeof value === "boolean"
-                                ? value
-                                  ? "Oui"
-                                  : "Non"
-                                : String(value ?? "—");
-                        return <td key={p.id}>{text}</td>;
-                      })}
-                      <td>
-                        <time dateTime={row.created_at}>
-                          {new Date(row.created_at).toLocaleString("fr-FR", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
+                  {(groupBy
+                    ? groupRecords(data.rows, (row) => row.groupValue)
+                    : [{ key: "all", label: "", rows: data.rows }]
+                  ).map((group) => (
+                    <Fragment key={group.key}>
+                      {groupBy && (
+                        <tr className="projection-group-heading">
+                          <th colSpan={selected.length + 2}>
+                            {group.label}
+                            <span>
+                              {group.rows.length} réponse
+                              {group.rows.length > 1 ? "s" : ""}
+                            </span>
+                          </th>
+                        </tr>
+                      )}
+                      {group.rows.map((row) => (
+                        <tr
+                          key={row.id}
+                          className={recent.has(row.id) ? "projection-new" : ""}
+                        >
+                          <td>
+                            <span className="projection-received">
+                              <Check size={16} /> Reçu
+                            </span>
+                          </td>
+                          {selected.map((p) => {
+                            const value = row.values[p.id];
+                            const text =
+                              p.type === "files"
+                                ? `${value || 0} fichier${value === 1 ? "" : "s"}`
+                                : Array.isArray(value)
+                                  ? value.join(", ")
+                                  : typeof value === "boolean"
+                                    ? value
+                                      ? "Oui"
+                                      : "Non"
+                                    : String(value ?? "—");
+                            return <td key={p.id}>{text}</td>;
                           })}
-                        </time>
-                      </td>
-                    </tr>
+                          <td>
+                            <time dateTime={row.created_at}>
+                              {new Date(row.created_at).toLocaleString(
+                                "fr-FR",
+                                {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  second: "2-digit",
+                                },
+                              )}
+                            </time>
+                          </td>
+                        </tr>
+                      ))}
+                    </Fragment>
                   ))}
                 </tbody>
               </table>
@@ -324,8 +367,8 @@ export function DatabaseProjection({ id }: { id: string }) {
       )}
       <footer className="projection-footer">
         <span>
-          <ShieldCheck size={14} /> Vue administrateur · seules les colonnes
-          choisies sont projetées
+          <ShieldCheck size={14} /> Vue administrateur · affichage et
+          regroupement choisis
         </span>
         <a href="index.php?edit=1">
           <ChevronLeft size={14} /> Retour à Feuillet
