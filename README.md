@@ -4,18 +4,20 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.27.0-2563eb" alt="Version 0.27.0">
+  <img src="https://img.shields.io/badge/version-0.27.1-2563eb" alt="Version 0.27.1">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour prendre des notes enrichies, les centraliser et les partager sur son propre hébergement.** Inspiré de l’édition par blocs, il permet de rédiger des notes enrichies, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
 
 Il fonctionne sur un hébergement **PHP + MySQL/MariaDB**, y compris un mutualisé compatible. Un seul compte rédige ; les lecteurs consultent les pages et répondent aux formulaires depuis leur navigateur, sur ordinateur ou mobile. Aucun VPS ni abonnement n’est nécessaire. Node.js sert uniquement à développer l’interface ; les fichiers compilés sont fournis.
 
-<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.27.md">Nouveautés</a></p>
+<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.27.1.md">Nouveautés</a></p>
 
 Un journal personnel, un espace de projets, une collection de lectures ou une documentation : vous choisissez vos carnets, leurs catégories et ce que vous partagez.
 
 La version **0.27** ajoute le tri des tableaux par colonne : ordre alphabétique ou numérique, croissant ou décroissant, en-têtes conservés et annulation. Elle conserve l’interface renouvelée, la bibliothèque par dossiers et les réglages automatiques de la version 0.26. [Découvrir le tri des tableaux](docs/NOUVEAUTES-0.27.md).
+
+La version **0.27.1** corrige les attentes indéfinies lors des clics entre pages publiques : cache sorti du chemin de chargement, requêtes annulables et ouverture directe automatique après quatre secondes si le flux interne reste bloqué. [Diagnostic et correctif](docs/NOUVEAUTES-0.27.1.md).
 
 ## Ce que vous pouvez faire
 
@@ -81,7 +83,7 @@ SQLite est aussi disponible avec `pdo_sqlite` pour une installation locale ou un
 
 ### 2. Télécharger et transférer le logiciel
 
-Télécharger **`Feuillet-0.27.0.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
+Télécharger **`Feuillet-0.27.1.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
 
 Utiliser l’archive installable de la release : elle contient les assets compilés et le manifeste nécessaire aux mises à jour intégrées. Le ZIP automatique « Source code » n’est pas la distribution recommandée.
 

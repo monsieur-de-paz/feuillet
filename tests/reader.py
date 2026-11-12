@@ -48,4 +48,25 @@ class Reader(unittest.TestCase):
  def test_05_empty_home_brand_and_theme_controls(self):
   n=self.ok(self.admin.api('settings'))['notebook'];self.ok(self.admin.api('settings',{'notebook':{**n,'icon':'lucide:book-open:#2563EB'}}));state=self.ok(self.visitor.request('reader-state.php'));self.assertIn('icons.svg#book-open',state['breadcrumbs']);self.assertIn('#2563EB',state['breadcrumbs']);html=self.ok(self.visitor.request('index.php?read=1')).decode();self.assertIn('theme-toggle.css',html);self.assertIn('theme.js',html);self.assertIn('data-theme-main',html)
   self.ok(self.visitor.request('reader-state.php',{},method='POST'),405)
+ def test_07_many_readers_on_same_ip_can_follow_public_subpages(self):
+  from concurrent.futures import ThreadPoolExecutor
+  parent=self.page('Classe de lecteurs');child=self.page('Leçon pour tous')
+  child=self.ok(self.admin.api('move',{'id':child['id'],'version':child['version'],'parent_id':parent['id']}))['page'];self.publish(parent)
+  def follow(_):
+   visitor=h.Client(self.admin.base)
+   first=visitor.request('index.php?read=1&page='+parent['id'])
+   second=visitor.request('reader-state.php?page='+child['id']+'&root='+parent['id'])
+   return first[0],second[0],second[1].get('html','')
+  with ThreadPoolExecutor(max_workers=8) as pool:results=list(pool.map(follow,range(32)))
+  self.assertEqual(len(results),32)
+  for first,second,html in results:self.assertEqual((first,second),(200,200));self.assertIn('Leçon pour tous',html)
+ def test_08_direct_recovery_still_enforces_public_permissions(self):
+  private=self.page('SECRET_DIRECT_RECOVERY')
+  for client in [self.admin,self.visitor]:
+   html=self.ok(client.request('index.php?page='+private['id']+'&read=1&edit=0&reader-direct=1'),404).decode()
+   self.assertNotIn('SECRET_DIRECT_RECOVERY',html)
+  public=self.publish(self.page('PUBLIC_DIRECT_RECOVERY'))
+  for client in [self.admin,self.visitor]:
+   html=self.ok(client.request('index.php?page='+public['id']+'&read=1&edit=0&reader-direct=1')).decode()
+   self.assertIn('PUBLIC_DIRECT_RECOVERY',html);self.assertNotIn('assets/app.js',html)
 if __name__=='__main__':unittest.main(argv=[__file__,*h.REMAINING],verbosity=2)

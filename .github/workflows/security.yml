@@ -21,6 +21,8 @@ jobs:
           node-version: '22'
       - run: python3 tests/publication.py
       - run: python3 tools/audit-publication.py --history
+      - run: node tests/reader-navigation.mjs
+      - run: node tests/pwa.mjs
       - run: npm ci --ignore-scripts
         working-directory: frontend
       - run: npm audit --audit-level=moderate

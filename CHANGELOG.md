@@ -1,5 +1,13 @@
 # Historique des versions
 
+## 0.27.1 — 2026-11-12
+
+- Navigation publique : délai couvrant les en-têtes et le corps JSON, annulation des requêtes dépassées et priorité à la navigation sur la vérification périodique.
+- Repli automatique vers l’URL directe après quatre secondes ou sur erreur du flux interne ; ce mode reste actif quinze minutes dans l’onglet. Bouton Ouvrir directement proposé dès le début de l’attente.
+- Cache PWA : les lectures/écritures du cache ne retardent plus les réponses de contenu reçues du serveur. Délais de lecture, annulation, révocations et effacement pendant une écriture couverts par des tests.
+- Un délai dépassé ne donne jamais accès à une ancienne copie d’une page devenue privée. Le repli direct contourne l’enveloppe hors connexion pour éviter les boucles de récupération.
+- Blocages reproduits sur le code 0.27.0 ; parcours corrigé vérifié dans le navigateur et accès publics de 32 sessions sur une même IP testés. Aucun changement SQL ni des quotas d’envoi de formulaires.
+
 ## 0.27.0 — 2026-11-12
 
 - Tri des lignes des tableaux depuis le menu d’une colonne ou le clic droit : choix de la colonne, ordre croissant ou décroissant, détection automatique et modes texte ou nombres.
