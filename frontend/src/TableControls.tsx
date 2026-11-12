@@ -35,6 +35,7 @@ import {
   Heading,
   Palette,
   Paintbrush,
+  ArrowDownUp,
   ArrowLeft as Back,
 } from "lucide-react";
 import { ContextMenu, type MenuAction } from "./ContextMenu";
@@ -45,6 +46,8 @@ import {
 } from "./table-selection";
 import "./table-controls.css";
 import { TableTemplatePicker } from "./TableTemplatePicker";
+import { TableSortPicker } from "./TableSortPicker";
+import { sortTableRows } from "./table-sorting";
 import { tableTones, colorTableCells, styleTable, type TableTemplate } from "./table-formatting";
 
 type Metrics = {
@@ -58,7 +61,7 @@ type Metrics = {
   rows: { index: number; center: number; start: number; end: number }[];
   columns: { index: number; center: number; start: number; end: number }[];
 };
-type Menu = { axis: TableAxis | "cell"; x: number; y: number; index?: number; panel?: "colors" | "templates"; template?: TableTemplate };
+type Menu = { axis: TableAxis | "cell"; x: number; y: number; index?: number; panel?: "colors" | "templates" | "sort"; template?: TableTemplate };
 
 export function TableControls({ editor }: { editor: Editor }) {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
@@ -298,6 +301,7 @@ export function TableControls({ editor }: { editor: Editor }) {
       run: () => run(command),
     });
     const items: MenuAction[] = [
+      { label: "Trier les lignes…", icon: <ArrowDownUp />, group: "sort", run: () => setMenu({ ...menu!, panel: "sort" }) },
       { label: "Couleur de fond…", icon: <Palette />, group: "appearance", run: () => setMenu({ ...menu!, panel: "colors" }) },
       { label: "Modèles de tableau…", icon: <Paintbrush />, group: "appearance", run: () => setMenu({ ...menu!, panel: "templates" }) },
       action("Insérer une ligne au-dessus", addRowBefore, <ArrowUp />, "rows"),
@@ -490,7 +494,13 @@ export function TableControls({ editor }: { editor: Editor }) {
         onClose={()=>{setMenu(null);editor.view.focus();}}
         onApply={(template,tone)=>{setMenu(null);run(styleTable(template,tone));}}
       />}
-      {menu && menu.panel !== "templates" && (
+      {menu?.panel === "sort" && <TableSortPicker
+        editor={editor} pos={metrics.pos} column={menu.axis === "column" ? menu.index ?? 0 : selectedRect(editor.state).left} point={{x:menu.x,y:menu.y}}
+        onBack={()=>setMenu({...menu,panel:undefined})}
+        onClose={()=>{setMenu(null);editor.view.focus();}}
+        onApply={options=>{setMenu(null);run(sortTableRows(metrics.pos,options));}}
+      />}
+      {menu && menu.panel !== "templates" && menu.panel !== "sort" && (
         <ContextMenu
           key={`${menu.axis}-${menu.panel ?? "actions"}-${menu.template ?? "selection"}`}
           point={{ x: menu.x, y: menu.y }}

@@ -314,3 +314,9 @@ Vérifier le passage entre les cinq sections sans changement de dimensions. Modi
 La vue dossiers est un classement virtuel par MIME ; la vue liste reste disponible et la préférence est locale à l’appareil. `library_links` est exclusivement administrateur et ne doit jamais entrer dans le cache public du service worker. Les tests HTTP vérifient le refus anonyme et la déduplication des liens. Les miniatures doivent respecter position et zoom sans déborder des cartes, en édition et en lecture.
 
 Les fournisseurs vidéo reconnus chargent maintenant leur lecteur au chargement du document, sans autoplay ajouté ; ils peuvent donc contacter leur fournisseur dès cette ouverture. Les fichiers locaux restent différés. Vérifier une URL YouTube existante ainsi qu’une nouvelle insertion (titre oEmbed), et conserver le repli si les métadonnées sont indisponibles. Ne pas transformer la résolution vidéo en proxy arbitraire.
+
+## Vérifier le tri des tableaux — 0.27
+
+Lancer `node tests/frontend.mjs`, puis vérifier dans le navigateur le menu d’une poignée de colonne et le clic droit d’une cellule : choisir une autre colonne et un mode, trier dans les deux sens, changer la conservation des en-têtes, annuler et rétablir. Utiliser notamment `2`, `10`, `1,5`, `-3`, des cellules vides et des textes accentués. Après navigation puis rechargement, l’ordre doit rester enregistré ; après publication, le lecteur doit suivre le même ordre.
+
+Contrôler que les lignes gardent toutes leurs cellules, mises en forme et largeurs, que plusieurs en-têtes restent en haut et que les fusions verticales empêchent le tri avec une explication. À 390 px, le panneau et ses contrôles doivent rester dans le viewport. Le changement de colonne et la case d’en-tête doivent recevoir les clics malgré le conteneur de poignées non interactif. Aucun nouveau paramètre serveur ou schéma SQL.

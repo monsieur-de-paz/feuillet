@@ -1,5 +1,12 @@
 # Historique des versions
 
+## 0.27.0 — 2026-11-12
+
+- Tri des lignes des tableaux depuis le menu d’une colonne ou le clic droit : choix de la colonne, ordre croissant ou décroissant, détection automatique et modes texte ou nombres.
+- Prise en charge des accents, de l’ordre naturel (Chapitre 2 avant Chapitre 10), des décimales à virgule, des séparateurs de milliers et des nombres négatifs. Cellules vides à la fin et ordre stable des valeurs égales.
+- En-têtes conservés par défaut ; lignes déplacées entières avec leurs contenus, couleurs, liens et largeurs. Tri annulable et sauvegardé par le mécanisme habituel.
+- Fusions horizontales conservées. Les fusions sur plusieurs lignes nécessitent une séparation avant le tri pour préserver la structure. Aucun changement SQL ni nouveau service réseau.
+
 ## 0.26.0 — 2026-11-11
 
 - Refonte de l’interface administrateur et du lecteur : accueil éditorial, navigation, surfaces, menus, cartes et marges harmonisés dans les thèmes clair, sombre et OLED.

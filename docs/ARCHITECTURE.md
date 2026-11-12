@@ -351,3 +351,9 @@ La couche partagée `public/atelier.css`, les transitions `public/atelier.js`, l
 L’attribut optionnel `webVideo.title` est borné à 300 caractères à la normalisation et échappé au rendu. La résolution de YouTube peut consulter son endpoint oEmbed avec le client HTTP sécurisé existant ; le rendu public et les sauvegardes ne recherchent pas les métadonnées. L’URL du lecteur est toujours recalculée avec la liste des fournisseurs autorisés. Le HTML libre reste isolé dans son environnement d’intégration et activé au clic.
 
 Les préférences générales utilisent une file d’écriture et des références de sauvegarde enregistrées par les panneaux. `flushSettings()` attend ces écritures avant fermeture et avant `update_start`. L’apparence garde sa sauvegarde immédiate. Le choix de l’accueil public est lui aussi attendu. Les erreurs bloquent la sortie demandée ou l’installation et ne déclenchent aucun remplacement de fichiers.
+
+## Tri des tableaux — 0.27
+
+`TableSortPicker.tsx` est ouvert depuis les menus de `TableControls.tsx`. Il propose colonne, mode, direction et conservation des en-têtes, sans modifier le document tant que le tri n’est pas appliqué. Sa surface reçoit explicitement les événements de pointeur, y compris pour les listes et la case à cocher dans la couche des commandes de tableau.
+
+`table-sorting.ts` utilise `TableMap` pour lire la cellule correspondant à la colonne choisie, y compris en cas de fusion horizontale. Les lignes sont classées avec un comparateur français naturel ou des nombres normalisés, puis replacées intactes dans une seule transaction ProseMirror. Les égalités sont départagées par l’indice initial, les cellules vides restent à la fin et les en-têtes sont préservés. Les fusions verticales ou structures invalides sont refusées avant toute mutation. La commande participe à l’historique et à la sauvegarde existants ; aucun attribut, endpoint, SQL, exécution d’expression ou appel réseau n’est ajouté.

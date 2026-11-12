@@ -4,18 +4,18 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
   <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.26.0-2563eb" alt="Version 0.26.0">
+  <img src="https://img.shields.io/badge/version-0.27.0-2563eb" alt="Version 0.27.0">
 </p>
 
 **Feuillet est un carnet web gratuit et open source pour prendre des notes enrichies, les centraliser et les partager sur son propre hébergement.** Inspiré de l’édition par blocs, il permet de rédiger des notes enrichies, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
 
 Il fonctionne sur un hébergement **PHP + MySQL/MariaDB**, y compris un mutualisé compatible. Un seul compte rédige ; les lecteurs consultent les pages et répondent aux formulaires depuis leur navigateur, sur ordinateur ou mobile. Aucun VPS ni abonnement n’est nécessaire. Node.js sert uniquement à développer l’interface ; les fichiers compilés sont fournis.
 
-<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.26.md">Nouveautés</a></p>
+<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.27.md">Nouveautés</a></p>
 
 Un journal personnel, un espace de projets, une collection de lectures ou une documentation : vous choisissez vos carnets, leurs catégories et ce que vous partagez.
 
-La version **0.26** renouvelle l’interface administrateur et le lecteur, avec des transitions discrètes, des réglages à sauvegarde automatique, une bibliothèque par dossiers et un recadrage direct des couvertures. Les lecteurs vidéo en ligne affichent leur aperçu dès l’ouverture. [Découvrir la version 0.26](docs/NOUVEAUTES-0.26.md).
+La version **0.27** ajoute le tri des tableaux par colonne : ordre alphabétique ou numérique, croissant ou décroissant, en-têtes conservés et annulation. Elle conserve l’interface renouvelée, la bibliothèque par dossiers et les réglages automatiques de la version 0.26. [Découvrir le tri des tableaux](docs/NOUVEAUTES-0.27.md).
 
 ## Ce que vous pouvez faire
 
@@ -81,7 +81,7 @@ SQLite est aussi disponible avec `pdo_sqlite` pour une installation locale ou un
 
 ### 2. Télécharger et transférer le logiciel
 
-Télécharger **`Feuillet-0.26.0.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
+Télécharger **`Feuillet-0.27.0.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
 
 Utiliser l’archive installable de la release : elle contient les assets compilés et le manifeste nécessaire aux mises à jour intégrées. Le ZIP automatique « Source code » n’est pas la distribution recommandée.
 
@@ -137,6 +137,8 @@ Le bouton à droite du titre du site masque la barre latérale ; un bouton dans 
 L’accent général possède des variantes automatiques pour les thèmes sombre et OLED, également appliquées dans la vue publique. Dans les outils de couleur, **Texte par défaut** suit le thème clair, sombre ou OLED. Les couleurs choisies explicitement restent fixes. Pour une propriété **État / Choix unique** ou **Choix multiples**, ouvrir le menu de colonne puis **Modifier la propriété** pour attribuer une couleur à chaque choix.
 
 Dans **Bibliothèque**, choisissez les dossiers Documents, Images, Audio, Vidéos, Autres fichiers ou Liens, ou retrouvez la vue en liste. Ce choix est mémorisé sur votre appareil. Les dossiers regroupent les fichiers sans les déplacer. Le bouton **Utilisations** de chaque fichier liste ses pages, bases, galeries et anciennes versions, avec leur état public ou privé. Il distingue le brouillon et le fichier réellement publié. Cet inventaire est réservé à l’administrateur. [Guide 0.4.1](docs/NOUVEAUTES-0.4.1.md).
+
+Pour trier un tableau, ouvrez le menu d’une colonne ou faites un clic droit dans une cellule, puis choisissez **Trier les lignes…**. Choisissez la colonne et le sens du tri ; les nombres sont détectés automatiquement, ou choisissez Texte/Nombres. Les lignes restent complètes et le tri est annulable. [Guide du tri](docs/NOUVEAUTES-0.27.md).
 
 ## Les premières commandes
 
