@@ -1,265 +1,51 @@
-<p align="center"><img src="docs/assets/feuillet-banner.svg" alt="Feuillet. — Écrire, organiser, transmettre." width="100%"></p>
+# Feuillet
 
-<p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-38795d" alt="Licence MIT"></a>
-  <img src="https://img.shields.io/badge/PHP-8.3%2B-777bb4" alt="PHP 8.3 ou plus">
-  <img src="https://img.shields.io/badge/h%C3%A9bergement-mutualis%C3%A9-38795d" alt="Hébergement mutualisé">
-  <img src="https://img.shields.io/badge/version-0.29.0-2563eb" alt="Version 0.29.0">
-</p>
+[![Version](https://img.shields.io/github/v/release/monsieur-de-paz/feuillet?label=version)](https://github.com/monsieur-de-paz/feuillet/releases/latest)
+[![Licence MIT](https://img.shields.io/badge/licence-MIT-38795d)](LICENSE)
 
-**Feuillet est un carnet web gratuit et open source pour prendre des notes enrichies, les centraliser et les partager sur son propre hébergement.** Inspiré de l’édition par blocs, il permet de rédiger des notes enrichies, conserver des notes privées, publier des PDF et recevoir des réponses à des formulaires.
+**Un carnet web gratuit et open source pour écrire, organiser et partager vos notes depuis votre propre hébergement.**
 
-Il fonctionne sur un hébergement **PHP + MySQL/MariaDB**, y compris un mutualisé compatible. Un seul compte rédige ; les lecteurs consultent les pages et répondent aux formulaires depuis leur navigateur, sur ordinateur ou mobile. Aucun VPS ni abonnement n’est nécessaire. Node.js sert uniquement à développer l’interface ; les fichiers compilés sont fournis.
+Rassemblez vos pages, documents et bases de données dans des carnets, gardez vos notes privées ou partagez-les par un lien. Feuillet s’utilise dans le navigateur, sur ordinateur et mobile, avec un seul compte administrateur et des lecteurs sans compte.
 
-<p align="center"><a href="https://github.com/monsieur-de-paz/feuillet/releases/latest"><strong>Télécharger Feuillet</strong></a> · <a href="#installer-sur-un-hébergement">Installer</a> · <a href="docs/BASES-ET-FORMULAIRES.md">Bases et formulaires</a> · <a href="docs/NOUVEAUTES-0.29.md">Nouveautés</a></p>
+**[Télécharger Feuillet](https://github.com/monsieur-de-paz/feuillet/releases/latest)** · [Guide d’installation](docs/INSTALLATION-OVH.md) · [Aperçus récents](docs/NOUVEAUTES-0.29.md#aperçus-sur-données-fictives)
 
-Un journal personnel, un espace de projets, une collection de lectures ou une documentation : vous choisissez vos carnets, leurs catégories et ce que vous partagez.
+## Installation
 
-La version **0.27** ajoute le tri des tableaux par colonne : ordre alphabétique ou numérique, croissant ou décroissant, en-têtes conservés et annulation. Elle conserve l’interface renouvelée, la bibliothèque par dossiers et les réglages automatiques de la version 0.26. [Découvrir le tri des tableaux](docs/NOUVEAUTES-0.27.md).
+Un hébergement **PHP 8.3+**, une base **MySQL/MariaDB** et **HTTPS** suffisent, y compris sur un mutualisé compatible. Aucun VPS, abonnement, Composer ou Node.js n’est nécessaire pour installer la distribution. SQLite est également disponible sur les hébergements compatibles.
 
-La version **0.27.1** corrige les attentes indéfinies lors des clics entre pages publiques : cache sorti du chemin de chargement, requêtes annulables et ouverture directe automatique après quatre secondes si le flux interne reste bloqué. [Diagnostic et correctif](docs/NOUVEAUTES-0.27.1.md).
+1. Téléchargez l’archive **`Feuillet-x.y.z.zip`** dans la [dernière release](https://github.com/monsieur-de-paz/feuillet/releases/latest), plutôt que le ZIP « Source code ». L’interface est déjà compilée.
+2. Décompressez-la et envoyez **tout le dossier `feuillet/`** par FTP/SFTP, y compris les fichiers cachés `.htaccess`.
+3. Faites pointer votre domaine ou sous-domaine vers **`feuillet/public`**, puis activez HTTPS. Les dossiers `app/`, `storage/` et le fichier `config.php` doivent rester hors de la racine web.
+4. Créez une base SQL dédiée et conservez son serveur, son nom, son utilisateur et son mot de passe.
+5. Ouvrez **`https://votre-domaine.fr/setup.php`**. À cette première ouverture, Feuillet crée une clé dans **`storage/installation-key.txt`** : lisez-la par FTP, saisissez-la dans l’installateur, puis configurez votre carnet, le compte administrateur et la base.
 
-La version **0.28** renouvelle les formulaires : chargement skeleton, présentation des questions et confirmation d’envoi, boutons personnalisables et projection privée des réponses avec actualisation toutes les dix secondes. [Découvrir les formulaires et la projection](docs/NOUVEAUTES-0.28.md).
+L’installateur vérifie les extensions PHP, les sessions et les droits d’écriture nécessaires. Le compte d’hébergement doit pouvoir créer `config.php` et écrire dans `storage/`.
 
-La version **0.29** ajoute un studio de formulaires avec cinq modèles, les textes et questions personnalisables, des confirmations animées, et le regroupement des fiches et des projections par colonne. [Découvrir le studio](docs/NOUVEAUTES-0.29.md).
+**Besoin d’aide ?** Le [guide OVH pas à pas](docs/INSTALLATION-OVH.md) détaille les prérequis, le sous-domaine, la base SQL et les vérifications après installation.
 
-## Ce que vous pouvez faire
+## Fonctionnalités
 
-| Écrire | Organiser | Transmettre |
-|---|---|---|
-| Éditeur par blocs, commandes `/`, titres dépliables, listes, tableaux, colonnes et encadrés | Carnets, catégories personnalisées, pages et sous-pages, fil d’Ariane | Publication d’une page et de ses sous-pages |
-| Couleur du texte et du fond, liens, boutons modifiables | Galeries de pages et bases avec champs typés | PDF, audio, vidéo et fichiers à télécharger |
-| Couvertures repositionnables, icônes importées, images redimensionnables et agrandissables dans l’éditeur | Relations entre bases, formules et agrégations | Quiz avec correction immédiate |
-| Thèmes blanc, sombre et OLED ; polices Quicksand et Fraunces | Notes privées, recherche et historique | Formulaires : texte, e-mail, téléphone, URL, fichiers… |
-| Import et export Markdown, export PDF | Partage par branche, sauvegarde et restauration ZIP | Réponses aux formulaires consultables uniquement par l’administrateur |
+- **Écrire par blocs** : commandes `/`, titres dépliables, listes, tableaux, colonnes, encadrés, boutons et déplacement de plusieurs blocs.
+- **Organiser ses notes** : carnets, catégories, pages et sous-pages, recherche, onglets de rédaction et historique.
+- **Rassembler ses médias** : images, PDF, audio, vidéos, bibliothèque de fichiers, aperçus de liens et intégrations web.
+- **Créer des bases** : champs typés, vues en tableau ou galerie, tri, filtres, regroupements, relations, formules et agrégations.
+- **Recueillir des réponses** : formulaires avec dépôt de fichiers, cinq modèles, textes personnalisables, aperçu en direct et animations. Réponses privées et projection administrateur actualisée toutes les dix secondes.
+- **Partager à son rythme** : pages privées ou publiques, liens personnalisés, partage des sous-pages et accueil public configurable.
+- **Personnaliser son espace** : thèmes clair, sombre et OLED, couleurs, polices, icônes et couvertures repositionnables.
+- **Utiliser Feuillet sur mobile** : interface adaptée, installation comme application web et cache facultatif des pages publiques pour la lecture hors connexion.
+- **Conserver ses données** : import TXT, Markdown et RTF ; export Markdown et PDF ; sauvegarde et restauration ZIP.
 
-<details>
-<summary>Voir un exemple de lecture publique</summary>
+## Mises à jour et documentation
 
-![Une page publique Feuillet avec galerie et documents](docs/feuillet-v04-public.jpg)
+Les mises à jour s’installent depuis Feuillet, à partir des releases GitHub, avec sauvegarde et récupération en cas d’échec. Pour une mise à jour manuelle, **conservez `config.php` et tout le dossier `storage/`**. [Procédure et restauration](docs/MISES-A-JOUR.md).
 
-</details>
+- [Bases de données et formulaires](docs/BASES-ET-FORMULAIRES.md)
+- [Édition et présentation des blocs](docs/BLOCS-0.4.md)
+- [Maintenance et sauvegardes](docs/MAINTENANCE.md)
+- [Historique des versions](CHANGELOG.md)
 
-Le cœur libre de **Tiptap** est utilisé pour l’édition. Les menus, blocs et fonctions de Feuillet sont développés dans ce dépôt ; aucun template commercial ou composant Tiptap Pro n’est requis. Feuillet est indépendant de Notion.
+## Contribuer
 
-Cliquez sur le logo pour retrouver toutes vos activités, ou sur un carnet pour ouvrir son accueil : pages récentes, catégories, recherche et liste de toutes ses pages. Les actions de création et d’import utilisent le carnet sélectionné. Cliquez directement sur son titre ou son icône pour les modifier, et ajoutez une couverture repositionnable depuis cet accueil. Le panneau de publication permet de copier le lien public ou de le partager avec les applications proposées par votre appareil.
+Une idée ou un problème ? Ouvrez une [issue](https://github.com/monsieur-de-paz/feuillet/issues) ou proposez une pull request. Le projet utilise **PHP, React, TypeScript et le cœur libre de Tiptap**. Voir l’[architecture](docs/ARCHITECTURE.md) et les [tests](docs/TESTS.md). Pour une faille de sécurité, suivez la [procédure de signalement](.github/SECURITY.md).
 
-L’accueil public à la racine du site est configurable : créez une page dédiée depuis **Accueil public**, rédigez-la puis publiez-la. Textes, images et galeries choisies utilisent le même éditeur. Les liens partagés conservent leur propre arborescence. [Configurer cet accueil](docs/NOUVEAUTES-0.12.md).
-
-Sur ordinateur, tracez un rectangle depuis une marge pour sélectionner plusieurs blocs, puis glissez une de leurs poignées pour les déplacer ensemble, y compris dans les titres dépliables. [Sélection groupée](docs/NOUVEAUTES-0.13.md).
-
-## Une interface de carnet
-
-![Feuillet 0.5 — menus et rédaction sur une page de démonstration](docs/feuillet-v05-interface.jpg)
-
-Accueil éditorial, navigation compacte, menus d’actions au clic droit ou par bouton, surfaces et marges cohérentes. Les transitions accompagnent les changements de page et de blocs sans rendre le contenu translucide. Les thèmes clair, sombre et OLED, le clavier et les petits écrans restent pris en charge. [Charte et fonctionnement de l’interface 0.26](docs/INTERFACE-0.26.md).
-
-## Vidéos et intégrations externes
-
-Ajoutez un bloc **Vidéo**, puis choisissez **Fichier vidéo** pour utiliser la bibliothèque ou importer un fichier, ou **Vidéo en ligne** pour coller un lien YouTube, Dailymotion, TikTok, Vimeo ou un fichier vidéo HTTPS direct. Le fournisseur est détecté automatiquement. Les lecteurs YouTube, Dailymotion, TikTok et Vimeo se chargent dès l’ouverture, sans lecture automatique ajoutée ; l’adresse d’origine reste accessible si le fournisseur refuse l’intégration. Ces lecteurs contactent leur fournisseur dès le chargement de la page. Les fichiers vidéo locaux et HTTPS directs attendent une activation au clic.
-
-Choisissez **Intégration HTML** pour coller le code fourni par un service et régler la hauteur. Le code s’exécute au clic dans un cadre isolé. Certains fournisseurs limitent l’affichage aux domaines autorisés ou exigent des permissions que le cadre isolé ne donne pas. Le bloc reste éditable sur la page.
-
-## Installation et mises à jour
-
-Depuis Feuillet 0.22, ouvrez **Partager** ou **Publiée** sur une page pour définir son adresse courte. Une page publiée peut par exemple s’ouvrir sur `/bessieres`. Une page privée sur `/prive` exige la connexion administrateur. Les adresses déjà diffusées restent rattachées à leur page. Videz le champ pour afficher de nouveau le lien par défaut.
-
-La version **0.21.1** renforce la protection des fichiers sensibles accidentellement copiés par FTP et les contrôles de publication. [Audit de sécurité du 3 novembre 2026](docs/AUDIT-SECURITE-2026-11-03.md) · [Signaler une vulnérabilité](.github/SECURITY.md).
-
-La version 0.13.1 corrige un blocage après transfert FTP : les fichiers locaux modifiés ou absents ne sont plus confondus avec une archive téléchargée corrompue. Leur état réel est sauvegardé avant remplacement ; la nouvelle distribution reste strictement vérifiée. [Dépanner une ancienne installation bloquée](docs/NOUVEAUTES-0.15.md).
-
-La version 0.8 propose un installateur en trois étapes, adapté au mobile, et des mises à jour depuis les releases GitHub : notification discrète, report, attente de la suivante, exclusion d’une version ou désactivation. L’installation sauvegarde le code et la base puis contrôle le démarrage ; les échecs déclenchent une restauration. Les releases publiques sont accessibles sans clé ni compte GitHub. La version 0.11 utilise leurs téléchargements directs pour éviter le quota anonyme de l’API REST. [Nouveautés 0.8](docs/NOUVEAUTES-0.8.md) · [Guide des mises à jour](docs/MISES-A-JOUR.md).
-
-## Installer sur un hébergement
-
-### 1. Vérifier les prérequis
-
-| Prérequis | Usage |
-|---|---|
-| PHP **8.3 ou plus récent**, dans une version maintenue | Exécution du logiciel |
-| MySQL ou MariaDB, avec une base dédiée et son utilisateur | Pages, réglages et bases de données |
-| Extensions `PDO`, `pdo_mysql`, `mbstring`, `fileinfo`, `zip` | Accès SQL, textes, médias et sauvegardes |
-| Sessions PHP et dossiers inscriptibles par le compte de l’hébergement | Connexion et stockage privé |
-| HTTPS | Accès au carnet et aux formulaires |
-| Extension `curl` et HTTPS sortant vers Wikimedia Commons / GitHub | Recherche d’images et mises à jour depuis les releases |
-
-SQLite est aussi disponible avec `pdo_sqlite` pour une installation locale ou un hébergement compatible. Choisir MySQL/MariaDB sur un mutualisé proposant une base SQL.
-
-### 2. Télécharger et transférer le logiciel
-
-Télécharger **`Feuillet-0.29.0.zip`** depuis [les versions publiées](https://github.com/monsieur-de-paz/feuillet/releases), puis décompresser l’archive et envoyer tout le dossier `feuillet` par FTP/SFTP. Afficher les fichiers cachés pour transférer également les `.htaccess`.
-
-Utiliser l’archive installable de la release : elle contient les assets compilés et le manifeste nécessaire aux mises à jour intégrées. Le ZIP automatique « Source code » n’est pas la distribution recommandée.
-
-```text
-feuillet/
-├── app/                 code PHP interne
-├── public/              SEULE racine web
-│   ├── assets/          interface déjà compilée
-│   ├── fonts/           polices hébergées localement
-│   ├── vendor/          lecteur PDF
-│   ├── index.php
-│   └── setup.php
-├── storage/             médias, sessions et stockage privés
-└── config.php           créé par l’installation ; jamais dans GitHub
-```
-
-**La racine web du domaine doit pointer vers `feuillet/public`.** Les dossiers `app`, `storage` et le fichier `config.php` restent en dehors de cette racine. Ne pas déplacer leurs fichiers dans `public`.
-
-Le compte d’hébergement doit pouvoir créer `config.php` dans `feuillet/` et écrire dans `storage/`. Utiliser les droits du propriétaire prévus par l’hébergeur ; `777` n’est pas nécessaire.
-
-### 3. Configurer le domaine et la base
-
-Créer une base SQL dédiée. Conserver le **serveur SQL exact**, le port, le nom de la base, l’utilisateur et son mot de passe. Feuillet crée ses tables ; aucun import SQL manuel n’est nécessaire.
-
-Associer le domaine ou sous-domaine au dossier `feuillet/public`, activer HTTPS et sélectionner la version PHP adaptée. Exemple : `notes.exemple.fr` → `feuillet/public`.
-
-**Sur OVHcloud**, utiliser **Hébergement → Multisite** pour associer le sous-domaine au dossier racine. Les réglages PHP dépendent de la configuration de l’offre ; consulter le [guide OVHcloud](docs/INSTALLATION-OVH.md) et sa [documentation officielle PHP](https://docs.ovhcloud.com/fr/guides/web-cloud/web-hosting/configure-your-web-hosting). Les limites de PHP et de la base sont distinctes de l’espace de stockage.
-
-### 4. Ouvrir l’installateur
-
-Ouvrir `https://notes.exemple.fr/setup.php`, puis :
-
-1. Vérifier les prérequis affichés. À la première ouverture, l’installateur crée une clé privée dans `storage/installation-key.txt`.
-2. Lire ce fichier par FTP/SFTP, puis saisir sa clé dans le champ **Clé d’installation**. Elle n’est jamais affichée par le site et sera supprimée après installation.
-3. Choisir le nom du carnet et un mot de passe administrateur d’au moins 12 caractères.
-4. Choisir MySQL/MariaDB et renseigner les paramètres fournis par l’hébergeur.
-5. Cliquer sur **Créer mon carnet**.
-
-La configuration est créée automatiquement. Il n’y a aucun compte ou mot de passe prédéfini. Le carnet démarre sans les pages et données de démonstration du développement. Aucune commande SSH, installation Composer ou compilation n’est nécessaire pour cette installation.
-
-### 5. Préparer ses carnets et essayer avant de partager
-
-Créer des **Carnets** pour organiser les pages et leurs catégories. Pour partager une page, publier sa page puis copier son lien public. Cette page devient la première de la navigation du visiteur ; ses liens et galeries restent dans sa branche. Une sous-page partagée directement devient sa propre racine. L’adresse `index.php?read=1` ne liste aucune page. Les pages publiques restent consultables par toute personne possédant leur lien : cette navigation ne constitue pas un accès protégé par groupe. [Guide de partage 0.5.1](docs/NOUVEAUTES-0.5.1.md).
-
-Créer une page, y déposer un petit PDF, puis cliquer sur **Publier**. Dans une fenêtre privée du navigateur, vérifier la lecture et le téléchargement. Repasser la page en privé et vérifier l’accès au lien du fichier. Un média réutilisé dans une autre page publique reste accessible.
-
-La version a été testée localement sur SQLite et MySQL. La configuration exacte du serveur de chaque hébergeur, ses limites PHP et ses performances doivent être vérifiées à l’installation ; le compte OVH de production n’a pas servi aux essais.
-
-## Navigation, texte et bibliothèque
-
-Le bouton à droite du titre du site masque la barre latérale ; un bouton dans l’en-tête la réaffiche. Le raccourci initial est **Ctrl/Cmd + Maj + L**. Dans **Réglages & sauvegardes → Votre espace**, choisir une autre touche ou désactiver ce raccourci. Le masquage est mémorisé dans le navigateur.
-
-L’accent général possède des variantes automatiques pour les thèmes sombre et OLED, également appliquées dans la vue publique. Dans les outils de couleur, **Texte par défaut** suit le thème clair, sombre ou OLED. Les couleurs choisies explicitement restent fixes. Pour une propriété **État / Choix unique** ou **Choix multiples**, ouvrir le menu de colonne puis **Modifier la propriété** pour attribuer une couleur à chaque choix.
-
-Dans **Bibliothèque**, choisissez les dossiers Documents, Images, Audio, Vidéos, Autres fichiers ou Liens, ou retrouvez la vue en liste. Ce choix est mémorisé sur votre appareil. Les dossiers regroupent les fichiers sans les déplacer. Le bouton **Utilisations** de chaque fichier liste ses pages, bases, galeries et anciennes versions, avec leur état public ou privé. Il distingue le brouillon et le fichier réellement publié. Cet inventaire est réservé à l’administrateur. [Guide 0.4.1](docs/NOUVEAUTES-0.4.1.md).
-
-Pour trier un tableau, ouvrez le menu d’une colonne ou faites un clic droit dans une cellule, puis choisissez **Trier les lignes…**. Choisissez la colonne et le sens du tri ; les nombres sont détectés automatiquement, ou choisissez Texte/Nombres. Les lignes restent complètes et le tri est annulable. [Guide du tri](docs/NOUVEAUTES-0.27.md).
-
-## Les premières commandes
-
-| Commande | Résultat |
-|---|---|
-| `/titre` | Choisir un titre de niveau 1, 2 ou 3 |
-| `/page` | Créer une sous-page et saisir immédiatement son titre |
-| `/galerie` | Insérer une collection de pages à composer |
-| `/pdf`, `/image`, `/audio`, `/vidéo` | Ajouter un média ou un document |
-| `/bouton` | Ajouter un bouton dont le texte et le lien restent modifiables |
-| `/base` | Créer ou choisir une base de données |
-| `/formulaire` | Créer ou choisir un formulaire lié à une base |
-| `/quiz` | Ajouter un quiz avec correction |
-
-Le bouton **Ajouter** propose les mêmes insertions sur mobile. Sélectionner du texte ouvre les outils de mise en forme. Le nom, le sous-titre et la limite d’envoi se règlent dans **Réglages & sauvegardes → Votre espace** ; les couleurs, polices et largeurs dans **Apparence**. Les préférences sont sauvegardées à la fermeture, sans bouton Enregistrer. La fermeture et les installations de mise à jour attendent les écritures en cours. Les propriétés d’une page permettent de personnaliser son apparence et sa catégorie. Le bouton **Présentation** transforme les fichiers déjà présents en lecteurs ou téléchargements, et les liens en boutons ou cartes. [Modifier les blocs](docs/BLOCS-0.4.md).
-
-## Comprendre ce qui est public
-
-Les nouvelles pages racines sont **privées**. **Publier** partage cette page et toutes ses sous-pages actuelles. Ensuite, par défaut, chaque enregistrement actualise automatiquement une page déjà publique, y compris les médias et la couverture. Le réglage **Publier automatiquement les sous-pages des pages publiques** rend publiques toutes leurs sous-pages existantes et futures, y compris lors d’un déplacement sous un parent public. Il est désactivé par défaut pour conserver les choix de visibilité existants. Une fois activé, l’accès public est hérité du parent ; désactiver ce réglage ou rendre le parent privé permet de préparer des sous-pages privées. **Rendre privée** retire aussi les sous-pages.
-
-Décocher **Mettre à jour automatiquement les pages déjà publiques** dans les réglages retrouve le mode brouillon et sa publication manuelle. Les visiteurs déjà présents suivent les changements toutes les 15 secondes lorsque leur onglet est visible. Un quiz commencé ou un média en lecture est préservé. [Fonctionnement détaillé](docs/PUBLICATION-ET-THEMES-0.4.md).
-
-Les cartes de galerie partagent le même ratio, la même disposition et les mêmes tailles dans les deux vues ; les contrôles et pages privées restent réservés à l’administrateur. L’icône du carnet et celle d’une page se modifient avec un catalogue d’émojis, les dessins Lucide colorables ou une image. Le bouton de thème personnel propose clair, sombre et OLED ; il est adapté à l’ordinateur et au mobile.
-
-Le tri, les filtres et les colonnes affichées se règlent indépendamment dans chaque vue liée. Les cellules s’éditent directement ; une relation sélectionne des fiches de la base cible. **Les filtres et colonnes masquées sont des réglages de présentation : ils ne protègent pas des données.** Rendre privées les fiches ou bases à cacher.
-
-Une base possède sa propre visibilité : elle doit être publique **et** intégrée à une page publiée pour être accessible aux lecteurs. Les formulaires peuvent être partagés par leur lien. Leurs réponses et fichiers restent privés, même si le formulaire ou la base est public. Un lecteur n’a pas besoin de compte pour envoyer une réponse.
-
-Les pages publiques sont accessibles à toute personne disposant du lien. Les quiz conviennent à l’entraînement : ils ne conservent pas les résultats individuels et ne constituent pas un système d’examen sécurisé.
-
-## Sauvegarder et mettre à jour
-
-Exporter régulièrement le carnet depuis **Réglages & sauvegardes**. Le ZIP contient les pages, médias, espaces, catégories, réglages, bases et réponses aux formulaires. **Cette sauvegarde contient vos données privées** : la conserver hors du dépôt GitHub.
-
-L’import crée des copies privées, conserve les relations et calculs, remappe les fichiers et ferme les formulaires importés. Le ZIP ne remplace pas une sauvegarde complète de la base SQL, de `config.php` et de `storage/`, nécessaire pour restaurer aussi le compte et l’historique technique.
-
-Pour une mise à jour : sauvegarder, remplacer le code et le contenu de `public/assets/`, conserver **`config.php` et tout `storage/`**, puis ouvrir le carnet. Les migrations sont automatiques et ne suppriment pas les pages. Vérifier ensuite connexion, lecture publique et accès aux fichiers. Ne pas relancer l’installateur sur une installation existante.
-
-## Limites actuelles
-
-- Un seul compte administrateur ; pas de collaboration simultanée ni de comptes visiteurs.
-- Les formules utilisent le langage propre à Feuillet ; il couvre calculs, conditions, textes et agrégations, sans reprendre toute la syntaxe de Notion. [Syntaxe et exemples](docs/BASES-ET-FORMULAIRES.md).
-- Jusqu’à 100 propriétés et 5 000 fiches par base. Le lecteur HTML affiche les 500 premières fiches accessibles.
-- La limite d’envoi se règle de 1 à 1 024 Mo et reste plafonnée par PHP. Feuillet affiche la limite effective ; augmenter celle du carnet ne modifie pas la configuration de l’hébergeur.
-- Aucun transcodage vidéo, OCR ou recherche dans le texte interne des PDF.
-- Les exports PDF sont des documents de lecture : colonnes parcourues dans l’ordre, médias référencés et police PDF Noto Sans. Ils ne reproduisent pas exactement la mise en page interactive.
-- Markdown transmet le texte et un tableau lisible des bases ; le ZIP est nécessaire pour déplacer l’ensemble des données et pièces jointes.
-
-Les procédures détaillées figurent dans [Maintenance](docs/MAINTENANCE.md), les composants dans [Architecture](docs/ARCHITECTURE.md) et les résultats de l’audit dans [Sécurité 0.4](docs/SECURITE-0.4.md).
-
-## Développer et contribuer
-
-Le backend PHP n’utilise ni framework ni dépendance Composer. Le frontend React + TypeScript est compilé par Vite.
-
-```sh
-git clone https://github.com/monsieur-de-paz/feuillet.git
-cd feuillet/frontend
-npm ci
-npm run build
-cd ..
-php -S 127.0.0.1:8090 -t public
-```
-
-Ouvrir `http://127.0.0.1:8090/setup.php` et choisir SQLite pour l’essai local. Le serveur PHP intégré sert uniquement au développement. Node.js 20.19+ ou 22.12+ est nécessaire à la compilation. Les dépendances exactes sont verrouillées dans `frontend/package-lock.json`.
-
-Les tests utilisent des installations jetables et ne modifient aucun carnet existant :
-
-```sh
-python3 tests/smoke.py
-python3 tests/customization.py
-python3 tests/sharing.py
-python3 tests/security.py
-python3 tests/autopublish.py
-python3 tests/reader.py
-python3 tests/databases.py
-```
-
-Ajouter `--mysql` pour tester sur une instance MySQL locale temporaire, si les binaires `mysqld` et `mysql` sont déjà installés. Ajouter `--network` à `smoke.py` pour tester la recherche et l’import Wikimedia réels. Le [protocole de validation](docs/TESTS.md) distingue les essais exécutés de leurs limites.
-
-Les idées et signalements sont bienvenus dans [Issues](https://github.com/monsieur-de-paz/feuillet/issues). Les contributions peuvent être proposées par pull request ; accompagner les corrections d’un exemple reproductible sans donnée personnelle.
-
-## Licence et crédits
-
-Feuillet est distribué sous [licence MIT](LICENSE) : usage, modification et redistribution sont autorisés, y compris gratuitement. Les dépendances, polices et images conservent leurs licences propres ; leurs textes sont fournis dans [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
-
-Les références de conception et le relevé réalisé avec [REA](https://github.com/morluto/rea) sont documentés dans [l’analyse Notion](docs/ANALYSE-NOTION.md). Aucun code de Notion ni template commercial n’est embarqué.
-
-Les repères du carnet et de la catégorie actifs, la palette générale et le choix d’émoji du carnet ont été précisés en [0.5.2](docs/NOUVEAUTES-0.5.2.md).
-
-La largeur de la navigation se règle en glissant son bord droit, avec mémorisation dans le navigateur. Le carnet et la catégorie actifs utilisent le même soulignement d’accent. [Guide 0.5.4](docs/NOUVEAUTES-0.5.4.md).
-
-La rédaction 0.6 remplace le bandeau permanent par un ajout flottant et des outils visibles pendant la sélection de texte. Entrée ou Tab mène du titre au contenu ; les titres 1, 2 et 3 peuvent se déplier. [Guide 0.6](docs/NOUVEAUTES-0.6.md).
-
-Feuillet 0.7 ajoute le déplacement des blocs entre sections, un accueil admin avec les dernières modifications, l’import TXT/Markdown/RTF et un bloc de lieu avec carte Google Maps sans clé API. [Guide 0.7](docs/NOUVEAUTES-0.7.md) · [Identité visuelle et logo](docs/IDENTITE-VISUELLE.md).
-
-La version 0.15.2 crée des copies indépendantes des pages et galeries collées, avec duplication des sous-pages et fichiers. Voir [les nouveautés](docs/NOUVEAUTES-0.15.2.md).
-
-La version 0.16 ajoute les onglets de rédaction et les vidéos chargées au clic. Voir [les nouveautés](docs/NOUVEAUTES-0.16.md).
-
-La version 0.16.1 place les onglets au-dessus du fil d’Ariane : un clic normal réutilise l’onglet actif, + ou le menu contextuel ouvre un onglet supplémentaire. [Détails](docs/NOUVEAUTES-0.16.1.md).
-
-[Feuillet 0.17 : boutons, icônes et cartes de liens](docs/NOUVEAUTES-0.17.md).
-
-[Feuillet 0.18 : aperçus de liens automatiques](docs/NOUVEAUTES-0.18.md).
-
-[Feuillet 0.19 : miniatures légères, sous-pages et colonnes](docs/NOUVEAUTES-0.19.md).
-
-[Feuillet 0.20 : accent monochrome et couleurs par thème](docs/NOUVEAUTES-0.20.md).
-
-[Feuillet 0.21 : lecture rapide et application web installable](docs/NOUVEAUTES-0.21.md).
-
-### Modifier un tableau
-
-Clique dans un tableau pour afficher ses commandes. Le **+** du bas ajoute une ligne ; celui de droite ajoute une colonne. Les poignées apparaissent au survol de la ligne ou de la colonne concernée (et au focus clavier ; elles restent visibles sur écran tactile). À gauche et au-dessus, elles sélectionnent une ligne ou une colonne et ouvrent leurs actions. **Maj + clic** sur une autre poignée étend la sélection. Un clic droit dans une cellule propose les insertions, suppressions, en-têtes, fusions et séparations ; **Annuler** rétablit le contenu après une action. Les menus sont utilisables avec les flèches, Entrée et Échap. Les colonnes restent redimensionnables en faisant glisser leur bordure.
-
-Le menu d’un tableau propose **Couleur de fond…** pour la cellule ou la sélection (ligne, colonne, plage), et **Modèles de tableau…** pour l’ensemble du tableau. Choisis un modèle à simple entrée (en haut ou à gauche), double entrée ou à lignes alternées, puis sa couleur. **Fond par défaut** retire seulement la couleur sélectionnée ; **Tableau neutre** retire toutes les couleurs et en-têtes du modèle.
-
-Le sélecteur de modèles présente des miniatures : survole un modèle ou une couleur pour voir son effet sur le tableau. Clique sur une couleur pour la choisir, puis sur un modèle ou sur **Appliquer** pour enregistrer. Échap ou un clic extérieur ferme le sélecteur sans appliquer l’aperçu.
+Créé par **Monsieur de PAZ, enseignant en France**. Distribué sous [licence MIT](LICENSE) ; les dépendances conservent leurs [licences respectives](THIRD-PARTY-NOTICES.md).
