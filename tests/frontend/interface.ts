@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import React from 'react';
 import {selectOptions} from '../../frontend/src/Select';
-import {fitPopover,searchLabel} from '../../frontend/src/interface-geometry';
+import {fitPopover,searchLabel,blockRailLeft} from '../../frontend/src/interface-geometry';
 const option=(value:string, label:any, disabled=false)=>React.createElement('option',{value,disabled},label);
 const grouped=React.createElement(React.Fragment,null,option('a','École'),React.createElement('optgroup',{label:'Archivées',disabled:true},option('b',React.createElement('strong',null,'Cours'))),false);
 assert.deepEqual(selectOptions(grouped),[{value:'a',label:'École',disabled:false},{value:'b',label:'Cours',disabled:true}]);
@@ -19,3 +19,11 @@ assert.equal(above.top,342);
 const keyboard=fitPopover({x:20,y:450,width:350,height:600,viewportWidth:390,viewportHeight:300});
 assert.equal(keyboard.maxHeight,284);assert.equal(keyboard.top,8);
 console.log('16 interface checks passed: grouped/disabled choices, accent-insensitive search, menu bounds, upward opening and virtual keyboard');
+for (const [row,text,checkbox] of [[325,354,329],[450,479,454],[90,120,94]]) {
+  const left=blockRailLeft(text,700,20,row,false)+20;
+  assert.equal(left+52,row-8);
+  assert.ok(left+52<checkbox,'the entire rail must stay clear of a checkbox even when hovering its text');
+}
+assert.equal(blockRailLeft(100,600,80,undefined,false),-40);
+assert.equal(blockRailLeft(100,600,80,90,true),476);
+console.log('Block rail: checkbox, nested-list and narrow-gutter clearance; ordinary blocks and compact layout passed');

@@ -354,3 +354,7 @@ Exécuter `node tests/reader-navigation.mjs`, `node tests/pwa.mjs`, `python3 tes
 Dans Ajouter une vidéo → Vidéo en ligne, vérifier que les vidéos des pages existantes apparaissent, y compris dans les blocs imbriqués et les snapshots encore publiés. Une même source ne doit pas produire plusieurs cartes ; les pages d’origine sont dédupliquées. Une réinsertion doit rester enregistrée après rechargement et ne pas modifier le bloc source. L’actualisation relit les pages sauvegardées ; aucune synchronisation distante n’est nécessaire.
 
 Commandes : `python3 tests/video-library.py`, puis avec `--mysql` ; `python3 tests/video-embed.py`, `python3 tests/editor.py` et `node tests/frontend.mjs`. Vérifier que `library_videos` refuse les visiteurs et ne charge pas de lecteur distant. Les correctifs de navigation 0.29.1 restent couverts par `node tests/reader-navigation.mjs` et `node tests/pwa.mjs`. [Guide 0.30](NOUVEAUTES-0.30.md).
+
+### Interface « Rivage » — 0.31
+
+Le banc d’essai graphique conservé sur `design/rivage-local` se teste avec `python3 tools/preview-rivage.py`, après compilation du frontend. Sa direction graphique, ses textures, les animations et les vérifications sont décrites dans [INTERFACE-RIVAGE.md](INTERFACE-RIVAGE.md). Les données de démonstration persistantes sont dans `.private/rivage/` et doivent rester exclues de Git, des tests copiés et des archives de distribution. La direction graphique a été validée pour 0.31.0 ; les données de démonstration ne font pas partie de la distribution.

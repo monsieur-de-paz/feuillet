@@ -396,3 +396,11 @@ Le préchargement de l’enveloppe PWA à l’installation est facultatif et bor
 `app/library.php::library_videos()` expose un inventaire administrateur calculé à la demande. Une seule requête de pages fournit les brouillons et snapshots publiés ; le parcours récursif extrait les blocs `webVideo` et revalide leurs sources avec `video_embed_source()`, sans appel réseau. La clé de regroupement dépend du type et du lecteur normalisé, ce qui conserve les paramètres de lecture utiles. Le verrou de session est relâché avant ce parcours. Aucune nouvelle table ni écriture dans les pages.
 
 `OnlineVideoLibrary.tsx` est inclus dans le formulaire d’ajout vidéo de `ExternalEmbed.tsx`, depuis `App.tsx`. Il propose recherche locale sur le résultat, cartes par lots et actualisation. La fermeture annule la requête en cours. Une insertion ne transmet au bloc que les attributs du lecteur ; les identifiants et pages de l’inventaire ne sont pas copiés. Les styles de sélection sont propres à l’administration, avec variantes de thème et réduction des mouvements.
+
+### Interface Rivage et icônes d’installation — 0.31
+
+`public/rivage.css` est la dernière couche de présentation partagée par l’éditeur, le lecteur et l’enveloppe hors connexion. Ses textures statiques sont servies depuis `public/textures/`. `atelier.js` regroupe les mesures des sélecteurs avant les écritures et ne déclenche ni requête ni transaction documentaire. Les mouvements de blocs se coupent pendant la rédaction ; les écouteurs et animations sont libérés à la destruction de l’éditeur. Les outils fixes ne sont pas déplacés avec un ancêtre de document. Voir [la charte](INTERFACE-RIVAGE.md).
+
+`blockRailLeft` sépare la géométrie de la poignée du texte indenté : dans une liste, l’ancre est le bord gauche du `li`, avec huit pixels libres avant la ligne. Cela protège la zone du label/checkbox sans désactiver ses événements.
+
+Le manifeste référence des PNG d’installation dédiés, opaques et blancs ; `apple-touch-icon.png` sert de ressource Apple. `tools/prepare-pwa-icons.swift` les reproduit sur macOS à partir du logo existant (outil de développement seulement, aucune dépendance de serveur). `tests/pwa-icons.py` vérifie les pixels et la zone centrale masquable. Les ressources sont incluses dans le cache versionné du service worker et le manifeste de distribution.

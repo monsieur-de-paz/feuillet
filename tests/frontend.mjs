@@ -10,7 +10,7 @@ const require = createRequire(join(root, 'frontend/package.json'));
 const { build } = require('esbuild');
 const scratch = await mkdtemp(join(tmpdir(), 'feuillet-frontend-tests-'));
 try {
-  for (const name of ['form-design', 'database-views', 'block-presentations', 'block-roundtrip', 'documents', 'theme-colors', 'navigation', 'interface', 'sidebar-width', 'toggle-headings', 'tables', 'block-moving', 'block-selection', 'notebook-home', 'public-sharing', 'media-workflow', 'block-clipboard', 'lazy-video', 'editor-tabs']) {
+  for (const name of ['form-design', 'database-views', 'block-presentations', 'block-roundtrip', 'documents', 'theme-colors', 'navigation', 'interface', 'sidebar-width', 'toggle-headings', 'tables', 'block-moving', 'block-motion', 'block-selection', 'notebook-home', 'public-sharing', 'media-workflow', 'block-clipboard', 'lazy-video', 'editor-tabs']) {
     const outfile = join(scratch, name + '.mjs');
     await build({ entryPoints: [join(root, 'tests/frontend', name + '.ts')], bundle: true, platform: 'node', format: 'esm', outfile, nodePaths: [join(root, 'frontend/node_modules')], loader: { '.css': 'empty', '.svg': 'text', '.ttf': 'empty' }, logLevel: 'error' });
     const result = spawnSync(process.execPath, [outfile], { stdio: 'inherit', cwd: root });

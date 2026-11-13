@@ -55,7 +55,7 @@ class Integration(unittest.TestCase):
         if test_directory: pathlib.Path(test_directory).mkdir(parents=True, exist_ok=True)
         cls.sandbox = pathlib.Path(tempfile.mkdtemp(prefix='feuillet-smoke-', dir=test_directory))
         cls.install = cls.sandbox / 'feuillet'
-        shutil.copytree(ROOT, cls.install, ignore=shutil.ignore_patterns('node_modules', '.git', 'frontend', 'tests', 'docs', 'config.php', 'storage'))
+        shutil.copytree(ROOT, cls.install, ignore=shutil.ignore_patterns('node_modules', '.git', '.private', 'frontend', 'tests', 'docs', 'config.php', 'storage'))
         (cls.install / 'storage').mkdir()
         cls.log = open(cls.sandbox / 'php-server.log', 'w')
         with socket.socket() as sock: sock.bind(('127.0.0.1', 0)); cls.port = sock.getsockname()[1]

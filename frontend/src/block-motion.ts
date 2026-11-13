@@ -10,7 +10,7 @@ export const BlockMotion = Extension.create({
   addProseMirrorPlugins() {
     return [new Plugin({view(view) {
       const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-      let frame=0,dead=false;
+      let frame=0,dead=false,keyboardEditing=false;
       const animations=new Set<Animation>();
       function capture(editor:EditorView):Item[] {
         const items:Item[]=[];
@@ -29,12 +29,24 @@ export const BlockMotion = Extension.create({
         return items;
       }
       let before=capture(view);
-      function animate(el:HTMLElement,keys:Keyframe[],duration=220) {
+      function animate(el:HTMLElement,keys:Keyframe[],duration=340) {
         if(!el.animate)return;
-        const animation=el.animate(keys,{duration,easing:'cubic-bezier(.2,.8,.2,1)'});
+        const animation=el.animate(keys,{duration,easing:'cubic-bezier(.22,1,.36,1)'});
         animations.add(animation);animation.finished.catch(()=>{}).finally(()=>animations.delete(animation));
       }
       function cancel() {animations.forEach(a=>a.cancel());animations.clear();}
+      // Splitting or joining paragraphs/lists is writing, not a block gesture.
+      // Capture before ProseMirror handles the key/native input; never consume it.
+      const quietWriting=()=>{keyboardEditing=true;cancel();};
+      const pointerIntent=()=>{
+        keyboardEditing=false;
+        cancelAnimationFrame(frame);frame=0;cancel();
+        if(!dead)before=capture(view);
+      };
+      view.dom.addEventListener('keydown',quietWriting,true);
+      view.dom.addEventListener('beforeinput',quietWriting,true);
+      view.dom.addEventListener('compositionstart',quietWriting,true);
+      document.addEventListener('pointerdown',pointerIntent,true);
       const preference=()=>{if(reduced.matches)cancel();};
       reduced.addEventListener('change',preference);
       const resize=new ResizeObserver(()=>{if(!frame&&!dead)before=capture(view);});
@@ -46,7 +58,7 @@ export const BlockMotion = Extension.create({
           frame=requestAnimationFrame(()=>{
             frame=0;if(dead)return;
             const after=capture(next);
-            if(reduced.matches||document.hidden||document.body.classList.contains('block-dragging')) {before=after;return;}
+            if(keyboardEditing||reduced.matches||document.hidden||document.body.classList.contains('block-dragging')) {before=after;return;}
             const old=new Map(before.map((item,index)=>[item.node,{...item,index}]));
             const structural=before.length!==after.length || after.some((item,index)=>{
               const prior=old.get(item.node);
@@ -62,18 +74,18 @@ export const BlockMotion = Extension.create({
                   const dx=prior.rect.left-item.rect.left,dy=prior.rect.top-item.rect.top;
                   if(Math.abs(dx)+Math.abs(dy)>2) {
                     if(Math.abs(dx)+Math.abs(dy)<160)animate(item.dom,[{translate:`${dx}px ${dy}px`},{translate:'0 0'}]);
-                    else animate(item.dom,[{translate:'0 6px'},{translate:'0 0'}]);
+                    else animate(item.dom,[{translate:'0 8px'},{translate:'0 0'}]);
                     moving.push(item.dom);
                   }
                 } else if(item.node.isTextblock||item.node.isAtom) {
-                  animate(item.dom,[{translate:'0 5px'},{translate:'0 0'}]);moving.push(item.dom);
+                  animate(item.dom,[{translate:'0 7px'},{translate:'0 0'}]);moving.push(item.dom);
                 }
               }
             }
             before=after;
           });
         },
-        destroy(){dead=true;cancelAnimationFrame(frame);resize.disconnect();reduced.removeEventListener('change',preference);cancel();},
+        destroy(){dead=true;cancelAnimationFrame(frame);resize.disconnect();reduced.removeEventListener('change',preference);view.dom.removeEventListener('keydown',quietWriting,true);view.dom.removeEventListener('beforeinput',quietWriting,true);view.dom.removeEventListener('compositionstart',quietWriting,true);document.removeEventListener('pointerdown',pointerIntent,true);cancel();},
       };
     }})];
   },

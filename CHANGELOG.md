@@ -1,5 +1,14 @@
 # Historique des versions
 
+## 0.31.0 — 2026-11-13
+
+- Interface Rivage : accueil éditorial, cartes et menus aérés, onglets et réglages cohérents, lecture publique assortie et variantes claire/sombre/OLED.
+- Feuille claire #FBFBFB, grain statique fin et différencié selon les surfaces ; textures partagées disponibles hors connexion.
+- Transitions organiques et sélections qui se transforment, avec réduction des mouvements respectée. La frappe, Entrée, Retour arrière et les compositions de texte restent sans animation de blocs et interrompent une éventuelle arrivée de page.
+- Poignées de blocs ancrées hors des lignes de liste, avec marge dédiée : les cases à cocher et les puces restent accessibles, y compris dans les listes imbriquées.
+- Icônes PWA sur fond blanc opaque avec marge : 192/512 pixels, variante masquable Android et icône Apple 180 pixels.
+- Charte, installation, maintenance et aperçus actualisés. Aucun changement SQL ni nouvelle dépendance.
+
 ## 0.30.0 — 2026-11-13
 
 - Ajout vidéo : la source Vidéo en ligne propose les vidéos déjà utilisées dans les pages, avec recherche par titre, service, URL et page d’origine, actualisation et insertion en un clic.

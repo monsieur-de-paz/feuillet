@@ -43,3 +43,16 @@ export function searchLabel(value: string) {
     .replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase("fr");
 }
+
+/** Keep list markers/checkboxes inside the row, and the block rail outside it. */
+export function blockRailLeft(
+  blockLeft: number,
+  blockRight: number,
+  baseLeft: number,
+  listLeft: number | undefined,
+  compact: boolean,
+) {
+  return compact
+    ? Math.max(0, blockRight - baseLeft - 44)
+    : Math.min(blockLeft, listLeft ?? blockLeft) - baseLeft - 52 - 8;
+}

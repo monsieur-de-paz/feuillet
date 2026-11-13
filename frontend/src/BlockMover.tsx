@@ -13,6 +13,7 @@ import {
   blockJsonPaths,
 } from "./block-moving";
 import { selectedBlocks } from "./block-selection";
+import { blockRailLeft } from "./interface-geometry";
 type Hit = BlockPosition & { element: HTMLElement };
 export type Drop = {
   pageId?: string;
@@ -200,7 +201,12 @@ export function BlockMover({
             ),
           }))
           .sort((a, b) => a.distance - b.distance)[0];
-        if (parent.node.type.name !== "table" && nearby && nearby.distance <= 12) hit = nearby;
+        if (
+          parent.node.type.name !== "table" &&
+          nearby &&
+          nearby.distance <= 12
+        )
+          hit = nearby;
       }
       if (hit) setHover(hit);
       else {
@@ -343,10 +349,15 @@ export function BlockMover({
       <div
         className="block-mover"
         style={{
-          top: rect.top - base.top - (hover.node.type.name === "table" ? 62 : 0),
-          left: matchMedia("(max-width:600px)").matches
-            ? Math.max(0, rect.right - base.left - 44)
-            : rect.left - base.left - 52,
+          top:
+            rect.top - base.top - (hover.node.type.name === "table" ? 62 : 0),
+          left: blockRailLeft(
+            rect.left,
+            rect.right,
+            base.left,
+            hover.element.closest("li")?.getBoundingClientRect().left,
+            matchMedia("(max-width:600px)").matches,
+          ),
         }}
         onPointerEnter={() => setHover(hover)}
       >

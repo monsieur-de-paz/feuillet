@@ -1,0 +1,37 @@
+// Presentation must stay bounded, respect reduced motion and leave writing tools fixed.
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
+const events=new Map(), frames=new Map(), styles=new Map();
+let nextFrame=1, cancelled=0, played=0, observerActive=false, resizeActive=false;
+const listen=(target,name,callback)=>events.set(target+':'+name,callback);
+const preference={matches:false,addEventListener:(name,cb)=>listen('motion',name,cb)};
+const active={getBoundingClientRect:()=>({left:25,top:37,width:90,height:32})};
+const parent={scrollLeft:5,scrollTop:0,querySelector:()=>active,getBoundingClientRect:()=>({left:10,top:30}),style:{getPropertyValue:n=>styles.get(n),setProperty:(n,v)=>styles.set(n,v)},classList:{add(){}}};
+const animated=()=>({animate(){played++;return {finished:new Promise(()=>{}),cancel(){cancelled++;}};}});
+const leaves=Array.from({length:30},animated);
+const surface={getAttribute:()=>pageKey,querySelectorAll:()=>leaves,matches:()=>false,animate(){throw new Error('A document ancestor must not move fixed writing tools');}};
+let pageKey='first';
+const document={readyState:'complete',hidden:false,documentElement:{},body:{},getElementById:()=>({}),querySelectorAll:()=>[parent],querySelector:s=>s.includes('data-page-key')?surface:null,addEventListener:(n,cb)=>listen('document',n,cb)};
+const sandbox={document,matchMedia:()=>preference,requestAnimationFrame:cb=>{const id=nextFrame++;frames.set(id,cb);return id;},cancelAnimationFrame:id=>frames.delete(id),MutationObserver:class {constructor(cb){this.cb=cb;sandbox.mutate=cb;}observe(){observerActive=true;}disconnect(){observerActive=false;}},ResizeObserver:class {observe(){resizeActive=true;}disconnect(){resizeActive=false;}},window:{addEventListener:(n,cb)=>listen('window',n,cb)}};
+vm.runInNewContext(readFileSync(new URL('../public/atelier.js',import.meta.url),'utf8'),sandbox);
+function flush(){const jobs=[...frames.values()];frames.clear();for(const job of jobs)job();}
+flush();
+assert.equal(played,0,'initial rendering stays immediate');
+assert.equal(styles.get('--morph-x'),'20px','scroll offset belongs to the selector geometry');
+assert.equal(styles.get('--morph-height'),'32px');
+for(let i=0;i<100;i++)sandbox.mutate();
+assert.equal(frames.size,1,'DOM changes coalesce into one layout pass');
+flush();assert.equal(played,0,'typing on the same page must not animate the document');
+pageKey='second';sandbox.mutate();flush();
+assert.equal(played,8,'page entry is bounded even for a long document');
+events.get('document:keydown')({target:{closest:()=>true}});
+assert.equal(cancelled,8,'starting to write cancels any page entry still running');
+preference.matches=true;events.get('motion:change')();
+assert.equal(cancelled,8,'enabling reduced motion immediately cancels running transitions');
+pageKey='third';flush();assert.equal(played,8,'reduced motion never starts new animations');
+sandbox.mutate();events.get('window:pagehide')();
+assert.equal(frames.size,0);assert.equal(observerActive,false);assert.equal(resizeActive,false);
+events.get('window:pageshow')({persisted:true});flush();
+assert.equal(observerActive,true);assert.equal(resizeActive,true);
+console.log('Rivage motion: bounded entry, typing stability, coalesced layout, scroll geometry, fixed tools, reduced motion and BFCache lifecycle passed');
