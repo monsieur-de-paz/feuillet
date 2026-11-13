@@ -1,6 +1,6 @@
 # Rivage — charte graphique de Feuillet 0.31
 
-Exploration commencée le 13 novembre 2026 sur `design/rivage-local`, à partir de Feuillet 0.30.0 (`3a45ae6`), puis validée par Sandro pour la version **0.31.0**. Cette charte conserve les décisions des essais locaux.
+Exploration commencée le 13 novembre 2026 sur `design/rivage-local`, à partir de Feuillet 0.30.0 (`3a45ae6`), puis validée par Sandro pour la version **0.31.0**, puis ajustée en **0.31.1** pour revenir aux surfaces unies. Cette charte conserve les décisions des essais locaux.
 
 ## Intention
 
@@ -14,20 +14,11 @@ Une interface calme, tactile et éditoriale : la navigation accompagne le docume
 - Même vocabulaire graphique en édition et en lecture, avec adaptations clair, sombre et noir OLED.
 - Galeries sans fond coloré ; les cartes restent des objets distincts.
 
-## Matières et couleurs
+## Surfaces et couleurs — 0.31.1
 
-Trois textures originales générées par code, sans dépendance ou service externe :
+Les pages claires de l’éditeur et du lecteur ont un fond **`#FFFFFF`**. Les cartes, boutons, menus et fenêtres retrouvent leurs aplats : blanc ou teinte discrète de surface selon leur rôle. Le fond latéral reprend sa nuance douce d’origine. Aucun grain, texture ou fichier de bruit n’est chargé, y compris hors connexion.
 
-| Surface | Texture | Intensité maximale |
-| --- | --- | --- |
-| Fond latéral et navigation | `public/textures/rivage-floor.png` | alpha 9/255 |
-| Cartes, menus et fenêtres | `public/textures/rivage-paper.png` | alpha 5/255 |
-| Pages visitées et éditeur (papier ivoire) | `public/textures/rivage-canvas.png` | alpha 18/255 |
-| Boutons d’action | même grain fin, à une échelle plus serrée | alpha 5/255 |
-
-Les trois petites images répétées pèsent environ **40 Ko au total**. Le grain est immobile : aucun filtre de turbulence exécuté en continu, aucun calque bloquant le pointeur, aucune animation du bruit. Les photos ne sont pas texturées. Le fond OLED reste noir pur ; les surfaces de contenu peuvent garder leur grain fin. Les textures sont désactivées à l’impression.
-
-L’accent personnel de Feuillet continue à piloter les actions et sélections. Les titres par défaut utilisent la couleur de texte adaptée au thème ; cette exploration ne réécrit pas les couleurs explicites des documents.
+Les thèmes sombre et OLED conservent leurs surfaces adaptées. L’accent personnel continue à piloter les actions et sélections ; les titres utilisent la couleur de texte du thème, sauf couleur explicitement choisie dans le document. Les proportions, espacements et mouvements Rivage sont conservés.
 
 ## Mouvement
 
@@ -46,11 +37,11 @@ Courbe commune : `cubic-bezier(.22,1,.36,1)`. Pas de voile blanc ni d’effaceme
 
 ## Organisation des fichiers
 
-- `public/rivage.css` : couche visuelle commune, chargée après les styles existants.
+- `public/rivage.css` : couche visuelle commune sans texture, chargée après les styles existants.
 - `public/atelier.js` : mouvements de présentation et sélections qui se transforment ; aucune requête réseau ou écriture de document.
 - `frontend/src/AdminHome.tsx`, `SettingsWorkspace.tsx`, `LibraryNavigator.tsx` : structure de l’accueil, icônes des réglages et libellés de bibliothèque.
 - `frontend/src/block-motion.ts` : mouvement des blocs de l’éditeur.
-- `public/index.php`, `public/offline.html`, `public/sw.js` : chargement des styles et disponibilité des textures hors connexion.
+- `public/index.php`, `public/offline.html`, `public/sw.js` : chargement des styles et ressources hors connexion.
 - `tools/preview-rivage.py` : environnement local isolé et persistant.
 - `tests/rivage-motion.mjs` et `tests/frontend/block-motion.ts` : garde-fous de mouvement, rédaction et cycle de vie.
 
@@ -83,12 +74,8 @@ L’environnement utilise du contenu fictif : carnets, pages publiques et privé
 
 Ces contrôles portent sur ce prototype local. La direction esthétique est validée par l’utilisateur. Un essai sur téléphones physiques reste utile pour les comportements propres à chaque système.
 
-## Ajustement après essai — grain et stabilité de l’écriture
+## Ajustements validés
 
-La feuille claire utilise désormais un fond clair `#FBFBFB`, avec une texture plus présente que celle des cartes. Le papier clair du prototype est fixé à `#FBFBFB`, selon le dernier choix de l’utilisateur. Le thème sombre conserve sa surface sombre et un grain plus fin. L’ancienne déclaration `background` en ligne du lecteur effaçait les images de fond : seules la couleur et l’image de fond du papier la surchargent maintenant explicitement, sans toucher aux couleurs et polices des textes.
+La version 0.31.1 retire les textures essayées en 0.31.0 et restaure les pages blanches et les cartes unies. Les animations et la direction graphique sont conservées.
 
-Le mouvement de blocs distingue les événements de rédaction des gestes de souris. Les événements clavier, saisie native et composition sont observés sans être consommés ; ils annulent les déplacements visuels et gardent la disposition immédiate. Les écouteurs sont retirés à la destruction de l’éditeur. Les tests utilisent de vrais documents et commandes ProseMirror pour scinder/fusionner des paragraphes et des listes à puces ; les déplacements à la souris restent animés.
-
-L’essai intégré de cet ajustement a été réalisé dans une page privée distincte, « Écrire au calme », pour préserver les notes de l’utilisateur : Entrée après un paragraphe, création de puces, Entrée entre deux éléments et Retour arrière fusionnant deux puces. L’écriture interrompt aussi les transitions d’arrivée de page. Le papier du lecteur et de l’éditeur a été vérifié par son style effectif et une capture. La compilation, la suite frontend (dont le nouveau test de rédaction), les garde-fous Rivage et les tests PWA/navigation passent. Validation locale réalisée avant publication de la version 0.31.0.
-
-Dernier ajustement visuel : fond de feuille `#FBFBFB` en édition et en lecture. La tuile de grain de 128 pixels est affichée sur 64 pixels (48 pixels pour les boutons) pour obtenir un grain plus fin. Les variantes sombres et OLED sont conservées.
+L’écriture reste stable : les événements clavier, saisie native et composition sont observés sans être consommés ; ils annulent les déplacements visuels. Les tests utilisent de vrais documents et commandes ProseMirror pour scinder et fusionner paragraphes et listes. Les déplacements volontaires restent animés. Les poignées laissent les cases à cocher accessibles.

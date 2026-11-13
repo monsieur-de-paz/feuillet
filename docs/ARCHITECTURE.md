@@ -399,7 +399,7 @@ Le préchargement de l’enveloppe PWA à l’installation est facultatif et bor
 
 ### Interface Rivage et icônes d’installation — 0.31
 
-`public/rivage.css` est la dernière couche de présentation partagée par l’éditeur, le lecteur et l’enveloppe hors connexion. Ses textures statiques sont servies depuis `public/textures/`. `atelier.js` regroupe les mesures des sélecteurs avant les écritures et ne déclenche ni requête ni transaction documentaire. Les mouvements de blocs se coupent pendant la rédaction ; les écouteurs et animations sont libérés à la destruction de l’éditeur. Les outils fixes ne sont pas déplacés avec un ancêtre de document. Voir [la charte](INTERFACE-RIVAGE.md).
+`public/rivage.css` est la dernière couche de présentation partagée par l’éditeur, le lecteur et l’enveloppe hors connexion. Depuis 0.31.1, les surfaces sont unies et les anciennes textures sont retirées du code et du cache public. `atelier.js` regroupe les mesures des sélecteurs avant les écritures et ne déclenche ni requête ni transaction documentaire. Les mouvements de blocs se coupent pendant la rédaction ; les écouteurs et animations sont libérés à la destruction de l’éditeur. Les outils fixes ne sont pas déplacés avec un ancêtre de document. Voir [la charte](INTERFACE-RIVAGE.md).
 
 `blockRailLeft` sépare la géométrie de la poignée du texte indenté : dans une liste, l’ancre est le bord gauche du `li`, avec huit pixels libres avant la ligne. Cela protège la zone du label/checkbox sans désactiver ses événements.
 

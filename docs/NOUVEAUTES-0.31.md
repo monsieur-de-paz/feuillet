@@ -1,5 +1,7 @@
 # Feuillet 0.31 — Rivage, une interface plus sereine
 
+> **Correctif 0.31.1** : les pages claires sont désormais blanches (`#FFFFFF`) et le grain est retiré de toutes les surfaces. Les détails ci-dessous décrivent la version initiale 0.31.0.
+
 Cette version réunit la direction graphique validée pendant les essais locaux et les derniers correctifs d’écriture. Aucun changement de base de données ni réimportation des pages n’est nécessaire.
 
 ## Une feuille plus agréable

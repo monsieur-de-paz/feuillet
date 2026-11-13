@@ -1,5 +1,11 @@
 # Historique des versions
 
+## 0.31.1 — 2026-11-13
+
+- Retour au fond blanc #FFFFFF pour les pages claires de l’éditeur et du lecteur.
+- Retrait du grain sur toutes les surfaces et retour aux aplats des cartes, boutons et menus. Suppression des textures et de leur préchargement PWA.
+- Styles, accents, animations Rivage, thèmes sombre/OLED, poignées dégagées et icônes PWA sur fond blanc conservés.
+
 ## 0.31.0 — 2026-11-13
 
 - Interface Rivage : accueil éditorial, cartes et menus aérés, onglets et réglages cohérents, lecture publique assortie et variantes claire/sombre/OLED.

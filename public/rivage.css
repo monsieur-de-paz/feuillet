@@ -1,20 +1,17 @@
-/* Rivage — exploration locale. Les couleurs et polices des documents restent personnelles. */
+/* Rivage — présentation partagée. Les couleurs et polices des documents restent personnelles. */
 :root,.app-shell,body[style] {
   --r-ease:cubic-bezier(.22,1,.36,1);
   --r-edge:color-mix(in srgb,var(--ink,#303030) 9%,transparent);
   --r-edge-strong:color-mix(in srgb,var(--ink,#303030) 16%,transparent);
-  --r-floor:color-mix(in srgb,var(--surface,#fff) 86%,#b8aa91);
-  --r-canvas:#fbfbfb;
+  --r-floor:color-mix(in srgb,var(--surface,#fff) 94%,#b8aa91);
+  --r-canvas:#fff;
   --r-inset:color-mix(in srgb,var(--surface,#fff) 96%,var(--ink,#303030));
   --r-hover:color-mix(in srgb,var(--surface,#fff) 93%,var(--ink,#303030));
   --r-shadow:0 1px 3px #15181d03,0 16px 64px #15181d06;
   --r-float:0 0 0 1px var(--r-edge),0 8px 24px #00000008,0 32px 96px #00000016;
   --r-radius:20px;
-  --r-grain-floor:url("./textures/rivage-floor.png");
-  --r-grain-paper:url("./textures/rivage-paper.png");
-  --r-grain-canvas:url("./textures/rivage-canvas.png");
 }
-.app-shell[data-theme=dark],body[data-theme=dark] { --r-floor:#111418;--r-canvas:var(--surface);--r-grain-canvas:var(--r-grain-paper);--r-inset:color-mix(in srgb,var(--surface) 93%,var(--ink));--r-shadow:0 18px 80px #00000014;--r-float:0 0 0 1px var(--r-edge),0 24px 100px #0006; }
+.app-shell[data-theme=dark],body[data-theme=dark] { --r-floor:#111418;--r-canvas:var(--surface);--r-inset:color-mix(in srgb,var(--surface) 93%,var(--ink));--r-shadow:0 18px 80px #00000014;--r-float:0 0 0 1px var(--r-edge),0 24px 100px #0006; }
 .app-shell[data-theme=oled],body[data-theme=oled] { --r-floor:#000;--r-canvas:#000;--r-inset:#080808;--r-hover:#101010;--r-shadow:none;--r-float:0 0 0 1px #292929,0 24px 100px #000; }
 html { scroll-padding-top:120px; }
 body { font-feature-settings:"ss01"; }
@@ -250,7 +247,7 @@ body[style] .reader-header { top:16px;margin:16px auto 0;width:calc(100% - 40px)
 .reader-header .reader-edit-link { border-radius:11px;min-height:38px;display:inline-flex;align-items:center;padding:9px 15px;font-size:11px;border-color:var(--r-edge); }
 .reader-header .pwa-open { border-radius:11px;font-size:11px;min-height:38px;border-color:var(--r-edge); }
 .feuillet-theme-toggle .theme-main-button { border-radius:11px;width:36px;height:36px; }
-.feuillet-theme-toggle .theme-options>div { border-radius:16px;padding:7px;border-color:var(--r-edge);box-shadow:var(--r-float);background-image:var(--r-grain-paper);animation:rivage-menu 320ms var(--r-ease); }
+.feuillet-theme-toggle .theme-options>div { border-radius:16px;padding:7px;border-color:var(--r-edge);box-shadow:var(--r-float);animation:rivage-menu 320ms var(--r-ease); }
 .feuillet-theme-toggle .theme-options button { border-radius:10px;min-height:40px;padding:10px 13px; }
 body[style] #root>.page-cover { max-width:1320px;width:calc(100% - 40px);margin:20px auto 0;border-radius:24px;height:clamp(210px,27vw,380px); }
 .reader-page { margin-top:56px;padding-top:0;padding-bottom:100px; }
@@ -350,17 +347,6 @@ body[style] #root>.page-cover { max-width:1320px;width:calc(100% - 40px);margin:
 .toggle-heading[open]>.toggle-heading-body { animation:rivage-disclose 380ms var(--r-ease); }
 @media(prefers-reduced-motion:reduce) { .toggle-heading[open]>.toggle-heading-body { animation:none; } }
 
-/* Matières statiques : aucun filtre GPU, calque de capture ou animation de bruit.
-   Le fond reste plus tactile que le papier ; les photos gardent leurs pixels. */
-.app-shell,.app-shell .sidebar { background-image:var(--r-grain-floor);background-size:64px 64px; }
-.app-shell .main-panel,.admin-home .home-page-card,.admin-home .home-page-card:hover,.gallery-v2 .gallery-card,.gallery-v2 .gallery-card:hover,.modal,.settings-workspace-panel,.feuillet-floating,.file-download-card,.bookmark.link-card,.form-sheet { background-image:var(--r-grain-paper);background-size:64px 64px; }
-.primary-button,.primary-button:hover,.resource-button.feuillet-action,.resource-button.feuillet-action:hover { background-image:var(--r-grain-paper);background-size:48px 48px; }
-body[style] { background-image:var(--r-grain-floor);background-size:64px 64px; }
-body[style] .reader-page { background-image:var(--r-grain-paper);background-size:64px 64px; }
-.app-shell .main-panel { background-color:var(--r-canvas);background-image:var(--r-grain-canvas);background-size:64px 64px; }
-.app-shell[data-theme=dark] .main-panel,.app-shell[data-theme=oled] .main-panel { background-color:var(--surface); }
-/* The reader's legacy inline background shorthand must not erase its paper. */
-body[style] { background-color:var(--r-canvas)!important;background-image:var(--r-grain-canvas)!important;background-size:64px 64px!important; }
-body[style] .reader-page { background-image:none; }
-body[data-theme=oled],body[data-theme=oled] .app-shell,body[data-theme=oled] .sidebar,.app-shell[data-theme=oled],.app-shell[data-theme=oled] .sidebar { background-image:none!important; }
-@media print { body[style],.app-shell,.app-shell .sidebar,.app-shell .main-panel,.reader-page,.admin-home .home-page-card,.gallery-v2 .gallery-card,.file-download-card,.bookmark.link-card,.form-sheet { background-image:none!important; } }
+/* Feuille blanche en clair ; surfaces sombres et OLED adaptées au thème. */
+.app-shell .main-panel { background-color:var(--r-canvas); }
+body[style] { background-color:var(--r-canvas)!important; }

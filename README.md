@@ -23,7 +23,7 @@
   &nbsp; · &nbsp;
   <a href="#fonctionnalités">Fonctionnalités</a>
   &nbsp; · &nbsp;
-  <a href="docs/NOUVEAUTES-0.31.md#aperçus-sur-données-fictives">Voir les aperçus</a>
+  <a href="docs/NOUVEAUTES-0.31.1.md#aperçu">Voir les aperçus</a>
 </p>
 
 <br>

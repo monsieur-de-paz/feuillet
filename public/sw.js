@@ -1,6 +1,6 @@
 /* Feuillet: public reading copies only. No API, media or administrator document cache. */
 const base = new URL("./", self.location),
-  VERSION = "0.31.0",
+  VERSION = "0.31.1",
   PREFIX = "feuillet-" + encodeURIComponent(base.pathname) + "-",
   SHELL = PREFIX + "shell-" + VERSION,
   PAGES = PREFIX + "public-pages-v2",
@@ -9,9 +9,6 @@ const base = new URL("./", self.location),
 const assets = [
   "atelier.css",
   "rivage.css",
-  "textures/rivage-floor.png",
-  "textures/rivage-paper.png",
-  "textures/rivage-canvas.png",
   "forms.css",
   "atelier.js",
   "offline.html",
