@@ -1,6 +1,6 @@
 /* Feuillet: public reading copies only. No API, media or administrator document cache. */
 const base = new URL("./", self.location),
-  VERSION = "0.29.0",
+  VERSION = "0.29.1",
   PREFIX = "feuillet-" + encodeURIComponent(base.pathname) + "-",
   SHELL = PREFIX + "shell-" + VERSION,
   PAGES = PREFIX + "public-pages-v2",
@@ -162,27 +162,45 @@ async function cacheSnapshot(url, text, value, revision, epoch) {
     return false; /* Storage and quota failures never replace a successful online response. */
   }
 }
+async function prepareShell() {
+  const cache = await caches.open(SHELL);
+  // Cache each asset separately: one failed download must not discard the others.
+  await Promise.allSettled(
+    assets.map((asset) =>
+      cache.addAll([new Request(new URL(asset, base), { cache: "reload" })]),
+    ),
+  );
+}
 self.addEventListener("install", (event) =>
   event.waitUntil(
     (async () => {
-      const c = await caches.open(SHELL);
-      await c.addAll(
-        assets.map((a) => new Request(new URL(a, base), { cache: "reload" })),
+      // Installing a repair must not depend on the disk/quota or one cached asset.
+      await bounded(
+        prepareShell().catch(() => {}),
+        8000,
+        null,
       );
-      self.skipWaiting();
+      await self.skipWaiting();
     })(),
   ),
 );
 self.addEventListener("activate", (event) =>
   event.waitUntil(
     (async () => {
-      for (const n of await caches.keys())
-        if (
-          (n.startsWith(PREFIX + "shell-") && n !== SHELL) ||
-          n === PREFIX + "public-pages"
-        )
-          await caches.delete(n);
+      // Claim first; obsolete-cache cleanup is optional and bounded.
       await self.clients.claim();
+      await bounded(
+        (async () => {
+          for (const name of await caches.keys())
+            if (
+              (name.startsWith(PREFIX + "shell-") && name !== SHELL) ||
+              name === PREFIX + "public-pages"
+            )
+              await caches.delete(name);
+        })().catch(() => {}),
+        1000,
+        null,
+      );
     })(),
   ),
 );
@@ -192,6 +210,14 @@ self.addEventListener("message", (event) =>
       const command = event.data?.command;
       if (command === "enable") {
         await (await caches.open(SETTINGS)).put(key, new Response("yes"));
+        // Retry optional assets after an interrupted install without delaying the reply.
+        event.waitUntil(
+          bounded(
+            prepareShell().catch(() => {}),
+            8000,
+            null,
+          ),
+        );
       }
       if (command === "clear") {
         cacheEpoch++;

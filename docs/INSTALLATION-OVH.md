@@ -2,7 +2,7 @@
 
 Ce guide prépare une installation sur un hébergement mutualisé OVHcloud. Remplacer **`notes.exemple.fr`** par votre domaine ou sous-domaine. Une base SQL et un dossier suffisent ; la compatibilité de l’offre exacte et les limites PHP se vérifient dans l’installateur. Ce guide ne constitue pas une validation sur votre compte OVH réel.
 
-Pour la version **0.29**, utiliser l’archive compilée **Feuillet-0.29.0.zip** disponible dans les releases GitHub. Elle inclut les fichiers compilés de l’interface et le style partagé `public/forms.css` des formulaires et boutons. Sur une installation existante, utiliser les mises à jour de Feuillet ou remplacer le code en conservant `config.php` et tout `storage/` ; ne pas relancer l’installateur. [Nouveautés et parcours de mise à jour 0.29](NOUVEAUTES-0.29.md).
+Pour la version **0.29.1**, utiliser l’archive compilée **Feuillet-0.29.1.zip** disponible dans les releases GitHub. Elle inclut les fichiers compilés de l’interface et le style partagé `public/forms.css` des formulaires et boutons. Sur une installation existante, utiliser les mises à jour de Feuillet ou remplacer le code en conservant `config.php` et tout `storage/` ; ne pas relancer l’installateur. [Nouveautés et parcours de mise à jour 0.29](NOUVEAUTES-0.29.md).
 
 La version 0.29 ajoute automatiquement une colonne de configuration aux formulaires existants. Leurs liens, questions et réponses sont conservés. Pour une installation existante, utiliser la mise à jour intégrée avec sa sauvegarde ; conserver une copie de `config.php` et de `storage/`.
 

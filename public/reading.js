@@ -19,7 +19,6 @@
   const directParameter = "reader-direct",
     directKey =
       "feuillet.reader.direct:" + new URL(".", location.href).pathname;
-  const offlineShell = document.body.hasAttribute("data-reader-offline");
   let directUntil = 0,
     activeNavigation = null,
     activeCheck = null;
@@ -50,7 +49,13 @@
     history.replaceState(history.state, "", canonical);
   }
   // The deadline covers response headers AND the JSON body, including a stalled worker.
-  async function requestState(url, signal, timeout, priority = "high") {
+  async function requestPage(
+    url,
+    signal,
+    timeout,
+    priority = "high",
+    html = false,
+  ) {
     if (signal.aborted)
       throw new DOMException("Lecture annulée.", "AbortError");
     const controller = new AbortController();
@@ -72,11 +77,39 @@
           const response = await fetch(url, {
             credentials: "same-origin",
             cache: "no-store",
+            redirect: html ? "error" : "follow",
             priority,
             signal: controller.signal,
           });
-          if (!response.ok) throw Error("Page indisponible");
-          return { response, result: await response.json() };
+          if (!response.ok && !(html && response.status === 404))
+            throw Error("Page indisponible");
+          let result;
+          if (html) {
+            const parsed = new DOMParser().parseFromString(
+                await response.text(),
+                "text/html",
+              ),
+              root = parsed.querySelector("#root[data-reader-token]"),
+              header = parsed.querySelector(".reader-header");
+            if (
+              !root ||
+              !header ||
+              !root.dataset.readerToken ||
+              !root.innerHTML.trim()
+            )
+              throw Error("Réponse de lecture invalide.");
+            result = {
+              html: root.innerHTML,
+              header: header.innerHTML,
+              token: root.dataset.readerToken,
+              root: root.dataset.readerRoot || "",
+              title: parsed.title,
+              appearance: parsed.body.getAttribute("style") || "",
+              mode: parsed.body.dataset.baseMode || "system",
+              unavailable: response.status === 404,
+            };
+          } else result = await response.json();
+          return { response, result };
         })(),
         stopped,
       ]);
@@ -85,6 +118,10 @@
       signal.removeEventListener("abort", abort);
     }
   }
+  const requestState = (...args) => requestPage(...args);
+  const requestDocument = (url, signal) =>
+    requestPage(directUrl(url).href, signal, 5000, "high", true);
+  let displayedUrl = new URL(location.href);
   const userBusy = () =>
     [...document.querySelectorAll("audio,video")].some((e) => !e.paused) ||
     document.querySelector("form.quiz:focus-within") ||
@@ -227,7 +264,7 @@
     root.dataset.readerPage = query.get("page") || "";
     root.dataset.readerRoot = resolvedRoot || query.get("root") || "";
   }
-  function note(message, url) {
+  function note(message, url, retry = false) {
     let n = document.querySelector(".reader-network-status");
     if (!message) {
       n?.remove();
@@ -247,22 +284,30 @@
       link.textContent = "Ouvrir directement";
       link.dataset.readerDirect = "1";
       n.append(" ", link);
+      if (retry) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = "Réessayer";
+        button.addEventListener(
+          "click",
+          () => void navigate(url).catch(() => {}),
+        );
+        n.append(button);
+      }
     }
-  }
-  function openDirect(url) {
-    if (url.origin !== location.origin)
-      throw Error("Adresse de lecture invalide.");
-    rememberDirect();
-    note("Ouverture directe de la page…", url);
-    location.replace(directUrl(url).href);
   }
   function show(result, url) {
     const root = document.querySelector("#root");
     setReaderLocation(root, url, result.root);
     replace(result);
+    displayedUrl = new URL(url);
     window.scrollTo(0, 0);
   }
   async function navigate(url, push = true) {
+    url = new URL(url, location.href);
+    if (url.origin !== location.origin)
+      throw Error("Adresse de lecture invalide.");
+    const useDocument = prefersDirect() && navigator.onLine !== false;
     const pass = ++navigation;
     activeNavigation?.abort();
     activeCheck?.abort();
@@ -281,11 +326,9 @@
     const qs = readerQuery(url);
     if (hit) qs.set("token", hit.result.token);
     try {
-      const loaded = await requestState(
-        "reader-state.php?" + qs,
-        controller.signal,
-        4000,
-      );
+      const loaded = useDocument
+        ? await requestDocument(url, controller.signal)
+        : await requestState("reader-state.php?" + qs, controller.signal, 4000);
       const response = loaded.response;
       let result = loaded.result;
       if (pass !== navigation) return;
@@ -302,8 +345,27 @@
       note(offline ? "Copie enregistrée · connexion indisponible." : null);
     } catch (error) {
       if (pass !== navigation) return;
-      if (!offlineShell && navigator.onLine !== false) {
-        openDirect(url);
+      if (navigator.onLine !== false) {
+        // Keep the current document and its rescue controls alive. A native reload
+        // can itself stall or select the offline shell before any reader code runs.
+        try {
+          if (useDocument) throw error;
+          rememberDirect();
+          note("Connexion lente · récupération directe de la page…", url);
+          const { result } = await requestDocument(url, controller.signal);
+          if (pass !== navigation) return;
+          if (result.unavailable) memory.clear();
+          show(result, url);
+          note(null);
+        } catch {
+          if (pass !== navigation) return;
+          history.replaceState(history.state, "", displayedUrl);
+          note(
+            "Le chargement n’a pas abouti. La page précédente reste affichée.",
+            url,
+            true,
+          );
+        }
         return;
       }
       const root = document.querySelector("#root");
@@ -332,12 +394,7 @@
   };
   window.addEventListener("popstate", () => {
     const url = new URL(location.href);
-    if (prefersDirect() && !offlineShell) {
-      ++navigation;
-      activeNavigation?.abort();
-      activeCheck?.abort();
-      openDirect(url);
-    } else void navigate(url, false).catch(() => {});
+    void navigate(url, false).catch(() => {});
   });
   window.addEventListener("pagehide", () => {
     ++navigation;
@@ -356,22 +413,39 @@
     )
       return;
     const a = event.target.closest("a[href]");
-    if (!a || a.target || a.hasAttribute("download")) return;
-    const url = new URL(a.href);
+    if (
+      !a ||
+      (a.target && a.target.toLowerCase() !== "_self") ||
+      a.hasAttribute("download")
+    )
+      return;
+    if (a.dataset?.readerDirect === "1") {
+      ++navigation;
+      activeNavigation?.abort();
+      activeCheck?.abort();
+      rememberDirect();
+      return;
+    }
+    const url = new URL(a.href),
+      base = new URL(".", location.href),
+      path = url.pathname.slice(base.pathname.length),
+      internal =
+        url.pathname.startsWith(base.pathname) &&
+        ((path === "index.php" &&
+          (url.searchParams.has("page") || url.searchParams.has("share"))) ||
+          /^[a-z0-9][a-z0-9-]{0,63}$/.test(path));
     if (
       url.origin !== location.origin ||
-      !url.pathname.endsWith("/index.php") ||
-      !url.searchParams.has("page") ||
+      !internal ||
       url.searchParams.has("edit") ||
       url.searchParams.has("form") ||
+      url.searchParams.has("project") ||
+      url.searchParams.has("dashboard") ||
+      url.searchParams.has("print") ||
       url.hash
     )
       return;
     event.preventDefault();
-    if (prefersDirect()) {
-      location.assign(directUrl(url).href);
-      return;
-    }
     void navigate(url).catch(() => {});
   });
   function schedule() {
@@ -382,7 +456,15 @@
     }, 15000);
   }
   window.addEventListener("pageshow", (event) => {
-    if (event.persisted) schedule();
+    if (event.persisted) {
+      activeNavigation = activeCheck = null;
+      busy = false;
+      note(null);
+      schedule();
+      if (location.href !== displayedUrl.href)
+        void navigate(new URL(location.href), false).catch(() => {});
+      else void check(true);
+    }
   });
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden) void check();

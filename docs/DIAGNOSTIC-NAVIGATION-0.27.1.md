@@ -58,3 +58,7 @@ L’ancienne navigation restait sur la page précédente avec son message d’at
 - Une validation interrompue ou expirée ne sert pas d’ancienne copie. Dépublication mise en quarantaine immédiatement, suppression en arrière-plan et génération d’effacement pour les écritures en attente.
 
 Les tests de navigation et de PWA sont exécutés automatiquement dans le workflow GitHub de contrôle de publication. Après déploiement, recharger les pages ouvertes avant la mise à jour puis rejouer le parcours dans les établissements.
+
+## Suivi du 13 novembre — 0.29.1
+
+Un nouvel incident sur le dernier clic vers les consignes a révélé des chemins non couverts par le repli initial. Le mode direct et l’écran PWA connecté pouvaient supprimer les commandes de secours. Ces comportements sont reproduits sur la 0.29 et corrigés par une récupération HTML contrôlée, sans abandon prématuré du document. L’installation/activation du worker ne dépend plus d’un cache réactif. Voir le [diagnostic et les étapes 0.29.1](NOUVEAUTES-0.29.1.md). Cette reproduction ne prouve pas à elle seule l’état du cache ou du réseau lors de l’incident réel.

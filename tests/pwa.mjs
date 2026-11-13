@@ -12,6 +12,10 @@ const listeners = {},
 let putGate = null,
   openGate = null,
   deleteGate = null,
+  keysGate = null,
+  addAllGate = null,
+  skipped = 0,
+  claimed = 0,
   fastTimers = false,
   lastSignal = null,
   bodyResponse = null,
@@ -36,10 +40,13 @@ const caches = {
       async keys() {
         return [...m.keys()].map((u) => new Request(u));
       },
-      async addAll() {},
+      async addAll() {
+        if (addAllGate) await addAllGate;
+      },
     };
   },
   async keys() {
+    if (keysGate) await keysGate;
     return [...stores.keys()];
   },
   async delete(k) {
@@ -66,13 +73,19 @@ const network = async (_request, options) => {
   );
 };
 const workerTimeout = (fn, ms) =>
-  setTimeout(fn, fastTimers && [6000, 400].includes(ms) ? 30 : ms);
+  setTimeout(fn, fastTimers && [6000, 400, 8000, 1000].includes(ms) ? 30 : ms);
 runInNewContext(readFileSync(process.argv[2] || "public/sw.js", "utf8"), {
   self: {
     location: "https://example.test/feuillet/sw.js",
     addEventListener: (n, f) => (listeners[n] = f),
-    clients: { claim: async () => {} },
-    skipWaiting: () => {},
+    clients: {
+      claim: async () => {
+        claimed++;
+      },
+    },
+    skipWaiting: () => {
+      skipped++;
+    },
   },
   URL,
   Request,
@@ -115,6 +128,48 @@ async function request(path, waitForBackground = true) {
   if (waitForBackground) await Promise.all(tasks);
   return r;
 }
+// A cache problem must not prevent a repaired worker from replacing its predecessor.
+fastTimers = true;
+for (const operation of ["open", "asset"]) {
+  let release;
+  const gate = new Promise((resolve) => (release = resolve));
+  if (operation === "open") openGate = gate;
+  else addAllGate = gate;
+  const before = skipped,
+    tasks = [];
+  listeners.install({ waitUntil: (p) => tasks.push(p) });
+  assert.equal(
+    await Promise.race([
+      Promise.all(tasks).then(() => true),
+      new Promise((resolve) => setTimeout(() => resolve(false), 200)),
+    ]),
+    true,
+    "A blocked " + operation + " must not trap worker installation",
+  );
+  assert.equal(skipped, before + 1);
+  release();
+  openGate = addAllGate = null;
+}
+let releaseKeys;
+keysGate = new Promise((resolve) => (releaseKeys = resolve));
+const activation = [];
+listeners.activate({ waitUntil: (p) => activation.push(p) });
+await Promise.resolve();
+assert.equal(claimed, 1, "Clients are claimed before touching obsolete caches");
+assert.equal(
+  await Promise.race([
+    Promise.all(activation).then(() => true),
+    new Promise((resolve) => setTimeout(() => resolve(false), 200)),
+  ]),
+  true,
+  "Obsolete-cache cleanup cannot trap activation",
+);
+releaseKeys();
+keysGate = null;
+fastTimers = false;
+console.log(
+  "PWA lifecycle: blocked storage and assets do not prevent repair activation or client takeover",
+);
 assert.equal((await command("status")).pages, 0);
 await request("reader-state.php?page=one&root=root");
 assert.equal((await command("status")).pages, 0);

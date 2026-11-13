@@ -384,3 +384,9 @@ Les sauvegardes exportent la configuration des formulaires. `database_import` re
 `groupBy` est un ID de propriété optionnel de `DatabaseViewConfiguration`, validé par `database_view_config`. Il est réécrit dans les copies/imports et retiré lorsqu’une propriété disparaît. `database-grouping.ts` groupe les lignes déjà filtrées et triées ; `Records` affiche des sous-vues réutilisant les actions et cellules existantes. Le lecteur PHP groupe uniquement un bundle déjà autorisé et réutilise ce bundle pour les sous-vues, sans refaire une requête par groupe. La limite de 500 lignes de lecture est conservée.
 
 La projection reçoit un paramètre `group` validé contre les propriétés de la base. Un `groupValue` explicite est ajouté aux lignes uniquement si un regroupement a été demandé. Les autres valeurs non sélectionnées restent absentes. La limite de 200 lignes et le contrôle administrateur sont inchangés.
+
+### Récupération publique 0.29.1
+
+`reading.js` borne le JSON à 4 s, puis récupère le HTML public à 5 s par `index.php` avec `cache: no-store` et les paramètres de contournement du worker (`read=1`, `edit=0`, `reader-direct=1`). DOMParser extrait uniquement un lecteur valide : racine munie de son token, en-tête, titre et apparence. Le document courant est conservé, les scripts ne sont pas réexécutés. Le mode de récupération par onglet utilise ensuite ce chemin contrôlé durant quinze minutes. Échec final : ancienne page conservée, adresse restaurée, actions manuelles persistantes. Les 404 de récupération sont affichées comme indisponibles.
+
+Le préchargement de l’enveloppe PWA à l’installation est facultatif et borné à 8 s. L’activation appelle `clients.claim()` avant le nettoyage des caches obsolètes (attente maximale 1 s). Les tâches de cache n’ont pas de rôle d’autorisation ; la politique de révocation et les accès publics restent vérifiés côté serveur.

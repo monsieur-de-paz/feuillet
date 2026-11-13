@@ -1,5 +1,13 @@
 # Historique des versions
 
+## 0.29.1 — 2026-11-13
+
+- Navigation publique : récupération HTML sans quitter le document si le flux JSON bloque. Requêtes et corps de réponse bornés ; le mode de récupération reste contrôlé lors des clics suivants et du retour arrière.
+- Boutons Ouvrir directement et Réessayer conservés si les deux voies échouent ; le contenu précédent et son adresse restent cohérents. Les chemins courts et les liens ciblant le même onglet sont pris en charge.
+- L’écran PWA hors connexion peut tenter une récupération directe si le navigateur est connecté. Aucun rechargement automatique en boucle ni affichage d’une copie mémoire sans validation.
+- Installation et activation du service worker réparé indépendantes des opérations de cache bloquées : préchargement et nettoyage bornés, prise en charge des onglets avant nettoyage.
+- Droits inchangés : le repli demande explicitement la vue publique, sans cache HTTP/worker ; les réponses 404 remplacent l’ancien contenu, sans exposer les brouillons ou pages privées.
+
 ## 0.29.0 — 2026-11-12
 
 - Studio de formulaires : modèles Atelier, Éditorial, Studio, Aurore et Essentiel ; aperçu en direct avant/après l’envoi, côte à côte quand la largeur le permet.

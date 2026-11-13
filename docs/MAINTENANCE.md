@@ -342,3 +342,9 @@ Les formulaires et les projections ne sont pas disponibles hors connexion. Si un
 - La migration ajoute `collection_forms.config` ; conserver la sauvegarde complète code/base/configuration avant intervention. Utiliser le mécanisme de restauration de Feuillet si la validation échoue, plutôt que remplacer seulement les fichiers PHP.
 
 Les tests et captures de cette version utilisent des noms et projets fictifs. Aucun envoi de test n’est effectué vers les formulaires de production.
+
+## Navigation publique — correctif 0.29.1
+
+Après mise à jour, recharger un onglet public puis parcourir plusieurs niveaux, y compris après un premier repli. Le bandeau doit proposer Ouvrir directement dès l’attente ; en cas d’échec du JSON et du HTML, Réessayer reste disponible et la page précédente conserve son adresse. Vérifier aussi un lien court, Retour/Avancer, un PDF et un formulaire. Il n’est pas nécessaire d’effacer les données personnelles du navigateur.
+
+Exécuter `node tests/reader-navigation.mjs`, `node tests/pwa.mjs`, `python3 tests/reader.py` et `python3 tests/pwa.py`. Rejouer les scénarios dans un navigateur avec JSON retardé, puis HTML retardé lors du clic suivant. Comparer la version du document et du script réellement servis avant de conclure à un déploiement effectif. Voir [le suivi de diagnostic](NOUVEAUTES-0.29.1.md).
