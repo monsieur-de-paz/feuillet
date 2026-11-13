@@ -1,5 +1,12 @@
 # Historique des versions
 
+## 0.30.0 — 2026-11-13
+
+- Ajout vidéo : la source Vidéo en ligne propose les vidéos déjà utilisées dans les pages, avec recherche par titre, service, URL et page d’origine, actualisation et insertion en un clic.
+- Inventaire automatique des brouillons et snapshots encore publiés, y compris les blocs imbriqués. Lecteurs identiques regroupés avec leurs pages d’origine ; points de départ et liens Vimeo privés conservés.
+- Chaque insertion reste un bloc indépendant. Liste sans lecteur, miniature distante ou appel aux plateformes ; réservée à l’administrateur et sans cache HTTP.
+- Jusqu’à 1 000 lecteurs distincts, cartes affichées par lots de 24. Aucun changement SQL ni réimportation des vidéos existantes.
+
 ## 0.29.1 — 2026-11-13
 
 - Navigation publique : récupération HTML sans quitter le document si le flux JSON bloque. Requêtes et corps de réponse bornés ; le mode de récupération reste contrôlé lors des clics suivants et du retour arrière.

@@ -226,3 +226,9 @@ Les chemins sont propres à une installation et les anciens restent rattachés �
 `video_resolve` reçoit en POST un champ `url`. L’action exige une session administrateur et le jeton CSRF. Elle renvoie `video` avec les attributs `url`, `src`, `label`, `kind` et `portrait` du bloc `webVideo`. Le lecteur reconstruit les adresses à partir du lien d’origine et charge la ressource au clic. Seules les redirections courtes TikTok déclenchent une requête serveur, limitée aux hôtes TikTok et soumise aux contrôles réseau existants.
 
 Le bloc `htmlEmbed` conserve `code` (32 Ko UTF-8 maximum) et `height` (200 à 1200 px). Depuis 0.23.1, le code est transmis au cadre `embed-frame.php` après activation, par un canal attaché au document qui a prouvé connaître le défi aléatoire. Il est ensuite exécuté dans un sous-cadre sandboxé à origine opaque, sans accès à la page parente, à son stockage ni à sa navigation. Le serveur ne télécharge pas le code du fournisseur.
+
+## Vidéos en ligne déjà utilisées — 0.30
+
+`GET action=library_videos`, administrateur uniquement : `{videos:[{id,url,src,label,kind,portrait,title,pages:[{id,title}]}],truncated:boolean}`. `id` est une clé de regroupement dérivée du lecteur normalisé, pas une entité persistée. L’API parcourt les blocs `webVideo` des brouillons et snapshots encore publiés des pages non supprimées, sans requête réseau distante. Les différentes utilisations dans une même page sont regroupées ; maximum 1 000 lecteurs distincts. Les titres et pages peuvent être privés : accès visiteur 401, méthodes autres que GET 405, réponse `Cache-Control: no-store`.
+
+Pour réinsérer, créer un nouveau bloc `webVideo` avec uniquement `{url,src,label,kind,portrait,title}` ; ne pas copier les champs d’inventaire `id` et `pages`. La sauvegarde revalide la source avec `video_embed_source()`. Les blocs restent indépendants, sans référence partagée vers cet inventaire.

@@ -52,7 +52,7 @@ L’installateur vérifie les extensions PHP, les sessions et les droits d’éc
 
 - **Écrire par blocs** : commandes `/`, titres dépliables, listes, tableaux, colonnes, encadrés, boutons et déplacement de plusieurs blocs.
 - **Organiser ses notes** : carnets, catégories, pages et sous-pages, recherche, onglets de rédaction et historique.
-- **Rassembler ses médias** : images, PDF, audio, vidéos, bibliothèque de fichiers, aperçus de liens et intégrations web.
+- **Rassembler ses médias** : images, PDF, audio, vidéos, bibliothèque de fichiers et de vidéos en ligne, aperçus de liens et intégrations web.
 - **Créer des bases** : champs typés, vues en tableau ou galerie, tri, filtres, regroupements, relations, formules et agrégations.
 - **Recueillir des réponses** : formulaires avec dépôt de fichiers, cinq modèles, textes personnalisables, aperçu en direct et animations. Réponses privées et projection administrateur actualisée toutes les dix secondes.
 - **Partager à son rythme** : pages privées ou publiques, liens personnalisés, partage des sous-pages et accueil public configurable.

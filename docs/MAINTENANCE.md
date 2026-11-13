@@ -348,3 +348,9 @@ Les tests et captures de cette version utilisent des noms et projets fictifs. Au
 Après mise à jour, recharger un onglet public puis parcourir plusieurs niveaux, y compris après un premier repli. Le bandeau doit proposer Ouvrir directement dès l’attente ; en cas d’échec du JSON et du HTML, Réessayer reste disponible et la page précédente conserve son adresse. Vérifier aussi un lien court, Retour/Avancer, un PDF et un formulaire. Il n’est pas nécessaire d’effacer les données personnelles du navigateur.
 
 Exécuter `node tests/reader-navigation.mjs`, `node tests/pwa.mjs`, `python3 tests/reader.py` et `python3 tests/pwa.py`. Rejouer les scénarios dans un navigateur avec JSON retardé, puis HTML retardé lors du clic suivant. Comparer la version du document et du script réellement servis avant de conclure à un déploiement effectif. Voir [le suivi de diagnostic](NOUVEAUTES-0.29.1.md).
+
+## Vidéothèque en ligne — 0.30
+
+Dans Ajouter une vidéo → Vidéo en ligne, vérifier que les vidéos des pages existantes apparaissent, y compris dans les blocs imbriqués et les snapshots encore publiés. Une même source ne doit pas produire plusieurs cartes ; les pages d’origine sont dédupliquées. Une réinsertion doit rester enregistrée après rechargement et ne pas modifier le bloc source. L’actualisation relit les pages sauvegardées ; aucune synchronisation distante n’est nécessaire.
+
+Commandes : `python3 tests/video-library.py`, puis avec `--mysql` ; `python3 tests/video-embed.py`, `python3 tests/editor.py` et `node tests/frontend.mjs`. Vérifier que `library_videos` refuse les visiteurs et ne charge pas de lecteur distant. Les correctifs de navigation 0.29.1 restent couverts par `node tests/reader-navigation.mjs` et `node tests/pwa.mjs`. [Guide 0.30](NOUVEAUTES-0.30.md).

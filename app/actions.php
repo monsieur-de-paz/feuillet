@@ -71,6 +71,7 @@ function api_dispatch(string $action): never {
     if($action==='export_markdown')export_markdown(get_page(str_limit($_GET['id']??'',190)));
     if($action==='health')json_out(['php'=>PHP_VERSION,'driver'=>db()->getAttribute(PDO::ATTR_DRIVER_NAME),'upload_limit'=>upload_limit(),'configured_upload_limit'=>notebook_settings()['max_upload'],'server_upload_limit'=>server_upload_limit(),'storage_writable'=>is_writable(storage()),'version'=>FEUILLET_VERSION]);
     if($action==='file_usage')json_out(media_usage(str_limit($_GET['id']??'',36)));
+    if($action==='library_videos'){require_once __DIR__.'/library.php';json_out(library_videos());}
     if($action==='library_links'){require_once __DIR__.'/library.php';json_out(library_links());}
     if($action==='files')json_out(['files'=>array_map('file_info',query('SELECT * FROM files ORDER BY created_at DESC')->fetchAll())]);
     if($action==='upload'){if(empty($_FILES['file']))fail('Aucun fichier reçu. La limite d’envoi a peut-être été dépassée.',413);json_out(['file'=>receive_file($_FILES['file'])]);}

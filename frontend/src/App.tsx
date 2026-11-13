@@ -3741,6 +3741,7 @@ export default function App() {
             )}
             {requested === "video" && imageTab === "internet" && (
               <OnlineVideoForm
+                showLibrary
                 onInsert={(video) => {
                   const editor = insertEditor.current;
                   if (!editor || editor.isDestroyed) return;

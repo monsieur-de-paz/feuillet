@@ -22,3 +22,41 @@ function library_links(): array {
     }
     return ['links'=>$links];
 }
+
+/** Saved web-video blocks from drafts and published pages, never remote metadata. */
+function library_videos(): array {
+    need_admin();
+    session_write_close();
+    $videos=[];$truncated=false;
+    $rows=query('SELECT id,title,content,published,visibility FROM pages WHERE deleted_at IS NULL ORDER BY updated_at DESC,id DESC');
+    while($page=$rows->fetch()){
+        $walk=function(array $node)use(&$walk,&$videos,&$truncated,$page){
+            if(($node['type']??'')==='webVideo'){
+                $attrs=is_array($node['attrs']??null)?$node['attrs']:[];
+                if($source=video_embed_source($attrs['url']??null)){
+                    $key=hash('sha256',$source['kind'].'|'.$source['src']);
+                    if(!isset($videos[$key])&&count($videos)>=1000)$truncated=true;
+                    else{
+                        if(!isset($videos[$key]))$videos[$key]=$source+['id'=>$key,'title'=>'','pages'=>[]];
+                        $title=str_limit($attrs['title']??'',300);
+                        if($videos[$key]['title']===''&&$title!=='')$videos[$key]['title']=$title;
+                        $videos[$key]['pages'][$page['id']]=['id'=>$page['id'],'title'=>$page['title']];
+                    }
+                }
+            }
+            foreach($node['content']??[] as $child)if(is_array($child))$walk($child);
+        };
+        $draft=json_decode($page['content'],true);if(is_array($draft))$walk($draft);
+        if($page['visibility']==='public'&&$page['published']){
+            $snapshot=json_decode($page['published'],true);
+            if(is_array($snapshot['content']??null))$walk($snapshot['content']);
+        }
+    }
+    foreach($videos as &$video){
+        $video['pages']=array_values($video['pages']);
+        if($video['title']==='')$video['title']=$video['kind']==='media'
+            ? str_limit(rawurldecode(basename(parse_url($video['url'],PHP_URL_PATH)??'')),300)
+            : 'Vidéo '.$video['label'];
+    }unset($video);
+    return ['videos'=>array_values($videos),'truncated'=>$truncated];
+}

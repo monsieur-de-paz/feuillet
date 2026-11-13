@@ -6,6 +6,7 @@ import {
   type NodeViewProps,
 } from "@tiptap/react";
 import { api } from "./types";
+import { OnlineVideoLibrary } from "./OnlineVideoLibrary";
 
 export type VideoSource = {
   url: string;
@@ -18,9 +19,11 @@ export type VideoSource = {
 
 export function OnlineVideoForm({
   url = "",
+  showLibrary = false,
   onInsert,
 }: {
   url?: string;
+  showLibrary?: boolean;
   onInsert: (video: VideoSource) => void;
 }) {
   const [link, setLink] = useState(url);
@@ -53,34 +56,39 @@ export function OnlineVideoForm({
   }
 
   return (
-    <form className="modal-form embed-form" onSubmit={submit}>
-      <label>
-        Lien de la vidéo
-        <input
-          type="url"
-          required
-          placeholder="https://…"
-          value={link}
-          onChange={(event) => setLink(event.target.value)}
-        />
-      </label>
-      <p className="muted">
-        Colle un lien YouTube, Dailymotion, TikTok, Vimeo ou un lien direct vers
-        un fichier vidéo HTTPS.
-      </p>
-      {error && (
-        <p className="form-error" role="alert">
-          {error}
+    <>
+      <form className="modal-form embed-form" onSubmit={submit}>
+        <label>
+          Lien de la vidéo
+          <input
+            type="url"
+            required
+            placeholder="https://…"
+            value={link}
+            onChange={(event) => setLink(event.target.value)}
+          />
+        </label>
+        <p className="muted">
+          Colle un lien YouTube, Dailymotion, TikTok, Vimeo ou un lien direct
+          vers un fichier vidéo HTTPS.
         </p>
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
+        <button className="primary-button" disabled={busy}>
+          {busy
+            ? "Vérification…"
+            : url
+              ? "Enregistrer le lien"
+              : "Insérer la vidéo"}
+        </button>
+      </form>
+      {showLibrary && (
+        <OnlineVideoLibrary onInsert={onInsert} disabled={busy} />
       )}
-      <button className="primary-button" disabled={busy}>
-        {busy
-          ? "Vérification…"
-          : url
-            ? "Enregistrer le lien"
-            : "Insérer la vidéo"}
-      </button>
-    </form>
+    </>
   );
 }
 
@@ -242,7 +250,12 @@ function ExternalEmbedView({ node, editor, updateAttributes }: NodeViewProps) {
                 allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
               />
             )}
-            {!isHtml && <div className="web-video-caption"><strong>{title || `Vidéo ${label}`}</strong><span>Lecture intégrée · {label}</span></div>}
+            {!isHtml && (
+              <div className="web-video-caption">
+                <strong>{title || `Vidéo ${label}`}</strong>
+                <span>Lecture intégrée · {label}</span>
+              </div>
+            )}
             {safeUrl && (
               <a href={safeUrl.href} target="_blank" rel="noopener noreferrer">
                 Ouvrir la vidéo ↗

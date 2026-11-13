@@ -550,3 +550,9 @@ Contrôles réalisés sur des installations et fichiers temporaires possédés p
 - Build TypeScript/Vite réussi. `npm audit --json` : aucun avis connu sur les dépendances verrouillées à cette date.
 
 Le rapport [AUDIT-SECURITE-2026-11-03.md](AUDIT-SECURITE-2026-11-03.md) précise le périmètre historique et les limites du contrôle.
+
+## Vidéothèque de réutilisation — 0.30
+
+`python3 tests/video-library.py` couvre les sources normalisées et lecteurs dupliqués, blocs imbriqués, accès administrateur seul, GET seul, no-store, snapshots publiés, retour en privé, corbeille, réinsertion indépendante sans métadonnées d’inventaire et limite de 1 000 résultats. Les cinq scénarios passent sur SQLite et MySQL. Les scénarios existants d’intégration vidéo, d’éditeur, de lecture et de sécurité, ainsi que les suites frontend/navigation/PWA, ont également réussi.
+
+Dans le navigateur intégré, sur une installation jetable : ajout d’un bloc vidéo, affichage de cinq cartes pour six utilisations, recherche sans accents par page et titre, insertion directe d’une carte, sauvegarde/rechargement et compte d’utilisations actualisé. Vérification visuelle clair/sombre et absence d’iframes dans la liste. Les données sont fictives ; aucune page de production n’a été éditée.
