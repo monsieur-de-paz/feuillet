@@ -1,5 +1,14 @@
 # Historique des versions
 
+## 0.32.0 — 2026-11-15
+
+- Animations Rivage plus visibles : arrivée des textes et cartes, ouverture et fermeture des fenêtres, menus ancrés à leur commande et dépliage des sections. Transformations et opacité privilégiées ; ombres larges non interpolées sur les principales cartes.
+- Rédaction stable : Entrée, Retour arrière, listes et composition de texte ne déclenchent pas d’animation de blocs. La frappe interrompt immédiatement les animations d’arrivée ; un rafraîchissement du lecteur sur la même page ne rejoue pas son entrée.
+- Cartes d’accueil structurées avec de vrais liens : navigation normale conservée dans l’onglet courant, clics modifiés natifs, menu contextuel et focus clavier visible.
+- Menus mieux espacés et positionnés d’après leurs dimensions réelles, sans déplacement lié à l’échelle de leur animation. Indicateur de sélection animé sans redimensionner les commandes.
+- Réglages et textes harmonisés, cibles tactiles principales de 44 px, commandes des fichiers adaptées à la largeur disponible dans les colonnes. Variantes sombre/OLED et réduction des mouvements prises en compte par composant.
+- Pages claires toujours blanches #FFFFFF, sans grain. Aucun changement SQL ni nouvelle dépendance de production ; données et publication conservées.
+
 ## 0.31.1 — 2026-11-13
 
 - Retour au fond blanc #FFFFFF pour les pages claires de l’éditeur et du lecteur.

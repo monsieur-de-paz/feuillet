@@ -358,3 +358,14 @@ Commandes : `python3 tests/video-library.py`, puis avec `--mysql` ; `python3 tes
 ### Interface « Rivage » — 0.31
 
 Le banc d’essai graphique conservé sur `design/rivage-local` se teste avec `python3 tools/preview-rivage.py`, après compilation du frontend. Sa direction graphique, ses textures, les animations et les vérifications sont décrites dans [INTERFACE-RIVAGE.md](INTERFACE-RIVAGE.md). Les données de démonstration persistantes sont dans `.private/rivage/` et doivent rester exclues de Git, des tests copiés et des archives de distribution. La direction graphique a été validée pour 0.31.0 ; les données de démonstration ne font pas partie de la distribution.
+
+## Mise à jour 0.32
+
+Installer le code, tous les assets et le manifeste 0.32.0 ensemble ; préserver
+`config.php` et `storage/`. La version du cache PWA évolue pour renouveler les
+ressources d’interface. Recharger les onglets administrateur après validation.
+Aucun changement SQL spécifique à cette version. Vérifier une navigation de
+carte, un menu de sélection, le focus clavier et la saisie Entrée/Retour arrière,
+ainsi qu’une page publique en mode sombre et avec mouvement réduit. Les animations
+ne retardent aucune requête. La distribution ne contient pas les skills ni les
+profils shell du poste de développement.

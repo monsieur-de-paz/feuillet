@@ -1,5 +1,11 @@
 import { coverImageStyle } from "./cover-position";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type MouseEvent,
+} from "react";
 import {
   ArrowUpRight,
   Plus,
@@ -123,6 +129,21 @@ export function AdminHome({
   };
   const parent = (page: Page) =>
     scoped.find((item) => item.id === page.parent_id);
+  const href = (page: Page) =>
+    `index.php?page=${encodeURIComponent(page.slug || page.id)}`;
+  function navigate(event: MouseEvent<HTMLAnchorElement>, page: Page) {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    )
+      return;
+    event.preventDefault();
+    onOpen(page.id);
+  }
   return (
     <section
       className="admin-home"
@@ -321,11 +342,10 @@ export function AdminHome({
         </header>
         <div className="home-recent-grid">
           {recent.slice(0, 6).map((page) => (
-            <button
+            <article
               className="home-page-card"
               key={page.id}
               data-page-id={String(page.id)}
-              onClick={() => onOpen(page.id)}
             >
               {page.cover_id && (
                 <span className="home-card-cover-frame">
@@ -348,7 +368,15 @@ export function AdminHome({
                   size={30}
                 />
               </span>
-              <strong>{page.title || "Sans titre"}</strong>
+              <h3>
+                <a
+                  className="home-card-title"
+                  href={href(page)}
+                  onClick={(event) => navigate(event, page)}
+                >
+                  {page.title || "Sans titre"}
+                </a>
+              </h3>
               {page.description && (
                 <p className="home-card-description">{page.description}</p>
               )}
@@ -365,7 +393,7 @@ export function AdminHome({
                 {date(page.updated_at || page.created_at)}
               </small>
               <ArrowUpRight className="home-card-arrow" size={17} />
-            </button>
+            </article>
           ))}
         </div>
         {!recent.length && (
@@ -408,10 +436,11 @@ export function AdminHome({
           </header>
           <div className="home-activity">
             {recent.slice(0, notebook ? limit : 12).map((page) => (
-              <button
+              <a
                 key={page.id}
                 data-page-id={String(page.id)}
-                onClick={() => onOpen(page.id)}
+                href={href(page)}
+                onClick={(event) => navigate(event, page)}
               >
                 <FeuilletIcon
                   icon={page.icon}
@@ -443,7 +472,7 @@ export function AdminHome({
                   </span>
                 </span>
                 <ArrowUpRight size={16} />
-              </button>
+              </a>
             ))}
           </div>
           {notebook && recent.length > limit && (

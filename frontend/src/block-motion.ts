@@ -29,9 +29,9 @@ export const BlockMotion = Extension.create({
         return items;
       }
       let before=capture(view);
-      function animate(el:HTMLElement,keys:Keyframe[],duration=340) {
+      function animate(el:HTMLElement,keys:Keyframe[],duration=460) {
         if(!el.animate)return;
-        const animation=el.animate(keys,{duration,easing:'cubic-bezier(.22,1,.36,1)'});
+        const animation=el.animate(keys,{duration,easing:'cubic-bezier(.16,1,.3,1)'});
         animations.add(animation);animation.finished.catch(()=>{}).finally(()=>animations.delete(animation));
       }
       function cancel() {animations.forEach(a=>a.cancel());animations.clear();}
@@ -74,11 +74,11 @@ export const BlockMotion = Extension.create({
                   const dx=prior.rect.left-item.rect.left,dy=prior.rect.top-item.rect.top;
                   if(Math.abs(dx)+Math.abs(dy)>2) {
                     if(Math.abs(dx)+Math.abs(dy)<160)animate(item.dom,[{translate:`${dx}px ${dy}px`},{translate:'0 0'}]);
-                    else animate(item.dom,[{translate:'0 8px'},{translate:'0 0'}]);
+                    else animate(item.dom,[{translate:'0 16px'},{translate:'0 0'}]);
                     moving.push(item.dom);
                   }
                 } else if(item.node.isTextblock||item.node.isAtom) {
-                  animate(item.dom,[{translate:'0 7px'},{translate:'0 0'}]);moving.push(item.dom);
+                  animate(item.dom,[{translate:'0 14px'},{translate:'0 0'}]);moving.push(item.dom);
                 }
               }
             }

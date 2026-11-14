@@ -79,3 +79,11 @@ Ces contrôles portent sur ce prototype local. La direction esthétique est vali
 La version 0.31.1 retire les textures essayées en 0.31.0 et restaure les pages blanches et les cartes unies. Les animations et la direction graphique sont conservées.
 
 L’écriture reste stable : les événements clavier, saisie native et composition sont observés sans être consommés ; ils annulent les déplacements visuels. Les tests utilisent de vrais documents et commandes ProseMirror pour scinder et fusionner paragraphes et listes. Les déplacements volontaires restent animés. Les poignées laissent les cases à cocher accessibles.
+
+## Interactions approfondies — 0.32
+
+La version 0.32 conserve les surfaces blanches sans grain et renforce les
+transitions après validation locale. Elle harmonise les menus, les cartes
+navigables, les cibles tactiles et les réglages. La saisie, Entrée et Retour
+arrière restent sans animation. Voir les [choix détaillés](INTERFACE-MODERN-WEB.md)
+et les [nouveautés](NOUVEAUTES-0.32.md).

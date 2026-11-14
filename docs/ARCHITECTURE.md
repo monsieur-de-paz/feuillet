@@ -404,3 +404,15 @@ Le préchargement de l’enveloppe PWA à l’installation est facultatif et bor
 `blockRailLeft` sépare la géométrie de la poignée du texte indenté : dans une liste, l’ancre est le bord gauche du `li`, avec huit pixels libres avant la ligne. Cela protège la zone du label/checkbox sans désactiver ses événements.
 
 Le manifeste référence des PNG d’installation dédiés, opaques et blancs ; `apple-touch-icon.png` sert de ressource Apple. `tools/prepare-pwa-icons.swift` les reproduit sur macOS à partir du logo existant (outil de développement seulement, aucune dépendance de serveur). `tests/pwa-icons.py` vérifie les pixels et la zone centrale masquable. Les ressources sont incluses dans le cache versionné du service worker et le manifeste de distribution.
+
+## Présentation et mouvement — 0.32
+
+`AdminHome.tsx` utilise des articles et des liens natifs pour les cartes ; le
+clic ordinaire conserve la navigation interne, les clics modifiés gardent le
+comportement du navigateur. `FloatingSurface.tsx` mesure les dimensions de mise
+en page avant de placer et d’ancrer un menu, indépendamment de sa transformation.
+`atelier.js` distingue la navigation d’un simple remplacement de DOM lors du
+polling public, limite le nombre d’éléments animés et annule leur mouvement à la
+frappe. Les animations CSS et ProseMirror respectent la réduction des mouvements.
+Aucune API, transaction de contenu, dépendance de production ou règle de cache
+réseau n’est ajoutée. Voir [INTERFACE-MODERN-WEB.md](INTERFACE-MODERN-WEB.md).

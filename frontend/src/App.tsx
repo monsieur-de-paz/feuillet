@@ -143,8 +143,14 @@ function Modal({
     if (!node?.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) { modalControls.current.onClose(); return; }
     closing.current = true;
     const backdrop = node.parentElement;
-    if(backdrop)backdrop.animate([{backgroundColor:getComputedStyle(backdrop).backgroundColor},{backgroundColor:'transparent'}],{duration:140,easing:'ease-out'});
-    const animation=node.animate([{translate:'0 0',scale:1},{translate:'0 4px',scale:.99}],{duration:140,easing:'ease-out'});
+    if (backdrop) backdrop.animate(
+      [{ opacity: getComputedStyle(backdrop).opacity }, { opacity: 0 }],
+      { duration: 220, easing: 'ease-out', fill: 'forwards' },
+    );
+    const animation = node.animate(
+      [{ transform: getComputedStyle(node).transform }, { transform: 'translate3d(0,14px,0) scale(.96)' }],
+      { duration: 220, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' },
+    );
     animation.finished.catch(()=>{}).then(()=>{
       closing.current=false;
       if (ref.current===node && node.getAttribute('aria-label')===closingTitle) modalControls.current.onClose();

@@ -3,9 +3,9 @@
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const running = new Set();
   let frame = 0, disposed = false, pageKey = '', seenPage = false, settingsPanel = null;
-  function animate(target, keyframes, duration = 460, delay = 0) {
+  function animate(target, keyframes, duration = 600, delay = 0) {
     if (!target?.animate || reduced.matches || document.hidden) return;
-    const animation = target.animate(keyframes, { duration, delay, easing: 'cubic-bezier(.22,1,.36,1)' });
+    const animation = target.animate(keyframes, { duration, delay, easing: 'cubic-bezier(.16,1,.3,1)' });
     running.add(animation);
     animation.finished.catch(() => {}).finally(() => running.delete(animation));
   }
@@ -17,7 +17,7 @@
       if (!active) continue;
       const rect = active.getBoundingClientRect(), bounds = parent.getBoundingClientRect();
       if (!rect.width || !rect.height) continue;
-      jobs.push([parent, { '--morph-x': rect.left - bounds.left + parent.scrollLeft, '--morph-y': rect.top - bounds.top + parent.scrollTop, '--morph-width': rect.width, '--morph-height': rect.height }]);
+      jobs.push([parent, { '--morph-x': rect.left - bounds.left + parent.scrollLeft, '--morph-y': rect.top - bounds.top + parent.scrollTop, '--morph-width': rect.width, '--morph-height': rect.height, '--morph-span-x': parent.scrollWidth || bounds.width, '--morph-span-y': parent.scrollHeight || bounds.height }]);
     }
     // All measurements happen before writes; no per-frame layout loop.
     for (const [parent, values] of jobs) {
@@ -32,26 +32,26 @@
     frame = 0;
     if (disposed) return;
     morphSelectors();
-    const surface = document.querySelector('.main-panel [data-page-key],#root [data-page-key]');
-    const key = surface?.getAttribute('data-page-key') || '';
+    const surface = document.querySelector('.main-panel [data-page-key],#root [data-page-key]') || document.querySelector('#root[data-reader-token] .reader-page');
+    const key = surface?.getAttribute('data-page-key') || (surface && typeof location !== 'undefined' ? location.pathname + location.search : '');
     if (surface && key !== pageKey) {
       const first = !seenPage; pageKey = key; seenPage = true;
       if (!first) {
         cancel();
         // A transformed page-body would become the containing block of fixed
         // writing tools. Move only document leaves, keeping those tools anchored.
-        const leaves = [...surface.querySelectorAll('.page-title-input,.page-description-input,.tiptap>p,.tiptap>h1,.tiptap>h2,.tiptap>h3')].slice(0, 8);
-        for (const leaf of leaves) animate(leaf, [{ translate: '0 10px' }, { translate: '0 0' }], 520);
+        const leaves = [...surface.querySelectorAll('.page-title-input,.page-description-input,.tiptap>p,.tiptap>h1,.tiptap>h2,.tiptap>h3,:scope>h1,:scope>h2,:scope>h3,:scope>p')].slice(0, 8);
+        for (const leaf of leaves) animate(leaf, [{ translate: '0 26px' }, { translate: '0 0' }], 620);
         if (surface.matches('.admin-home')) {
-          animate(surface.querySelector('.home-heading'), [{ translate: '0 10px' }, { translate: '0 0' }], 520);
+          animate(surface.querySelector('.home-heading'), [{ translate: '0 26px' }, { translate: '0 0' }], 620);
           for (const [index, card] of [...surface.querySelectorAll('.home-page-card')].slice(0, 6).entries())
-            animate(card, [{ translate: '0 10px' }, { translate: '0 0' }], 580, index * 22);
+            animate(card, [{ transform: 'translate3d(0,36px,0) scale(.96)' }, { transform: 'translate3d(0,0,0) scale(1)' }], 680, index * 45);
         }
       }
     }
     const panel = document.querySelector('.settings-workspace-panel:not([hidden])');
     if (panel !== settingsPanel) {
-      if (panel && settingsPanel) animate(panel, [{ translate: '0 7px' }, { translate: '0 0' }], 380);
+      if (panel && settingsPanel) animate(panel.querySelector('.settings-intro'), [{ translate: '0 24px' }, { translate: '0 0' }], 560);
       settingsPanel = panel;
     }
   }

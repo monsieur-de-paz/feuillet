@@ -7,7 +7,7 @@ let nextFrame=1, cancelled=0, played=0, observerActive=false, resizeActive=false
 const listen=(target,name,callback)=>events.set(target+':'+name,callback);
 const preference={matches:false,addEventListener:(name,cb)=>listen('motion',name,cb)};
 const active={getBoundingClientRect:()=>({left:25,top:37,width:90,height:32})};
-const parent={scrollLeft:5,scrollTop:0,querySelector:()=>active,getBoundingClientRect:()=>({left:10,top:30}),style:{getPropertyValue:n=>styles.get(n),setProperty:(n,v)=>styles.set(n,v)},classList:{add(){}}};
+const parent={scrollLeft:5,scrollTop:0,querySelector:()=>active,getBoundingClientRect:()=>({left:10,top:30,width:200,height:100}),style:{getPropertyValue:n=>styles.get(n),setProperty:(n,v)=>styles.set(n,v)},classList:{add(){}}};
 const animated=()=>({animate(){played++;return {finished:new Promise(()=>{}),cancel(){cancelled++;}};}});
 const leaves=Array.from({length:30},animated);
 const surface={getAttribute:()=>pageKey,querySelectorAll:()=>leaves,matches:()=>false,animate(){throw new Error('A document ancestor must not move fixed writing tools');}};
@@ -35,3 +35,19 @@ assert.equal(frames.size,0);assert.equal(observerActive,false);assert.equal(resi
 events.get('window:pageshow')({persisted:true});flush();
 assert.equal(observerActive,true);assert.equal(resizeActive,true);
 console.log('Rivage motion: bounded entry, typing stability, coalesced layout, scroll geometry, fixed tools, reduced motion and BFCache lifecycle passed');
+
+// Reader polling replaces markup on the same URL. It must never replay entry
+// motion; an actual subpage navigation should animate the new text once.
+let readerUrl='?page=one&read=1', readerPlayed=0, readerMutation, readerJob;
+const readerSurface={getAttribute:()=>null,matches:()=>false,querySelectorAll:()=>[{animate(){readerPlayed++;return {finished:new Promise(()=>{}),cancel(){}};}}]};
+const readerDocument={readyState:'complete',hidden:false,documentElement:{},body:{},getElementById:()=>({}),querySelectorAll:()=>[],querySelector:s=>s.includes('data-reader-token')?readerSurface:null,addEventListener(){}};
+vm.runInNewContext(readFileSync(new URL('../public/atelier.js',import.meta.url),'utf8'),{
+ document:readerDocument, location:{pathname:'/index.php',get search(){return readerUrl;}},
+ matchMedia:()=>({matches:false,addEventListener(){}}),requestAnimationFrame:cb=>{readerJob=cb;return 1;},cancelAnimationFrame(){},
+ MutationObserver:class{constructor(cb){readerMutation=cb;}observe(){}disconnect(){}},ResizeObserver:class{observe(){}disconnect(){}},window:{addEventListener(){}}
+});
+readerJob();assert.equal(readerPlayed,0,'first public load stays immediate');
+readerMutation();readerJob();assert.equal(readerPlayed,0,'a public polling refresh stays still');
+readerUrl='?page=two&read=1';readerMutation();readerJob();assert.equal(readerPlayed,1,'a public subpage entry animates its text');
+readerMutation();readerJob();assert.equal(readerPlayed,1,'polling after navigation does not restart the motion');
+console.log('Public reader motion: navigation animates, initial load and same-page polling stay still');

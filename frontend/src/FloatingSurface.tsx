@@ -40,7 +40,9 @@ export function FloatingSurface({
       const offsetX = vp?.offsetLeft || 0,
         offsetY = vp?.offsetTop || 0;
       node.style.maxWidth = `${Math.max(40, width - 16)}px`;
-      const size = node.getBoundingClientRect();
+      // Measure layout dimensions, not the scale currently used by the opening
+      // animation, or positioning can jump while the surface is appearing.
+      const size = { width: node.offsetWidth, height: node.offsetHeight };
       const fit = fitPopover({
         x: (point?.x ?? rect?.left ?? 8) - offsetX,
         y: (point?.y ?? rect?.bottom ?? 8) - offsetY,
@@ -53,6 +55,9 @@ export function FloatingSurface({
       node.style.left = `${fit.left + offsetX}px`;
       node.style.top = `${fit.top + offsetY}px`;
       node.style.maxHeight = `${fit.maxHeight}px`;
+      node.style.transformOrigin = rect
+        ? `${Math.max(12, Math.min(size.width - 12, rect.left + rect.width / 2 - fit.left - offsetX))}px ${fit.top + offsetY < rect.top ? "100%" : "0%"}`
+        : "top left";
       if (rect) node.style.minWidth = `${Math.min(rect.width, width - 16)}px`;
     };
     place();

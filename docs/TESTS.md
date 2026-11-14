@@ -556,3 +556,33 @@ Le rapport [AUDIT-SECURITE-2026-11-03.md](AUDIT-SECURITE-2026-11-03.md) précise
 `python3 tests/video-library.py` couvre les sources normalisées et lecteurs dupliqués, blocs imbriqués, accès administrateur seul, GET seul, no-store, snapshots publiés, retour en privé, corbeille, réinsertion indépendante sans métadonnées d’inventaire et limite de 1 000 résultats. Les cinq scénarios passent sur SQLite et MySQL. Les scénarios existants d’intégration vidéo, d’éditeur, de lecture et de sécurité, ainsi que les suites frontend/navigation/PWA, ont également réussi.
 
 Dans le navigateur intégré, sur une installation jetable : ajout d’un bloc vidéo, affichage de cinq cartes pour six utilisations, recherche sans accents par page et titre, insertion directe d’une carte, sauvegarde/rechargement et compte d’utilisations actualisé. Vérification visuelle clair/sombre et absence d’iframes dans la liste. Les données sont fictives ; aucune page de production n’a été éditée.
+
+## Release 0.32.0 — 15 novembre 2026
+
+Vérifications réalisées sur le build de release, avec PHP 8.5.12 et des bases
+SQLite jetables, sans toucher au serveur OVH :
+
+- Compilation TypeScript/Vite réussie. Avertissement de taille de certains
+  bundles conservé ; aucun nouveau paquet de production.
+- `node tests/frontend.mjs`, `node tests/rivage-motion.mjs`,
+  `node tests/reader-navigation.mjs` et `node tests/pwa.mjs` : réussis.
+  Le contrôle du mouvement couvre les commandes réelles Entrée/Retour arrière,
+  les listes, la frappe pendant une transition, le BFCache et le polling public.
+- `smoke.py` : 20 scénarios réussis, le scénario distant Commons non demandé
+  ignoré ; `customization.py` : 9 ; `databases.py` : 12 ; `sharing.py` : 17 ;
+  `security.py` : 14 ; `installation.py` : 5 ; `updates.py` : 16 réussis,
+  notamment les échecs d’activation et la restauration du code et de la base.
+- Passage local de la distribution 0.31.1 à 0.32.0 via `update_legacy.py` :
+  réussi avec notes, visibilité privée, configuration et médias conservés,
+  puis vérification des empreintes installées.
+- Audit des fichiers suivis, de l’historique et de l’archive : aucun chemin
+  privé interdit ni motif de secret connu détecté. Ce contrôle ne garantit
+  pas l’absence de tout secret ou de toute faille.
+- Essais visuels du prototype validé : cartes avec navigation et menu
+  contextuel, focus clavier, réglages et listes, lecteur public, mode sombre,
+  aperçu PDF, formats 390 et 320 px sans débordement horizontal observé.
+
+Pas de nouvelle vérification sur le compte OVH, sur téléphone physique ou sur
+MySQL/MariaDB pour cette release de présentation. Les essais visuels ne sont
+pas une mesure de cadence sur tous les appareils. Voir la
+[charte des interactions 0.32](INTERFACE-MODERN-WEB.md).

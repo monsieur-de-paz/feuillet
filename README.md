@@ -56,7 +56,7 @@ L’installateur vérifie les extensions PHP, les sessions et les droits d’éc
 - **Créer des bases** : champs typés, vues en tableau ou galerie, tri, filtres, regroupements, relations, formules et agrégations.
 - **Recueillir des réponses** : formulaires avec dépôt de fichiers, cinq modèles, textes personnalisables, aperçu en direct et animations. Réponses privées et projection administrateur actualisée toutes les dix secondes.
 - **Partager à son rythme** : pages privées ou publiques, liens personnalisés, partage des sous-pages et accueil public configurable.
-- **Personnaliser son espace** : interface Rivage, thèmes clair, sombre et OLED, couleurs, polices, icônes et couvertures repositionnables.
+- **Personnaliser son espace** : interface Rivage et animations respectant la réduction des mouvements, thèmes clair, sombre et OLED, couleurs, polices, icônes et couvertures repositionnables.
 - **Utiliser Feuillet sur mobile** : interface adaptée, installation comme application web et cache facultatif des pages publiques pour la lecture hors connexion.
 - **Conserver ses données** : import TXT, Markdown et RTF ; export Markdown et PDF ; sauvegarde et restauration ZIP.
 
@@ -67,6 +67,7 @@ Les mises à jour s’installent depuis Feuillet, à partir des releases GitHub,
 - [Bases de données et formulaires](docs/BASES-ET-FORMULAIRES.md)
 - [Édition et présentation des blocs](docs/BLOCS-0.4.md)
 - [Maintenance et sauvegardes](docs/MAINTENANCE.md)
+- [Nouveautés de la version 0.32](docs/NOUVEAUTES-0.32.md)
 - [Historique des versions](CHANGELOG.md)
 
 ## Contribuer
