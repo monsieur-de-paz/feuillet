@@ -461,8 +461,8 @@ body[style] { background-color:var(--r-canvas)!important; }
 
 /* A continuous canvas, including the inset above the floating header. */
 body:has(> .reader-header) { display:flow-root;min-height:100dvh; }
-body[style] .reader-header { background:color-mix(in srgb,var(--surface,#fff) 62%,transparent);backdrop-filter:blur(26px) saturate(135%);-webkit-backdrop-filter:blur(26px) saturate(135%); }
-.app-shell .topbar { background:color-mix(in srgb,var(--surface,#fff) 62%,transparent);backdrop-filter:blur(26px) saturate(135%);-webkit-backdrop-filter:blur(26px) saturate(135%); }
+body[style] .reader-header { background:color-mix(in srgb,var(--surface,#fff) 42%,transparent);backdrop-filter:blur(26px) saturate(135%);-webkit-backdrop-filter:blur(26px) saturate(135%); }
+.app-shell .topbar { background:color-mix(in srgb,var(--surface,#fff) 42%,transparent);backdrop-filter:blur(26px) saturate(135%);-webkit-backdrop-filter:blur(26px) saturate(135%); }
 .cover-source { display:none; }
 .page-media-credits:has(> .cover-source:only-child) { display:none; }
 .feuillet-image-preview { padding:0;border:0;background:transparent;color:white;max-width:94vw;max-height:94dvh;overflow:visible; }

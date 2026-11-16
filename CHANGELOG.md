@@ -1,5 +1,9 @@
 # Historique des versions
 
+## 0.33.4 — 2026-11-17
+
+- Bandeau supérieur plus transparent : opacité du fond réduite de 62 % à 42 %, côté lecteur et administration, avec conservation du flou de 26 px et de la saturation pour garder une lecture nette des commandes.
+
 ## 0.33.3 — 2026-11-17
 
 - Fond continu jusqu’au sommet des pages publiques, y compris dans les thèmes sombres/OLED.

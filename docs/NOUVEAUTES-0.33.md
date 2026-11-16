@@ -78,3 +78,7 @@ Le fond de la page et celui de sa racine sont harmonisés, sans bande sombre au-
 La source et la licence des couvertures restent dans les données et sont affichées dans l’aperçu ouvert par clic sur la couverture. Elles ne prennent plus de place sous l’icône de la page ; elles restent visibles à l’impression.
 
 Validation navigateur avec une illustration fictive : racine et corps à rgb(23,25,29), corps positionné à 0, source masquée dans la page puis visible dans le dialogue, fermeture extérieure et Échap, défilement restauré.
+
+## 0.33.4 — Bandeau plus transparent
+
+Le bandeau supérieur du lecteur et de l’administration utilise désormais un fond à 42 % d’opacité (contre 62 % auparavant). Le flou de 26 px reste inchangé. Aucun changement de contenu ni de base de données.
