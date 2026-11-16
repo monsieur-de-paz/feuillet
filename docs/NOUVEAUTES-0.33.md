@@ -70,3 +70,11 @@ Voir [l’architecture](ARCHITECTURE.md), les [tests](TESTS.md) et
 Dans le tableau, les pièces jointes gardent une largeur lisible à côté de leur bouton d’édition. Les noms longs s’abrègent avec des points de suspension ; le nom complet apparaît au survol. Aucun renommage de fichier ni changement SQL.
 
 Validation : compilation TypeScript/Vite et navigateur intégré avec un nom long, avec et sans espaces : cellule de 274 px, nom sur une ligne, bouton de 28 px et hauteur de ligne de 52 px dans la démonstration.
+
+## 0.33.3 — Lecture et aperçu des images
+
+Le fond de la page et celui de sa racine sont harmonisés, sans bande sombre au-dessus du bandeau flottant. Le bandeau laisse davantage voir le contenu défilant à travers un flou renforcé. Les images publiques, couvertures et vignettes s’ouvrent dans un aperçu sur fond flouté ; un clic extérieur, la croix ou Échap referment l’aperçu sans navigation ni perte du défilement. Les commandes d’édition des images restent disponibles dans l’éditeur.
+
+La source et la licence des couvertures restent dans les données et sont affichées dans l’aperçu ouvert par clic sur la couverture. Elles ne prennent plus de place sous l’icône de la page ; elles restent visibles à l’impression.
+
+Validation navigateur avec une illustration fictive : racine et corps à rgb(23,25,29), corps positionné à 0, source masquée dans la page puis visible dans le dialogue, fermeture extérieure et Échap, défilement restauré.

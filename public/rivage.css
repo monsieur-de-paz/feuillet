@@ -458,3 +458,23 @@ body[style] { background-color:var(--r-canvas)!important; }
 }
 
 @media(max-width:760px) { .mobile-theme-control .theme-options>div,.reader-header>.feuillet-theme-toggle .theme-options>div { transform-origin:bottom right; } }
+
+/* A continuous canvas, including the inset above the floating header. */
+body:has(> .reader-header) { display:flow-root;min-height:100dvh; }
+body[style] .reader-header { background:color-mix(in srgb,var(--surface,#fff) 62%,transparent);backdrop-filter:blur(26px) saturate(135%);-webkit-backdrop-filter:blur(26px) saturate(135%); }
+.app-shell .topbar { background:color-mix(in srgb,var(--surface,#fff) 62%,transparent);backdrop-filter:blur(26px) saturate(135%);-webkit-backdrop-filter:blur(26px) saturate(135%); }
+.cover-source { display:none; }
+.page-media-credits:has(> .cover-source:only-child) { display:none; }
+.feuillet-image-preview { padding:0;border:0;background:transparent;color:white;max-width:94vw;max-height:94dvh;overflow:visible; }
+.feuillet-image-preview::backdrop { background:#080b126b;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px); }
+.feuillet-image-preview img { display:block;max-width:92vw;max-height:78dvh;object-fit:contain;border-radius:12px;box-shadow:0 20px 90px #0005; }
+.feuillet-image-preview .image-preview-close { position:absolute;right:0;top:-46px;background:#15171b99;color:white;border:1px solid #ffffff33;border-radius:50%;width:38px;height:38px;padding:0;font-size:24px; }
+.feuillet-image-preview figcaption { max-width:90vw;margin-top:12px;text-align:center; }
+.feuillet-image-preview .cover-source,.feuillet-image-preview .image-attribution { display:block;color:#fff;font-size:12px; }
+.feuillet-image-preview a { color:white; }
+.feuillet-image-preview[open] { animation:image-preview-arrive .32s cubic-bezier(.16,1,.3,1); }
+@keyframes image-preview-arrive { from {opacity:0;transform:translateY(12px) scale(.96)} to {opacity:1;transform:none} }
+@media(prefers-reduced-motion:reduce) { .feuillet-image-preview[open] { animation:none; } }
+@media print { .cover-source {display:block} .feuillet-image-preview {display:none} }
+
+.image-lightbox { background:rgba(8,11,18,.42);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px); }

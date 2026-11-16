@@ -22,3 +22,29 @@
  window.addEventListener('dragover',e=>{if(e.dataTransfer?.types.includes('Files'))e.preventDefault();},true);
  window.addEventListener('drop',e=>{if(e.dataTransfer?.types.includes('Files')&&!(e.target instanceof HTMLInputElement&&e.target.type==='file'))e.preventDefault();},true);
 })();
+
+// Image previews are delegated so reader navigation needs no rebinding.
+(()=>{
+ let dialog,previous,overflow;
+ function close(){if(dialog?.open)dialog.close();}
+ document.addEventListener('click',event=>{
+  const img=event.target instanceof Element?event.target.closest('img'):null;
+  if(!img||img.closest('dialog,.image-lightbox,button,.tiptap,.page-emoji,.page-icon')||img.style.touchAction==='none')return;
+  if(!img.closest('.reader-page,.page-cover,.gallery-cover-frame,.page-content,.page-heading,.notebook-cover'))return;
+  const src=img.getAttribute('src');if(!src)return;
+  event.preventDefault();event.stopPropagation();
+  if(!dialog){
+   dialog=document.createElement('dialog');dialog.className='feuillet-image-preview';dialog.setAttribute('aria-label','Image agrandie');
+   const button=document.createElement('button');button.type='button';button.className='image-preview-close';button.setAttribute('aria-label','Fermer l’aperçu');button.textContent='×';button.addEventListener('click',close);
+   dialog.append(button,document.createElement('img'),document.createElement('figcaption'));document.body.append(dialog);
+   dialog.addEventListener('click',e=>{if(e.target!==dialog.querySelector('img')&&!e.target.closest('a,button'))close();});
+   dialog.addEventListener('close',()=>{dialog.querySelector('img').removeAttribute('src');document.body.style.overflow=overflow;previous?.focus?.({preventScroll:true});});
+  }
+  previous=img.closest('a')||document.activeElement;overflow=document.body.style.overflow;
+  const picture=dialog.querySelector('img');picture.src=src;picture.alt=img.alt||'Image agrandie';
+  const caption=dialog.querySelector('figcaption');caption.replaceChildren();
+  const credit=img.closest('.page-cover,.notebook-cover')?document.querySelector('.cover-source'):img.closest('figure,.gallery-card')?.querySelector('.image-attribution');
+  if(credit)caption.append(credit.cloneNode(true));
+  dialog.showModal();document.body.style.overflow='hidden';dialog.querySelector('button').focus();
+ },true);
+})();

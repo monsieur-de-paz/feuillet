@@ -3048,10 +3048,10 @@ export default function App() {
                 )}
                 {(draft.cover_attribution || draft.icon_attribution) && (
                   <div className="page-media-credits">
-                    <MediaCredit
+                    <div className="cover-source"><MediaCredit
                       credit={draft.cover_attribution}
                       label="Couverture"
-                    />
+                    /></div>
                     <MediaCredit
                       credit={draft.icon_attribution}
                       label="Icône"

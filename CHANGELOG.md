@@ -1,5 +1,12 @@
 # Historique des versions
 
+## 0.33.3 — 2026-11-17
+
+- Fond continu jusqu’au sommet des pages publiques, y compris dans les thèmes sombres/OLED.
+- Bandeau supérieur plus transparent avec flou renforcé au défilement.
+- Aperçu agrandi des images et couvertures sur fond flouté ; fermeture au clic extérieur ou avec Échap et restauration du défilement.
+- Crédit des couvertures déplacé dans leur aperçu, conservé dans les impressions.
+
 ## 0.33.2 — 2026-11-16
 
 - Corrige les cellules de fichiers des bases en mode tableau : le bouton d’édition garde une largeur fixe et ne comprime plus les noms lettre par lettre. Les noms longs sont tronqués avec des points de suspension, avec leur nom complet au survol. Les fichiers et leurs noms originaux restent inchangés.
