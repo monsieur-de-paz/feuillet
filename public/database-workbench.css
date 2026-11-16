@@ -202,3 +202,26 @@
   font-size: 0.85rem;
   overflow-wrap: anywhere;
 }
+
+/* Reserve the edit action's width instead of shrinking attachment names to one letter. */
+.database-grid .database-resource-cell > .database-inline-cell {
+  width: 28px;
+  min-width: 28px;
+  flex: 0 0 28px;
+  padding: 4px;
+}
+.database-grid .database-resource-cell > .database-cell-files {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 220px;
+}
+.database-cell-files a { min-width: 0; max-width: 100%; }
+.database-cell-files a > svg { flex: 0 0 auto; }
+.database-cell-files a > span {
+  display: block;
+  min-width: 0;
+  max-width: 260px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

@@ -624,9 +624,14 @@ function Cell({
     return (
       <div className="database-cell-files">
         {asArray(value).map((id, index) => (
-          <a key={id} href={fileUrl(id, true)} download>
+          <a
+            key={id}
+            href={fileUrl(id, true)}
+            download
+            title={files[id]?.name || `Fichier ${index + 1}`}
+          >
             <Download size={13} />
-            {files[id]?.name || `Fichier ${index + 1}`}
+            <span>{files[id]?.name || `Fichier ${index + 1}`}</span>
           </a>
         ))}
       </div>

@@ -64,3 +64,9 @@ nouvelle dépendance de production.
 
 Voir [l’architecture](ARCHITECTURE.md), les [tests](TESTS.md) et
 [l’étude d’ergonomie](BASES-INTERFACE-0.33.md).
+
+## Correctif 0.33.2
+
+Dans le tableau, les pièces jointes gardent une largeur lisible à côté de leur bouton d’édition. Les noms longs s’abrègent avec des points de suspension ; le nom complet apparaît au survol. Aucun renommage de fichier ni changement SQL.
+
+Validation : compilation TypeScript/Vite et navigateur intégré avec un nom long, avec et sans espaces : cellule de 274 px, nom sur une ligne, bouton de 28 px et hauteur de ligne de 52 px dans la démonstration.

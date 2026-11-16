@@ -1,5 +1,9 @@
 # Historique des versions
 
+## 0.33.2 — 2026-11-16
+
+- Corrige les cellules de fichiers des bases en mode tableau : le bouton d’édition garde une largeur fixe et ne comprime plus les noms lettre par lettre. Les noms longs sont tronqués avec des points de suspension, avec leur nom complet au survol. Les fichiers et leurs noms originaux restent inchangés.
+
 ## 0.33.1 — 2026-11-16
 
 - Dépôts de formulaires confirmés par un reçu vérifiable : référence unique, date et nombre de fichiers, affichage des noms et reçu texte à conserver. Une réponse JSON sans reçu correspondant ne peut plus afficher une confirmation.
