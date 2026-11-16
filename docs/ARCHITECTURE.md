@@ -433,3 +433,7 @@ mutations, calculs et règles de fichiers/formulaires restent sur les routes
 existantes. Aucun changement de schéma. `database-workbench.css`, copié vers
 public par le build, harmonise le tableau administrateur et le rendu PHP du
 lecteur ; il fait partie des ressources PWA. Voir [BASES-INTERFACE-0.33.md](BASES-INTERFACE-0.33.md).
+
+## Dépôts vérifiables (0.33.1)
+
+`app/form-delivery.php` conserve un journal atomique privé avant le commit de chaque nouvelle réponse. Le reçu retourné après commit est contrôlé par `frontend/src/form-delivery.ts`. Réessayer une tentative identique est idempotent sous le verrou du formulaire. Le contrôle administrateur est en lecture seule ; voir [Fiabilité des formulaires](FORMULAIRES-FIABILITE.md). Aucun nouveau schéma SQL.

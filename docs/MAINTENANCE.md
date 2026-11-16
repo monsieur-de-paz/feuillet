@@ -384,3 +384,7 @@ peuvent pas être rendues publiques par cette commande.
 `--mysql` utilise un serveur local jetable. `tools/preview-databases.py` prépare
 uniquement une démonstration locale, dans `.private/database-workbench` ignoré
 par Git ; ce stockage et ses identifiants ne font pas partie des releases.
+
+## Pièces jointes de formulaires
+
+En cas de réponse manquante, conserver le stockage et les sauvegardes avant toute modification. Depuis 0.33.1, sauvegarder aussi `storage/form-submissions/` : copies privées des nouvelles réponses, à protéger et conserver selon la politique des rendus. Les anciennes versions ne possèdent pas ces journaux. Voir [contrôle et récupération](FORMULAIRES-FIABILITE.md).

@@ -232,3 +232,9 @@ Le bloc `htmlEmbed` conserve `code` (32 Ko UTF-8 maximum) et `height` (200 à 12
 `GET action=library_videos`, administrateur uniquement : `{videos:[{id,url,src,label,kind,portrait,title,pages:[{id,title}]}],truncated:boolean}`. `id` est une clé de regroupement dérivée du lecteur normalisé, pas une entité persistée. L’API parcourt les blocs `webVideo` des brouillons et snapshots encore publiés des pages non supprimées, sans requête réseau distante. Les différentes utilisations dans une même page sont regroupées ; maximum 1 000 lecteurs distincts. Les titres et pages peuvent être privés : accès visiteur 401, méthodes autres que GET 405, réponse `Cache-Control: no-store`.
 
 Pour réinsérer, créer un nouveau bloc `webVideo` avec uniquement `{url,src,label,kind,portrait,title}` ; ne pas copier les champs d’inventaire `id` et `pages`. La sauvegarde revalide la source avec `video_embed_source()`. Les blocs restent indépendants, sans référence partagée vers cet inventaire.
+
+## Formulaires : reçus et diagnostic (0.33.1)
+
+`POST form_submit` accepte `request_id` (32 caractères hexadécimaux aléatoires, stable uniquement pour réessayer le même contenu) et retourne `{ok:true,receipt:{id,formId,requestId,receivedAt,fileCount}}` après commit. Les anciens clients sans référence restent acceptés ; le serveur en génère une. Un rejeu avec une autre session ou un autre contenu renvoie 409. Une tentative journalisée sans ligne SQL nécessite un contrôle administrateur et n’est jamais confirmée à tort.
+
+`GET form_delivery_audit&id=<db-id>` est administrateur uniquement (POST refusé). Résultat : `counts`, `uploads` (limite 5 000), `truncated`, `journals` (reçu/existence de ligne) et `unindexedFiles`. Aucune mutation, aucun propriétaire de session ou chemin physique exposé. Réponses et reçus ne sont pas mis en cache. Voir `docs/FORMULAIRES-FIABILITE.md`.

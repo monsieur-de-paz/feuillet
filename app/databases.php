@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__.'/formulas.php';
 require_once __DIR__.'/form-design.php';
+require_once __DIR__.'/form-delivery.php';
 
 function databases_schema(PDO $pdo): void {
     try{if($pdo->query("SELECT value FROM app_settings WHERE name='database_schema_version'")->fetchColumn()==='3')return;}catch(PDOException){}
@@ -112,12 +113,12 @@ function database_form_get(string $value,bool $token=false): array {
 function form_upload_owner(): string { start_session();return hash_hmac('sha256',session_id(),cfg()['secret']); }
 function form_owned_file(string $id): bool { $owner=form_upload_owner();return (bool)query('SELECT file_id FROM form_uploads WHERE file_id=? AND owner=?',[$id,$owner])->fetch(); }
 function database_dispatch(string $action,string $method): void {
-    $actions=['db_projection','db_list','db_get','db_create','db_save','db_delete','property_save','property_delete','row_save','row_patch','row_delete','form_save','form_get','form_submit','form_upload','db_export','public_db_get','formula_preview'];if(!in_array($action,$actions,true))return;
+    $actions=['form_delivery_audit','db_projection','db_list','db_get','db_create','db_save','db_delete','property_save','property_delete','row_save','row_patch','row_delete','form_save','form_get','form_submit','form_upload','db_export','public_db_get','formula_preview'];if(!in_array($action,$actions,true))return;
     $mutations=['db_create','db_save','db_delete','property_save','property_delete','row_save','row_patch','row_delete','form_save','form_submit','form_upload','formula_preview'];$expected=in_array($action,$mutations,true)?'POST':'GET';if($method!==$expected)fail('Méthode non autorisée.',405);if($expected==='POST')csrf();
     if($action==='form_get')json_out(database_form_get(str_limit($_GET['token']??$_GET['id']??'',64),isset($_GET['token'])));
     if($action==='public_db_get')json_out(database_bundle(str_limit($_GET['id']??'',36),true));
     if(in_array($action,['form_submit','form_upload'],true)){
-        $in=$action==='form_upload'?$_POST:json_in();if(!empty($in['website']))fail('Envoi refusé.',400);$token=str_limit($in['token']??'',64);$record=query('SELECT * FROM collection_forms WHERE token=? AND is_public=1',[$token])->fetch();if(!$record)fail('Formulaire introuvable.',404);$form=database_form_row($record);$owner=form_upload_owner();limit_rate('form-'.$action.'-'.$form['id'],$action==='form_upload'?20:40,600);
+        $in=$action==='form_upload'?$_POST:json_in();if(!empty($in['website']))fail('Envoi refusé.',400);$token=str_limit($in['token']??'',64);$record=query('SELECT * FROM collection_forms WHERE token=? AND is_public=1',[$token])->fetch();if(!$record)fail('Formulaire introuvable.',404);$form=database_form_row($record);$owner=form_upload_owner();limit_rate('form-client-'.$action.'-'.$form['id'].'-'.$owner,$action==='form_upload'?20:40,600);limit_rate('form-network-'.$action.'-'.$form['id'],$action==='form_upload'?600:1200,600);
         if($action==='form_upload'){
             $props=database_properties($form['db_id']);$hasFiles=false;foreach($props as $p)if($p['type']==='files'&&in_array($p['id'],$form['fields'],true))$hasFiles=true;if(!$hasFiles)fail('Ce formulaire ne reçoit pas de fichiers.');
             $lock=form_upload_lock($form['id']);$stored=null;
@@ -134,6 +135,11 @@ function database_dispatch(string $action,string $method): void {
         }
         $submissionLock=form_upload_lock($form['id']);try{
         $props=form_properties($form);$rawValues=$in['values']??[];$fileIds=[];
+        $requestId=$in['request_id']??bin2hex(random_bytes(16));if(!is_string($requestId)||!preg_match('/^[a-f0-9]{32}$/D',$requestId))fail('Identifiant d’envoi invalide.');
+        if(!is_array($rawValues))fail('Valeurs de ligne invalides.');
+        $journalPath=form_delivery_path($form['id'],$requestId);
+        $retry=form_delivery_retry($journalPath,$owner,$rawValues,$props);
+        if($retry)json_out(['ok'=>true,'message'=>'Ta réponse a bien été envoyée.','receipt'=>$retry]);
         if(!is_array($rawValues))fail('Valeurs de ligne invalides.');
         foreach($props as $p)if($p['type']==='files'){
             $ids=$rawValues[$p['id']]??[];
@@ -141,9 +147,10 @@ function database_dispatch(string $action,string $method): void {
             if(!is_array($ids)||!array_is_list($ids)||count($ids)>200)fail('Liste de fichiers invalide.');
             foreach($ids as $fid){if(!is_string($fid))fail('Liste de fichiers invalide.');if(!query('SELECT file_id FROM form_uploads WHERE file_id=? AND form_id=? AND owner=? AND used_row_id IS NULL AND created_at>=?',[$fid,$form['id'],$owner,gmdate('Y-m-d\TH:i:s\Z',time()-86400)])->fetch())fail('Cette pièce jointe est expirée ou ne correspond pas à ton envoi. Ajoute-la à nouveau.');$fileIds[]=$fid;}}
         $values=database_values($props,$rawValues);
-        $pdo=db();$pdo->beginTransaction();try{$row=database_row_save(['db_id'=>$form['db_id'],'values'=>$values,'source_form_id'=>$form['id']],array_column($props,'id'),true,$props);foreach($fileIds as $fid)query('UPDATE form_uploads SET used_row_id=? WHERE file_id=? AND used_row_id IS NULL',[$row['id'],$fid]);$pdo->commit();}catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}}finally{flock($submissionLock,LOCK_UN);fclose($submissionLock);}json_out(['ok'=>true,'message'=>'Ta réponse a bien été envoyée.']);
+        $pdo=db();$pdo->beginTransaction();try{$row=database_row_save(['db_id'=>$form['db_id'],'values'=>$values,'source_form_id'=>$form['id']],array_column($props,'id'),true,$props);foreach($fileIds as $fid)query('UPDATE form_uploads SET used_row_id=? WHERE file_id=? AND used_row_id IS NULL',[$row['id'],$fid]);$receipt=form_delivery_prepare($form,$row,$values,$fileIds,$owner,$requestId,$journalPath);$pdo->commit();}catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}}finally{flock($submissionLock,LOCK_UN);fclose($submissionLock);}json_out(['ok'=>true,'message'=>'Ta réponse a bien été envoyée.','receipt'=>$receipt]);
     }
     need_admin();
+    if($action==='form_delivery_audit')json_out(form_delivery_audit(str_limit($_GET['id']??'',36)));
     if($action==='db_list')json_out(['databases'=>array_map(fn($r)=>array_replace($r,['version'=>(int)$r['version']]),query('SELECT * FROM collections ORDER BY created_at,id')->fetchAll())]);
     if($action==='db_get')json_out(database_bundle(str_limit($_GET['id']??'',36)));
     if($action==='db_projection'){

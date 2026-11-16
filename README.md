@@ -34,6 +34,8 @@
 
 Feuillet fonctionne sur un hébergement mutualisé compatible, **sans VPS ni abonnement**. Un seul compte administrateur rédige ; les lecteurs consultent les pages publiées et répondent aux formulaires sans créer de compte.
 
+Les formulaires confirment chaque nouveau dépôt avec un reçu à conserver. [Contrôle et récupération des pièces jointes](docs/FORMULAIRES-FIABILITE.md).
+
 ## Installation
 
 Un hébergement **PHP 8.3+**, une base **MySQL/MariaDB** et **HTTPS** suffisent, y compris sur un mutualisé compatible. Aucun VPS, abonnement, Composer ou Node.js n’est nécessaire pour installer la distribution. SQLite est également disponible sur les hébergements compatibles.

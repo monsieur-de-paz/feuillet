@@ -613,3 +613,7 @@ Notion ou donnée d’élève de production n’entre dans les tests ni la distr
 Les tests MySQL utilisent une instance locale jetable ; ils ne constituent pas
 une vérification de l’installation OVH réelle. Les tableaux larges conservent un
 défilement horizontal dans leur propre cadre.
+
+## Fiabilité des dépôts (0.33.1)
+
+`python3 tests/form-delivery.py` et `python3 tests/form-delivery.py --mysql` vérifient les reçus, les rejeux sans doublon, 24 sessions derrière une IP, les médias manquants, les erreurs d’écriture et l’inventaire administrateur. `node tests/frontend.mjs` inclut le refus d’une confirmation sans reçu ou provenant d’une autre tentative. Aucun document réel dans les fixtures.

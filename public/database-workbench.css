@@ -172,3 +172,33 @@
  .database-view-actionbar>button { min-width:44px; }
  .database-direct-editor :is(input,textarea),.database-quick-row input,.database-sheet :is(input:not([type=checkbox]):not([type=color]),textarea) { font-size:16px; }
 }
+
+.form-delivery-receipt {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  margin: 1.25rem auto;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.form-delivery-receipt time,
+.form-delivery-receipt span {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.form-delivery-receipt ul,
+.form-delivery-audit ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+.form-delivery-receipt button {
+  justify-self: start;
+}
+.form-delivery-audit {
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}

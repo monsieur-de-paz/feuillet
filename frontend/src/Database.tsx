@@ -1,3 +1,4 @@
+import { verifiedFormReceipt, type FormReceipt } from "./form-delivery";
 import { queueCellPatch, CellEditConflict } from "./database-editing";
 import { DatabasePopover, DatabaseSheet } from "./DatabaseSurface";
 import { FormDesigner } from "./FormDesigner";
@@ -3577,6 +3578,11 @@ function PublicFormFields({
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [receipt, setReceipt] = useState<FormReceipt | null>(null);
+  const [submittedFiles, setSubmittedFiles] = useState<string[]>([]);
+  const deliveryAttempt = useRef<{ signature: string; id: string } | null>(
+    null,
+  );
   const [website, setWebsite] = useState("");
   function change(id: string, value: CellValue) {
     const next = { ...valuesRef.current, [id]: value };
@@ -3630,7 +3636,39 @@ function PublicFormFields({
     try {
       const session = await api<{ csrf: string }>("session");
       setCsrf(session.csrf);
-      await api("form_submit", { token: form.token, values, website });
+      const signature = JSON.stringify(values);
+      if (deliveryAttempt.current?.signature !== signature)
+        deliveryAttempt.current = {
+          signature,
+          id: crypto.randomUUID().replaceAll("-", ""),
+        };
+      const requestId = deliveryAttempt.current.id;
+      const fileIds = [
+        ...new Set(
+          properties
+            .filter((p) => p.type === "files")
+            .flatMap((p) => asArray(values[p.id])),
+        ),
+      ];
+      const response = await api(
+        "form_submit",
+        {
+          token: form.token,
+          values,
+          website,
+          request_id: requestId,
+        },
+        { delivery: requestId },
+      );
+      const confirmed = verifiedFormReceipt(
+        response,
+        form.id,
+        requestId,
+        fileIds.length,
+      );
+      setReceipt(confirmed);
+      setSubmittedFiles(fileIds.map((id) => files[id]?.name || "Pièce jointe"));
+      deliveryAttempt.current = null;
       setSubmitted(true);
       setValues(emptyValues(properties));
       setFiles({});
@@ -3662,6 +3700,45 @@ function PublicFormFields({
           <span className="form-eyebrow">{design.successEyebrow}</span>
           <h1>{design.successTitle}</h1>
           <p>{design.successText}</p>
+          {receipt && !preview && (
+            <div className="form-delivery-receipt">
+              <strong>
+                Réception confirmée · {receipt.fileCount} fichier
+                {receipt.fileCount > 1 ? "s" : ""}
+              </strong>
+              <time dateTime={receipt.receivedAt}>
+                {new Date(receipt.receivedAt).toLocaleString("fr-FR")}
+              </time>
+              {submittedFiles.length > 0 && (
+                <ul>
+                  {submittedFiles.map((name, i) => (
+                    <li key={i}>{name}</li>
+                  ))}
+                </ul>
+              )}
+              <span>
+                Référence : <code>{receipt.id}</code>
+              </span>
+              <button
+                type="button"
+                className="small-button"
+                onClick={() => {
+                  const text = `Feuillet — Reçu de dépôt\nFormulaire : ${form.name}\nRéférence : ${receipt.id}\nDate : ${receipt.receivedAt}\nFichiers : ${receipt.fileCount}\n${submittedFiles.join("\n")}\n`;
+                  const url = URL.createObjectURL(
+                    new Blob([text], { type: "text/plain;charset=utf-8" }),
+                  );
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `recu-feuillet-${receipt.id}.txt`;
+                  a.click();
+                  setTimeout(() => URL.revokeObjectURL(url), 1000);
+                }}
+              >
+                <Download size={15} />
+                Conserver mon reçu
+              </button>
+            </div>
+          )}
           {design.showAgain && (
             <button
               type="button"
@@ -4767,6 +4844,85 @@ export function DatabaseManager({
   );
 }
 
+function FormDeliveryAudit({ dbId }: { dbId: string }) {
+  const [audit, setAudit] = useState<{
+    counts: Record<string, number>;
+    uploads: {
+      id: string;
+      name: string | null;
+      state: string;
+      available: boolean;
+      url: string | null;
+    }[];
+    unindexedFiles: number;
+    truncated: boolean;
+  } | null>(null);
+  const [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  return (
+    <section className="database-settings-forms">
+      <h4>Réception des fichiers</h4>
+      <p>
+        Contrôlez les pièces jointes reçues, y compris celles sans réponse
+        associée. Les fichiers restent privés.
+      </p>
+      <button
+        className="small-button"
+        disabled={busy}
+        onClick={async () => {
+          setBusy(true);
+          setError("");
+          try {
+            setAudit(await api("form_delivery_audit", undefined, { id: dbId }));
+          } catch (e) {
+            setError(errorText(e));
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        <ShieldCheck size={15} />
+        {busy ? "Vérification…" : "Vérifier les pièces jointes"}
+      </button>
+      <ErrorBox message={error} />
+      {audit && (
+        <div className="form-delivery-audit" role="status">
+          <p>
+            <strong>{audit.counts.received}</strong> fichier(s) rattaché(s) ·{" "}
+            <strong>{audit.counts.pending}</strong> en attente ·{" "}
+            <strong>{audit.counts.unlinked}</strong> sans ligne associée.
+          </p>
+          {!!audit.counts.missing && (
+            <p>
+              {audit.counts.missing} fichier(s) enregistré(s) indisponible(s)
+              sur le disque, dont d’éventuels envois expirés.
+            </p>
+          )}
+          {!!audit.unindexedFiles && (
+            <p>
+              {audit.unindexedFiles} fichier(s) sans métadonnées sur le serveur
+              : conserver une sauvegarde FTP pour analyse.
+            </p>
+          )}
+          {audit.truncated && (
+            <p>Inventaire limité aux 5 000 pièces jointes les plus récentes.</p>
+          )}
+          <ul>
+            {audit.uploads
+              .filter((f) => f.available && f.state !== "received")
+              .map((f) => (
+                <li key={f.id}>
+                  <a href={f.url!}>{f.name || "Fichier reçu"}</a> ·{" "}
+                  {f.state === "pending" ? "en attente" : "sans ligne"}
+                </li>
+              ))}
+          </ul>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function DatabaseSettings({
   bundle,
   onSaved,
@@ -4879,6 +5035,7 @@ function DatabaseSettings({
           Créer un formulaire
         </button>
       </section>
+      <FormDeliveryAudit dbId={bundle.database.id} />
       <div className="database-settings-utilities">
         <button disabled={busy || dirty} onClick={onRefresh}>
           <RefreshCw size={15} />

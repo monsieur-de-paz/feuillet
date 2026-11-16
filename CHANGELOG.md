@@ -1,5 +1,13 @@
 # Historique des versions
 
+## 0.33.1 — 2026-11-16
+
+- Dépôts de formulaires confirmés par un reçu vérifiable : référence unique, date et nombre de fichiers, affichage des noms et reçu texte à conserver. Une réponse JSON sans reçu correspondant ne peut plus afficher une confirmation.
+- Réessayer le même envoi après une coupure renvoie le même reçu, sans créer de doublon. Changer le contenu ou la session avec la même référence est refusé.
+- Journal privé atomique des nouvelles réponses, distinct de la transaction SQL ; vérification de la présence et de la taille des fichiers avant validation. Aucun journal de ce type n’existait pour les anciennes versions.
+- Limites d’envoi par session avec protection globale plus large du réseau, pour permettre à plusieurs utilisateurs derrière une même IP de déposer leurs fichiers. Quotas de stockage, authentification et CSRF conservés.
+- Contrôle des pièces jointes depuis les paramètres de la base : fichiers reçus, en attente, sans ligne associée, absents du disque et détection de fichiers sans métadonnées. Contrôle strictement réservé à l’administrateur, sans modification des données.
+
 ## 0.33.0 — 2026-11-16
 
 - Bases intégrées repensées autour d’un vrai tableau : en-têtes et première colonne fixes, grille légère, actions de ligne au survol et tableau conservé même lorsqu’il est vide.
