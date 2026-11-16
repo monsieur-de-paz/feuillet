@@ -1,0 +1,174 @@
+/* Feuillet 0.33: the data is the interface. Shared by the catalogue and page blocks. */
+.database-workbench.database-embedded { border:0;background:transparent;padding:8px 0 0;margin:28px 0;color:var(--ink);min-width:0;container:database-workbench / inline-size; }
+.database-workbench .database-embedded-header { gap:16px;margin:0 0 8px;padding:0 2px; }
+.database-workbench .database-embedded-header h3 { display:flex;align-items:center;gap:9px;font:inherit;font-size:21px;font-weight:650;letter-spacing:-.035em;color:var(--ink);min-width:0; }
+.database-name-button { display:flex;align-items:center;gap:10px;max-width:100%;padding:6px 4px;border-radius:7px;text-align:left;color:inherit; }
+.database-name-button span { overflow-wrap:anywhere; }
+.database-name-edit { opacity:0;flex-shrink:0;transition:opacity 160ms; }
+.database-name-button:is(:hover,:focus-visible) .database-name-edit { opacity:.6; }
+.database-linked-actions { display:flex;align-items:center;gap:6px;flex-shrink:0; }
+.database-access-button { display:flex;align-items:center;gap:5px;padding:7px 9px;border-radius:7px;color:var(--muted);font-size:11px; }
+.database-access-button:hover { background:var(--surface-muted);color:var(--ink); }
+.database-workbench .database-view-controls,.database-workspace .database-view-controls { border:0;background:transparent;padding:0;margin:0; }
+.database-view-controls .database-view-mainbar { display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:7px 0 10px;margin:0; }
+.database-view-controls .database-view-switch { display:flex;align-items:center;gap:2px;border:0;border-radius:0;background:transparent;padding:0; }
+.database-view-switch>button { display:flex;align-items:center;gap:6px;min-height:36px;padding:7px 10px;font-size:12px;border-radius:7px;color:var(--muted);position:relative;white-space:nowrap; }
+.database-view-switch>button.active { color:var(--ink);background:var(--surface-muted);box-shadow:none;font-weight:600; }
+.database-view-controls .database-view-actionbar { display:flex;align-items:center;gap:3px;flex-wrap:wrap;margin-left:auto; }
+.database-view-actionbar>button { display:flex;align-items:center;justify-content:center;gap:6px;min-width:34px;min-height:34px;border:0;border-radius:7px;padding:7px;color:var(--muted);font-size:12px;position:relative; }
+.database-view-actionbar>button>span { display:none; }
+.database-view-actionbar>button:hover,.database-view-actionbar>button[aria-expanded=true] { background:var(--surface-muted);color:var(--ink); }
+.database-view-actionbar>button.has-setting { color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,transparent); }
+.database-tool-count { font-size:9px;min-width:13px;font-weight:600; }
+.database-view-actionbar>button.database-new-row { padding:8px 12px;gap:5px;margin-left:5px;color:var(--accent-contrast,#fff);background:var(--accent);font-weight:550; }
+.database-view-actionbar>button.database-new-row:hover { filter:brightness(.96); }
+.database-view-controls .database-search { width:150px;min-width:90px;flex:0 1 150px;border:1px solid var(--line);border-radius:7px;min-height:34px;gap:5px;padding:4px 7px;background:var(--surface); }
+.database-view-controls .database-search input { width:100%;min-width:0;font-size:12px;padding:0;color:var(--ink);background:transparent; }
+.database-view-controls .database-filter-chips { margin:0 0 9px;gap:6px; }
+.database-view-summary { display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:10px 3px;font-size:11px;color:var(--muted); }
+.database-view-summary>span { display:flex;align-items:center;gap:5px; }
+.database-workbench .database-table-wrap,.database-workspace .database-table-wrap { border:1px solid var(--line);border-inline:0;border-radius:0;max-width:100%;max-height:65dvh;overflow:auto;overscroll-behavior:contain;scroll-padding-block:42px; }
+.database-table.database-grid { border-collapse:separate;border-spacing:0;min-width:100%;width:max-content;font:inherit;font-size:13px;table-layout:auto;background:var(--surface); }
+.database-grid.database-table :is(th,td) { min-width:150px;max-width:320px;padding:0!important;border:0!important;border-bottom:1px solid var(--line)!important;border-right:1px solid var(--line)!important;vertical-align:middle;line-height:1.5;background:var(--surface)!important; }
+.database-grid.database-table thead { position:sticky;top:0;z-index:3; }
+.database-grid.database-table thead th { background:var(--surface-muted)!important;font-size:12px;font-weight:500!important;color:var(--muted); }
+.database-grid .database-column-heading { display:flex;align-items:center;gap:7px;padding:10px 12px;min-height:40px;width:100%;font-size:12px;color:inherit;text-align:left; }
+.database-grid .database-column-heading>span { flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.database-grid .database-column-heading>svg { flex-shrink:0;opacity:.5; }
+.database-grid th[aria-sort] .database-column-heading>svg { color:var(--accent);opacity:1; }
+.database-grid .database-column-heading:hover { background:color-mix(in srgb,var(--ink) 5%,transparent); }
+.database-grid.database-table tbody th[scope=row] { position:sticky;left:0;z-index:1;font-weight:500!important;font-size:13px;color:var(--ink);max-width:250px; }
+.database-grid.database-table tbody tr:hover :is(td,th) { background:color-mix(in srgb,var(--ink) 2%,var(--surface))!important; }
+.database-grid .database-inline-cell { min-height:42px;border-radius:0;padding:10px 12px;width:100%;text-align:left;color:var(--ink);font-size:13px;line-height:1.5; }
+.database-grid .database-inline-cell:hover { background:color-mix(in srgb,var(--accent) 5%,transparent); }
+.database-grid .database-inline-cell[role=checkbox] { justify-content:flex-start; }
+.database-grid .database-computed-cell { padding:10px 12px;color:var(--muted); }
+.database-grid .database-resource-cell { min-height:42px;padding:5px 10px; }
+.database-grid.database-table :is(th,td).database-add-property { min-width:42px;width:42px;padding:0!important; }
+.database-grid .database-add-property>button { display:flex;align-items:center;justify-content:center;width:100%;min-height:40px;color:var(--muted); }
+.database-grid.database-table :is(th,td).database-row-actions,.database-grid.database-table .database-actions-heading { min-width:70px;width:70px;padding:3px 6px!important; }
+.database-grid .database-row-actions>div { display:flex;align-items:center;gap:3px;justify-content:flex-end; }
+.database-row-actions button { opacity:0;min-width:26px;min-height:30px;display:inline-flex;align-items:center;justify-content:center; }
+.database-grid tr:hover .database-row-actions button,.database-grid tr:focus-within .database-row-actions button { opacity:1; }
+.database-grid.database-table .database-empty-row { padding:24px 12px!important;font-size:12px;color:var(--muted);white-space:normal;max-width:none; }
+.database-grid.database-table tfoot td { border-bottom:0!important;position:relative; }
+.database-quick-row { max-width:100%;font-size:12px; }
+.database-quick-row>form { display:flex;align-items:center;gap:8px;max-width:min(640px,100%);min-height:44px;padding:4px 10px;color:var(--muted); }
+.database-quick-row input { width:190px;flex:1;min-width:80px;border:0;background:transparent;color:var(--ink);font:inherit;padding:6px 2px;outline:0; }
+.database-quick-row input::placeholder { color:var(--muted); }
+.database-quick-row button { padding:5px 10px;color:var(--accent);border-radius:6px;font-size:12px;min-height:32px; }
+.database-quick-row button small { margin-left:6px;opacity:.6; }
+.database-quick-row button:disabled { opacity:.25; }
+.database-quick-row>p { padding:4px 12px 10px;margin:0;color:var(--ink);font-size:12px; }
+.database-direct-editor { min-width:150px;position:relative;box-shadow:inset 0 0 0 2px var(--accent);background:var(--surface); }
+.database-direct-editor>input,.database-direct-editor>textarea { width:100%;min-height:42px;padding:10px 12px;border:0;border-radius:0;background:transparent;color:var(--ink);font:inherit;font-size:13px;line-height:1.5;outline:0;resize:vertical;display:block; }
+.database-direct-editor>.spin { position:absolute;right:6px;top:5px;color:var(--accent); }
+.database-cell-inline-error { display:block;white-space:normal;min-width:160px;padding:9px 10px;font-size:11px;line-height:1.7;color:var(--ink);background:var(--surface-muted); }
+.database-cell-inline-error button { display:inline-block;text-decoration:underline;padding:4px;color:var(--accent);font-size:11px; }
+.database-visually-hidden { position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0!important; }
+.database-popover.feuillet-floating { width:min(450px,calc(100vw - 20px));border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);padding:0;box-shadow:0 16px 55px #00000022; }
+.database-popover-heading { display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px 12px;border-bottom:1px solid var(--line);font-size:14px; }
+.database-popover-heading button { width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:7px;color:var(--muted); }
+.database-popover .database-view-panel { padding:16px;border:0;border-radius:0;background:transparent;margin:0;max-height:60dvh;overflow:auto;display:flex;flex-direction:column;gap:12px; }
+.database-popover :is(label,small) { font-size:12px;line-height:1.6;color:var(--muted); }
+.database-popover label { display:flex;flex-direction:column;gap:7px; }
+.database-popover input:not([type=checkbox]) { min-height:38px;width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;color:var(--ink);background:var(--surface); }
+.database-popover .database-filter-line { display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 28px;gap:7px;align-items:center;width:100%; }
+.database-popover .database-filter-line>:nth-child(3):not(button) { grid-column:1/3;grid-row:2; }
+.database-popover .database-filter-line>button:last-child { grid-column:3;grid-row:1/3; }
+.database-popover .database-sort-line { display:flex;flex-direction:column;align-items:stretch;gap:9px; }
+.database-popover .database-property-choice { display:flex;align-items:center;gap:9px; }
+.database-popover .database-property-choice>label { flex:1;display:flex;flex-direction:row;align-items:center;gap:9px;min-height:34px;color:var(--ink); }
+.database-property-choice>button { width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:7px;color:var(--muted); }
+.database-property-choice>button:hover { background:var(--surface-muted); }
+.database-popover .feuillet-select-trigger { width:100%;min-width:0; }
+.database-sheet-backdrop { position:fixed;inset:0;z-index:1300;background:#00000038;display:flex;justify-content:flex-end;align-items:stretch; }
+.database-sheet { display:flex;flex-direction:column;width:min(640px,calc(100vw - 32px));max-height:100dvh;margin:0;background:var(--surface);color:var(--ink);box-shadow:-16px 0 70px #00000014;border-left:1px solid var(--line);font-family:var(--font,sans-serif);isolation:isolate; }
+.database-sheet-heading { display:flex;align-items:center;justify-content:space-between;gap:20px;padding:26px 28px 22px;border-bottom:1px solid var(--line);flex-shrink:0; }
+.database-sheet-heading p { margin:0 0 6px;font-size:11px;color:var(--muted);letter-spacing:.02em; }
+.database-sheet-heading h3 { margin:0;font-size:23px;line-height:1.3;letter-spacing:-.04em;color:var(--ink);font-weight:600; }
+.database-sheet-heading>button { width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--surface-muted);color:var(--muted);flex-shrink:0; }
+.database-sheet-body { flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:26px 28px 40px; }
+.database-sheet .database-editor-card { border:0;box-shadow:none;padding:0;background:transparent;margin:0; }
+.database-sheet .database-editor-card>h4 { display:none; }
+.database-sheet :is(input:not([type=checkbox]):not([type=color]),textarea) { color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:9px;font:inherit;font-size:14px;line-height:1.55;padding:10px 12px;min-height:42px;max-width:100%; }
+.database-sheet :is(label,legend) { font-size:13px;color:var(--ink);line-height:1.65; }
+.database-sheet .database-editor-actions { position:sticky;bottom:-40px;background:var(--surface);border-top:1px solid var(--line);padding:16px 0 20px;gap:9px;margin-top:24px; }
+.database-sheet .database-editor-actions button { min-height:42px;padding:10px 16px; }
+.database-sheet .database-field-help { font-size:12px;line-height:1.75;color:var(--muted); }
+.database-settings-body>form { display:flex;flex-direction:column;align-items:stretch;gap:20px; }
+.database-settings-body label { display:flex;flex-direction:column;gap:7px; }
+.database-settings-body input { width:100%; }
+.database-access-note { display:flex;align-items:flex-start;gap:10px;margin:0;font-size:12px;line-height:1.8;color:var(--muted);padding:14px;background:var(--surface-muted);border-radius:10px; }
+.database-access-note>svg { flex-shrink:0;margin-top:3px; }
+.database-settings-forms { margin-top:28px;padding-top:24px;border-top:1px solid var(--line); }
+.database-settings-forms h4 { font-size:16px;letter-spacing:-.02em;margin:0 0 8px; }
+.database-settings-forms>p,.database-picker-intro { font-size:13px;line-height:1.8;color:var(--muted);margin:0 0 20px; }
+.database-form-shortcut { display:flex;align-items:center;gap:9px;width:100%;padding:13px 0;text-align:left;color:var(--ink);border-bottom:1px solid var(--line); }
+.database-form-shortcut>span { flex:1; }
+.database-settings-forms>.small-button { margin-top:14px; }
+.database-settings-utilities { display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:25px 0 20px;padding-top:20px;border-top:1px solid var(--line); }
+.database-settings-utilities :is(button,a) { display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px;text-decoration:none;padding:6px 0; }
+.database-picker-search { display:flex;gap:10px;align-items:center;margin-bottom:18px; }
+.database-picker-search>input { width:100%;min-width:0; }
+.database-create-choice { display:flex;align-items:center;gap:14px;padding:18px;border:1px solid var(--line);border-radius:14px;width:100%;text-align:left;background:var(--surface-muted);color:var(--ink); }
+.database-create-choice>span { display:flex;align-items:center;justify-content:center;border-radius:11px;background:var(--surface);width:42px;height:42px;flex-shrink:0;color:var(--accent); }
+.database-create-choice strong { display:block;font-size:14px;font-weight:550;line-height:1.5;overflow-wrap:anywhere; }
+.database-create-choice small { display:block;font-size:12px;color:var(--muted);margin-top:5px; }
+.database-picker-label { font-size:12px;font-weight:500;letter-spacing:0;margin:28px 0 10px;color:var(--muted); }
+.database-picker-list>button { display:flex;align-items:center;gap:11px;min-height:48px;width:100%;padding:12px 4px;border-bottom:1px solid var(--line);color:var(--ink);text-align:left;border-radius:5px; }
+.database-picker-list>button>span { flex:1;font-size:14px; }
+.database-picker-list>button:hover { background:var(--surface-muted); }
+.database-picker-list>p { font-size:13px;color:var(--muted); }
+.database-cell-popover { background:var(--surface)!important;color:var(--ink);border-color:var(--line)!important;border-radius:14px; }
+.database-cell-popover .database-cell-heading { background:var(--surface-muted);color:var(--ink);border-color:var(--line);font-size:12px; }
+.database-cell-popover :is(input:not([type=checkbox]):not([type=file]),textarea,select) { color:var(--ink);background:var(--surface);border-color:var(--line); }
+.database-cell-popover .database-cell-footer { background:var(--surface);border-color:var(--line); }
+:is(.database-popover,.database-sheet,.database-workbench,.database-grid) :is(button,a,input,textarea):focus-visible { outline:2px solid var(--accent);outline-offset:2px; }
+.database-direct-editor :is(input,textarea):focus-visible { outline:0; }
+.database-table-wrap:focus-visible { outline:2px solid var(--accent);outline-offset:3px; }
+@container database-workbench (max-width:560px) {
+ .database-workbench .database-view-mainbar { gap:5px; }
+ .database-workbench .database-view-switch { flex:1 1 100%; }
+ .database-workbench .database-view-actionbar { margin-left:0;justify-content:flex-end;width:100%; }
+ .database-workbench .database-view-summary>span:last-child { display:none; }
+}
+@media(max-width:650px),(pointer:coarse) {
+ .database-view-actionbar>button,.database-view-switch>button,.database-column-heading,.database-add-property>button,.database-grid .database-inline-cell,.database-property-choice>button { min-height:44px; }
+ .database-view-actionbar>button { min-width:38px; }
+ .database-row-actions button { opacity:1;min-height:40px; }
+ .database-sheet { width:100%;border-left:0; }
+ .database-sheet-heading { padding:22px 20px 18px; }
+ .database-sheet-body { padding:22px 20px max(28px,env(safe-area-inset-bottom)); }
+ .database-sheet-heading>button { width:44px;height:44px; }
+ .database-grid.database-table :is(td,th) { min-width:140px;max-width:210px; }
+ .database-popover .database-filter-line { gap:5px; }
+ .database-picker-list>button { min-height:52px; }
+}
+@media(prefers-reduced-motion:no-preference) {
+ .database-sheet { animation:database-sheet-in 420ms cubic-bezier(.16,1,.3,1); }
+ @keyframes database-sheet-in { from { transform:translateX(70px);opacity:.9; } to { transform:translateX(0);opacity:1; } }
+}
+
+.database-workbench .database-embedded-header .database-name-button { font:inherit;font-size:20px;line-height:1.4; }
+.database-table-wrap { container-type:inline-size; }
+.database-quick-row { position:sticky;left:0;inline-size:min(560px,100cqi); }
+.app-shell:has(.database-workbench :is(input,textarea):focus) .floating-insert { visibility:hidden; }
+.database-sheet .status-color-options>div { display:grid;grid-template-columns:minmax(0,1fr) 40px auto;gap:12px; }
+.database-sheet .status-color-options .database-status-tag { display:block;width:max-content;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.5;font-size:13px; }
+.database-sheet .status-color-options input[type=color] { display:block;appearance:auto;width:40px;height:34px;padding:3px;min-height:0;border:1px solid var(--line);border-radius:7px;background:var(--surface); }
+.database-sheet .status-color-options button { padding:7px 10px;min-height:34px;font-size:12px;white-space:nowrap; }
+.database-workbench.database-readonly { border:0;padding:0;background:transparent;margin:28px 0; }
+.database-readonly>h2 { font:inherit;font-size:21px;font-weight:650;letter-spacing:-.03em;margin:0 0 16px;color:var(--ink); }
+.database-readonly .database-table-wrap { border:1px solid var(--line);border-inline:0;border-radius:0;max-height:65dvh;overflow:auto; }
+.database-readonly .database-grid :is(td,th) { padding:10px 12px!important;font-size:13px;line-height:1.6; }
+.database-readonly .database-grid thead th { padding:10px 12px!important;font-size:12px; }
+.database-popover .database-view-panel { flex-wrap:nowrap; }
+.database-popover .database-property-choice { flex-shrink:0; }
+.database-popover input[type=checkbox] { accent-color:var(--accent); }
+.tiptap .node-databaseView.ProseMirror-selectednode { background:transparent!important; }
+
+@media(max-width:650px),(pointer:coarse) {
+ .database-view-actionbar>button { min-width:44px; }
+ .database-direct-editor :is(input,textarea),.database-quick-row input,.database-sheet :is(input:not([type=checkbox]):not([type=color]),textarea) { font-size:16px; }
+}

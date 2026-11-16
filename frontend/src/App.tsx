@@ -87,6 +87,7 @@ import CourseEditor, { type EditorRequest } from "./Editor";
 import { AppContext } from "./context";
 import { ImageLightbox, type ZoomImage } from "./MediaLightbox";
 import { DatabaseManager } from "./Database";
+import { DatabasePicker } from "./DatabaseSurface";
 import {
   CategoriesEditor,
   ThemeControls,
@@ -3454,7 +3455,8 @@ export default function App() {
           />
         </Modal>
       )}
-      {modal === "databases" && (
+      {modal === "databases" && databaseMode === "database" && (<DatabasePicker onClose={() => setModal(null)} onChoose={(id) => { dbCallback.current?.(id); setModal(null); }} />)}
+      {modal === "databases" && databaseMode !== "database" && (
         <div className="modal-backdrop">
           <div className="database-modal">
             <DatabaseManager

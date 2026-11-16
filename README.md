@@ -53,7 +53,7 @@ L’installateur vérifie les extensions PHP, les sessions et les droits d’éc
 - **Écrire par blocs** : commandes `/`, titres dépliables, listes, tableaux, colonnes, encadrés, boutons et déplacement de plusieurs blocs.
 - **Organiser ses notes** : carnets, catégories, pages et sous-pages, recherche, onglets de rédaction et historique.
 - **Rassembler ses médias** : images, PDF, audio, vidéos, bibliothèque de fichiers et de vidéos en ligne, aperçus de liens et intégrations web.
-- **Créer des bases** : champs typés, vues en tableau ou galerie, tri, filtres, regroupements, relations, formules et agrégations.
+- **Créer des bases** : tableaux éditables et réglages directement dans les pages, champs typés, vues en tableau ou galerie, tri, filtres, regroupements, relations, formules et agrégations.
 - **Recueillir des réponses** : formulaires avec dépôt de fichiers, cinq modèles, textes personnalisables, aperçu en direct et animations. Réponses privées et projection administrateur actualisée toutes les dix secondes.
 - **Partager à son rythme** : pages privées ou publiques, liens personnalisés, partage des sous-pages et accueil public configurable.
 - **Personnaliser son espace** : interface Rivage et animations respectant la réduction des mouvements, thèmes clair, sombre et OLED, couleurs, polices, icônes et couvertures repositionnables.
@@ -67,7 +67,7 @@ Les mises à jour s’installent depuis Feuillet, à partir des releases GitHub,
 - [Bases de données et formulaires](docs/BASES-ET-FORMULAIRES.md)
 - [Édition et présentation des blocs](docs/BLOCS-0.4.md)
 - [Maintenance et sauvegardes](docs/MAINTENANCE.md)
-- [Nouveautés de la version 0.32](docs/NOUVEAUTES-0.32.md)
+- [Nouveautés de la version 0.33](docs/NOUVEAUTES-0.33.md)
 - [Historique des versions](CHANGELOG.md)
 
 ## Contribuer

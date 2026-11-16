@@ -70,6 +70,11 @@ export function FloatingSurface({
     };
     const dismiss = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        // Only the innermost open surface owns Escape (e.g. a select in a filter).
+        const surfaces = [
+          ...document.querySelectorAll<HTMLElement>(".feuillet-floating"),
+        ].filter((surface) => surface.getClientRects().length);
+        if (surfaces.at(-1) !== node) return;
         e.preventDefault();
         e.stopPropagation();
         close.current();

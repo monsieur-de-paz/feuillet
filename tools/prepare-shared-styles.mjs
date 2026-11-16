@@ -11,3 +11,5 @@ buildSync({entryPoints:[fileURLToPath(new URL('../frontend/src/theme-colors.ts',
 console.log('Couleurs : algorithme partagé préparé pour le lecteur.');
 
 copyFileSync(fileURLToPath(new URL('../frontend/src/interface.css',import.meta.url)),fileURLToPath(new URL('../public/interface.css',import.meta.url)));
+
+copyFileSync(fileURLToPath(new URL('../frontend/src/database-workbench.css',import.meta.url)),fileURLToPath(new URL('../public/database-workbench.css',import.meta.url)));

@@ -586,3 +586,30 @@ Pas de nouvelle vérification sur le compte OVH, sur téléphone physique ou sur
 MySQL/MariaDB pour cette release de présentation. Les essais visuels ne sont
 pas une mesure de cadence sur tous les appareils. Voir la
 [charte des interactions 0.32](INTERFACE-MODERN-WEB.md).
+
+## Bases intégrées — 0.33.0, 16 novembre 2026
+
+- Build TypeScript/Vite et suites frontend, mouvement, navigation et PWA réussis.
+  Les nouveaux tests de cellule vérifient les modifications rapides d’une ligne,
+  la conservation des autres champs, le conflit sur une même cellule, une reprise
+  après erreur et l’utilisation d’une version serveur plus récente.
+- `database-workbench.py` : 6 scénarios SQLite réussis ; 5 réussis et 1 injection
+  d’échec SQLite volontairement ignorée sur MySQL. Création privée, titre initial,
+  POST/CSRF/authentification, noms traités comme données, absence d’orphelins en
+  cas d’échec de propriété, lecture publique sémantique et lignes privées exclues.
+- `databases.py` : 12 réussis sur SQLite et MySQL ; `forms.py` et `form-design.py` :
+  5 chacun ; lecteur : 8 ; partage : 17 ; éditeur : 9 ; sécurité : 14 ; installation :
+  5 ; publication : 4. Smoke : 20 réussis, le test distant Commons non demandé ignoré.
+- Navigateur intégré sur une démonstration séparée : création d’une base depuis
+  le bloc, tableau vide et ajout de ligne, édition de nom, Tab vers le choix suivant,
+  état, décimale négative à virgule et calcul actualisé, propriété ajoutée dans la
+  page, filtre par état, tri numérique et `aria-sort`, menus imbriqués avec Échap,
+  paramètres de base et ouverture de son éditeur de formulaire. Lecture publique
+  contrôlée sans la ligne privée. Essais sombre/clair, 390 et 320 px sans
+  débordement horizontal du document observé.
+
+Les fixtures sont fictives et privées au poste de développement. Aucune donnée
+Notion ou donnée d’élève de production n’entre dans les tests ni la distribution.
+Les tests MySQL utilisent une instance locale jetable ; ils ne constituent pas
+une vérification de l’installation OVH réelle. Les tableaux larges conservent un
+défilement horizontal dans leur propre cadre.

@@ -369,3 +369,18 @@ carte, un menu de sélection, le focus clavier et la saisie Entrée/Retour arri�
 ainsi qu’une page publique en mode sombre et avec mouvement réduit. Les animations
 ne retardent aucune requête. La distribution ne contient pas les skills ni les
 profils shell du poste de développement.
+
+## Mise à jour 0.33
+
+Transférer tous les fichiers de la version, notamment `public/database-workbench.css`,
+les bundles compilés et `update-manifest.json`, conserver configuration et
+stockage, puis recharger les onglets. Aucune migration SQL spécifique. Vérifier
+la création d’une base depuis `/base`, une cellule, une ligne, les réglages de
+propriété et la lecture anonyme. Une base neuve est toujours privée : son accès
+se configure dans les paramètres du tableau ; les réponses de formulaires ne
+peuvent pas être rendues publiques par cette commande.
+
+`python3 tests/database-workbench.py` couvre la création et sa frontière d’accès ;
+`--mysql` utilise un serveur local jetable. `tools/preview-databases.py` prépare
+uniquement une démonstration locale, dans `.private/database-workbench` ignoré
+par Git ; ce stockage et ses identifiants ne font pas partie des releases.

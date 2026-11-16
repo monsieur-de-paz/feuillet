@@ -416,3 +416,20 @@ polling public, limite le nombre d’éléments animés et annule leur mouvement
 frappe. Les animations CSS et ProseMirror respectent la réduction des mouvements.
 Aucune API, transaction de contenu, dépendance de production ou règle de cache
 réseau n’est ajoutée. Voir [INTERFACE-MODERN-WEB.md](INTERFACE-MODERN-WEB.md).
+
+## Bases intégrées — 0.33
+
+`Database.tsx` partage sa grille et ses contrôles entre catalogue et blocs.
+`DatabaseSurface.tsx` fournit le sélecteur de source, les panneaux contextuels
+et le panneau latéral hors de ProseMirror. Les champs simples restent dans la
+grille ; les autres utilisent les éditeurs typés existants. `database-editing.ts`
+sérialise les patches d’une ligne sans supprimer les vérifications de version.
+Son cache mémoire est borné à 200 lignes ; aucune donnée n’est persistée par ce
+mécanisme. Un rafraîchissement conserve les composants de la base déjà chargée.
+
+`db_create` est une mutation POST administrateur avec CSRF et insertion
+transactionnelle d’une collection privée et de sa propriété Nom. Les autres
+mutations, calculs et règles de fichiers/formulaires restent sur les routes
+existantes. Aucun changement de schéma. `database-workbench.css`, copié vers
+public par le build, harmonise le tableau administrateur et le rendu PHP du
+lecteur ; il fait partie des ressources PWA. Voir [BASES-INTERFACE-0.33.md](BASES-INTERFACE-0.33.md).

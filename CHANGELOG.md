@@ -1,5 +1,15 @@
 # Historique des versions
 
+## 0.33.0 — 2026-11-16
+
+- Bases intégrées repensées autour d’un vrai tableau : en-têtes et première colonne fixes, grille légère, actions de ligne au survol et tableau conservé même lorsqu’il est vide.
+- Barre compacte : types Tableau, Galerie et Graphique à gauche ; regroupement, filtres, tri, propriétés, recherche et ajout à droite. Réglages dans des panneaux contextuels, sans déplacer les lignes ni ouvrir le gestionnaire source.
+- Édition des cellules texte, nom, nombres, dates et coordonnées directement dans la grille : enregistrement avec Entrée ou en quittant la cellule, Tab/Maj+Tab vers la suivante, Échap pour annuler. Choix unique enregistré à la sélection, cases cochées en un clic.
+- Ajout d’une ligne au pied du tableau, avec conservation du nom saisi lorsqu’un autre champ obligatoire nécessite la fiche complète. Écritures rapides sur une même ligne sérialisées ; versions et conflits conservés, sans écrasement d’un autre champ.
+- Propriétés, relations, formules, réglages de visibilité, nom de base et formulaires accessibles dans un panneau latéral depuis la page. Les données restent communes aux vues ; présentation propre à chaque bloc.
+- Insertion simplifiée : créer une base vide ou rechercher une base existante. Création atomique d’une base privée et de sa colonne Nom, réservée à l’administrateur avec CSRF ; aucun changement de schéma SQL.
+- Lecture publique assortie, tableau défilable au clavier et état de tri accessible. Panneaux adaptés au mobile, aux thèmes sombre/OLED et au mouvement réduit. Réponses et fichiers de formulaires toujours privés.
+
 ## 0.32.0 — 2026-11-15
 
 - Animations Rivage plus visibles : arrivée des textes et cartes, ouverture et fermeture des fenêtres, menus ancrés à leur commande et dépliage des sections. Transformations et opacité privilégiées ; ombres larges non interpolées sur les principales cartes.

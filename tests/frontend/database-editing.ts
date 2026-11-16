@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {queueCellPatch,CellEditConflict} from '../../frontend/src/database-editing';
+import type {DatabaseRow} from '../../frontend/src/database-types';
+const row=(id:string,values:Record<string,any>={}):DatabaseRow=>({id,db_id:'test',values,derived:{},errors:{},version:1,visibility:'private',from_form:false,source_form_id:null});
+const base=row('rapid',{name:'Initial',amount:1});let server=base;const versions:number[]=[];
+let release!:()=>void;const gate=new Promise<void>(resolve=>release=resolve);
+const first=queueCellPatch(base,'name','Nouveau',async version=>{versions.push(version);await gate;server={...server,version:version+1,values:{...server.values,name:'Nouveau'}};return server;});
+const second=queueCellPatch(base,'amount',2,async version=>{versions.push(version);assert.equal(server.values.name,'Nouveau');server={...server,version:version+1,values:{...server.values,amount:2}};return server;});
+await Promise.resolve();assert.deepEqual(versions,[1]);release();await Promise.all([first,second]);assert.deepEqual(versions,[1,2]);assert.deepEqual(server.values,{name:'Nouveau',amount:2});
+let wrote=false;await assert.rejects(queueCellPatch(base,'name','Écraser',async()=>{wrote=true;return base;}),CellEditConflict);assert.equal(wrote,false,'a stale edit of the same property must not overwrite another local edit');
+const other=row('independent',{name:'Autre'});await queueCellPatch(other,'name','Indépendante',async version=>({...other,version:version+1,values:{name:'Indépendante'}}));
+const failed=row('failure',{name:'Initial'});await assert.rejects(queueCellPatch(failed,'name','Erreur',async()=>{throw new Error('connection lost');}),/connection lost/);
+const retried=await queueCellPatch(failed,'name','Conservé',async version=>({...failed,version:version+1,values:{name:'Conservé'}}));assert.equal(retried.values.name,'Conservé');
+const fresh={...server,version:9,values:{name:'Serveur récent',amount:4}};let expected=0;await queueCellPatch(fresh,'amount',5,async version=>{expected=version;return {...fresh,version:version+1,values:{...fresh.values,amount:5}};});assert.equal(expected,9,'a fresher server snapshot supersedes the local cache');
+console.log('Database editing: rapid same-row edits serialized, other fields preserved, stale same-cell edit rejected, errors retryable and fresh server versions respected');

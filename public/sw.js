@@ -1,6 +1,6 @@
 /* Feuillet: public reading copies only. No API, media or administrator document cache. */
 const base = new URL("./", self.location),
-  VERSION = "0.32.0",
+  VERSION = "0.33.0",
   PREFIX = "feuillet-" + encodeURIComponent(base.pathname) + "-",
   SHELL = PREFIX + "shell-" + VERSION,
   PAGES = PREFIX + "public-pages-v2",
@@ -18,6 +18,7 @@ const assets = [
   "pwa.css",
   "reader.css",
   "gallery.css",
+  "database-workbench.css",
   "interface.css",
   "theme.js",
   "theme-colors.js",

@@ -112,8 +112,8 @@ function database_form_get(string $value,bool $token=false): array {
 function form_upload_owner(): string { start_session();return hash_hmac('sha256',session_id(),cfg()['secret']); }
 function form_owned_file(string $id): bool { $owner=form_upload_owner();return (bool)query('SELECT file_id FROM form_uploads WHERE file_id=? AND owner=?',[$id,$owner])->fetch(); }
 function database_dispatch(string $action,string $method): void {
-    $actions=['db_projection','db_list','db_get','db_save','db_delete','property_save','property_delete','row_save','row_patch','row_delete','form_save','form_get','form_submit','form_upload','db_export','public_db_get','formula_preview'];if(!in_array($action,$actions,true))return;
-    $mutations=['db_save','db_delete','property_save','property_delete','row_save','row_patch','row_delete','form_save','form_submit','form_upload','formula_preview'];$expected=in_array($action,$mutations,true)?'POST':'GET';if($method!==$expected)fail('Méthode non autorisée.',405);if($expected==='POST')csrf();
+    $actions=['db_projection','db_list','db_get','db_create','db_save','db_delete','property_save','property_delete','row_save','row_patch','row_delete','form_save','form_get','form_submit','form_upload','db_export','public_db_get','formula_preview'];if(!in_array($action,$actions,true))return;
+    $mutations=['db_create','db_save','db_delete','property_save','property_delete','row_save','row_patch','row_delete','form_save','form_submit','form_upload','formula_preview'];$expected=in_array($action,$mutations,true)?'POST':'GET';if($method!==$expected)fail('Méthode non autorisée.',405);if($expected==='POST')csrf();
     if($action==='form_get')json_out(database_form_get(str_limit($_GET['token']??$_GET['id']??'',64),isset($_GET['token'])));
     if($action==='public_db_get')json_out(database_bundle(str_limit($_GET['id']??'',36),true));
     if(in_array($action,['form_submit','form_upload'],true)){
@@ -164,6 +164,17 @@ function database_dispatch(string $action,string $method): void {
         $bundle=database_bundle(str_limit($_GET['id']??'',36));header('Content-Type: text/csv; charset=utf-8');header('Content-Disposition: attachment; filename="base.csv"');$out=fopen('php://output','wb');fwrite($out,"\xEF\xBB\xBF");$cell=function($v){$s=is_array($v)?implode(', ',$v):(string)($v??'');return !is_int($v)&&!is_float($v)&&preg_match('/^(?:\s*[=+\-@]|[\t\r\n]|[＝＋－＠])/u',$s)?"'".$s:$s;};fputcsv($out,array_map(fn($p)=>$cell($p['name']),$bundle['properties']),',','"','');foreach($bundle['rows'] as $r)fputcsv($out,array_map(fn($p)=>$cell($r['derived'][$p['id']]??$r['values'][$p['id']]??null),$bundle['properties']),',','"','');fclose($out);exit;
     }
     $in=json_in();
+    if($action==='db_create'){
+        if(!is_string($in['name']??null))fail('Donne un nom à la base.');
+        $name=str_limit(trim($in['name']),160);if($name==='')fail('Donne un nom à la base.');
+        $id=uuid();$propertyId=uuid();$pdo=db();$pdo->beginTransaction();
+        try{
+            query('INSERT INTO collections (id,name,visibility,version,created_at,updated_at) VALUES (?,?,?,?,?,?)',[$id,$name,'private',1,now(),now()]);
+            query('INSERT INTO collection_properties (id,db_id,name,type,config,is_required,sort_order,version) VALUES (?,?,?,?,?,?,?,?)',[$propertyId,$id,'Nom','title',encoded([]),0,0,1]);
+            $pdo->commit();
+        }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}
+        json_out(['database'=>database_record($id)]);
+    }
     if($action==='db_save'){$id=!empty($in['id'])?str_limit($in['id'],36):uuid();$old=!empty($in['id'])?database_record($id):null;if($old&&(int)($in['version']??-1)!==$old['version'])fail('Base modifiée ailleurs.',409,'conflict');$name=str_limit($in['name']??'',160);if(!$name)fail('Donne un nom à la base.');$visibility=$in['visibility']??($old['visibility']??'private');if(!in_array($visibility,['private','public'],true))fail('Visibilité invalide.');if($old){$q=query('UPDATE collections SET name=?,visibility=?,version=version+1,updated_at=? WHERE id=? AND version=?',[$name,$visibility,now(),$id,$old['version']]);if($q->rowCount()!==1)fail('Conflit de modification.',409,'conflict');}else query('INSERT INTO collections (id,name,visibility,version,created_at,updated_at) VALUES (?,?,?,?,?,?)',[$id,$name,$visibility,1,now(),now()]);json_out(['database'=>database_record($id)]);}
     if($action==='db_delete'){$id=str_limit($in['id']??'',36);$r=database_record($id);if((int)($in['version']??-1)!==$r['version'])fail('Base modifiée ailleurs.',409,'conflict');$pdo=db();$pdo->beginTransaction();try{query('DELETE FROM form_uploads WHERE form_id IN (SELECT id FROM collection_forms WHERE db_id=?)',[$id]);foreach(['collection_forms','collection_rows','collection_properties'] as $table)query("DELETE FROM $table WHERE db_id=?",[$id]);$q=query('DELETE FROM collections WHERE id=? AND version=?',[$id,$r['version']]);if($q->rowCount()!==1)fail('Conflit de suppression.',409,'conflict');$pdo->commit();}catch(Throwable $e){$pdo->rollBack();throw $e;}json_out(['ok'=>true]);}
     if($action==='property_save'){

@@ -119,9 +119,9 @@ function render_database_view(string $id,bool $public,array $config=[],?array $p
     $rows=database_view_rows($bundle,$config);
     $byId=array_column($bundle['properties'],null,'id');$group=$byId[$config['groupBy']??'']??null;
     if($group&&!in_array($group['type'],['files','relation'],true)){$groups=[];foreach(array_slice($rows,0,500) as $row){$value=database_view_value($row,$group,$bundle);if(is_array($value)){sort($value,SORT_STRING);}$key=encoded($value===null||$value===''||$value===[]?null:$value);if(!isset($groups[$key]))$groups[$key]=['empty'=>$key==='null','label'=>$key==='null'?'Non renseigné':(is_bool($value)?($value?'Oui':'Non'):(is_array($value)?implode(' · ',$value):database_view_text($value))),'rows'=>[]];$groups[$key]['rows'][]=$row;}uasort($groups,fn($a,$b)=>$a['empty']!==$b['empty']?($a['empty']?1:-1):strnatcasecmp(database_view_normalize($a['label']),database_view_normalize($b['label'])));$html='<section class="embedded-database database-groups"><h2>'.h($bundle['database']['name']).'</h2>';foreach($groups as $g){$child=$bundle;$child['rows']=$g['rows'];$view=$config;unset($view['groupBy']);$view['filters']=[];$html.='<details class="database-record-group" open><summary><span>'.h($g['label']).'</span><small>'.count($g['rows']).' fiche(s)</small></summary>'.render_database_view($id,$public,$view,$child).'</details>';}return $html.'</section>';}
-    $hidden=is_array($config['hiddenPropertyIds']??null)?$config['hiddenPropertyIds']:[];$properties=array_values(array_filter($bundle['properties'],fn($p)=>$p['type']==='title'||!in_array($p['id'],$hidden,true)));$files=array_column($bundle['files'],null,'id');$head='';$body='';
-    foreach($properties as $property)$head.='<th scope="col">'.h($property['name']).'</th>';
-    foreach(array_slice($rows,0,500) as $row){$cells='';foreach($properties as $property){$value=$row['derived'][$property['id']]??$row['values'][$property['id']]??null;
+    $hidden=is_array($config['hiddenPropertyIds']??null)?$config['hiddenPropertyIds']:[];$properties=array_values(array_filter($bundle['properties'],fn($p)=>!in_array($p['id'],$hidden,true)));$files=array_column($bundle['files'],null,'id');$head='';$body='';
+    foreach($properties as $property)$head.='<th scope="col"'.(($config['sort']['propertyId']??'')===$property['id']?' aria-sort="'.(($config['sort']['direction']??'asc')==='desc'?'descending':'ascending').'"':'').'>'.h($property['name']).'</th>';
+    foreach(array_slice($rows,0,500) as $row){$cells='';foreach($properties as $columnIndex=>$property){$value=$row['derived'][$property['id']]??$row['values'][$property['id']]??null;
         if($property['type']==='files'){$text='';foreach(is_array($value)?$value:[] as $fileId){$file=$files[$fileId]??null;if(!$file)continue;$text.='<a class="database-file" href="media.php?id='.rawurlencode($fileId).'&download=1">'.h($file['name']).'</a>';}}
         elseif(in_array($property['type'],['select','multiselect'],true))$text=render_status_tags($property,$value);
         elseif($property['type']==='relation')$text=h(database_view_text(database_view_value($row,$property,$bundle)));
@@ -129,7 +129,7 @@ function render_database_view(string $id,bool $public,array $config=[],?array $p
         elseif(is_array($value))$text=h(implode(', ',array_map(fn($v)=>is_scalar($v)?(string)$v:encoded($v),$value)));
         elseif(is_bool($value))$text=$value?'Oui':'Non';
         else $text=h($value===null?'—':$value);
-        $cells.='<td>'.$text.'</td>';
+        $cells.=($columnIndex===0?'<th scope="row">':'<td>').$text.($columnIndex===0?'</th>':'</td>');
     }$body.='<tr>'.$cells.'</tr>';}
     $title='<h2>'.h($bundle['database']['name']).'</h2>';
     if(!$properties)return '<section class="embedded-database">'.$title.'<p>Cette base ne contient pas encore de propriétés.</p></section>';
@@ -145,7 +145,7 @@ function render_database_view(string $id,bool $public,array $config=[],?array $p
             return '<section class="embedded-database">'.$title.'<p>'.h($number['name']).'</p><div class="database-reader-chart">'.$bars.'</div></section>';
         }
     }
-    return '<section class="embedded-database">'.$title.'<div class="table-scroll"><table><thead><tr>'.$head.'</tr></thead><tbody>'.$body.'</tbody></table></div>'.$more.'</section>';
+    return '<section class="embedded-database database-workbench database-readonly">'.$title.'<div class="table-scroll database-table-wrap" tabindex="0" role="region" aria-label="'.h('Tableau : '.$bundle['database']['name']).'"><table class="database-table database-grid"><caption class="database-visually-hidden">'.h($bundle['database']['name']).'</caption><thead><tr>'.$head.'</tr></thead><tbody>'.$body.'</tbody></table></div>'.$more.'</section>';
 }
 function render_form_view(string $id,bool $public,array $appearance=[]): string {
     // Force the published reference gate even when an admin reads the public version.

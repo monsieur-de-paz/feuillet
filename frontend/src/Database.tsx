@@ -1,3 +1,5 @@
+import { queueCellPatch, CellEditConflict } from "./database-editing";
+import { DatabasePopover, DatabaseSheet } from "./DatabaseSurface";
 import { FormDesigner } from "./FormDesigner";
 import { formDesign, formQuestion } from "./form-design";
 import { FormAppearance } from "./FormAppearance";
@@ -87,6 +89,7 @@ import {
   type DatabaseViewFilter,
 } from "./database-types";
 import "./database.css";
+import "./database-workbench.css";
 
 export type { DatabaseViewConfiguration } from "./database-types";
 const databaseEvent = "feuillet:database-changed";
@@ -171,6 +174,13 @@ function validateValues(
         (Array.isArray(value) && !value.length))
     )
       errors[property.id] = "Ce champ est obligatoire.";
+    if (
+      property.type === "number" &&
+      value !== null &&
+      value !== "" &&
+      (typeof value !== "number" || !Number.isFinite(value))
+    )
+      errors[property.id] = "Indique un nombre valide.";
     if (
       property.type === "email" &&
       typeof value === "string" &&
@@ -702,11 +712,24 @@ function InlineCell({
 }) {
   const anchor = useRef<HTMLButtonElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const simpleRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const inFlight = useRef(false),
+    cancelling = useRef(false);
+  const baseRow = useRef(row);
+  const simple = [
+    "title",
+    "text",
+    "number",
+    "date",
+    "email",
+    "phone",
+    "url",
+  ].includes(property.type);
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState<CellValue>(cellValue(row, property));
   const valueRef = useRef(value);
   valueRef.current = value;
-  const [version, setVersion] = useState(row.version);
+  const [draft, setDraft] = useState(String(cellValue(row, property) ?? ""));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [conflict, setConflict] = useState(false);
@@ -729,8 +752,11 @@ function InlineCell({
             ? Math.max(12, rect.top - 330)
             : Math.min(innerHeight - 160, rect.bottom + 7),
       });
+    baseRow.current = row;
     setValue(next);
-    setVersion(row.version);
+    valueRef.current = next;
+    cancelling.current = false;
+    setDraft(String(next ?? ""));
     setError("");
     setConflict(false);
     setLocalFiles(files);
@@ -740,29 +766,58 @@ function InlineCell({
     JSON.stringify(value) !== JSON.stringify(cellValue(row, property));
   const interactions = useRef({ dirty, busy, progress: !!progress });
   interactions.current = { dirty, busy, progress: !!progress };
-  async function save(next: CellValue = valueRef.current) {
-    if (busy || progress) return;
-    if (formRef.current && !formRef.current.reportValidity()) return;
+  async function save(next: CellValue = valueRef.current): Promise<boolean> {
+    if (inFlight.current || progress) return false;
+    if (formRef.current && !formRef.current.reportValidity()) return false;
     const issues = validateValues([property], { [property.id]: next });
     if (issues[property.id]) {
       setError(issues[property.id]);
-      return;
+      return false;
     }
+    if (
+      JSON.stringify(next) ===
+      JSON.stringify(baseRow.current.values[property.id] ?? null)
+    ) {
+      setEditing(false);
+      return true;
+    }
+    inFlight.current = true;
     setBusy(true);
     setError("");
+    let committed = false;
     try {
-      await api("row_patch", {
-        id: row.id,
-        version,
-        property_id: property.id,
-        value: next,
-      });
-      await onSaved();
+      const result = await queueCellPatch(
+        baseRow.current,
+        property.id,
+        next,
+        async (expected) =>
+          (
+            await api<{ row: DatabaseRow }>("row_patch", {
+              id: row.id,
+              version: expected,
+              property_id: property.id,
+              value: next,
+            })
+          ).row,
+      );
+      committed = true;
+      baseRow.current = result;
       setEditing(false);
-    } catch (error) {
-      setError(errorText(error));
-      setConflict(error instanceof ApiError && error.status === 409);
+      await onSaved();
+      return true;
+    } catch (e) {
+      setError(
+        committed
+          ? "La cellule est enregistrée. Actualise cette vue pour retrouver la dernière valeur."
+          : errorText(e),
+      );
+      setConflict(
+        e instanceof CellEditConflict ||
+          (e instanceof ApiError && e.status === 409),
+      );
+      return false;
     } finally {
+      inFlight.current = false;
       setBusy(false);
     }
   }
@@ -782,7 +837,8 @@ function InlineCell({
       const current = data.rows.find((item) => item.id === row.id);
       if (!current) throw new Error("Cette fiche a été supprimée.");
       setValue(cellValue(current, property));
-      setVersion(current.version);
+      baseRow.current = current;
+      setDraft(String(cellValue(current, property) ?? ""));
       setConflict(false);
       setError("");
     } catch (error) {
@@ -813,6 +869,17 @@ function InlineCell({
   }
   useEffect(() => {
     if (!editing) return;
+    if (simple) {
+      const frame = requestAnimationFrame(() => {
+        simpleRef.current?.focus({ preventScroll: true });
+        if (
+          simpleRef.current instanceof HTMLInputElement &&
+          simpleRef.current.type !== "date"
+        )
+          simpleRef.current.select();
+      });
+      return () => cancelAnimationFrame(frame);
+    }
     const previous = document.activeElement as HTMLElement | null;
     document.body.classList.add("database-cell-open");
     requestAnimationFrame(() =>
@@ -846,6 +913,157 @@ function InlineCell({
       previous?.focus();
     };
   }, [editing]);
+  useEffect(() => {
+    if (!editing && !busy) return;
+    const block = (event: Event) => {
+      if (interactions.current.dirty || inFlight.current)
+        event.preventDefault();
+    };
+    const unload = (event: BeforeUnloadEvent) => {
+      if (interactions.current.dirty || inFlight.current) {
+        event.preventDefault();
+        event.returnValue = "";
+      }
+    };
+    document.addEventListener("feuillet:before-page-change", block);
+    window.addEventListener("beforeunload", unload);
+    return () => {
+      document.removeEventListener("feuillet:before-page-change", block);
+      window.removeEventListener("beforeunload", unload);
+    };
+  }, [editing, busy]);
+  function nextCell(backward: boolean) {
+    const cell = simpleRef.current?.closest<HTMLElement>("[data-db-cell]");
+    const cells = [
+      ...(cell
+        ?.closest("table")
+        ?.querySelectorAll<HTMLElement>('[data-db-editable="true"]') || []),
+    ];
+    const next = cells[cells.indexOf(cell!) + (backward ? -1 : 1)];
+    void save().then((ok) => {
+      if (ok)
+        requestAnimationFrame(() => {
+          const button = next?.querySelector<HTMLButtonElement>(
+            "button.database-inline-cell",
+          );
+          button?.focus({ preventScroll: true });
+          if (button?.getAttribute("role") !== "checkbox") button?.click();
+        });
+    });
+  }
+  if (simple && editing) {
+    const props = {
+      value: draft,
+      disabled: busy,
+      "aria-label": `Modifier ${property.name} de ${rowTitle(row, bundle.properties)}`,
+      onChange: (
+        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+      ) => {
+        const raw = event.target.value;
+        setDraft(raw);
+        const next =
+          property.type === "number"
+            ? raw.trim() === ""
+              ? null
+              : Number(raw.replace(",", "."))
+            : raw;
+        valueRef.current = next;
+        setValue(next);
+        setError("");
+      },
+      onBlur: () => {
+        if (!cancelling.current && !inFlight.current && !error) void save();
+      },
+      onKeyDown: (event: React.KeyboardEvent) => {
+        if (event.nativeEvent.isComposing) return;
+        if (event.key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          cancelling.current = true;
+          setEditing(false);
+          requestAnimationFrame(() =>
+            anchor.current?.focus({ preventScroll: true }),
+          );
+        } else if (event.key === "Tab") {
+          event.preventDefault();
+          nextCell(event.shiftKey);
+        } else if (event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault();
+          void save().then((ok) => {
+            if (ok)
+              requestAnimationFrame(() =>
+                anchor.current?.focus({ preventScroll: true }),
+              );
+          });
+        }
+      },
+    };
+    return (
+      <div className="database-direct-editor" aria-busy={busy}>
+        {property.type === "text" ? (
+          <textarea
+            ref={(n) => {
+              simpleRef.current = n;
+            }}
+            rows={2}
+            {...props}
+          />
+        ) : (
+          <input
+            ref={(n) => {
+              simpleRef.current = n;
+            }}
+            type={property.type === "date" ? "date" : "text"}
+            inputMode={
+              property.type === "number"
+                ? "decimal"
+                : property.type === "email"
+                  ? "email"
+                  : property.type === "phone"
+                    ? "tel"
+                    : undefined
+            }
+            maxLength={10000}
+            {...props}
+          />
+        )}
+        {busy && <LoaderCircle size={12} className="spin" />}
+        {error && (
+          <div className="database-cell-inline-error" role="alert">
+            {error}
+            {conflict && (
+              <>
+                <button
+                  onClick={() =>
+                    downloadDraft(
+                      { property: property.name, value },
+                      "cellule-brouillon.json",
+                    )
+                  }
+                >
+                  Copier le brouillon dans un fichier
+                </button>
+                <button onClick={() => void reload()}>
+                  Recharger la cellule
+                </button>
+              </>
+            )}
+            <button disabled={busy} onClick={() => void save()}>
+              Réessayer
+            </button>
+            <button
+              onClick={() => {
+                cancelling.current = true;
+                setEditing(false);
+              }}
+            >
+              Annuler
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
   if (isComputed(property))
     return (
       <span
@@ -868,7 +1086,16 @@ function InlineCell({
       disabled={disabled}
       title={`Modifier ${property.name}`}
       aria-label={`Modifier ${property.name} de ${rowTitle(row, bundle.properties)}`}
-      onClick={() => open()}
+      role={property.type === "checkbox" ? "checkbox" : undefined}
+      aria-checked={
+        property.type === "checkbox" ? !!cellValue(row, property) : undefined
+      }
+      onClick={() => {
+        if (property.type === "checkbox") {
+          baseRow.current = row;
+          void save(!cellValue(row, property));
+        } else open();
+      }}
       onContextMenu={(event) => {
         if (event.shiftKey) return;
         event.preventDefault();
@@ -901,6 +1128,11 @@ function InlineCell({
         </div>
       ) : (
         editorButton
+      )}
+      {!editing && error && (
+        <span className="database-cell-inline-error" role="alert">
+          {error}
+        </span>
       )}
       {editing &&
         createPortal(
@@ -972,7 +1204,12 @@ function InlineCell({
                 <Field
                   property={property}
                   value={value}
-                  onChange={setValue}
+                  onChange={(next) => {
+                    valueRef.current = next;
+                    setValue(next);
+                    if (property.type === "select")
+                      requestAnimationFrame(() => void save(next));
+                  }}
                   onUpload={(incoming) => void upload(incoming)}
                   files={localFiles}
                   progress={progress}
@@ -1037,16 +1274,29 @@ function ViewControls({
   onChange,
   search,
   onSearch,
+  onNew,
+  onAddProperty,
+  onPropertyEdit,
+  busy = false,
 }: {
   bundle: DatabaseBundle;
   config: DatabaseViewConfiguration;
   onChange: (view: DatabaseViewConfiguration) => void;
   search: string;
   onSearch: (query: string) => void;
+  onNew?: () => void;
+  onAddProperty?: () => void;
+  onPropertyEdit?: (property: Property) => void;
+  busy?: boolean;
 }) {
   const [panel, setPanel] = useState<
     "filters" | "sort" | "properties" | "groups" | null
   >(null);
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const sortType = bundle.properties.find(
+    (p) => p.id === config.sort?.propertyId,
+  )?.type;
   function changeFilter(index: number, patch: Partial<DatabaseViewFilter>) {
     onChange({
       ...config,
@@ -1058,21 +1308,24 @@ function ViewControls({
   return (
     <div className="database-view-controls">
       <div className="database-view-mainbar">
-        <div className="database-view-switch">
+        <div className="database-view-switch" aria-label="Types de vue">
           <button
             className={config.layout === "table" ? "active" : ""}
+            aria-pressed={config.layout === "table"}
             onClick={() => onChange({ ...config, layout: "table" })}
           >
             <Table size={13} /> Tableau
           </button>
           <button
             className={config.layout === "gallery" ? "active" : ""}
+            aria-pressed={config.layout === "gallery"}
             onClick={() => onChange({ ...config, layout: "gallery" })}
           >
             <LayoutGrid size={13} /> Galerie
           </button>
           <button
             className={config.layout === "chart" ? "active" : ""}
+            aria-pressed={config.layout === "chart"}
             onClick={() => onChange({ ...config, layout: "chart" })}
           >
             <BarChart3 size={13} /> Graphique
@@ -1081,319 +1334,445 @@ function ViewControls({
         <div className="database-view-actionbar">
           <button
             className={config.groupBy ? "has-setting" : ""}
-            onClick={() => setPanel(panel === "groups" ? null : "groups")}
+            onClick={(event) => {
+              setAnchor(event.currentTarget);
+              setPanel(panel === "groups" ? null : "groups");
+            }}
+            aria-label="Grouper les lignes"
+            title="Grouper les lignes"
+            aria-haspopup="dialog"
+            aria-expanded={panel === "groups"}
           >
-            <List size={14} /> Grouper
+            <List size={15} />
+            <span>Grouper</span>
           </button>
           <button
             className={config.filters.length ? "has-setting" : ""}
-            onClick={() => setPanel(panel === "filters" ? null : "filters")}
+            onClick={(event) => {
+              setAnchor(event.currentTarget);
+              setPanel(panel === "filters" ? null : "filters");
+            }}
+            aria-label="Filtrer les lignes"
+            title="Filtrer les lignes"
+            aria-haspopup="dialog"
+            aria-expanded={panel === "filters"}
           >
-            <Filter size={13} /> Filtres
-            {config.filters.length ? ` (${config.filters.length})` : ""}
+            <Filter size={15} />
+            <span>Filtres</span>
+            {config.filters.length > 0 && (
+              <b className="database-tool-count">{config.filters.length}</b>
+            )}
           </button>
           <button
             className={config.sort ? "has-setting" : ""}
-            onClick={() => setPanel(panel === "sort" ? null : "sort")}
+            onClick={(event) => {
+              setAnchor(event.currentTarget);
+              setPanel(panel === "sort" ? null : "sort");
+            }}
+            aria-label="Trier les lignes"
+            title="Trier les lignes"
+            aria-haspopup="dialog"
+            aria-expanded={panel === "sort"}
           >
-            <ArrowDownAZ size={14} /> Trier
+            <ArrowDownAZ size={15} />
+            <span>Trier</span>
           </button>
           <button
-            onClick={() =>
-              setPanel(panel === "properties" ? null : "properties")
-            }
+            onClick={(event) => {
+              setAnchor(event.currentTarget);
+              setPanel(panel === "properties" ? null : "properties");
+            }}
+            aria-label="Propriétés de la vue"
+            title="Propriétés de la vue"
+            aria-haspopup="dialog"
+            aria-expanded={panel === "properties"}
           >
-            <Settings size={13} /> Colonnes
+            <Settings size={15} />
+            <span>Propriétés</span>
           </button>
-          <div className="database-search">
-            <Search size={13} />
-            <input
-              type="search"
-              aria-label="Rechercher dans cette vue"
-              placeholder="Rechercher…"
-              value={search}
-              onChange={(event) => onSearch(event.target.value)}
-            />
-          </div>
+          <button
+            type="button"
+            title="Rechercher dans cette vue"
+            aria-label="Rechercher dans cette vue"
+            aria-expanded={searchOpen}
+            onClick={() => setSearchOpen(!searchOpen)}
+          >
+            <Search size={15} />
+          </button>
+          {(searchOpen || search) && (
+            <div className="database-search">
+              <Search size={13} />
+              <input
+                autoFocus
+                type="search"
+                aria-label="Rechercher dans cette vue"
+                placeholder="Rechercher…"
+                value={search}
+                onChange={(event) => onSearch(event.target.value)}
+              />
+            </div>
+          )}
+          {onNew && (
+            <button
+              className="database-new-row"
+              disabled={busy}
+              onClick={onNew}
+            >
+              <Plus size={15} />
+              Nouveau
+            </button>
+          )}
         </div>
       </div>
       {panel === "groups" && (
-        <div className="database-view-panel">
-          <label>
-            Regrouper par
-            <Select
-              aria-label="Regrouper les fiches par"
-              value={config.groupBy || ""}
-              onChange={(e) =>
-                onChange({ ...config, groupBy: e.target.value || null })
-              }
-            >
-              <option value="">Aucun regroupement</option>
-              {bundle.properties
-                .filter((p) => !["files", "relation"].includes(p.type))
-                .map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-            </Select>
-          </label>
-          <small>
-            Les réponses identiques sont réunies. Les listes à plusieurs choix
-            sont regroupées par combinaison, sans compter une fiche plusieurs
-            fois.
-          </small>
-        </div>
-      )}
-      {panel === "filters" && (
-        <div className="database-view-panel">
-          <small>
-            Afficher les fiches qui remplissent toutes ces conditions
-          </small>
-          {config.filters.map((filter, index) => {
-            const property = bundle.properties.find(
-              (property) => property.id === filter.propertyId,
-            );
-            return (
-              <div className="database-filter-line" key={index}>
-                <Select
-                  aria-label={`Champ du filtre ${index + 1}`}
-                  value={filter.propertyId}
-                  onChange={(event) =>
-                    changeFilter(index, {
-                      propertyId: event.target.value,
-                      value: "",
-                      operator: "contains",
-                    })
-                  }
-                >
-                  {bundle.properties.map((property) => (
-                    <option key={property.id} value={property.id}>
-                      {property.name}
+        <DatabasePopover
+          anchor={anchor}
+          title="Regrouper les lignes"
+          onClose={() => setPanel(null)}
+        >
+          <div className="database-view-panel">
+            <label>
+              Regrouper par
+              <Select
+                aria-label="Regrouper les fiches par"
+                value={config.groupBy || ""}
+                onChange={(e) =>
+                  onChange({ ...config, groupBy: e.target.value || null })
+                }
+              >
+                <option value="">Aucun regroupement</option>
+                {bundle.properties
+                  .filter((p) => !["files", "relation"].includes(p.type))
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
                     </option>
                   ))}
-                </Select>
-                <Select
-                  aria-label={`Condition du filtre ${index + 1}`}
-                  value={filter.operator}
-                  onChange={(event) =>
-                    changeFilter(index, {
-                      operator: event.target
-                        .value as DatabaseViewFilter["operator"],
-                      value:
-                        property?.type === "checkbox" ? true : filter.value,
-                    })
-                  }
-                >
-                  <option value="contains">contient</option>
-                  <option value="equals">est égal à</option>
-                  <option value="notEquals">est différent de</option>
-                  <option value="isEmpty">est vide</option>
-                  <option value="isNotEmpty">n’est pas vide</option>
-                  {property &&
-                    (property.type === "number" ||
-                      property.type === "date" ||
-                      isComputed(property)) && (
-                      <>
-                        <option value="gt">est supérieur à</option>
-                        <option value="gte">est au moins</option>
-                        <option value="lt">est inférieur à</option>
-                        <option value="lte">est au plus</option>
-                      </>
-                    )}
-                </Select>
-                {!["isEmpty", "isNotEmpty"].includes(filter.operator) &&
-                  (property?.type === "checkbox" ? (
-                    <Select
-                      aria-label={`Valeur du filtre ${index + 1}`}
-                      value={String(filter.value === true)}
-                      onChange={(event) =>
-                        changeFilter(index, {
-                          value: event.target.value === "true",
-                        })
-                      }
-                    >
-                      <option value="true">Coché</option>
-                      <option value="false">Non coché</option>
-                    </Select>
-                  ) : property?.type === "select" ? (
-                    <Select
-                      aria-label={`Valeur du filtre ${index + 1}`}
-                      value={String(filter.value)}
-                      onChange={(event) =>
-                        changeFilter(index, { value: event.target.value })
-                      }
-                    >
-                      <option value="">Choisir…</option>
-                      {property.config.options?.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </Select>
-                  ) : (
-                    <input
-                      aria-label={`Valeur du filtre ${index + 1}`}
-                      type={
-                        property?.type === "number"
-                          ? "number"
-                          : property?.type === "date"
-                            ? "date"
-                            : "text"
-                      }
-                      value={String(filter.value)}
-                      onChange={(event) =>
-                        changeFilter(index, {
-                          value:
-                            property?.type === "number" &&
-                            event.target.value !== ""
-                              ? Number(event.target.value)
-                              : event.target.value,
-                        })
-                      }
-                    />
-                  ))}
-                <button
-                  title="Retirer le filtre"
-                  onClick={() =>
-                    onChange({
-                      ...config,
-                      filters: config.filters.filter((_, i) => i !== index),
-                    })
-                  }
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            );
-          })}
-          <div className="database-view-panel-footer">
-            <button
-              className="text-button"
-              disabled={
-                config.filters.length >= 10 || !bundle.properties.length
-              }
-              onClick={() =>
-                onChange({
-                  ...config,
-                  filters: [
-                    ...config.filters,
-                    {
-                      propertyId: bundle.properties[0]?.id || "",
-                      operator: "contains",
-                      value: "",
-                    },
-                  ],
-                })
-              }
-            >
-              <Plus size={13} /> Ajouter un filtre
-            </button>
-            {config.filters.length > 0 && (
-              <button
-                className="text-button"
-                onClick={() => onChange({ ...config, filters: [] })}
-              >
-                Tout effacer
-              </button>
-            )}
+              </Select>
+            </label>
+            <small>
+              Les réponses identiques sont réunies. Les listes à plusieurs choix
+              sont regroupées par combinaison, sans compter une fiche plusieurs
+              fois.
+            </small>
           </div>
-        </div>
+        </DatabasePopover>
       )}
-      {panel === "sort" && (
-        <div className="database-view-panel">
-          <div className="database-sort-line">
-            <Select
-              aria-label="Champ de tri"
-              value={config.sort?.propertyId || ""}
-              onChange={(event) =>
-                onChange({
-                  ...config,
-                  sort: event.target.value
-                    ? {
+      {panel === "filters" && (
+        <DatabasePopover
+          anchor={anchor}
+          title="Filtrer les lignes"
+          onClose={() => setPanel(null)}
+        >
+          <div className="database-view-panel">
+            <small>
+              Afficher les fiches qui remplissent toutes ces conditions
+            </small>
+            {config.filters.map((filter, index) => {
+              const property = bundle.properties.find(
+                (property) => property.id === filter.propertyId,
+              );
+              return (
+                <div className="database-filter-line" key={index}>
+                  <Select
+                    aria-label={`Champ du filtre ${index + 1}`}
+                    value={filter.propertyId}
+                    onChange={(event) =>
+                      changeFilter(index, {
                         propertyId: event.target.value,
-                        direction: config.sort?.direction || "asc",
-                      }
-                    : null,
-                })
-              }
-            >
-              <option value="">Ordre d’origine</option>
-              {bundle.properties.map((property) => (
-                <option key={property.id} value={property.id}>
-                  {property.name}
-                </option>
-              ))}
-            </Select>
-            <Select
-              aria-label="Sens du tri"
-              disabled={!config.sort}
-              value={config.sort?.direction || "asc"}
-              onChange={(event) => {
-                if (config.sort)
-                  onChange({
-                    ...config,
-                    sort: {
-                      ...config.sort,
-                      direction: event.target.value as "asc" | "desc",
-                    },
-                  });
-              }}
-            >
-              <option value="asc">Croissant · A → Z</option>
-              <option value="desc">Décroissant · Z → A</option>
-            </Select>
-            {config.sort && (
+                        value: "",
+                        operator: "contains",
+                      })
+                    }
+                  >
+                    {bundle.properties.map((property) => (
+                      <option key={property.id} value={property.id}>
+                        {property.name}
+                      </option>
+                    ))}
+                  </Select>
+                  <Select
+                    aria-label={`Condition du filtre ${index + 1}`}
+                    value={filter.operator}
+                    onChange={(event) =>
+                      changeFilter(index, {
+                        operator: event.target
+                          .value as DatabaseViewFilter["operator"],
+                        value:
+                          property?.type === "checkbox" ? true : filter.value,
+                      })
+                    }
+                  >
+                    <option value="contains">contient</option>
+                    <option value="equals">est égal à</option>
+                    <option value="notEquals">est différent de</option>
+                    <option value="isEmpty">est vide</option>
+                    <option value="isNotEmpty">n’est pas vide</option>
+                    {property &&
+                      (property.type === "number" ||
+                        property.type === "date" ||
+                        isComputed(property)) && (
+                        <>
+                          <option value="gt">est supérieur à</option>
+                          <option value="gte">est au moins</option>
+                          <option value="lt">est inférieur à</option>
+                          <option value="lte">est au plus</option>
+                        </>
+                      )}
+                  </Select>
+                  {!["isEmpty", "isNotEmpty"].includes(filter.operator) &&
+                    (property?.type === "checkbox" ? (
+                      <Select
+                        aria-label={`Valeur du filtre ${index + 1}`}
+                        value={String(filter.value === true)}
+                        onChange={(event) =>
+                          changeFilter(index, {
+                            value: event.target.value === "true",
+                          })
+                        }
+                      >
+                        <option value="true">Coché</option>
+                        <option value="false">Non coché</option>
+                      </Select>
+                    ) : property?.type === "select" ? (
+                      <Select
+                        aria-label={`Valeur du filtre ${index + 1}`}
+                        value={String(filter.value)}
+                        onChange={(event) =>
+                          changeFilter(index, { value: event.target.value })
+                        }
+                      >
+                        <option value="">Choisir…</option>
+                        {property.config.options?.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </Select>
+                    ) : (
+                      <input
+                        aria-label={`Valeur du filtre ${index + 1}`}
+                        type={
+                          property?.type === "number"
+                            ? "number"
+                            : property?.type === "date"
+                              ? "date"
+                              : "text"
+                        }
+                        value={String(filter.value)}
+                        onChange={(event) =>
+                          changeFilter(index, {
+                            value:
+                              property?.type === "number" &&
+                              event.target.value !== ""
+                                ? Number(event.target.value)
+                                : event.target.value,
+                          })
+                        }
+                      />
+                    ))}
+                  <button
+                    title="Retirer le filtre"
+                    onClick={() =>
+                      onChange({
+                        ...config,
+                        filters: config.filters.filter((_, i) => i !== index),
+                      })
+                    }
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              );
+            })}
+            <div className="database-view-panel-footer">
               <button
                 className="text-button"
-                onClick={() => onChange({ ...config, sort: null })}
-              >
-                Retirer le tri
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-      {panel === "properties" && (
-        <div className="database-view-panel database-visible-properties">
-          <small>Champs visibles dans cette vue</small>
-          {bundle.properties.map((property) => (
-            <label key={property.id}>
-              <input
-                type="checkbox"
-                checked={!config.hiddenPropertyIds.includes(property.id)}
-                onChange={() =>
+                disabled={
+                  config.filters.length >= 10 || !bundle.properties.length
+                }
+                onClick={() =>
                   onChange({
                     ...config,
-                    hiddenPropertyIds: config.hiddenPropertyIds.includes(
-                      property.id,
-                    )
-                      ? config.hiddenPropertyIds.filter(
-                          (id) => id !== property.id,
-                        )
-                      : [...config.hiddenPropertyIds, property.id],
+                    filters: [
+                      ...config.filters,
+                      {
+                        propertyId: bundle.properties[0]?.id || "",
+                        operator: "contains",
+                        value: "",
+                      },
+                    ],
                   })
                 }
-              />
-              {
-                propertyTypes.find((item) => item.type === property.type)
-                  ?.symbol
-              }{" "}
-              {property.name}
-            </label>
-          ))}
-          <button
-            className="text-button"
-            onClick={() => onChange({ ...config, hiddenPropertyIds: [] })}
-          >
-            Tout afficher
-          </button>
-        </div>
+              >
+                <Plus size={13} /> Ajouter un filtre
+              </button>
+              {config.filters.length > 0 && (
+                <button
+                  className="text-button"
+                  onClick={() => onChange({ ...config, filters: [] })}
+                >
+                  Tout effacer
+                </button>
+              )}
+            </div>
+          </div>
+        </DatabasePopover>
+      )}
+      {panel === "sort" && (
+        <DatabasePopover
+          anchor={anchor}
+          title="Trier les lignes"
+          onClose={() => setPanel(null)}
+        >
+          <div className="database-view-panel">
+            <div className="database-sort-line">
+              <Select
+                aria-label="Champ de tri"
+                value={config.sort?.propertyId || ""}
+                onChange={(event) =>
+                  onChange({
+                    ...config,
+                    sort: event.target.value
+                      ? {
+                          propertyId: event.target.value,
+                          direction: config.sort?.direction || "asc",
+                        }
+                      : null,
+                  })
+                }
+              >
+                <option value="">Ordre d’origine</option>
+                {bundle.properties.map((property) => (
+                  <option key={property.id} value={property.id}>
+                    {property.name}
+                  </option>
+                ))}
+              </Select>
+              <Select
+                aria-label="Sens du tri"
+                disabled={!config.sort}
+                value={config.sort?.direction || "asc"}
+                onChange={(event) => {
+                  if (config.sort)
+                    onChange({
+                      ...config,
+                      sort: {
+                        ...config.sort,
+                        direction: event.target.value as "asc" | "desc",
+                      },
+                    });
+                }}
+              >
+                <option value="asc">
+                  {sortType === "number" ||
+                  sortType === "formula" ||
+                  sortType === "rollup"
+                    ? "Croissant · 0 → 9"
+                    : sortType === "date"
+                      ? "Des plus anciennes aux plus récentes"
+                      : "Croissant · A → Z"}
+                </option>
+                <option value="desc">
+                  {sortType === "number" ||
+                  sortType === "formula" ||
+                  sortType === "rollup"
+                    ? "Décroissant · 9 → 0"
+                    : sortType === "date"
+                      ? "Des plus récentes aux plus anciennes"
+                      : "Décroissant · Z → A"}
+                </option>
+              </Select>
+              {config.sort && (
+                <button
+                  className="text-button"
+                  onClick={() => onChange({ ...config, sort: null })}
+                >
+                  Retirer le tri
+                </button>
+              )}
+            </div>
+          </div>
+        </DatabasePopover>
+      )}
+      {panel === "properties" && (
+        <DatabasePopover
+          anchor={anchor}
+          title="Propriétés de la vue"
+          onClose={() => setPanel(null)}
+        >
+          <div className="database-view-panel database-visible-properties">
+            <small>Champs visibles dans cette vue</small>
+            {bundle.properties.map((property) => (
+              <div className="database-property-choice" key={property.id}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={!config.hiddenPropertyIds.includes(property.id)}
+                    onChange={() =>
+                      onChange({
+                        ...config,
+                        hiddenPropertyIds: config.hiddenPropertyIds.includes(
+                          property.id,
+                        )
+                          ? config.hiddenPropertyIds.filter(
+                              (id) => id !== property.id,
+                            )
+                          : [...config.hiddenPropertyIds, property.id],
+                      })
+                    }
+                  />
+                  {
+                    propertyTypes.find((item) => item.type === property.type)
+                      ?.symbol
+                  }{" "}
+                  {property.name}
+                </label>
+                {onPropertyEdit && (
+                  <button
+                    type="button"
+                    aria-label={`Modifier la propriété ${property.name}`}
+                    onClick={() => {
+                      setPanel(null);
+                      onPropertyEdit(property);
+                    }}
+                  >
+                    <Settings size={15} />
+                  </button>
+                )}
+              </div>
+            ))}
+            {onAddProperty && (
+              <button
+                className="text-button"
+                onClick={() => {
+                  setPanel(null);
+                  onAddProperty();
+                }}
+              >
+                <Plus size={14} />
+                Ajouter une propriété
+              </button>
+            )}
+            <button
+              className="text-button"
+              onClick={() => onChange({ ...config, hiddenPropertyIds: [] })}
+            >
+              Tout afficher
+            </button>
+          </div>
+        </DatabasePopover>
       )}
       {config.filters.length > 0 && panel !== "filters" && (
         <div className="database-filter-chips">
           {config.filters.map((filter, index) => (
-            <button key={index} onClick={() => setPanel("filters")}>
+            <button
+              key={index}
+              onClick={(event) => {
+                setAnchor(event.currentTarget);
+                setPanel("filters");
+              }}
+            >
               <Filter size={11} />
               {
                 bundle.properties.find(
@@ -1419,6 +1798,114 @@ function ViewControls({
   );
 }
 
+function QuickRow({
+  bundle,
+  onSaved,
+  onExpand,
+  disabled,
+}: {
+  bundle: DatabaseBundle;
+  onSaved: () => Promise<void>;
+  onExpand: (values: Record<string, CellValue>) => void;
+  disabled: boolean;
+}) {
+  const [name, setName] = useState("");
+  const [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  const pending = useRef(false),
+    input = useRef<HTMLInputElement>(null);
+  const title =
+    bundle.properties.find((p) => p.type === "title") ||
+    bundle.properties.find((p) => p.type === "text");
+  const values = {
+    ...emptyValues(bundle.properties),
+    ...(title ? { [title.id]: name } : {}),
+  };
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    if (pending.current || disabled || !title || !name.trim()) return;
+    if (Object.keys(validateValues(bundle.properties, values)).length) {
+      onExpand(values);
+      return;
+    }
+    pending.current = true;
+    setBusy(true);
+    setError("");
+    let committed = false;
+    try {
+      await api("row_save", {
+        db_id: bundle.database.id,
+        values,
+        visibility: "public",
+      });
+      committed = true;
+      setName("");
+      await onSaved();
+      input.current?.focus();
+    } catch (e) {
+      setError(
+        committed
+          ? "La ligne est enregistrée. Actualise la vue pour la retrouver."
+          : errorText(e),
+      );
+    } finally {
+      pending.current = false;
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="database-quick-row" data-quick-add="">
+      {title ? (
+        <form onSubmit={(e) => void submit(e)}>
+          <Plus size={15} />
+          <input
+            ref={input}
+            aria-label={`Nouvelle ligne dans ${bundle.database.name}`}
+            placeholder="Nouvelle ligne…"
+            maxLength={10000}
+            value={name}
+            disabled={disabled || busy}
+            onChange={(e) => {
+              setName(e.target.value);
+              setError("");
+            }}
+          />
+          <button
+            type="submit"
+            disabled={disabled || busy || !name.trim()}
+            aria-label="Ajouter cette ligne"
+          >
+            {busy ? (
+              <LoaderCircle size={14} className="spin" />
+            ) : (
+              <span>
+                Ajouter <small>↵</small>
+              </span>
+            )}
+          </button>
+        </form>
+      ) : (
+        <button
+          className="text-button"
+          disabled={disabled}
+          onClick={() => onExpand(values)}
+        >
+          <Plus size={14} />
+          Nouvelle ligne
+        </button>
+      )}
+      {error && (
+        <p role="alert">
+          {error}
+          <button onClick={() => onExpand(values)}>
+            Ouvrir la fiche complète
+          </button>
+        </p>
+      )}
+    </div>
+  );
+}
+
 function Records({
   bundle,
   view,
@@ -1437,7 +1924,10 @@ function Records({
 }: {
   bundle: DatabaseBundle;
   view: "table" | "gallery" | "chart";
-  onEdit?: (row: DatabaseRow) => void;
+  onEdit?: (
+    row: DatabaseRow | null,
+    initialValues?: Record<string, CellValue>,
+  ) => void;
   onDelete?: (row: DatabaseRow) => void;
   search?: string;
   relationLabels?: Record<string, string>;
@@ -1554,6 +2044,13 @@ function Records({
           group: "view",
         },
       );
+    if (onConfigChange && !["files", "relation"].includes(columnProperty.type))
+      columnActions.push({
+        label: "Regrouper par cette propriété",
+        icon: <List />,
+        group: "view",
+        run: () => onConfigChange({ ...effective, groupBy: columnProperty.id }),
+      });
     if (onPropertyDelete)
       columnActions.push({
         label: "Supprimer le champ",
@@ -1586,10 +2083,16 @@ function Records({
     return (
       <div className="database-empty">
         <DatabaseIcon size={30} />
-        Ajoute un champ pour structurer cette base.
+        Ajoute une première colonne pour structurer cette base.
+        {onAddProperty && (
+          <button className="small-button" onClick={onAddProperty}>
+            <Plus size={14} />
+            Ajouter une propriété
+          </button>
+        )}
       </div>
     );
-  if (!rows.length)
+  if (!rows.length && effective.layout !== "table")
     return (
       <div className="database-empty">
         {search
@@ -1771,14 +2274,35 @@ function Records({
     );
   return (
     <>
-      <div className="database-table-wrap">
-        <table className="database-table">
+      <div
+        className="database-table-wrap"
+        role="region"
+        aria-label={`Tableau : ${bundle.database.name}`}
+        tabIndex={0}
+      >
+        <table className="database-table database-grid">
+          <caption className="database-visually-hidden">
+            {bundle.database.name}
+          </caption>
           <thead>
             <tr>
               {visibleProperties.map((property) => (
-                <th key={property.id}>
+                <th
+                  key={property.id}
+                  scope="col"
+                  aria-sort={
+                    effective.sort?.propertyId === property.id
+                      ? effective.sort.direction === "asc"
+                        ? "ascending"
+                        : "descending"
+                      : undefined
+                  }
+                >
                   <button
+                    type="button"
                     className="database-column-heading"
+                    aria-haspopup="menu"
+                    aria-expanded={columnMenu?.id === property.id}
                     aria-label={`Menu de la propriété ${property.name}`}
                     onClick={(event) => headerMenu(property, event)}
                     onContextMenu={(event) => {
@@ -1806,7 +2330,7 @@ function Records({
                 </th>
               ))}
               {onAddProperty && (
-                <th className="database-add-property">
+                <th scope="col" className="database-add-property">
                   <button
                     title="Ajouter une propriété"
                     aria-label="Ajouter une propriété"
@@ -1816,66 +2340,116 @@ function Records({
                   </button>
                 </th>
               )}
-              {onEdit && <th>Actions</th>}
+              {onEdit && (
+                <th scope="col" className="database-actions-heading">
+                  <span className="database-visually-hidden">
+                    Actions sur la ligne
+                  </span>
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
               <tr key={row.id}>
-                {visibleProperties.map((property) => (
-                  <td key={property.id}>
-                    {onCellSaved ? (
-                      <InlineCell
-                        bundle={bundle}
-                        row={row}
-                        property={property}
-                        files={files}
-                        relationLabels={relationLabels}
-                        onSaved={onCellSaved}
-                        disabled={editingDisabled}
-                      />
-                    ) : onEdit && property.type === "title" ? (
-                      <button
-                        className="database-row-title"
-                        onClick={() => onEdit(row)}
-                      >
-                        {displayText(cellValue(row, property))}
-                      </button>
-                    ) : (
-                      <Cell
-                        row={row}
-                        property={property}
-                        files={files}
-                        relations={relationLabels}
-                      />
-                    )}
-                  </td>
-                ))}
+                {visibleProperties.map((property, index) => {
+                  const CellTag = index === 0 ? "th" : "td";
+                  return (
+                    <CellTag
+                      key={property.id}
+                      scope={index === 0 ? "row" : undefined}
+                      data-db-cell={`${row.id}:${property.id}`}
+                      data-db-editable={!isComputed(property)}
+                    >
+                      {onCellSaved ? (
+                        <InlineCell
+                          bundle={bundle}
+                          row={row}
+                          property={property}
+                          files={files}
+                          relationLabels={relationLabels}
+                          onSaved={onCellSaved}
+                          disabled={editingDisabled}
+                        />
+                      ) : onEdit && property.type === "title" ? (
+                        <button
+                          className="database-row-title"
+                          onClick={() => onEdit(row)}
+                        >
+                          {displayText(cellValue(row, property))}
+                        </button>
+                      ) : (
+                        <Cell
+                          row={row}
+                          property={property}
+                          files={files}
+                          relations={relationLabels}
+                        />
+                      )}
+                    </CellTag>
+                  );
+                })}
                 {onAddProperty && <td className="database-add-property" />}
                 {onEdit && (
                   <td className="database-row-actions">
-                    <button
-                      title="Modifier la fiche"
-                      onClick={() => onEdit(row)}
-                    >
-                      <Pencil size={15} />
-                    </button>
-                    {onDelete && (
+                    <div>
                       <button
-                        title="Supprimer la fiche"
-                        onClick={() => onDelete(row)}
+                        title="Modifier la fiche"
+                        onClick={() => onEdit(row)}
                       >
-                        <Trash2 size={15} />
+                        <Pencil size={15} />
                       </button>
-                    )}
-                    {row.visibility === "private" && (
-                      <Lock size={12} aria-label="Fiche privée" />
-                    )}
+                      {onDelete && (
+                        <button
+                          title="Supprimer la fiche"
+                          onClick={() => onDelete(row)}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      )}
+                      {row.visibility === "private" && (
+                        <Lock size={12} aria-label="Fiche privée" />
+                      )}
+                    </div>
                   </td>
                 )}
               </tr>
             ))}
+            {!rows.length && (
+              <tr>
+                <td
+                  colSpan={
+                    visibleProperties.length +
+                    (onAddProperty ? 1 : 0) +
+                    (onEdit ? 1 : 0)
+                  }
+                  className="database-empty-row"
+                >
+                  {bundle.rows.length
+                    ? "Aucune ligne ne correspond à cette vue. Modifie les filtres ou la recherche."
+                    : "Votre tableau est prêt. Ajoutez votre première ligne ci-dessous."}
+                </td>
+              </tr>
+            )}
           </tbody>
+          {onCellSaved && onEdit && (
+            <tfoot>
+              <tr>
+                <td
+                  colSpan={
+                    visibleProperties.length + (onAddProperty ? 1 : 0) + 1
+                  }
+                >
+                  <QuickRow
+                    bundle={bundle}
+                    onSaved={onCellSaved}
+                    onExpand={(values) => onEdit(null, values)}
+                    disabled={editingDisabled}
+                  />
+                </td>
+              </tr>
+            </tfoot>
+          )}
         </table>
       </div>
       {menu}
@@ -1889,15 +2463,18 @@ function RowEditor({
   onSaved,
   onClose,
   onDirtyChange,
+  initialValues,
 }: {
   bundle: DatabaseBundle;
   row: DatabaseRow | null;
   onSaved: () => Promise<void>;
   onClose: () => void;
   onDirtyChange?: (dirty: boolean) => void;
+  initialValues?: Record<string, CellValue>;
 }) {
   const [values, setValues] = useState<Record<string, CellValue>>(() => ({
     ...emptyValues(bundle.properties),
+    ...initialValues,
     ...row?.values,
   }));
   const [visibility, setVisibility] = useState<"public" | "private">(
@@ -3322,6 +3899,9 @@ export function DatabaseManager({
   const initialRowOpened = useRef(false);
   const managerRef = useRef<HTMLDivElement>(null);
   const [editorDirty, setEditorDirty] = useState(false);
+  const [newRowValues, setNewRowValues] = useState<Record<string, CellValue>>(
+    {},
+  );
   const dirtyRef = useRef(editorDirty);
   dirtyRef.current = editorDirty;
   const closeRef = useRef(onClose);
@@ -3478,23 +4058,9 @@ export function DatabaseManager({
   async function create() {
     if (!newName.trim()) return;
     await mutate(async () => {
-      const { database } = await api<{ database: Database }>("db_save", {
+      const { database } = await api<{ database: Database }>("db_create", {
         name: newName.trim(),
       });
-      try {
-        await api("property_save", {
-          db_id: database.id,
-          name: "Nom",
-          type: "title",
-          config: {},
-          required: false,
-          sort_order: 0,
-        });
-      } catch (error) {
-        setError(
-          `La base a été créée. Le champ par défaut n’a pas pu être ajouté : ${errorText(error)}`,
-        );
-      }
       await loadList();
       setSelectedId(database.id);
       setNewName("");
@@ -3664,12 +4230,16 @@ export function DatabaseManager({
       return;
     onClose?.();
   }
-  function editRow(row: DatabaseRow | null) {
+  function editRow(
+    row: DatabaseRow | null,
+    values: Record<string, CellValue> = {},
+  ) {
     if (
       editorDirty &&
       !confirm("Remplacer l’éditeur en cours sans enregistrer ?")
     )
       return;
+    setNewRowValues(values);
     setRowEditor(row);
     setEditorDirty(false);
   }
@@ -3929,6 +4499,7 @@ export function DatabaseManager({
                       key={rowEditor?.id || "new"}
                       bundle={bundle}
                       row={rowEditor}
+                      initialValues={newRowValues}
                       onSaved={refreshChanged}
                       onDirtyChange={setEditorDirty}
                       onClose={() => setRowEditor(undefined)}
@@ -4196,6 +4767,139 @@ export function DatabaseManager({
   );
 }
 
+function DatabaseSettings({
+  bundle,
+  onSaved,
+  onDirtyChange,
+  onRefresh,
+  onForm,
+}: {
+  bundle: DatabaseBundle;
+  onSaved: () => Promise<void>;
+  onDirtyChange: (dirty: boolean) => void;
+  onRefresh: () => void;
+  onForm: (form: DatabaseForm | null) => void;
+}) {
+  const [name, setName] = useState(bundle.database.name),
+    [visibility, setVisibility] = useState(bundle.database.visibility);
+  const [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  const dirty =
+    name !== bundle.database.name || visibility !== bundle.database.visibility;
+  useEffect(() => {
+    onDirtyChange(dirty);
+    return () => onDirtyChange(false);
+  }, [dirty]);
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      await api("db_save", {
+        ...bundle.database,
+        name: name.trim(),
+        visibility,
+      });
+      await onSaved();
+    } catch (e) {
+      setError(errorText(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="database-settings-body">
+      <form onSubmit={(event) => void submit(event)}>
+        <label>
+          Nom de la base
+          <input
+            required
+            maxLength={160}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </label>
+        <label>
+          Accès à cette base
+          <Select
+            aria-label="Accès à cette base"
+            value={visibility}
+            onChange={(e) =>
+              setVisibility(e.target.value as "private" | "public")
+            }
+          >
+            <option value="private">Privée · administrateur uniquement</option>
+            <option value="public">Publique · dans les pages publiées</option>
+          </Select>
+        </label>
+        <p className="database-access-note">
+          <ShieldCheck size={16} />
+          <span>
+            Pour afficher ce tableau aux visiteurs, choisis « Publique » et
+            publie la page. Seules les lignes publiques seront visibles. Les
+            réponses aux formulaires restent privées.
+          </span>
+        </p>
+        <ErrorBox message={error} />
+        <button
+          type="submit"
+          className="primary-button"
+          disabled={busy || !dirty || !name.trim()}
+        >
+          {busy ? (
+            <LoaderCircle className="spin" size={15} />
+          ) : (
+            <Check size={15} />
+          )}
+          Enregistrer les paramètres
+        </button>
+      </form>
+      <section className="database-settings-forms">
+        <h4>Formulaires de cette base</h4>
+        <p>Créez et personnalisez vos formulaires sans quitter la page.</p>
+        {bundle.forms.map((form) => (
+          <button
+            className="database-form-shortcut"
+            key={form.id}
+            disabled={busy || dirty}
+            onClick={() => onForm(form)}
+          >
+            <FormInput size={16} />
+            <span>{form.name}</span>
+            {form.public ? <Globe size={13} /> : <Lock size={13} />}
+          </button>
+        ))}
+        <button
+          className="small-button"
+          disabled={busy || dirty || !bundle.properties.length}
+          onClick={() => onForm(null)}
+        >
+          <Plus size={14} />
+          Créer un formulaire
+        </button>
+      </section>
+      <div className="database-settings-utilities">
+        <button disabled={busy || dirty} onClick={onRefresh}>
+          <RefreshCw size={15} />
+          Actualiser la base
+        </button>
+        <a
+          href={`api.php?action=db_export&id=${encodeURIComponent(bundle.database.id)}`}
+        >
+          <Download size={15} />
+          Exporter en CSV
+        </a>
+      </div>
+      <p className="database-field-help">
+        Les données et les propriétés sont communes à toutes les vues de cette
+        base. Le tri, les filtres et les colonnes masquées ne concernent que ce
+        bloc.
+      </p>
+    </div>
+  );
+}
+
 export function DatabaseView({
   dbId,
   viewConfig,
@@ -4207,6 +4911,12 @@ export function DatabaseView({
 }) {
   const app = useApp();
   const source = useId();
+  const loadedKey = useRef("");
+  const viewRef = useRef<HTMLElement>(null);
+  const [sheetAnchor, setSheetAnchor] = useState<HTMLElement | null>(null);
+  const [formEditor, setFormEditor] = useState<
+    DatabaseForm | null | undefined
+  >();
   const [bundle, setBundle] = useState<DatabaseBundle | null>(null);
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
@@ -4220,6 +4930,9 @@ export function DatabaseView({
     Property | null | undefined
   >();
   const [editorDirty, setEditorDirty] = useState(false);
+  const [newRowValues, setNewRowValues] = useState<Record<string, CellValue>>(
+    {},
+  );
   const [databases, setDatabases] = useState<Database[]>([]);
   const [busy, setBusy] = useState(false);
   useEffect(
@@ -4242,7 +4955,11 @@ export function DatabaseView({
   }
   useEffect(() => {
     let cancelled = false;
-    setBundle(null);
+    const key = `${dbId}:${app.admin}`;
+    if (loadedKey.current !== key) {
+      setBundle(null);
+      loadedKey.current = key;
+    }
     setError("");
     void api<DatabaseBundle>(
       app.admin ? "db_get" : "public_db_get",
@@ -4285,13 +5002,18 @@ export function DatabaseView({
     await reload();
     broadcastDatabaseChange(dbId, source);
   }
-  function openRow(row: DatabaseRow | null) {
+  function openRow(
+    row: DatabaseRow | null,
+    values: Record<string, CellValue> = {},
+  ) {
     if (
       editorDirty &&
       !confirm("Fermer les modifications non enregistrées de la fiche ?")
     )
       return;
+    setSheetAnchor(document.activeElement as HTMLElement);
     setPropertyEditor(undefined);
+    setNewRowValues(values);
     setRowEditor(row);
     setEditorDirty(false);
   }
@@ -4303,30 +5025,55 @@ export function DatabaseView({
       )
     )
       return;
+    setSheetAnchor(document.activeElement as HTMLElement);
     setRowEditor(undefined);
     setPropertyEditor(property);
     setEditorDirty(false);
   }
-  async function renameProperty(property: Property) {
-    const name = prompt(
-      "Nom de la propriété" +
-        (bundle?.properties.some((item) => item.type === "formula")
-          ? `\nLes formules prop(\"${property.name}\") devront être adaptées au nouveau nom.`
-          : ""),
-      property.name,
-    );
-    if (name === null || !name.trim() || name.trim() === property.name) return;
-    setBusy(true);
-    setError("");
-    try {
-      await api("property_save", { ...property, name: name.trim() });
-      await saved();
-    } catch (error) {
-      setError(errorText(error));
-    } finally {
-      setBusy(false);
-    }
+  function renameProperty(property: Property) {
+    openProperty(property);
   }
+  function closeEditors() {
+    if (
+      busy ||
+      (editorDirty &&
+        !confirm("Fermer sans enregistrer les modifications en cours ?"))
+    )
+      return;
+    setRowEditor(undefined);
+    setPropertyEditor(undefined);
+    setFormEditor(undefined);
+    setEditing(false);
+    setEditorDirty(false);
+  }
+  function newRecord() {
+    const input =
+      config.layout === "table"
+        ? viewRef.current?.querySelector<HTMLInputElement>(
+            "[data-quick-add] input",
+          )
+        : null;
+    if (input) {
+      input.scrollIntoView({ block: "nearest" });
+      input.focus();
+    } else openRow(null);
+  }
+  useEffect(() => {
+    if (!editorDirty) return;
+    const block = (event: Event) => {
+      event.preventDefault();
+    };
+    const unload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    document.addEventListener("feuillet:before-page-change", block);
+    window.addEventListener("beforeunload", unload);
+    return () => {
+      document.removeEventListener("feuillet:before-page-change", block);
+      window.removeEventListener("beforeunload", unload);
+    };
+  }, [editorDirty]);
   async function removeProperty(property: Property) {
     if (
       !confirm(
@@ -4370,109 +5117,85 @@ export function DatabaseView({
     }
   }
   return (
-    <section className="database-embedded database-linked-view">
-      <div className="database-embedded-header">
-        <div>
-          <h3>
-            <DatabaseIcon size={18} />{" "}
-            {bundle?.database.name || "Base de données"}
-          </h3>
-          {bundle && (
-            <small className="database-linked-caption">
-              Vue liée · mêmes fiches, présentation indépendante
-            </small>
-          )}
-        </div>
-        {app.admin && (
-          <div className="database-linked-actions">
+    <section
+      ref={viewRef}
+      className="database-embedded database-linked-view database-workbench"
+      aria-label={bundle?.database.name || "Base de données"}
+    >
+      <header className="database-embedded-header">
+        <h3>
+          {app.admin && bundle ? (
             <button
-              className="icon-button"
-              title="Actualiser cette vue"
-              disabled={busy}
-              onClick={() => {
-                if (
-                  editorDirty &&
-                  !confirm(
-                    "Actualiser en fermant le brouillon de fiche en cours ?",
-                  )
-                )
-                  return;
-                setRowEditor(undefined);
-                setPropertyEditor(undefined);
-                setEditorDirty(false);
-                setRevision((value) => value + 1);
+              className="database-name-button"
+              title="Renommer ou configurer cette base"
+              onClick={(event) => {
+                setSheetAnchor(event.currentTarget);
+                setEditing(true);
               }}
             >
-              <RefreshCw size={14} />
+              <DatabaseIcon size={18} />
+              <span>{bundle.database.name}</span>
+              <Pencil size={13} className="database-name-edit" />
+            </button>
+          ) : (
+            <>
+              <DatabaseIcon size={18} />
+              {bundle?.database.name || "Base de données"}
+            </>
+          )}
+        </h3>
+        {app.admin && bundle && (
+          <div className="database-linked-actions">
+            <button
+              className="database-access-button"
+              onClick={(event) => {
+                setSheetAnchor(event.currentTarget);
+                setEditing(true);
+              }}
+              title="Visibilité et réglages de la base"
+            >
+              {bundle.database.visibility === "public" ? (
+                <Globe size={12} />
+              ) : (
+                <Lock size={12} />
+              )}
+              <span>
+                {bundle.database.visibility === "public"
+                  ? "Publique"
+                  : "Privée"}
+              </span>
             </button>
             <button
-              className="small-button"
-              onClick={() => setEditing(!editing)}
+              className="icon-button"
+              aria-label="Paramètres de la base"
+              title="Paramètres de la base"
+              onClick={(event) => {
+                setSheetAnchor(event.currentTarget);
+                setEditing(true);
+              }}
             >
-              <Settings size={13} />{" "}
-              {editing ? "Fermer la gestion" : "Ouvrir la base source"}
+              <MoreHorizontal size={18} />
             </button>
           </div>
         )}
-      </div>
+      </header>
       <ErrorBox message={error} />
       {!bundle && !error ? (
         <Loading />
       ) : (
         bundle && (
           <>
-            {rowEditor !== undefined && app.admin && (
-              <RowEditor
-                key={rowEditor?.id || "new"}
-                bundle={bundle}
-                row={rowEditor}
-                onDirtyChange={setEditorDirty}
-                onSaved={saved}
-                onClose={() => setRowEditor(undefined)}
-              />
-            )}{" "}
-            {propertyEditor !== undefined && app.admin && (
-              <PropertyEditor
-                key={propertyEditor?.id || "new"}
-                bundle={bundle}
-                property={propertyEditor}
-                databases={databases}
-                onDirtyChange={setEditorDirty}
-                onSaved={saved}
-                onClose={() => setPropertyEditor(undefined)}
-              />
-            )}
             <ViewControls
               bundle={bundle}
               config={normalizeDatabaseView(config, bundle.properties)}
               onChange={changeView}
               search={search}
               onSearch={setSearch}
+              onNew={app.admin ? newRecord : undefined}
+              onAddProperty={app.admin ? () => openProperty(null) : undefined}
+              onPropertyEdit={app.admin ? openProperty : undefined}
+              busy={busy || editorDirty}
             />
-            {app.admin && (
-              <div className="database-records-actions">
-                <span className="database-field-help">
-                  Clique une cellule pour modifier la base depuis cette page.
-                </span>
-                <span className="database-badge">
-                  {bundle.database.visibility === "public" ? (
-                    <Globe size={11} />
-                  ) : (
-                    <Lock size={11} />
-                  )}{" "}
-                  {bundle.database.visibility === "public"
-                    ? "Base publique"
-                    : "Base privée"}
-                </span>
-                <button
-                  className="small-button"
-                  disabled={busy || !bundle.properties.length}
-                  onClick={() => openRow(null)}
-                >
-                  <Plus size={13} /> Nouvelle fiche
-                </button>
-              </div>
-            )}
             <Records
               bundle={bundle}
               view={config.layout}
@@ -4485,11 +5208,7 @@ export function DatabaseView({
               onEdit={app.admin ? openRow : undefined}
               onDelete={app.admin ? (row) => void removeRow(row) : undefined}
               onPropertyEdit={app.admin ? openProperty : undefined}
-              onPropertyRename={
-                app.admin
-                  ? (property) => void renameProperty(property)
-                  : undefined
-              }
+              onPropertyRename={app.admin ? renameProperty : undefined}
               onPropertyDelete={
                 app.admin
                   ? (property) => void removeProperty(property)
@@ -4497,25 +5216,119 @@ export function DatabaseView({
               }
               onAddProperty={app.admin ? () => openProperty(null) : undefined}
             />
-            {app.admin && (
-              <p className="database-field-help">
-                Les fiches privées sont visibles dans cet aperçu administrateur.
-                Les réponses aux formulaires restent privées.
-              </p>
+            <footer className="database-view-summary">
+              <span>
+                {
+                  databaseViewRows(
+                    bundle,
+                    config,
+                    search,
+                    bundle.relation_labels || {},
+                  ).length
+                }{" "}
+                / {bundle.rows.length} ligne{bundle.rows.length > 1 ? "s" : ""}
+              </span>
+              {app.admin && (
+                <span>
+                  <ShieldCheck size={12} />
+                  Réponses aux formulaires privées
+                </span>
+              )}
+            </footer>
+            {app.admin && rowEditor !== undefined && (
+              <DatabaseSheet
+                title={
+                  rowEditor
+                    ? rowTitle(rowEditor, bundle.properties)
+                    : "Nouvelle ligne"
+                }
+                subtitle={bundle.database.name}
+                anchor={sheetAnchor}
+                onClose={closeEditors}
+              >
+                <RowEditor
+                  key={rowEditor?.id || "new"}
+                  bundle={bundle}
+                  row={rowEditor}
+                  initialValues={newRowValues}
+                  onDirtyChange={setEditorDirty}
+                  onSaved={saved}
+                  onClose={() => {
+                    setRowEditor(undefined);
+                    setEditorDirty(false);
+                  }}
+                />
+              </DatabaseSheet>
+            )}
+            {app.admin && propertyEditor !== undefined && (
+              <DatabaseSheet
+                title={
+                  propertyEditor
+                    ? `Propriété · ${propertyEditor.name}`
+                    : "Nouvelle propriété"
+                }
+                subtitle={bundle.database.name}
+                anchor={sheetAnchor}
+                onClose={closeEditors}
+              >
+                <PropertyEditor
+                  key={propertyEditor?.id || "new"}
+                  bundle={bundle}
+                  property={propertyEditor}
+                  databases={databases}
+                  onDirtyChange={setEditorDirty}
+                  onSaved={saved}
+                  onClose={() => {
+                    setPropertyEditor(undefined);
+                    setEditorDirty(false);
+                  }}
+                />
+              </DatabaseSheet>
+            )}
+            {app.admin && editing && formEditor === undefined && (
+              <DatabaseSheet
+                title="Paramètres de la base"
+                subtitle={bundle.database.name}
+                anchor={sheetAnchor}
+                onClose={closeEditors}
+              >
+                <DatabaseSettings
+                  bundle={bundle}
+                  onSaved={saved}
+                  onDirtyChange={setEditorDirty}
+                  onRefresh={() => {
+                    setRevision((n) => n + 1);
+                    setEditing(false);
+                  }}
+                  onForm={(form) => {
+                    setFormEditor(form);
+                    setEditorDirty(false);
+                  }}
+                />
+              </DatabaseSheet>
+            )}
+            {app.admin && formEditor !== undefined && (
+              <DatabaseSheet
+                title={formEditor ? formEditor.name : "Nouveau formulaire"}
+                subtitle={bundle.database.name}
+                anchor={sheetAnchor}
+                onClose={closeEditors}
+              >
+                <FormBuilder
+                  key={formEditor?.id || "new"}
+                  bundle={bundle}
+                  form={formEditor}
+                  onSaved={saved}
+                  onDirtyChange={setEditorDirty}
+                  onClose={() => {
+                    setFormEditor(undefined);
+                    setEditorDirty(false);
+                  }}
+                />
+              </DatabaseSheet>
             )}
           </>
         )
-      )}
-      {app.admin && editing && (
-        <div className="database-inline-manager">
-          <DatabaseManager
-            initialDatabaseId={dbId}
-            onClose={() => {
-              setEditing(false);
-              setRevision((value) => value + 1);
-            }}
-          />
-        </div>
       )}
     </section>
   );
