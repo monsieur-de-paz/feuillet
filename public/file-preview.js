@@ -29,7 +29,7 @@
  function close(){if(dialog?.open)dialog.close();}
  document.addEventListener('click',event=>{
   const img=event.target instanceof Element?event.target.closest('img'):null;
-  if(!img||img.closest('dialog,.image-lightbox,button,.tiptap,.page-emoji,.page-icon')||img.style.touchAction==='none')return;
+  if(!img||img.closest('dialog,.image-lightbox,button,.tiptap,.page-emoji,.page-icon,.gallery-card-main')||img.style.touchAction==='none')return;
   if(!img.closest('.reader-page,.page-cover,.gallery-cover-frame,.page-content,.page-heading,.notebook-cover'))return;
   const src=img.getAttribute('src');if(!src)return;
   event.preventDefault();event.stopPropagation();

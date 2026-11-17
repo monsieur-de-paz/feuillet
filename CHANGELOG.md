@@ -1,5 +1,10 @@
 # Historique des versions
 
+## 0.33.5 — 2026-11-17
+
+- Les images des galeries de pages ouvrent leur page, sans interception par l’aperçu agrandi.
+- Le bandeau du lecteur suit la largeur Compact (780 px) ou Large (1 200 px) de la page, y compris après navigation, en conservant son flou et sa transparence.
+
 ## 0.33.4 — 2026-11-17
 
 - Bandeau supérieur plus transparent : opacité du fond réduite de 62 % à 42 %, côté lecteur et administration, avec conservation du flou de 26 px et de la saturation pour garder une lecture nette des commandes.

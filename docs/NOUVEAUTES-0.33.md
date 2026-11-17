@@ -82,3 +82,8 @@ Validation navigateur avec une illustration fictive : racine et corps à rgb(23,
 ## 0.33.4 — Bandeau plus transparent
 
 Le bandeau supérieur du lecteur et de l’administration utilise désormais un fond à 42 % d’opacité (contre 62 % auparavant). Le flou de 26 px reste inchangé. Aucun changement de contenu ni de base de données.
+
+
+### 0.33.5 — Galeries et largeur du bandeau
+
+Un clic sur la miniature d’une galerie ouvre la page associée. Les images ordinaires et couvertures conservent leur aperçu agrandi. Sur ordinateur, le bandeau du lecteur reprend la largeur Compact ou Large de la page ; les marges adaptées aux mobiles sont conservées.

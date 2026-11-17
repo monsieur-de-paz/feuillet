@@ -1,6 +1,6 @@
 /* Feuillet: public reading copies only. No API, media or administrator document cache. */
 const base = new URL("./", self.location),
-  VERSION = "0.33.4",
+  VERSION = "0.33.5",
   PREFIX = "feuillet-" + encodeURIComponent(base.pathname) + "-",
   SHELL = PREFIX + "shell-" + VERSION,
   PAGES = PREFIX + "public-pages-v2",
