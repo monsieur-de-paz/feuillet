@@ -87,3 +87,8 @@ Le bandeau supérieur du lecteur et de l’administration utilise désormais un 
 ### 0.33.5 — Galeries et largeur du bandeau
 
 Un clic sur la miniature d’une galerie ouvre la page associée. Les images ordinaires et couvertures conservent leur aperçu agrandi. Sur ordinateur, le bandeau du lecteur reprend la largeur Compact ou Large de la page ; les marges adaptées aux mobiles sont conservées.
+
+
+### 0.33.6 — Largeur du bandeau depuis les réglages généraux
+
+Le bandeau du lecteur utilise le choix de largeur situé en bas de Réglages → Apparence (Confortable/Compact ou Large). Ce choix reste indépendant des éventuelles personnalisations de largeur propres aux pages. La navigation et le changement de thème le conservent. Le contenu des pages retrouve ses dimensions antérieures au correctif 0.33.5.

@@ -241,7 +241,7 @@ body { font-feature-settings:"ss01"; }
 .settings-workspace-panel .notebook-controls label { margin:22px 0;font-size:13px; }
 
 /* Le lecteur : même soin, davantage de silence autour du document. */
-body[style] .reader-header { top:16px;margin:16px auto 0;width:calc(100% - 40px);max-width:var(--reader-width,780px);min-height:65px;padding:12px 22px;border:1px solid var(--r-edge);border-radius:20px;box-shadow:0 3px 20px #00000004;backdrop-filter:blur(18px);background:color-mix(in srgb,var(--surface) 92%,transparent); }
+body[style] .reader-header { top:16px;margin:16px auto 0;width:calc(100% - 40px);max-width:var(--reader-header-width,780px);min-height:65px;padding:12px 22px;border:1px solid var(--r-edge);border-radius:20px;box-shadow:0 3px 20px #00000004;backdrop-filter:blur(18px);background:color-mix(in srgb,var(--surface) 92%,transparent); }
 .reader-header-actions { gap:14px; }
 .reader-breadcrumbs { font-size:12px; }
 .reader-header .reader-edit-link { border-radius:11px;min-height:38px;display:inline-flex;align-items:center;padding:9px 15px;font-size:11px;border-color:var(--r-edge); }
@@ -478,8 +478,3 @@ body[style] .reader-header { background:color-mix(in srgb,var(--surface,#fff) 42
 @media print { .cover-source {display:block} .feuillet-image-preview {display:none} }
 
 .image-lightbox { background:rgba(8,11,18,.42);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px); }
-
-/* Keep the reader header and page on the same desktop layout rail. */
-@media (min-width: 761px) {
- body[style] .reader-page { width:calc(100% - 40px);max-width:var(--reader-width,780px); }
-}

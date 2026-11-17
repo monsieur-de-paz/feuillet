@@ -1,5 +1,10 @@
 # Historique des versions
 
+## 0.33.6 — 2026-11-17
+
+- La largeur du bandeau public suit le choix général de largeur dans Réglages → Apparence, indépendamment des styles particuliers des pages. Le choix reste appliqué après navigation et changement de thème.
+- Rétablit les dimensions du contenu des pages, que le correctif précédent avait inutilement modifiées.
+
 ## 0.33.5 — 2026-11-17
 
 - Les images des galeries de pages ouvrent leur page, sans interception par l’aperçu agrandi.

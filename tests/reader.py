@@ -12,6 +12,15 @@ class Reader(unittest.TestCase):
  def page(self,title,content=None):return self.ok(self.admin.api('save',{'title':title,'content':{'type':'doc','content':content or [{'type':'paragraph'}]}}))['page']
  def publish(self,p):return self.ok(self.admin.api('publish',{'id':p['id'],'version':p['version']}))['page']
  def state(self,p,token='',client=None):return self.ok((client or self.visitor).request('reader-state.php?page='+p['id']+'&token='+token))
+ def test_header_width_uses_global_settings_despite_page_override(self):
+  p=self.page('Largeur personnalisée')
+  p=self.ok(self.admin.api('save',{**p,'appearance':{'width':'wide'}}))['page'];p=self.publish(p)
+  for width,pixels in [('normal','780px'),('wide','1200px'),('normal','780px')]:
+   self.ok(self.admin.api('settings',{'appearance':{'width':width}}))
+   html=self.ok(self.visitor.request('index.php?page='+p['id']+'&read=1')).decode()
+   self.assertIn('--reader-header-width:'+pixels,html)
+   self.assertIn('--reader-header-width:'+pixels,self.state(p)['appearance'])
+   self.assertIn('max-width:1200px',self.state(p)['html'])
  def test_01_snapshot_and_token_no_unchanged_html(self):
   p=self.publish(self.page('PAGE_VISIBLE'));state=self.state(p);self.assertIn('PAGE_VISIBLE',state['html']);self.assertEqual(len(state['token']),64)
   unchanged=self.state(p,state['token']);self.assertEqual(unchanged,{'token':state['token']})

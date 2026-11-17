@@ -56,12 +56,12 @@ function validate_appearance(mixed $value,bool $partial=false): array {
 }
 function global_appearance(): array { if(!empty($GLOBALS['feuillet_readonly'])&&isset($GLOBALS['feuillet_global_appearance']))return $GLOBALS['feuillet_global_appearance'];$json=query("SELECT value FROM app_settings WHERE name='appearance'")->fetchColumn();$result=array_replace(appearance_defaults(),$json?json_decode($json,true):[]);if(!empty($GLOBALS['feuillet_readonly']))$GLOBALS['feuillet_global_appearance']=$result;return $result; }
 function page_appearance(array $page): array { return array_replace(global_appearance(),$page['appearance']??[]); }
-function appearance_css(array $appearance): string {
+function appearance_css(array $appearance,?string $headerWidth=null): string {
     $a=validate_appearance($appearance);$font=match($a['font']){'serif'=>'Georgia,serif','mono'=>'monospace','quicksand'=>'Quicksand,system-ui,sans-serif','fraunces'=>'Fraunces,Georgia,serif',default=>'system-ui,sans-serif'};
     $dark=$a['mode']!=='light';$surface=$a['mode']==='oled'?'#000000':($dark?'#17191D':$a['background']);
     $accent=resolve_accent($a,$a['mode'],$a['background']);
     $variables='--heading-ink:'.($dark?'#F3F4F6':'#272727').';--accent-mode:'.$a['accentMode'].';--accent-dark:'.$a['accentDark'].';--accent-oled:'.$a['accentOled'].';--accent-base:'.$a['accent'].';--accent-contrast:'.accent_foreground($accent).';--accent-hover:'.accent_hover($accent).';--surface-soft:'.($a['mode']==='oled'?'#121212':($dark?'#2A2E35':'#EEEFED')).';--surface:'.$surface.';--surface-muted:'.($a['mode']==='oled'?'#080808':($dark?'#202329':'#F7F7F5')).';--ink:'.$a['text'].';--muted:'.($dark?'#AFB3BD':'#6f716d').';--line:'.($dark?'#373A42':'#E4E5E2').';--accent:'.$accent.';--green:'.$accent.';color-scheme:'.($dark?'dark':'light').';';
-    return $variables.'--reader-width:'.($a['width']==='wide'?'1200px':'780px').';--page-background:' .$a['background'].';--page-text:'.$a['text'].';--page-accent:'.$accent.';background:'.$a['background'].';color:'.$a['text'].';font-family:'.$font.';';
+    return $variables.'--reader-header-width:'.(($headerWidth??$a['width'])==='wide'?'1200px':'780px').';--page-background:' .$a['background'].';--page-text:'.$a['text'].';--page-accent:'.$accent.';background:'.$a['background'].';color:'.$a['text'].';font-family:'.$font.';';
 }
 function check_space(?string $id): void { if($id&&!query('SELECT id FROM spaces WHERE id=?',[$id])->fetch())fail('Carnet introuvable.'); }
 function list_spaces(bool $public=false): array {
