@@ -350,7 +350,7 @@ export function IconPicker({
     setHint("");
   }
   function acceptFile(file: File, action: IconImageAction) {
-    if (!file.type.startsWith("image/")) {
+    if (!file.type.startsWith("image/") && !/\.svg$/i.test(file.name)) {
       setHint("Choisissez un fichier image.");
       return;
     }

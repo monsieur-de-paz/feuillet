@@ -358,3 +358,7 @@ body[style] .reader-header+#root>.page-cover:first-child { margin-top:12px; }
 @media(max-width:600px) {.home-page-card:first-child .home-card-cover-frame {width:calc(100% + 48px);margin:-24px -24px 16px;}}
 .cover-actions-portal.cover-reposition-tools .crop-zoom { flex-wrap:nowrap; }
 body:has(.modal-backdrop) .mobile-theme-control { visibility:hidden; }
+
+/* Keep the extension filter usable alongside view controls on small screens. */
+.library-browser-toolbar { flex-wrap:wrap; }
+.library-browser-toolbar>.feuillet-select { width:auto;min-width:150px;max-width:100%; }

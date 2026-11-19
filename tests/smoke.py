@@ -163,7 +163,7 @@ class Integration(unittest.TestCase):
         data = b'%PDF-1.4\n' + b'1234567890'*50 + b'\n%%EOF'
         f = self.ok(self.admin.upload('upload','cours.pdf',data,'application/pdf'))['file']
         self.ok(self.visitor.request(f['url']), 404)
-        self.rejected(self.admin.upload('upload','active.html',b'<script>alert(1)</script>','text/html'))
+        active=self.ok(self.admin.upload('upload','active.html',b'<script>alert(1)</script>','text/html'))['file'];self.assertEqual(active['mime'],'application/octet-stream')
         p = self.page_save(self.page,content={'type':'doc','content':[{'type':'fileBlock','attrs':{'fileId':f['id'],'name':f['name'],'mime':f['mime'],'size':f['size'],'mode':'pdf'}}]})
         self.ok(self.visitor.request(f['url']),404)
         p = self.publish(p)

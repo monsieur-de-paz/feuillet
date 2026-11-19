@@ -60,9 +60,9 @@ class Security(unittest.TestCase):
         conn.request('POST','/api.php?action=save',body=chunks,headers={'Content-Type':'application/json','X-CSRF-Token':self.admin.csrf,'Cookie':cookies},encode_chunked=True)
         response=conn.getresponse();status=response.status;body=response.read();conn.close();self.assertEqual(status,413,body)
     def test_05_upload_content_and_image_dimensions(self):
-        self.invalid(self.admin.upload('upload','texte-php.txt',b'<?php echo "code"; ?>','text/plain'))
+        f=self.ok(self.admin.upload('upload','texte-php.txt',b'<?php echo "code"; ?>','text/plain'))['file'];self.assertEqual(f['mime'],'application/octet-stream')
         self.invalid(self.admin.upload('upload','faux.pdf',b'<html>actif</html>','application/pdf'))
-        self.invalid(self.admin.upload('upload','image.svg',b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>','image/svg+xml'))
+        f=self.ok(self.admin.upload('upload','image.svg',b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>','image/svg+xml'))['file'];headers=self.admin.request(f['url'])[2];self.assertIn("script-src 'none'",headers.get('Content-Security-Policy',''));self.assertIn('sandbox;',headers.get('Content-Security-Policy',''))
         def chunk(kind,data):return struct.pack('>I',len(data))+kind+data+struct.pack('>I',zlib.crc32(kind+data)&0xffffffff)
         huge=b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',30000,30000,8,2,0,0,0))+chunk(b'IEND',b'')
         response=self.admin.upload('upload','pixels.png',huge,'image/png');self.invalid(response)
@@ -141,8 +141,9 @@ class Security(unittest.TestCase):
         self.invalid(self.admin.upload('import','archive.zip',archive(empty,duplicate=True),'application/zip'))
         malformed={**empty,'pages':[{'id':str(uuid.uuid4()),'content':{'type':'doc','content':[{'type':'paragraph'}]*12001}}]}
         self.invalid(self.admin.upload('import','archive.zip',archive(malformed),'application/zip'))
-        fid=str(uuid.uuid4());php={**empty,'files':[{'id':fid,'name':'php.txt','entry':'files/'+fid}]};self.invalid(self.admin.upload('import','archive.zip',archive(php,{'files/'+fid:b'<?php echo "active"; ?>'}),'application/zip'))
-        self.assertEqual(len(self.ok(self.admin.api('pages'))['pages']),len(before));self.assertEqual(len(self.ok(self.admin.api('files'))['files']),len(beforefiles))
+        fid=str(uuid.uuid4());php={**empty,'files':[{'id':fid,'name':'php.txt','entry':'files/'+fid}]};self.ok(self.admin.upload('import','archive.zip',archive(php,{'files/'+fid:b'<?php echo "active"; ?>'}),'application/zip'))
+        inert=next(f for f in self.ok(self.admin.api('files'))['files'] if f['name']=='php.txt');body=self.admin.request(inert['url']);self.assertEqual(body[1],b'<?php echo "active"; ?>');self.assertIn('attachment',body[2]['Content-Disposition']);self.assertEqual(body[2]['Content-Type'],'application/octet-stream')
+        self.assertEqual(len(self.ok(self.admin.api('pages'))['pages']),len(before));self.assertEqual(len(self.ok(self.admin.api('files'))['files']),len(beforefiles)+1)
         page=self.page(title='Ancien accueil conservé')
         _,raw,_=self.admin.api('export');manifest=json.loads(zipfile.ZipFile(io.BytesIO(raw)).read('manifest.json'));self.assertNotIn('homepage_id',manifest['settings'])
         self.ok(self.admin.upload('import','restauration.zip',raw,'application/zip',{'apply_settings':'1'}));copies=[p for p in self.ok(self.admin.api('pages'))['pages'] if p['title']==page['title'] and p['id']!=page['id']];self.assertTrue(copies);self.assertTrue(all(p['visibility']=='private' for p in copies))

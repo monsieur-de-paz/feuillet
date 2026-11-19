@@ -25,7 +25,10 @@ try{
         else{$start=(int)$m[1];$end=$m[2]===''?$end:min($end,(int)$m[2]);}
         if($start>$end||$start>=$size){header('Content-Range: bytes */'.$size);fail('Plage invalide.',416);}$partial=true;
     }
-    $inline=in_array($f['mime'],['application/pdf','image/jpeg','image/png','image/gif','image/webp','image/avif','audio/mpeg','audio/wav','audio/ogg','audio/mp4','video/mp4','video/webm','video/quicktime'],true)&&empty($_GET['download']);
+    $inline=in_array($f['mime'],['application/pdf','image/svg+xml','image/jpeg','image/png','image/gif','image/webp','image/avif','audio/mpeg','audio/wav','audio/ogg','audio/mp4','video/mp4','video/webm','video/quicktime'],true)&&empty($_GET['download']);
+    // SVGs remain vector images; direct document visits are isolated from Feuillet's origin.
+    if($f['mime']==='image/svg+xml')header("Content-Security-Policy: sandbox; default-src 'none'; script-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'");
+    if(!$inline)$f['mime']='application/octet-stream';
     header('Content-Type: '.$f['mime']);header('Accept-Ranges: bytes');
     header('Content-Disposition: '.($inline?'inline':'attachment').'; filename="document.'.preg_replace('/[^a-z0-9]/i','',pathinfo($f['name'],PATHINFO_EXTENSION)).'"; filename*=UTF-8\'\''.rawurlencode($f['name']));
     if($partial){http_response_code(206);header("Content-Range: bytes $start-$end/$size");}

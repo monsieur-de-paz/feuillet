@@ -143,3 +143,8 @@ Depuis Feuillet 0.19, l’extension PHP **GD** permet de servir des miniatures r
 ### Installation comme application web
 
 Depuis 0.21, le sous-domaine doit être servi en HTTPS pour l’installation PWA et les copies publiques hors connexion. Envoyer également manifest.webmanifest, sw.js, pwa.js/pwa.css et les fichiers offline.* de la distribution ; ne pas déplacer sw.js hors du dossier public. Le navigateur doit pouvoir le télécharger depuis le même chemin que index.php. Aucune tâche cron ni service Node n’est requis. Ouvrir Application dans la barre supérieure pour les instructions d’installation et l’activation facultative du cache local.
+
+
+### SVG et formats libres (depuis 0.34)
+
+Activer l’extension PHP DOM pour importer les images SVG ; le setup vérifie sa présence. Toutes les extensions sont acceptées comme pièces jointes, dans la limite définie par le carnet et PHP. Seul `feuillet/public` reste exposé : ne jamais déplacer les fichiers de `storage/files` dans un dossier public pour les rendre téléchargeables. L’accès doit passer par `media.php`, qui impose les droits et les protections d’affichage.

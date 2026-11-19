@@ -57,13 +57,7 @@ function import_backup(): never {
             $in=$zip->getStream($entry);$out=fopen($path,'xb');if($out)$createdPaths[]=$path;if(!$in||!$out){if(is_resource($in))fclose($in);if(is_resource($out))fclose($out);fail('Impossible de restaurer un fichier.',500);}
             $written=stream_copy_to_stream($in,$out,$s['size']+1);fclose($in);fclose($out);chmod($path,0600);if($written!==$s['size'])fail('Fichier incomplet.');
             $name=str_limit(basename(str_replace('\\','/',$f['name']??'')),240);$ext=strtolower(pathinfo($name,PATHINFO_EXTENSION));
-            if(!in_array($ext,['pdf','jpg','jpeg','png','gif','webp','avif','mp3','wav','ogg','m4a','mp4','webm','mov','txt','md','csv','json','doc','docx','odt','xls','xlsx','ods','ppt','pptx','odp','zip','rtf','epub','stl'],true))fail('Format de fichier interdit dans l’archive.');
-            $mime=(new finfo(FILEINFO_MIME_TYPE))->file($path);
-            if(file_mime_forbidden((string)$mime))fail('Contenu de fichier interdit dans l’archive.');
-            if(str_starts_with((string)$mime,'image/'))validate_image_file($path,(string)$mime);
-            if($ext==='pdf'&&$mime!=='application/pdf')fail('PDF invalide dans l’archive.');
-            // Do not trust MIME supplied by the archive. Only safe formats may be displayed inline.
-            $safeMime=match($ext){'pdf'=>'application/pdf','mp3'=>'audio/mpeg','wav'=>'audio/wav','ogg'=>'audio/ogg','m4a'=>'audio/mp4','mp4'=>'video/mp4','webm'=>'video/webm','mov'=>'video/quicktime',default=>str_starts_with((string)$mime,'image/')&&getimagesize($path)?$mime:'application/octet-stream'};
+            $safeMime=stored_file_mime($path,$name);
             query('INSERT INTO files (id,name,mime,size,path,created_at) VALUES (?,?,?,?,?,?)',[$newId,$name,$safeMime,$written,$disk,now()]);if(is_array($f['attribution']??null)){ $a=$f['attribution'];query('UPDATE files SET attribution=? WHERE id=?',[encoded(['source_url'=>safe_url($a['source_url']??''),'author'=>str_limit($a['author']??'',2000),'license'=>str_limit($a['license']??'',300),'license_url'=>safe_url($a['license_url']??'')]),$newId]);}$fileMap[$f['id']]=$newId;
         }
         if(in_array($_POST['apply_settings']??false,[true,1,'1','true'],true)&&isset($manifest['settings']['notebook'])){

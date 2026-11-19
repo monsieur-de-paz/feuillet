@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.33.6';
+const FEUILLET_VERSION = '0.34.0';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -317,22 +317,36 @@ function receive_file(array $f): array { return persist_file($f,true); }
 function persist_file(array $f,bool $uploaded=true,?array $attribution=null): array {
     if(($f['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_OK)fail('Envoi échoué. Vérifie la taille maximale autorisée.',413,'upload_error');
     $name=str_limit(basename(str_replace('\\','/',$f['name']??'')),240);
-    $ext=strtolower(pathinfo($name,PATHINFO_EXTENSION));
-    $types=['pdf'=>'application/pdf','jpg'=>'image/jpeg','jpeg'=>'image/jpeg','png'=>'image/png','gif'=>'image/gif','webp'=>'image/webp','avif'=>'image/avif','mp3'=>'audio/mpeg','wav'=>'audio/wav','ogg'=>'audio/ogg','m4a'=>'audio/mp4','mp4'=>'video/mp4','webm'=>'video/webm','mov'=>'video/quicktime','txt'=>'text/plain','md'=>'text/plain','csv'=>'text/csv','json'=>'application/json','doc'=>'application/msword','docx'=>'application/vnd.openxmlformats-officedocument.wordprocessingml.document','odt'=>'application/vnd.oasis.opendocument.text','xls'=>'application/vnd.ms-excel','xlsx'=>'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','ods'=>'application/vnd.oasis.opendocument.spreadsheet','ppt'=>'application/vnd.ms-powerpoint','pptx'=>'application/vnd.openxmlformats-officedocument.presentationml.presentation','odp'=>'application/vnd.oasis.opendocument.presentation','zip'=>'application/zip','rtf'=>'application/rtf','epub'=>'application/epub+zip','stl'=>'application/octet-stream'];
-    if(!isset($types[$ext]))fail('Ce format de fichier n’est pas autorisé.');
     $size=filesize($f['tmp_name']);if($size===false||$size>upload_limit())fail('Fichier trop volumineux.',413);
-    $mime=(new finfo(FILEINFO_MIME_TYPE))->file($f['tmp_name']);
-    if(file_mime_forbidden((string)$mime))fail('Contenu de fichier refusé.');
-    if($ext==='pdf'&&$mime!=='application/pdf')fail('Ce fichier n’est pas un PDF valide.');
-    if(str_starts_with($types[$ext],'image/'))validate_image_file($f['tmp_name'],(string)$mime);
+    $safeMime=stored_file_mime($f['tmp_name'],$name);
     $id=uuid();$path=bin2hex(random_bytes(24));$dir=storage().'/files';if(!is_dir($dir))mkdir($dir,0700,true);
     if(!($uploaded?move_uploaded_file($f['tmp_name'],$dir.'/'.$path):rename($f['tmp_name'],$dir.'/'.$path)))fail('Impossible de conserver ce fichier.',500);
     chmod($dir.'/'.$path,0600);
-    try{query('INSERT INTO files (id,name,mime,size,path,created_at) VALUES (?,?,?,?,?,?)',[$id,$name,$types[$ext],$size,$path,now()]);if($attribution)query('UPDATE files SET attribution=? WHERE id=?',[encoded($attribution),$id]);}catch(Throwable $e){unlink($dir.'/'.$path);throw $e;}
+    try{query('INSERT INTO files (id,name,mime,size,path,created_at) VALUES (?,?,?,?,?,?)',[$id,$name,$safeMime,$size,$path,now()]);if($attribution)query('UPDATE files SET attribution=? WHERE id=?',[encoded($attribution),$id]);}catch(Throwable $e){unlink($dir.'/'.$path);throw $e;}
     return file_info(query('SELECT * FROM files WHERE id=?',[$id])->fetch());
 }
-function file_mime_forbidden(string $mime): bool {
-    return in_array($mime,['text/html','text/x-php','application/x-php','application/x-httpd-php','application/x-executable','application/x-pie-executable','application/x-sharedlib','application/x-dosexec','application/x-msdownload','image/svg+xml'],true);
+/** Originals remain inert files outside the web root. Only verified previews get an inline MIME. */
+function stored_file_mime(string $path,string $name): string {
+    $ext=strtolower(pathinfo($name,PATHINFO_EXTENSION));
+    $types=['svg'=>'image/svg+xml','pdf'=>'application/pdf','jpg'=>'image/jpeg','jpeg'=>'image/jpeg','png'=>'image/png','gif'=>'image/gif','webp'=>'image/webp','avif'=>'image/avif','mp3'=>'audio/mpeg','wav'=>'audio/wav','ogg'=>'audio/ogg','m4a'=>'audio/mp4','mp4'=>'video/mp4','webm'=>'video/webm','mov'=>'video/quicktime','txt'=>'text/plain','md'=>'text/plain','csv'=>'text/csv','json'=>'application/json','doc'=>'application/msword','docx'=>'application/vnd.openxmlformats-officedocument.wordprocessingml.document','odt'=>'application/vnd.oasis.opendocument.text','xls'=>'application/vnd.ms-excel','xlsx'=>'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','ods'=>'application/vnd.oasis.opendocument.spreadsheet','ppt'=>'application/vnd.ms-powerpoint','pptx'=>'application/vnd.openxmlformats-officedocument.presentationml.presentation','odp'=>'application/vnd.oasis.opendocument.presentation','zip'=>'application/zip','rtf'=>'application/rtf','epub'=>'application/epub+zip','stl'=>'application/octet-stream'];
+    $expected=$types[$ext]??'application/octet-stream';
+    $detected=(string)(new finfo(FILEINFO_MIME_TYPE))->file($path);
+    if($ext==='svg'){validate_svg_file($path);return 'image/svg+xml';}
+    if(str_starts_with($expected,'image/')){validate_image_file($path,$detected);return $detected;}
+    if($ext==='pdf'&&$detected!=='application/pdf')fail('Ce fichier n’est pas un PDF valide.');
+    // Never promote HTML, scripts or executable data to an inline MIME by renaming them.
+    if(in_array($detected,['text/html','text/x-php','application/x-php','application/x-httpd-php','application/x-executable','application/x-pie-executable','application/x-sharedlib','application/x-dosexec','application/x-msdownload','image/svg+xml'],true))return 'application/octet-stream';
+    if((str_starts_with($expected,'audio/')||str_starts_with($expected,'video/'))&&!str_starts_with($detected,'audio/')&&!str_starts_with($detected,'video/'))return 'application/octet-stream';
+    return $expected;
+}
+function validate_svg_file(string $path): void {
+    if(filesize($path)>10485760)fail('SVG trop volumineux (10 Mo maximum pour l’affichage).',413);
+    if(!class_exists('DOMDocument'))fail('L’extension PHP DOM est nécessaire aux images SVG.',503);
+    $xml=file_get_contents($path);$dom=new DOMDocument();$old=libxml_use_internal_errors(true);
+    try{
+        // Standard SVG doctypes are accepted without loading their DTD; internal entities are refused.
+        if($xml===false||preg_match('/<!ENTITY/i',$xml)||!$dom->loadXML($xml,LIBXML_NONET)||($dom->doctype&&trim((string)$dom->doctype->internalSubset)!=='')||$dom->documentElement?->localName!=='svg'||$dom->documentElement?->namespaceURI!=='http://www.w3.org/2000/svg')fail('Image SVG invalide ou contenant une déclaration XML externe.');
+    }finally{libxml_clear_errors();libxml_use_internal_errors($old);}
 }
 function validate_image_file(string $path,string $mime): void {
     $dimensions=getimagesize($path);if(!$dimensions||!in_array($mime,['image/jpeg','image/png','image/gif','image/webp','image/avif'],true))fail('Image invalide.');

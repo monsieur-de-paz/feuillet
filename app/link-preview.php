@@ -59,8 +59,8 @@ function link_preview_image(string $url,string $name): ?array {
     $dir=storage().'/temporary';if(!is_dir($dir))mkdir($dir,0700,true);$path=tempnam($dir,'preview-');
     try{
         file_put_contents($path,$bytes);$mime=(new finfo(FILEINFO_MIME_TYPE))->file($path);
-        // Active formats such as SVG remain excluded from the media pipeline.
-        $ext=match($mime){'image/jpeg'=>'jpg','image/png'=>'png','image/gif'=>'gif','image/webp'=>'webp','image/avif'=>'avif',default=>''};
+        // SVG imports use the same XML validation and isolated media response as uploads.
+        $ext=match($mime){'image/svg+xml'=>'svg','image/jpeg'=>'jpg','image/png'=>'png','image/gif'=>'gif','image/webp'=>'webp','image/avif'=>'avif',default=>''};
         if(!$ext)return null;
         return persist_file(['name'=>$name.'.'.$ext,'tmp_name'=>$path,'error'=>UPLOAD_ERR_OK],false);
     }finally{if(is_file($path))unlink($path);}

@@ -18,7 +18,7 @@ try{
     }finally{flock($keyLock,LOCK_UN);fclose($keyLock);}
 }catch(AppError $e){http_response_code($e->status);$error=$e->getMessage();}
 catch(Throwable){http_response_code(503);$error='Le dossier privé de stockage doit être modifiable pour préparer l’installation.';}
-$checks=['PHP 8.3 ou plus'=>version_compare(PHP_VERSION,'8.3','>='),'PDO'=>extension_loaded('pdo'),'Pilote MySQL ou SQLite'=>extension_loaded('pdo_mysql')||extension_loaded('pdo_sqlite'),'mbstring'=>extension_loaded('mbstring'),'fileinfo'=>extension_loaded('fileinfo'),'ZIP'=>extension_loaded('zip'),'Dossier de configuration modifiable'=>is_writable(FEUILLET_ROOT),'Dossier de stockage modifiable'=>is_writable(storage())];
+$checks=['PHP 8.3 ou plus'=>version_compare(PHP_VERSION,'8.3','>='),'PDO'=>extension_loaded('pdo'),'Pilote MySQL ou SQLite'=>extension_loaded('pdo_mysql')||extension_loaded('pdo_sqlite'),'mbstring'=>extension_loaded('mbstring'),'fileinfo'=>extension_loaded('fileinfo'),'DOM (images SVG)'=>extension_loaded('dom'),'ZIP'=>extension_loaded('zip'),'Dossier de configuration modifiable'=>is_writable(FEUILLET_ROOT),'Dossier de stockage modifiable'=>is_writable(storage())];
 if(($_SERVER['REQUEST_METHOD']??'GET')==='POST'){
     try{
         $isJson=str_contains($_SERVER['CONTENT_TYPE']??'','application/json');$in=$isJson?json_in():$_POST;

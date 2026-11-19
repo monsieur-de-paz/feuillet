@@ -107,3 +107,6 @@ La racine d’un lien est validée côté PHP ; elle doit être une page publié
 La suite `tests/sharing.py` reproduit les racines falsifiées/privées, les références vers une autre branche, le partage direct d’une sous-page, la conservation des racines et la révocation. Le paramètre root n’est pas un secret : une autre page déjà publique reste consultable par son lien direct. Les bases communes explicitement publiques et les médias publiés conservent leurs règles d’accès ; cette fonction n’isole pas les élèves par compte ou mot de passe. Les permissions admin, CSRF, protections médias et réponses privées restent testées par les suites existantes.
 
 La conversion des anciens scopes NULL est transactionnelle et idempotente. Elle ne supprime ni fichier ni document. Les anciens accueils sont gardés et les imports restaurent toujours des copies privées. Aucun secret, cours réel, média privé ou configuration locale n’entre dans la distribution.
+
+
+> Évolution en 0.34 : les anciens refus de formats HTML/PHP/SVG décrits ci-dessus sont remplacés par le stockage inerte des pièces jointes de toute extension et l’affichage SVG isolé par CSP/sandbox. Voir [les règles actuelles](NOUVEAUTES-0.34.md). La validation des images et PDF, les contrôles XML et les droits d’accès restent testés.

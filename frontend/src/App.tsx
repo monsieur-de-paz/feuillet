@@ -3867,7 +3867,7 @@ export default function App() {
                 <Search size={17} />
                 <input
                   aria-label="Rechercher un fichier"
-                  placeholder="Rechercher dans les fichiers…"
+                  placeholder="Nom ou extension (.svg, .zip…)"
                   value={fileQuery}
                   onChange={(e) => setFileQuery(e.target.value)}
                 />

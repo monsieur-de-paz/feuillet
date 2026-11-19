@@ -617,3 +617,10 @@ défilement horizontal dans leur propre cadre.
 ## Fiabilité des dépôts (0.33.1)
 
 `python3 tests/form-delivery.py` et `python3 tests/form-delivery.py --mysql` vérifient les reçus, les rejeux sans doublon, 24 sessions derrière une IP, les médias manquants, les erreurs d’écriture et l’inventaire administrateur. `node tests/frontend.mjs` inclut le refus d’une confirmation sans reçu ou provenant d’une autre tentative. Aucun document réel dans les fixtures.
+
+
+## Formats libres et SVG (0.34.0)
+
+`tests/file-formats.py` vérifie les extensions arbitraires, fichiers sans extension et vides, téléchargements inertes HTML/PHP, refus des accès visiteurs privés, SVG avec doctype standard/dégradé/texte, CSP sandbox sans scripts, refus des entités XML, envois publics `.sb3`/SVG privés visibles en bibliothèque admin, et conservation des octets lors d’un export/import. Les tests de sécurité existants sont adaptés : le critère devient l’impossibilité d’exécuter le contenu reçu, et non le rejet de l’extension.
+
+Vérification navigateur sur données fictives locales : filtre `.svg`, option Sans extension, chargement de la miniature SVG et utilisation comme icône/couverture/image de page ; aperçu agrandi fonctionnel. Aucun changement de données de production.

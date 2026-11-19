@@ -6,7 +6,7 @@ function thumbnail_url(string $id,int $size=640): string {
 }
 /** Derivatives are private and always served after the source file's access check. */
 function thumbnail_file(array $file,string $source,int $size): ?array {
-    if(!in_array($size,[96,320,640,1280],true)||!str_starts_with($file['mime'],'image/')||!extension_loaded('gd'))return null;
+    if(!in_array($size,[96,320,640,1280],true)||(!str_starts_with($file['mime'],'image/')||$file['mime']==='image/svg+xml')||!extension_loaded('gd'))return null;
     $info=@getimagesize($source);if(!$info)return null;
     [$width,$height]=$info;if(max($width,$height)<=$size&&filesize($source)<32768)return null;
     $webp=function_exists('imagewebp');$extension=$webp?'webp':'png';

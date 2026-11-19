@@ -437,3 +437,8 @@ lecteur ; il fait partie des ressources PWA. Voir [BASES-INTERFACE-0.33.md](BASE
 ## Dépôts vérifiables (0.33.1)
 
 `app/form-delivery.php` conserve un journal atomique privé avant le commit de chaque nouvelle réponse. Le reçu retourné après commit est contrôlé par `frontend/src/form-delivery.ts`. Réessayer une tentative identique est idempotent sous le verrou du formulaire. Le contrôle administrateur est en lecture seule ; voir [Fiabilité des formulaires](FORMULAIRES-FIABILITE.md). Aucun nouveau schéma SQL.
+
+
+## Fichiers universels et SVG (0.34)
+
+`stored_file_mime` centralise le classement sûr utilisé par le téléversement et la restauration. L’extension inconnue produit `application/octet-stream` ; une image bitmap reste vérifiée par MIME et dimensions. `validate_svg_file` parse le XML avec DOM/`LIBXML_NONET`, sans expansion ni chargement de DTD, et refuse les entités/sous-ensembles internes. Les SVG sont conservés comme fichiers séparés ; `media.php` applique `sandbox`, `script-src 'none'` et interdit les ressources externes. Les vignettes SVG servent le vecteur original, sans rasterisation via GD. `LibraryNavigator` calcule ses extensions à partir des noms enregistrés et combine ce filtre avec dossier/recherche. Le pipeline est commun aux envois admin et formulaires ; les droits d’accès ne changent pas.

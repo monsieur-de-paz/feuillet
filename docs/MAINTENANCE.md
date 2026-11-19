@@ -388,3 +388,8 @@ par Git ; ce stockage et ses identifiants ne font pas partie des releases.
 ## Pièces jointes de formulaires
 
 En cas de réponse manquante, conserver le stockage et les sauvegardes avant toute modification. Depuis 0.33.1, sauvegarder aussi `storage/form-submissions/` : copies privées des nouvelles réponses, à protéger et conserver selon la politique des rendus. Les anciennes versions ne possèdent pas ces journaux. Voir [contrôle et récupération](FORMULAIRES-FIABILITE.md).
+
+
+## Formats de fichiers et SVG — 0.34
+
+Transférer la distribution complète (backend, interface compilée et feuilles de style). Aucun changement SQL. PHP DOM est requis pour les SVG, GD reste facultatif pour les miniatures bitmap. Garder `storage/` hors de la racine web ; les pièces jointes restent à noms aléatoires sans extension. Ne pas retirer les en-têtes CSP/sandbox et `nosniff` de `media.php`. Les formats HTML/PHP et exécutables sont désormais autorisés comme fichiers à télécharger, jamais exécutés par Feuillet. Les anciens constats de refus MIME dans les audits historiques décrivent les versions antérieures. Vérifier un SVG avec dégradé, une pièce jointe `.sb3` par formulaire et un export/import de sauvegarde après toute modification du pipeline. Tests : `python3 tests/file-formats.py`, `python3 tests/security.py`, `python3 tests/forms.py`.

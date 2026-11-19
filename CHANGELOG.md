@@ -1,5 +1,12 @@
 # Historique des versions
 
+## 0.34.0 — 2026-11-19
+
+- SVG importables comme images, icônes et couvertures ; aperçu vectoriel, récupération des icônes SVG distantes et sauvegardes compatibles. XML validé sans résolution d’entités, affichage isolé sans scripts ni ressources externes.
+- Toutes les extensions de fichiers sont acceptées dans la bibliothèque, les pages et les formulaires. Les types non prévisualisables et les sources de code sont téléchargés comme pièces jointes inertes.
+- Filtre par extension dans la bibliothèque, combinable avec la recherche et la navigation par dossiers ; choix « Sans extension » disponible. Les réponses de formulaires restent privées.
+- Contrôle de l’extension PHP DOM lors de l’installation.
+
 ## 0.33.6 — 2026-11-17
 
 - La largeur du bandeau public suit le choix général de largeur dans Réglages → Apparence, indépendamment des styles particuliers des pages. Le choix reste appliqué après navigation et changement de thème.
