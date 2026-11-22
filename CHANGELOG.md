@@ -1,5 +1,10 @@
 # Historique des versions
 
+## 0.35.2 — 2026-11-22
+
+- À la création d’une carte mentale, choix entre une feuille vierge et l’import d’un document Markdown ou TeX.
+- Import depuis un fichier ou du texte brut collé, avec choix Markdown/LaTeX pour le texte, erreurs explicites et limite de taille. Le même choix est disponible dans les cartes existantes, avec ajout ou remplacement annulable.
+
 ## 0.35.1 — 2026-11-22
 
 - Les nouvelles cartes mentales commencent vides : un écran demande leur titre et crée uniquement la première idée centrale. Les outils sont accessibles après cette première création. Les cartes existantes sont conservées.

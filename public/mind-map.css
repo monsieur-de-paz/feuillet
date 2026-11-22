@@ -1028,3 +1028,17 @@
 .mm-start input:focus {outline:none;border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 12%,transparent);}
 .mm-start button {display:flex;align-items:center;gap:8px;min-height:46px;padding:12px 20px;border-radius:14px;}
 .mm-start button:disabled {opacity:.45;cursor:default;}
+.mm-start-choices,.mm-start-import {display:grid;gap:16px;max-width:480px;width:100%;text-align:left;animation:mm-create-appear 240ms ease-out;}
+.mm-start-choices>h3,.mm-start-choices>p {text-align:center;}
+.mm-start-choices>button {gap:16px;padding:20px;text-align:left;transition:background 180ms,transform 180ms;}
+.mm-start-choices>button:hover {transform:translateY(-2px);}
+.mm-start-choices button span {display:grid;gap:5px;}
+.mm-start-choices button small {color:var(--muted);font-size:12px;}
+.mm-import-source {display:grid;gap:16px;text-align:left;}
+.mm-import-tabs {display:flex;gap:8px;flex-wrap:wrap;}
+.mm-import-tabs button[aria-pressed=true] {border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface));}
+.mm-import-source label {display:grid;gap:8px;font-size:13px;}
+.mm-import-source textarea {box-sizing:border-box;width:100%;min-height:200px;resize:vertical;border:1px solid var(--mm-edge);padding:14px;border-radius:14px;background:var(--surface-muted);color:var(--ink);font:13px/1.6 ui-monospace,monospace;}
+.mm-import-file {padding:20px;border:1px dashed var(--mm-edge);border-radius:16px;}
+.mm-import-file input {max-width:100%;box-sizing:border-box;}
+.mm-import-source [role=alert] {color:var(--ink);border-left:3px solid #df7970;padding:8px 12px;}

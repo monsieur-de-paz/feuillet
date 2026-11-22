@@ -23,3 +23,7 @@ Les comptes rendus des essais locaux sont conservés dans [le guide des cartes m
 Une nouvelle carte part d’un écran vide. Saisir son titre puis choisir **Créer l’idée centrale** pour ouvrir les outils avec une seule bulle. Le titre devient celui de la carte et de son idée centrale par défaut. Les cartes déjà enregistrées ne sont pas modifiées.
 
 Dans une bulle éditée par double-clic, **Entrée** ajoute une ligne. Cliquer en dehors de la bulle valide la saisie. La description conserve ses sauts de ligne à l’affichage et après enregistrement.
+
+## Correctif 0.35.2
+
+La création commence par **Feuille vierge** ou **Importer du Markdown / TeX**. Le premier parcours demande le titre de l’idée centrale ; le second propose **Choisir un fichier** (.md, .markdown, .tex) ou **Coller du texte**. Pour le texte, sélectionner Markdown ou LaTeX puis importer. Le même panneau est accessible depuis **Importer MD / TEX** dans une carte existante ; la confirmation permet d’ajouter les idées ou de remplacer la carte avec annulation possible. Aucun code TeX ou HTML n’est exécuté.

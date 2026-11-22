@@ -26,7 +26,7 @@ import {
   type IdeaClipboard,
 } from "./mind-map-clipboard";
 let localIdeaClipboard: IdeaClipboard | null = null;
-import { importMindMap } from "./mind-map-import";
+import { MindMapImport } from "./MindMapImport";
 import { MindMapOptions } from "./MindMapOptions";
 import { MindMapNode } from "./MindMapNode";
 import {
@@ -100,6 +100,9 @@ function MindMapStart({
   onChange?: (d: MapData) => void;
 }) {
   const [title, setTitle] = useState(data.title || "");
+  const [startChoice, setStartChoice] = useState<"blank" | "import" | null>(
+    null,
+  );
   const titleId = useId();
   return (
     <section
@@ -112,13 +115,44 @@ function MindMapStart({
       <span className="mm-start-orbit" aria-hidden="true">
         <GitBranch size={30} />
       </span>
-      {onChange ? (
+      {onChange && !startChoice ? (
+        <div className="mm-start-choices">
+          <span className="mm-eyebrow">Une carte à ton image</span>
+          <h3>Comment veux-tu commencer ?</h3>
+          <p>Pars de ton idée ou transforme un document en carte mentale.</p>
+          <button type="button" onClick={() => setStartChoice("blank")}>
+            <Plus size={22} />
+            <span>
+              <strong>Feuille vierge</strong>
+              <small>Créer ta première idée centrale</small>
+            </span>
+          </button>
+          <button type="button" onClick={() => setStartChoice("import")}>
+            <GitBranch size={22} />
+            <span>
+              <strong>Importer du Markdown / TeX</strong>
+              <small>Choisir un fichier ou coller du texte</small>
+            </span>
+          </button>
+        </div>
+      ) : onChange && startChoice === "import" ? (
+        <div className="mm-start-import">
+          <button type="button" onClick={() => setStartChoice(null)}>
+            ← Retour au choix
+          </button>
+          <h3>Importer une carte mentale</h3>
+          <MindMapImport onImport={onChange} />
+        </div>
+      ) : onChange ? (
         <form
           onSubmit={(e) => {
             e.preventDefault();
             if (title.trim()) onChange(startMap(data, title));
           }}
         >
+          <button type="button" onClick={() => setStartChoice(null)}>
+            ← Retour au choix
+          </button>
           <span className="mm-eyebrow">Tout commence par une idée</span>
           <h3>Quel sujet veux-tu explorer ?</h3>
           <p>Le titre de ta carte deviendra sa première idée centrale.</p>
@@ -159,10 +193,10 @@ function MindMapCanvas({
     [sectionId, setSectionId] = useState(""),
     [reparentOpen, setReparentOpen] = useState(false),
     [pendingImport, setPendingImport] = useState<MapData | null>(null);
-  const importInput = useRef<HTMLInputElement>(null),
-    sectionRef = useRef<HTMLElement>(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
   useEffect(() => {
-    if (!sectionId && !pendingImport && !reparentOpen) return;
+    if (!sectionId && !pendingImport && !reparentOpen && !importOpen) return;
     const prior = document.activeElement as HTMLElement | null;
     const frame = requestAnimationFrame(() => {
       const dialogs = sectionRef.current?.querySelectorAll<HTMLElement>(
@@ -176,7 +210,7 @@ function MindMapCanvas({
       cancelAnimationFrame(frame);
       if (prior?.isConnected) prior.focus({ preventScroll: true });
     };
-  }, [sectionId, pendingImport, reparentOpen]);
+  }, [sectionId, pendingImport, reparentOpen, importOpen]);
   const mapId = useId().replace(/:/g, "");
   const [styleOpen, setStyleOpen] = useState(false),
     [folds, setFolds] = useState<Record<string, string[]>>({});
@@ -720,7 +754,9 @@ function MindMapCanvas({
     setContext(null);
     setCreateMenu(null);
     beginEdit(node);
-    setMessage("Idée indépendante créée. Écris son texte, puis clique hors de la bulle.");
+    setMessage(
+      "Idée indépendante créée. Écris son texte, puis clique hors de la bulle.",
+    );
   };
   const add = (
     parentId = selection || data.nodes[0].id,
@@ -996,6 +1032,10 @@ function MindMapCanvas({
       }
       if (reparentOpen) {
         setReparentOpen(false);
+        return;
+      }
+      if (importOpen) {
+        setImportOpen(false);
         return;
       }
       if (pendingImport) {
@@ -1394,30 +1434,7 @@ function MindMapCanvas({
           )}
           {onChange && (
             <>
-              <input
-                ref={importInput}
-                type="file"
-                accept=".md,.markdown,.tex"
-                hidden
-                onChange={async (event) => {
-                  const file = event.target.files?.[0];
-                  event.target.value = "";
-                  if (!file) return;
-                  try {
-                    if (file.size > 1_000_000)
-                      throw new Error("Fichier limité à 1 Mo.");
-                    setPendingImport(
-                      importMindMap(await file.text(), file.name),
-                    );
-                  } catch (error) {
-                    setMessage((error as Error).message);
-                  }
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => importInput.current?.click()}
-              >
+              <button type="button" onClick={() => setImportOpen(true)}>
                 Importer MD / TEX
               </button>
               <button
@@ -2820,6 +2837,27 @@ function MindMapCanvas({
           onChange={(next) => commit(next)}
           onClose={() => setOptionsOpen(false)}
         />
+      )}
+      {importOpen && onChange && (
+        <div className="mm-dialog-shade">
+          <div
+            className="mm-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Source de la carte à importer"
+          >
+            <h3>Importer une carte mentale</h3>
+            <MindMapImport
+              onImport={(next) => {
+                setImportOpen(false);
+                setPendingImport(next);
+              }}
+            />
+            <button type="button" onClick={() => setImportOpen(false)}>
+              Annuler
+            </button>
+          </div>
+        </div>
       )}
       {pendingImport && (
         <div className="mm-dialog-shade">
