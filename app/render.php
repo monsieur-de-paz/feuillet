@@ -70,6 +70,7 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
     if($t==='gallery')return render_gallery($a,$pageId,$public);
     if($t==='databaseView')return render_database_view(str_limit($a['dbId']??'',36),$public,is_array($a['viewConfig']??null)?$a['viewConfig']:[]);
     if($t==='formView')return render_form_view(str_limit($a['formId']??'',36),$public,$a);
+    if($t==='mindMap')return '<section data-mind-map-data="'.h(encoded(validate_mind_map($a['map']??[]))).'"><h3>'.h($a['map']['title']??'Carte mentale').'</h3><p>Carte mentale interactive — JavaScript nécessaire.</p></section>';
     if($t==='quiz'){
         $html='<form class="quiz" data-page="'.h($pageId).'" data-quiz="'.h($a['quizId']??'').'"><h3>'.h($a['title']??'À toi de jouer').'</h3>';
         foreach($a['questions']??[] as $i=>$q){$html.='<fieldset data-question="'.h($q['id']).'" data-type="'.h($q['type']).'"><legend>'.($i+1).'. '.h($q['prompt']??'').'</legend>';

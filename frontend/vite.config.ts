@@ -17,9 +17,9 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       minify: "esbuild",
       rollupOptions: {
-        input: "src/main.tsx",
+        input: {app:"src/main.tsx", "mind-map-reader":"src/mind-map-reader.tsx"},
         output: {
-          entryFileNames: "app.js",
+          entryFileNames: "[name].js",
           chunkFileNames: "[name]-[hash].js",
           assetFileNames: (a) =>
             a.names?.some((n) => n.endsWith(".css"))

@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.34.0';
+const FEUILLET_VERSION = '0.35.0';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -117,8 +117,9 @@ function normalize_doc(mixed $doc): array {
     if (!is_array($doc) || ($doc['type']??'') !== 'doc') fail('Document invalide.');
     $count=0; $walk=function($node,$depth) use (&$walk,&$count): array {
         if (!is_array($node) || ++$count>12000 || $depth>32) fail('Document trop complexe.');
-        $types=['doc','paragraph','text','heading','bulletList','orderedList','listItem','taskList','taskItem','blockquote','horizontalRule','hardBreak','codeBlock','table','tableRow','tableCell','tableHeader','callout','columns','column','details','toggleHeading','mapBlock','pageLink','buttonLink','bookmark','fileBlock','webVideo','htmlEmbed','image','gallery','quiz','databaseView','formView'];
+        $types=['doc','paragraph','text','heading','bulletList','orderedList','listItem','taskList','taskItem','blockquote','horizontalRule','hardBreak','codeBlock','table','tableRow','tableCell','tableHeader','callout','columns','column','details','toggleHeading','mapBlock','mindMap','pageLink','buttonLink','bookmark','fileBlock','webVideo','htmlEmbed','image','gallery','quiz','databaseView','formView'];
         if(!in_array($node['type']??'', $types, true)) fail('Type de bloc inconnu : '.str_limit($node['type']??'',40));
+        if($node['type']==='mindMap'&&!isset($node['attrs']))fail('Carte mentale absente.');
         $out=['type'=>$node['type']];
         if($node['type']==='text'){if(!is_string($node['text']??null))fail('Texte de bloc invalide.');$out['text']=$node['text'];}
         if(isset($node['attrs'])) {
@@ -142,6 +143,7 @@ function normalize_doc(mixed $doc): array {
             }
             if($node['type']==='buttonLink')$out['attrs']=array_replace($out['attrs'],button_appearance($out['attrs']));
             if($node['type']==='mapBlock')$out['attrs']=['address'=>str_limit($out['attrs']['address']??'',500),'embedUrl'=>map_embed_url($out['attrs']['embedUrl']??'')];
+            if($node['type']==='mindMap')$out['attrs']=['map'=>validate_mind_map($out['attrs']['map']??[])];
             if($node['type']==='quiz') validate_quiz($out['attrs']);
             foreach(['href','src'] as $key)if(isset($out['attrs'][$key]))$out['attrs'][$key]=safe_url($out['attrs'][$key]);
             if($node['type']==='databaseView'){$id=str_limit($out['attrs']['dbId']??'',36);database_record($id);$out['attrs']=['dbId'=>$id,'viewConfig'=>database_view_config($id,$out['attrs']['viewConfig']??[])];}
@@ -299,7 +301,7 @@ function save_page(array $input): array {
     } catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}
 }
 function files_in(array $doc): array {
-    $ids=[];if(!empty($doc['attrs']['iconId'])&&is_string($doc['attrs']['iconId']))$ids[]=$doc['attrs']['iconId'];if(!empty($doc['attrs']['posterId'])&&is_string($doc['attrs']['posterId']))$ids[]=$doc['attrs']['posterId'];if(is_string($doc['attrs']['fileId']??null))$ids[]=$doc['attrs']['fileId'];
+    $ids=[];if(($doc['type']??'')==='mindMap')foreach(($doc['attrs']['map']['nodes']??[]) as $idea)foreach(($idea['media']??[]) as $media)if(($media['kind']??'')==='file'&&is_string($media['fileId']??null))$ids[]=$media['fileId'];if(!empty($doc['attrs']['iconId'])&&is_string($doc['attrs']['iconId']))$ids[]=$doc['attrs']['iconId'];if(!empty($doc['attrs']['posterId'])&&is_string($doc['attrs']['posterId']))$ids[]=$doc['attrs']['posterId'];if(is_string($doc['attrs']['fileId']??null))$ids[]=$doc['attrs']['fileId'];
     foreach($doc['content']??[] as $child)$ids=array_merge($ids,files_in($child));
     return array_values(array_unique($ids));
 }
@@ -368,3 +370,5 @@ function map_embed_url(mixed $value): string {
 }
 
 require_once __DIR__.'/thumbnails.php';
+
+require_once __DIR__.'/mind-map.php';

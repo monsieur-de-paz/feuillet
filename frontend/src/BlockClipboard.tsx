@@ -203,9 +203,13 @@ export function BlockClipboard({ editor }: { editor: Editor }) {
     const scope = new URL(".", location.href).href;
     const writingElsewhere = (target: EventTarget | null) => {
       const el = target instanceof Element ? target : null;
+      // Embedded canvases own their clipboard; the page's selected atom must
+      // never turn a bubble copy/paste into a duplicate of the entire map.
       return (
-        !!el?.closest('input,textarea,select,[contenteditable="true"]') &&
-        !editor.view.dom.contains(el)
+        !!el?.closest(".mind-map") ||
+        !!document.activeElement?.closest(".mind-map") ||
+        (!!el?.closest('input,textarea,select,[contenteditable="true"]') &&
+          !editor.view.dom.contains(el))
       );
     };
     const copy = (event: ClipboardEvent) => {

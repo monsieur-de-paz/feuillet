@@ -26,6 +26,7 @@ type Projection = {
     created_at: string;
     values: Record<string, CellValue>;
     groupValue?: CellValue;
+    attachments?:Record<string,{id:string;name:string}[]>;
   }[];
   total: number;
   limit: number;
@@ -33,6 +34,7 @@ type Projection = {
 export function DatabaseProjection({ id }: { id: string }) {
   const [data, setData] = useState<Projection | null>(null);
   const [columns, setColumns] = useState<string[] | null>(null);
+  const [copyNotice,setCopyNotice]=useState("");
   const [groupBy, setGroupBy] = useState("");
   const [source, setSource] = useState(
     new URLSearchParams(location.search).get("source") || "",
@@ -290,7 +292,7 @@ export function DatabaseProjection({ id }: { id: string }) {
                   <tr>
                     <th>Réception</th>
                     {selected.map((p) => (
-                      <th key={p.id}>{p.name}</th>
+                      <th key={p.id}>{p.name} {p.type!=="files"&&<button type="button" aria-label={"Copier la colonne "+p.name} onClick={async()=>{const text=data.rows.map(row=>{const v=row.values[p.id];return Array.isArray(v)?v.join(", "):String(v??"");}).filter(Boolean).map(v=>v.replace(/[\r\n]+/g," ")).join("\n");try{await navigator.clipboard.writeText(text);setCopyNotice("Colonne copiée : "+data.rows.length+" lignes affichées.");}catch{setCopyNotice("Copie indisponible : autorise le presse-papiers du navigateur.");}}}>Copier</button>}</th>
                     ))}
                     <th>Reçu le</th>
                   </tr>
@@ -334,7 +336,7 @@ export function DatabaseProjection({ id }: { id: string }) {
                                       ? "Oui"
                                       : "Non"
                                     : String(value ?? "—");
-                            return <td key={p.id}>{text}</td>;
+                            return <td key={p.id}>{p.type==='files'?(row.attachments?.[p.id]?.length?row.attachments[p.id].map(file=><a className="projection-file" key={file.id} href={'media.php?id='+encodeURIComponent(file.id)+'&download=1'} title={file.name}>↓ {file.name}</a>):text):text}</td>;
                           })}
                           <td>
                             <time dateTime={row.created_at}>
@@ -365,7 +367,7 @@ export function DatabaseProjection({ id }: { id: string }) {
           )}
         </>
       )}
-      <footer className="projection-footer">
+      <p role="status" className="projection-note">{copyNotice}</p><footer className="projection-footer">
         <span>
           <ShieldCheck size={14} /> Vue administrateur · affichage et
           regroupement choisis

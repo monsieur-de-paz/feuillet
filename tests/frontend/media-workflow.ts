@@ -27,7 +27,7 @@ const body:any={dataset:{baseMode:'light'},style,getAttribute:()=>'',setAttribut
 const windowMock:any={addEventListener:(n:string,f:Function)=>listeners[n]=f};
 const documentMock:any={body,documentElement:{style:{}},querySelectorAll:()=>[],addEventListener:()=>{}};
 data.clear();
-runInNewContext(readFileSync('public/theme.js','utf8'),{window:windowMock,document:documentMock,localStorage:(globalThis as any).localStorage,matchMedia:()=>({get matches(){return osDark},addEventListener:(_n:string,f:Function)=>osListeners.push(f)})});
+runInNewContext(readFileSync('public/theme.js','utf8'),{window:windowMock,document:documentMock,getComputedStyle:(element:any)=>({backgroundColor:element.style.background||'#ffffff'}),localStorage:(globalThis as any).localStorage,matchMedia:()=>({get matches(){return osDark},addEventListener:(_n:string,f:Function)=>osListeners.push(f)})});
 assert.equal(body.dataset.theme,'dark');osDark=false;osListeners[0]();assert.equal(body.dataset.theme,'light');
 storeThemePreference('oled');listeners.storage({key:'feuillet.theme'});assert.equal(body.dataset.theme,'oled');osDark=true;osListeners[0]();assert.equal(body.dataset.theme,'oled');
 storeThemePreference(null);windowMock.FeuilletReaderTheme.setBase('','dark');assert.equal(body.dataset.theme,'dark');

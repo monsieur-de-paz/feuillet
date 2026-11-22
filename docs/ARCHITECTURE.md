@@ -442,3 +442,13 @@ lecteur ; il fait partie des ressources PWA. Voir [BASES-INTERFACE-0.33.md](BASE
 ## Fichiers universels et SVG (0.34)
 
 `stored_file_mime` centralise le classement sûr utilisé par le téléversement et la restauration. L’extension inconnue produit `application/octet-stream` ; une image bitmap reste vérifiée par MIME et dimensions. `validate_svg_file` parse le XML avec DOM/`LIBXML_NONET`, sans expansion ni chargement de DTD, et refuse les entités/sous-ensembles internes. Les SVG sont conservés comme fichiers séparés ; `media.php` applique `sandbox`, `script-src 'none'` et interdit les ressources externes. Les vignettes SVG servent le vecteur original, sans rasterisation via GD. `LibraryNavigator` calcule ses extensions à partir des noms enregistrés et combine ce filtre avec dossier/recherche. Le pipeline est commun aux envois admin et formulaires ; les droits d’accès ne changent pas.
+
+
+## Cartes mentales — 0.35
+
+Le bloc `mindMap`, son rendu partagé et les extensions de projection sont décrits dans [la préversion locale](CARTES-MENTALES-PREVERSION.md). Aucune migration SQL. Le lecteur possède un second point d’entrée Vite et des chunks partagés ; conserver la distribution compilée entière lors du déploiement.
+
+
+### Révision UX et templates de cartes (préversion)
+
+`mind-map-model.ts` sépare les relations des dispositions. `views` enregistre les positions et `styleLayouts` mémorise la disposition propre à chaque style ; ces deux structures sont bornées et validées par PHP. `MindMapNode.tsx` rend les styles Cartes, Branches colorées, Bulles organiques et Carte classique. `mind-map-geometry.ts` centralise les dimensions et les courbes. Les notes sont du texte brut. Le glissement des bulles reste local jusqu’au dépôt ; le repliage est un état de lecture sans changement du document. Les définitions de flèches SVG sont propres à chaque carte pour éviter les collisions de marqueurs.

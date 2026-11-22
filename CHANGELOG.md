@@ -1,5 +1,15 @@
 # Historique des versions
 
+## 0.35.0 — 2026-11-22
+
+- Cartes mentales intégrées comme blocs : six dispositions, quatre styles, couleurs et contours personnalisables, sous-idées, liens libres, sections et contenus multimédias.
+- Création accompagnée : choix idée indépendante ou sous-idée depuis le petit +, saisie immédiate, redistribution autour d’une bulle choisie directement sur la carte, animations et annulation.
+- Sélection multiple par Maj + clic, déplacement groupé, suppression au clavier et copies indépendantes au clavier ou par clic droit, y compris entre pages.
+- Import Markdown et TEX en cartes structurées, recherche, lecture des sections en grand, lien de partage personnalisable et export PDF.
+- Consultation mobile : plein écran, commandes adaptées, recherche avec zoom sur l’idée, déplacement tactile et pincement. Les gestes physiques à plusieurs doigts restent à confirmer sur les appareils cibles.
+- Projection des bases de données : boutons de téléchargement des pièces jointes et copie d’une colonne en liste.
+- Isolation du presse-papiers des cartes vis-à-vis de l’éditeur ; validation serveur des contenus, références et médias.
+
 ## 0.34.0 — 2026-11-19
 
 - SVG importables comme images, icônes et couvertures ; aperçu vectoriel, récupération des icônes SVG distantes et sauvegardes compatibles. XML validé sans résolution d’entités, affichage isolé sans scripts ni ressources externes.

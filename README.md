@@ -55,6 +55,7 @@ L’installateur vérifie les extensions PHP, les sessions et les droits d’éc
 - **Écrire par blocs** : commandes `/`, titres dépliables, listes, tableaux, colonnes, encadrés, boutons et déplacement de plusieurs blocs.
 - **Organiser ses notes** : carnets, catégories, pages et sous-pages, recherche, onglets de rédaction et historique.
 - **Rassembler ses médias** : images dont SVG, fichiers de toute extension, PDF, audio, vidéos, bibliothèque filtrable par extension et vidéos en ligne, aperçus de liens et intégrations web.
+- **Relier ses idées** : cartes mentales, modèles, sous-idées, recherche, import Markdown/TEX, contenus multimédias et export PDF.
 - **Créer des bases** : tableaux éditables et réglages directement dans les pages, champs typés, vues en tableau ou galerie, tri, filtres, regroupements, relations, formules et agrégations.
 - **Recueillir des réponses** : formulaires avec dépôt de fichiers, cinq modèles, textes personnalisables, aperçu en direct et animations. Réponses privées et projection administrateur actualisée toutes les dix secondes.
 - **Partager à son rythme** : pages privées ou publiques, liens personnalisés, partage des sous-pages et accueil public configurable.
@@ -69,7 +70,7 @@ Les mises à jour s’installent depuis Feuillet, à partir des releases GitHub,
 - [Bases de données et formulaires](docs/BASES-ET-FORMULAIRES.md)
 - [Édition et présentation des blocs](docs/BLOCS-0.4.md)
 - [Maintenance et sauvegardes](docs/MAINTENANCE.md)
-- [Nouveautés de la version 0.33](docs/NOUVEAUTES-0.33.md)
+- [Nouveautés de la version 0.35](docs/NOUVEAUTES-0.35.md)
 - [Historique des versions](CHANGELOG.md)
 
 ## Contribuer

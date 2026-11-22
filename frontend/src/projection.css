@@ -283,3 +283,5 @@
 .projection-table { min-width:680px; }
 .projection-table th { white-space:nowrap; }
 .projection-table :is(th,td):not(:first-child):not(:last-child) { min-width:160px; }
+
+.projection-file{display:block;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:8px 12px;margin:4px 0;border:1px solid var(--line);border-radius:9px;text-decoration:none}.projection-table th button{font:500 11px system-ui;margin-left:8px;padding:5px 8px;border-radius:8px}

@@ -30,8 +30,8 @@ class Forms(unittest.TestCase):
  def test_03_submission_then_refresh_and_selected_values_only(self):
   upload=self.ok(self.visitor.upload('form_upload','private-project.txt',b'Synthetic private document','text/plain',{'token':self.form['token']}))['file']
   self.ok(self.visitor.api('form_submit',{'token':self.form['token'],'values':{self.title['id']:'Projet reçu <script>alert(1)</script>',self.email['id']:'synthetic@example.test',self.file['id']:[upload['id']]}}))
-  data=self.ok(self.projection());self.assertEqual(data['total'],1);self.assertEqual(data['columns'],[self.title['id']])
-  self.assertEqual(list(data['rows'][0]['values']),[self.title['id']]);self.assertNotIn('synthetic@example.test',json.dumps(data));self.assertNotIn(upload['id'],json.dumps(data));self.assertNotIn(self.form['token'],json.dumps(data))
+  data=self.ok(self.projection());self.assertEqual(data['total'],1);self.assertEqual(data['columns'],[self.title['id'],self.file['id']])
+  self.assertEqual(list(data['rows'][0]['values']),[self.title['id'],self.file['id']]);self.assertNotIn('synthetic@example.test',json.dumps(data));self.assertEqual(data['rows'][0]['attachments'][self.file['id']][0]['id'],upload['id']);self.assertNotIn(self.form['token'],json.dumps(data))
   selected=self.ok(self.projection('&columns='+self.file['id']));self.assertEqual(selected['rows'][0]['values'],{self.file['id']:1})
   empty=self.ok(self.projection('&columns='));self.assertEqual(empty['columns'],[]);self.assertEqual(empty['rows'][0]['values'],{})
   self.assertIn('no-store',self.projection()[2]['Cache-Control'])

@@ -4,6 +4,8 @@ import { EditorFileDrop } from "./EditorFileDrop";
 import { ColoredTableCell, ColoredTableHeader } from "./table-formatting";
 import { TableControls } from "./TableControls";
 import { HtmlEmbed, WebVideo } from "./ExternalEmbed";
+import { MindMapBlock } from "./MindMapBlock";
+import { makeMap } from "./MindMap";
 import { MapBlock } from "./MapBlock";
 import { BlockMover, blockAtElement } from "./BlockMover";
 import { BlockSelection } from "./block-selection";
@@ -242,6 +244,7 @@ export default function CourseEditor({
       Details,
       ToggleHeading,
       MapBlock,
+      MindMapBlock,
       WebVideo,
       HtmlEmbed,
       PageLink,
@@ -730,6 +733,14 @@ export default function CourseEditor({
       run: (ed) => insertNode(ed, { type: "htmlEmbed" }),
     },
     {
+      id: "mind-map",
+      label: "Carte mentale",
+      description: "Relier, explorer et partager ses idées",
+      keywords: "carte mentale mindmap idées branches organigramme",
+      icon: <LayoutGrid />,
+      run: (ed) => insertNode(ed, {type: "mindMap", attrs: {map: makeMap()}}),
+    },
+    {
       id: "map",
       label: "Lieu / Google Maps",
       description: "Une adresse et sa carte interactive",
@@ -1028,6 +1039,7 @@ export default function CourseEditor({
       node.type.name.endsWith("List") ||
       node.type.name === "blockquote";
     const items: MenuAction[] = [];
+    if(node.type.name === "mindMap") items.push({label:"Options de la carte mentale",icon:<Link/>,group:"edit",run:()=>{const host=editor.view.nodeDOM(pos) as HTMLElement;host?.querySelector<HTMLButtonElement>('[data-mm-options]')?.click();}});
     if (editor.isActive("link"))
       for (const [mode, label] of [
         ["button", "Afficher ce lien en bouton"],

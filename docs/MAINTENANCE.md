@@ -393,3 +393,8 @@ En cas de réponse manquante, conserver le stockage et les sauvegardes avant tou
 ## Formats de fichiers et SVG — 0.34
 
 Transférer la distribution complète (backend, interface compilée et feuilles de style). Aucun changement SQL. PHP DOM est requis pour les SVG, GD reste facultatif pour les miniatures bitmap. Garder `storage/` hors de la racine web ; les pièces jointes restent à noms aléatoires sans extension. Ne pas retirer les en-têtes CSP/sandbox et `nosniff` de `media.php`. Les formats HTML/PHP et exécutables sont désormais autorisés comme fichiers à télécharger, jamais exécutés par Feuillet. Les anciens constats de refus MIME dans les audits historiques décrivent les versions antérieures. Vérifier un SVG avec dégradé, une pièce jointe `.sb3` par formulaire et un export/import de sauvegarde après toute modification du pipeline. Tests : `python3 tests/file-formats.py`, `python3 tests/security.py`, `python3 tests/forms.py`.
+
+
+## Cartes mentales — 0.35
+
+Voir [les nouveautés](NOUVEAUTES-0.35.md) et [les essais et limites](CARTES-MENTALES-PREVERSION.md). La distribution doit inclure `mind-map.css`, `assets/mind-map-reader.js` et les chunks partagés Vite. L’ancien endpoint de projection conserve les valeurs de comptage et ajoute les métadonnées des fichiers dans `attachments` pour les colonnes choisies.
