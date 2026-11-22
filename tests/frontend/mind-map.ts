@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import {
-  makeMap,
+  makeMap as emptyMap,
+  startMap,
+  arrange as arrangeFixture,
+  colors,
   defaultFolds,
   visibleMapNodes,
   switchTheme,
@@ -11,6 +14,48 @@ import {
   setChildSide,
 } from "../../frontend/src/mind-map-model";
 import { nodeHeight, linkPath, underlined } from "../../frontend/src/mind-map-geometry";
+function makeMap(layout = "radial"): ReturnType<typeof emptyMap> {
+  const labels =
+    layout === "flow"
+      ? ["Départ", "Observer", "Imaginer", "Réaliser", "Partager"]
+      : layout === "org"
+        ? ["Notre projet", "Équipe", "Ressources", "Actions", "Objectifs"]
+        : [
+            "Une idée à explorer",
+            "Comprendre",
+            "Imaginer",
+            "Relier",
+            "Approfondir",
+          ];
+  const nodes = labels.map((text, i) => ({
+    id: crypto.randomUUID(),
+    parent: "",
+    text,
+    x: 0,
+    y: 0,
+    fill: colors[i % colors.length],
+    ink: "#243A36",
+    line: "#73988B",
+    bold: i === 0,
+    italic: false,
+    size: i === 0 ? 20 : 16,
+    url: "",
+    childrenSide: "auto" as const,
+    row: false,
+  }));
+  nodes.forEach((n, i) => {
+    n.parent = i ? nodes[layout === "flow" ? i - 1 : 0].id : "";
+  });
+  return arrangeFixture(
+    { title: "Ma carte mentale", display: "preview", layout, nodes, links: [] },
+    layout,
+  );
+}
+
+const blankMap=emptyMap();assert.equal(blankMap.nodes.length,0);assert.equal(blankMap.title,"");
+assert.equal(startMap(blankMap,"   "),blankMap);
+const startedMap=startMap(blankMap,"  Mon sujet  ");assert.equal(startedMap.nodes.length,1);assert.equal(startedMap.nodes[0].text,"Mon sujet");assert.equal(startedMap.title,"Mon sujet");assert.equal(startedMap.centerId,startedMap.nodes[0].id);assert.equal(startedMap.nodes[0].parent,"");assert.equal(startMap(startedMap,"Remplacer"),startedMap);assert.equal(blankMap.nodes.length,0);
+console.log('PASS empty creation: title required, exactly one central root, source and existing maps preserved');
 let map = makeMap();
 map.nodes[1].x = 432;
 map.nodes[1].y = -212;
@@ -240,3 +285,7 @@ const rebased=touchCamera(pinch,touchFrame([{x:50,y:320}]),touchFrame([{x:80,y:3
 assert.equal(rebased.zoom,.6);assert.equal(rebased.pan.x,pinch.pan.x+30);assert.equal(rebased.pan.y,pinch.pan.y+10);
 assert.equal(touchCamera({zoom:10,pan:{x:0,y:0}},touchOrigin,{...touchOrigin,distance:1e4}).zoom,12);
 console.log('PASS reader touch gestures: anchored pinch, one-finger pan, two-to-one continuity and zoom bounds');
+
+import {wordLines} from "../../frontend/src/mind-map-geometry";
+assert.deepEqual(wordLines("Première ligne\nDeuxième ligne\n\nQuatrième"),["Première ligne","Deuxième ligne","","Quatrième"]);
+console.log("PASS explicit line breaks preserved in bubble titles and descriptions");

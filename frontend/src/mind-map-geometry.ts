@@ -1,7 +1,8 @@
 import type { Bubble, MapData } from "./mind-map-model";
 export function wordLines(text: string, limit = 23) {
   const result = [""];
-  for (const word of text.split(/\s+/)) {
+  for (const word of text.split(/(\n)|[^\S\n]+/).filter((part): part is string => part !== undefined)) {
+    if(word === "\n"){result.push("");continue;}
     for (const part of word.match(new RegExp(".{1," + limit + "}", "gu")) || [
       "",
     ]) {

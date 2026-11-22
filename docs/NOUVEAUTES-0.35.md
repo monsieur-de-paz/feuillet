@@ -17,3 +17,9 @@ Le panneau **Style & détails** rassemble la présentation et les contenus. **Re
 La mise à jour ne demande pas de migration SQL. Installer l’archive complète depuis les réglages de Feuillet ; conserver `config.php` et `storage/` lors d’un transfert manuel. Les anciennes versions ne reconnaissent pas les nouveaux blocs : faire une sauvegarde avant toute restauration vers une version antérieure.
 
 Les comptes rendus des essais locaux sont conservés dans [le guide des cartes mentales](CARTES-MENTALES-PREVERSION.md). Les gestes physiques de pincement doivent encore être essayés sur un véritable téléphone ; les calculs sont testés et les formats portrait/paysage ont été vérifiés dans le navigateur.
+
+## Correctif 0.35.1
+
+Une nouvelle carte part d’un écran vide. Saisir son titre puis choisir **Créer l’idée centrale** pour ouvrir les outils avec une seule bulle. Le titre devient celui de la carte et de son idée centrale par défaut. Les cartes déjà enregistrées ne sont pas modifiées.
+
+Dans une bulle éditée par double-clic, **Entrée** ajoute une ligne. Cliquer en dehors de la bulle valide la saisie. La description conserve ses sauts de ligne à l’affichage et après enregistrement.

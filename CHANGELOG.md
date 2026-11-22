@@ -1,5 +1,10 @@
 # Historique des versions
 
+## 0.35.1 — 2026-11-22
+
+- Les nouvelles cartes mentales commencent vides : un écran demande leur titre et crée uniquement la première idée centrale. Les outils sont accessibles après cette première création. Les cartes existantes sont conservées.
+- Entrée insère un retour à la ligne pendant la saisie dans une bulle ; cliquer à l’extérieur valide le texte. Les sauts de ligne sont conservés à l’affichage dans les titres et descriptions.
+
 ## 0.35.0 — 2026-11-22
 
 - Cartes mentales intégrées comme blocs : six dispositions, quatre styles, couleurs et contours personnalisables, sous-idées, liens libres, sections et contenus multimédias.

@@ -47,6 +47,7 @@ import {
 } from "./mind-map-geometry";
 import { createPortal } from "react-dom";
 import {
+  startMap,
   type Bubble,
   type MapData,
   colors,
@@ -79,6 +80,73 @@ type Gesture = {
   origins?: Record<string, { x: number; y: number }>;
 };
 export function MindMap({
+  data,
+  onChange,
+}: {
+  data: MapData;
+  onChange?: (d: MapData) => void;
+}) {
+  return data.nodes.length ? (
+    <MindMapCanvas data={data} onChange={onChange} />
+  ) : (
+    <MindMapStart data={data} onChange={onChange} />
+  );
+}
+function MindMapStart({
+  data,
+  onChange,
+}: {
+  data: MapData;
+  onChange?: (d: MapData) => void;
+}) {
+  const [title, setTitle] = useState(data.title || "");
+  const titleId = useId();
+  return (
+    <section
+      className="mind-map mm-start"
+      aria-label="Nouvelle carte mentale"
+      contentEditable={false}
+      onMouseDown={(e) => e.stopPropagation()}
+      onKeyDown={(e) => e.stopPropagation()}
+    >
+      <span className="mm-start-orbit" aria-hidden="true">
+        <GitBranch size={30} />
+      </span>
+      {onChange ? (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (title.trim()) onChange(startMap(data, title));
+          }}
+        >
+          <span className="mm-eyebrow">Tout commence par une idée</span>
+          <h3>Quel sujet veux-tu explorer ?</h3>
+          <p>Le titre de ta carte deviendra sa première idée centrale.</p>
+          <label htmlFor={titleId}>
+            Titre de la carte mentale
+            <input
+              id={titleId}
+              aria-label="Titre de la nouvelle carte mentale"
+              value={title}
+              maxLength={200}
+              placeholder="Une idée, un projet, une question…"
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </label>
+          <button type="submit" disabled={!title.trim()}>
+            <Plus size={18} /> Créer l’idée centrale
+          </button>
+        </form>
+      ) : (
+        <>
+          <h3>Cette carte attend sa première idée</h3>
+          <p>Elle sera disponible lorsque son auteur l’aura commencée.</p>
+        </>
+      )}
+    </section>
+  );
+}
+function MindMapCanvas({
   data,
   onChange,
 }: {
@@ -652,7 +720,7 @@ export function MindMap({
     setContext(null);
     setCreateMenu(null);
     beginEdit(node);
-    setMessage("Idée indépendante créée. Écris son titre, puis Entrée.");
+    setMessage("Idée indépendante créée. Écris son texte, puis clique hors de la bulle.");
   };
   const add = (
     parentId = selection || data.nodes[0].id,
@@ -677,7 +745,7 @@ export function MindMap({
     setCreateMenu(null);
     setContext(null);
     setMessage(
-      `Sous-idée ajoutée ${direction === "above" ? "au-dessus" : direction === "below" ? "en dessous" : "au point de dépôt"}. Entrée valide · Tab continue.`,
+      `Sous-idée ajoutée ${direction === "above" ? "au-dessus" : direction === "below" ? "en dessous" : "au point de dépôt"}. Entrée ajoute une ligne · clique dehors pour valider.`,
     );
   };
   const addBatch = () => {
@@ -2173,11 +2241,6 @@ export function MindMap({
                               onPointerDown={(e) => e.stopPropagation()}
                               onKeyDown={(e) => {
                                 e.stopPropagation();
-                                if (e.key === "Enter" && !e.shiftKey) {
-                                  e.preventDefault();
-                                  finishEdit();
-                                  board.current?.focus();
-                                }
                                 if (e.key === "Escape") {
                                   setEditing("");
                                   board.current?.focus();
@@ -2514,7 +2577,7 @@ export function MindMap({
                       )}
                       <small>
                         Les lignes restent indépendantes. Tab ajoute un niveau,
-                        Entrée valide.
+                        Un clic hors de la bulle valide.
                       </small>
                     </div>
                     <textarea

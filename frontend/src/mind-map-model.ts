@@ -53,41 +53,19 @@ export const colors = [
   "#EC4899",
 ];
 export function makeMap(layout = "radial"): MapData {
-  const labels =
-    layout === "flow"
-      ? ["Départ", "Observer", "Imaginer", "Réaliser", "Partager"]
-      : layout === "org"
-        ? ["Notre projet", "Équipe", "Ressources", "Actions", "Objectifs"]
-        : [
-            "Une idée à explorer",
-            "Comprendre",
-            "Imaginer",
-            "Relier",
-            "Approfondir",
-          ];
-  const nodes = labels.map((text, i) => ({
-    id: crypto.randomUUID(),
-    parent: "",
-    text,
-    x: 0,
-    y: 0,
-    fill: colors[i % colors.length],
-    ink: "#243A36",
-    line: "#73988B",
-    bold: i === 0,
-    italic: false,
-    size: i === 0 ? 20 : 16,
-    url: "",
-    childrenSide: "auto" as ChildSide,
-    row: false,
-  }));
-  nodes.forEach((n, i) => {
-    n.parent = i ? nodes[layout === "flow" ? i - 1 : 0].id : "";
-  });
-  return arrange(
-    { title: "Ma carte mentale", display: "preview", layout, nodes, links: [] },
-    layout,
-  );
+  return { title: "", display: "preview", layout, nodes: [], links: [] };
+}
+export function startMap(data: MapData, title: string): MapData {
+  if (data.nodes.length || !title.trim()) return data;
+  const text = title.trim().slice(0, 200);
+  const node = independentIdea(data, { x: 0, y: 0 })!;
+  return {
+    ...data,
+    title: text,
+    centerId: node.id,
+    nodes: [{ ...node, text, bold: true, size: 20 }],
+    links: [],
+  };
 }
 export function arrange(data: MapData, layout: string): MapData {
   const source = data.nodes.map((n) => ({

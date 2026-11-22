@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 function validate_mind_map(mixed $value): array {
-    if(!is_array($value)||!is_array($value['nodes']??null)||count($value['nodes'])<1||count($value['nodes'])>300)fail('Une carte doit contenir de 1 à 300 idées.');
+    if(!is_array($value)||!is_array($value['nodes']??null)||count($value['nodes'])>300)fail('Une carte doit contenir de 0 à 300 idées.');
     $nodes=[];$ids=[];
     foreach($value['nodes'] as $n){
         if(!is_array($n)||!is_string($n['id']??null)||!preg_match('/^[a-zA-Z0-9-]{1,64}$/D',$n['id'])||isset($ids[$n['id']]))fail('Identifiant de bulle invalide.');$ids[$n['id']]=true;

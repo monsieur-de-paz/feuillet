@@ -10,6 +10,11 @@ class Maps(unittest.TestCase):
  def ok(self,r,status=200):self.assertEqual(r[0],status,r[1]);return r[1]
  def map(self):return {'title':'Idées <script>alert(1)</script>','display':'preview','layout':'tree','nodes':[{'id':'root','parent':'','text':'Centre','x':0,'y':0},{'id':'branch','parent':'root','text':'Une idée','x':290,'y':0}],'links':[{'from':'branch','to':'root','color':'#123456'}]}
  def save(self,m):return self.a.api('save',{'title':'Carte test','content':{'type':'doc','content':[{'type':'mindMap','attrs':{'map':m}}]}})
+ def test_empty_map_survives_save_and_publication(self):
+  m={'title':'','display':'preview','layout':'radial','nodes':[],'links':[]}
+  p=self.ok(self.save(m))['page'];self.assertEqual(p['content']['content'][0]['attrs']['map']['nodes'],[])
+  self.ok(self.a.api('publish',{'id':p['id'],'version':p['version']}))
+  html=self.ok(self.v.request('index.php?page='+p['id']+'&read=1')).decode();self.assertIn('data-mind-map-data',html)
  def test_round_trip_publication_and_readonly(self):
   p=self.ok(self.save(self.map()))['page'];self.ok(self.v.api('page',query='&id='+p['id']),404);self.ok(self.a.api('publish',{'id':p['id'],'version':p['version']}))
   html=self.ok(self.v.request('index.php?page='+p['id']+'&read=1')).decode();self.assertIn('data-mind-map-data',html);self.assertIn('mind-map-reader.js',html);self.assertNotIn('<script>alert(1)</script>',html)
