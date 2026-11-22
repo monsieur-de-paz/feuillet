@@ -26,6 +26,8 @@ import {
   type IdeaClipboard,
 } from "./mind-map-clipboard";
 let localIdeaClipboard: IdeaClipboard | null = null;
+import { MindMapSectionNav } from "./MindMapSectionNav";
+import { readableImportedContent } from "./mind-map-import";
 import { MindMapImport } from "./MindMapImport";
 import { MindMapOptions } from "./MindMapOptions";
 import { MindMapNode } from "./MindMapNode";
@@ -197,6 +199,10 @@ function MindMapCanvas({
   const sectionRef = useRef<HTMLElement>(null);
   useEffect(() => {
     if (!sectionId && !pendingImport && !reparentOpen && !importOpen) return;
+    if (sectionId)
+      sectionRef.current
+        ?.querySelector(".mm-section-dialog")
+        ?.scrollTo({ top: 0, behavior: "smooth" });
     const prior = document.activeElement as HTMLElement | null;
     const frame = requestAnimationFrame(() => {
       const dialogs = sectionRef.current?.querySelectorAll<HTMLElement>(
@@ -2974,38 +2980,37 @@ function MindMapCanvas({
                     Retour à la carte
                   </button>
                 </header>
-                <h2>{section.text}</h2>
-                <div className="mm-section-body">
-                  {section.content ||
-                    section.note ||
-                    "Cette section contient des sous-idées."}
-                </div>
-                <IdeaMediaView items={section.media || []} />
-                {section.url && /^https?:\/\//i.test(section.url) && (
-                  <a
-                    href={section.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Ouvrir le lien de l’idée ↗
-                  </a>
-                )}
-                <nav aria-label="Sous-sections">
-                  {data.nodes
-                    .filter((n) => n.parent === section.id)
-                    .map((n) => (
-                      <button
-                        type="button"
-                        key={n.id}
-                        onClick={() => {
-                          focus(n);
-                          setSectionId(n.id);
-                        }}
+                <div className="mm-section-layout">
+                  <div className="mm-section-reading">
+                    <h2>{section.text}</h2>
+                    <div className="mm-section-body">
+                      {readableImportedContent(
+                        section.content ||
+                          section.note ||
+                          "Cette section contient des sous-idées.",
+                      )}
+                    </div>
+                    <IdeaMediaView items={section.media || []} />
+                    {section.url && /^https?:\/\//i.test(section.url) && (
+                      <a
+                        href={section.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
                       >
-                        {n.text} ↗
-                      </button>
-                    ))}
-                </nav>
+                        Ouvrir le lien de l’idée ↗
+                      </a>
+                    )}
+                  </div>
+                  <MindMapSectionNav
+                    data={data}
+                    currentId={section.id}
+                    onNavigate={(id) => {
+                      const idea = data.nodes.find((n) => n.id === id)!;
+                      focus(idea);
+                      setSectionId(id);
+                    }}
+                  />
+                </div>
                 <footer>
                   <button
                     type="button"

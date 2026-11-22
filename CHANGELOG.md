@@ -1,5 +1,11 @@
 # Historique des versions
 
+## 0.35.3 — 2026-11-23
+
+- Lecture des cartes mentales : navigation interactive entre les bulles, repère « Vous êtes ici », chemin des parents, zoom, déplacement et vue d’ensemble. Présentation adaptée aux petits écrans.
+- Imports Markdown et TeX nettoyés : textes et titres conservés, commandes de mise en page retirées, tableaux simplifiés, titres TeX imbriqués pris en charge. Les illustrations locales non fournies restent signalées sans exécuter ni charger de code externe.
+- Nettoyage à l’affichage des anciens contenus importés, sans modifier les données enregistrées. Repli lisible pour les anciens textes TeX mal formés.
+
 ## 0.35.2 — 2026-11-22
 
 - À la création d’une carte mentale, choix entre une feuille vierge et l’import d’un document Markdown ou TeX.

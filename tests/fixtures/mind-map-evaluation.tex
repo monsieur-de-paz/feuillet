@@ -1,0 +1,175 @@
+\documentclass[12pt,a4paper]{article}
+
+% ======= PACKAGES =======
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\geometry{margin=2cm}
+\usepackage{tcolorbox}
+\usepackage{lmodern}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows.meta, positioning, calc}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{array}
+
+% ======= DOCUMENT =======
+\begin{document}
+
+% ======= EN-TÊTE =======
+\noindent \textbf{Technologie – Niveau 3\textsuperscript{e}}\hfill \textbf{Établissement – Auteur}
+
+\vspace{1cm}
+
+% ======= TITRE =======
+\begin{center}
+    {\LARGE \textbf{Évaluation - La programmation}} \\
+    \vspace{0.3cm}
+    {\large Distributeur automatique de sauces connectées}
+\end{center}
+
+% ======= CONTEXTE =======
+\section*{Contexte et Documents}
+Dans de nombreux restaurants modernes de street food, les clients passent commande sur une borne de commande sans passer par la caisse et sans serveur. Lorsque le repas est prêt, les clients doivent se lever pour récupérer leur commande.
+
+À \textit{Toulouse}, un restaurant de hamburgers a installé un \textbf{distributeur automatique de sauces}.
+Les clients peuvent choisir le goût des sauces : mayonnaise, ketchup, sauce à l’ail, barbecue, etc.
+
+Le système fonctionne ainsi :
+\begin{itemize}
+    \item Un \textbf{capteur de niveau} mesure la quantité de sauce restante.
+    \item Un \textbf{capteur de présence} détecte lorsqu’un pot est positionné.
+    \item Un \textbf{sélecteur de sauce} permet au client de choisir.
+    \item Une \textbf{pompe électrique} distribue la sauce.
+    \item Un \textbf{microcontrôleur} coordonne les actions.
+    \item Un \textbf{écran LCD} affiche l’état du système.
+    \item Une \textbf{alarme sonore} indique lorsqu’une sauce doit être remplie.
+\end{itemize}
+
+\textit{L’objectif de cette évalution est d’étudier le fonctionnement d’un objet technique réel, en lien avec les systèmes automatisés présents dans notre vie quotidienne.
+}
+% ======= IMAGE =======
+\begin{center}
+\includegraphics[width=1\linewidth]{distributeur.png}
+\end{center}
+
+\newpage
+
+% ======= EXERCICE 1 =======
+\section*{Exercice 1 : Comprendre le système}
+
+\subsection*{1.1 — Rôle des composants (3.5pts)}
+Indiquer le rôle de chaque élément :
+
+\begin{center}
+\begin{tabular}{|p{5cm}|p{9cm}|}
+\hline
+\textbf{Composant} & \textbf{Rôle} \\
+\hline
+Capteur de niveau & \\[1.4cm] \\
+\hline
+Capteur de présence & \\[1.4cm] \\
+\hline
+Sélecteur de sauce (LCD) & \\[1.4cm] \\
+\hline
+Pompe électrique & \\[1.4cm] \\
+\hline
+Microcontrôleur & \\[1.4cm] \\
+\hline
+Alarme sonore & \\[1.4cm] \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.8cm}
+
+\subsection*{1.2 — Chaîne d'information (2.5pts)}
+Classer ces éléments dans la chaîne d'information numérique :
+
+\begin{center}
+\texttt{Capteurs — Microcontrôleur — Écran — Pompe — Alarme}
+\end{center}
+
+\vspace{0.5cm}
+\noindent\textbf{ }\\[0.01cm]
+\rule{\linewidth}{0.5pt}\\[1cm]
+
+
+\newpage
+
+% ======= EXERCICE 2 =======
+\section*{Exercice 2 : Analyse d'un algorithme (6pts)}
+
+Voici un algorithme simplifié permettant d'expliquer la distribution d'une sauce :
+\begin{center}
+\includegraphics[width=1\linewidth]{scratch1.png}
+\end{center}
+
+\vspace{0.1cm}
+\begin{itemize}
+    \item 2.1 Expliquer l’action réalisée en cas de VRAI.
+\end{itemize}
+
+\noindent\textbf{ }\\[0.01cm]
+\rule{\linewidth}{0.5pt}\\[1cm]
+\rule{\linewidth}{0.5pt}\\[1cm]
+
+\vspace{0.1cm}
+
+\begin{itemize}
+    \item 2.2 Expliquer l’action réalisée en cas de FAUX.
+\end{itemize}
+
+\noindent\textbf{ }\\[0.01cm]
+\rule{\linewidth}{0.5pt}\\[1cm]
+\rule{\linewidth}{0.5pt}\\[1cm]
+
+\vspace{0.1cm}
+
+\begin{itemize}
+    \item 2.3 Pourquoi l’écran doit-il guider clairement l’utilisateur ?
+\end{itemize}
+
+\noindent\textbf{ }\\[0.01cm]
+\rule{\linewidth}{0.5pt}\\[1cm]
+\rule{\linewidth}{0.5pt}\\[1cm]
+
+\newpage
+
+% ======= EXERCICE 3 =======
+\section*{Exercice 3 : Améliorer le programme (8pts)}
+
+On souhaite ajouter un contrôle du niveau de sauce dans le distributeur. Ce niveau permet de vérifier s'il reste assez de sauce pour les clients : \\
+\textbf{Si le niveau est trop bas, le microcontrôleur doit déclencher une alarme et empêcher la distribution.}
+
+\begin{tcolorbox}
+SI niveau > seuil ET présence détectée ET sauce sélectionnée ALORS\\
+\hspace*{0.5cm}\underline{\hspace{10cm}} \\ % distribution
+\hspace*{0.5cm}\underline{\hspace{10cm}} \\ % affichage
+SINON\\
+\hspace*{0.5cm}\underline{\hspace{10cm}} \\ % alerte
+FIN SI
+\end{tcolorbox}
+
+\vspace{1cm}
+
+\subsection*{3.1 — Remplissez les trous du programme ci-dessus avec les bonnes instructions}
+
+\vspace{2cm}
+
+\subsection*{3.2 — Amélioration}
+En langage naturel, proposer une idée d’amélioration permettant :
+\textit{« d’optimiser la précision des mesures et l’expérience client »}.
+
+\vspace{1cm}
+
+\noindent\textbf{ }\\[0.01cm]
+\rule{\linewidth}{0.5pt}\\[1cm]
+\rule{\linewidth}{0.5pt}\\[1cm]
+\rule{\linewidth}{0.5pt}\\[1cm]
+\rule{\linewidth}{0.5pt}\\[1cm]
+\rule{\linewidth}{0.5pt}\\[1cm]
+\rule{\linewidth}{0.5pt}\\[1cm]
+
+\end{document}

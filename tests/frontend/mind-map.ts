@@ -209,7 +209,7 @@ const free=independentIdea(forest,{x:-321,y:917})!;assert.equal(free.parent,'');
 const detached=reparentIdea(forest,forest.nodes[1].id,'');assert.equal(detached.nodes[1].parent,'');
 assert.equal(reparentIdea(forest,forest.nodes[0].id,forest.nodes[1].id),forest);
 const md=importMindMap('# Projet\nIntroduction\n## Observer\nTexte de la section\n### Comprendre\nContenu détaillé\n```md\n# Pas un titre\n```\n## Construire\nSuite','projet.md');
-assert.equal(md.nodes[0].text,'Projet');assert.equal(md.nodes.length,4);assert.equal(md.nodes[2].parent,md.nodes[1].id);assert.ok(md.nodes[2].content?.includes('# Pas un titre'));
+assert.equal(md.nodes[0].text,'Projet');assert.equal(md.nodes.length,4);assert.equal(md.nodes[2].parent,md.nodes[1].id);assert.ok(md.nodes[2].content?.includes('Pas un titre'));
 const tex=importMindMap(String.raw`\documentclass{article}
 \title{Mon projet}
 \begin{document}
@@ -217,7 +217,7 @@ const tex=importMindMap(String.raw`\documentclass{article}
 \subsection{Détails} Suite.
 \section*{Conclusion} \input{secret.tex}
 \end{document}`,'projet.tex');
-assert.equal(tex.nodes[0].text,'Mon projet');assert.equal(tex.nodes[2].parent,tex.nodes[1].id);assert.ok(tex.nodes.at(-1)?.content?.includes('\\input{secret.tex}'));
+assert.equal(tex.nodes[0].text,'Mon projet');assert.equal(tex.nodes[2].parent,tex.nodes[1].id);assert.ok(!tex.nodes.at(-1)?.content?.includes('secret.tex'));
 assert.throws(()=>importMindMap('# A\n'+('x'.repeat(21000)),'a.md'));
 assert.throws(()=>importMindMap('x'.repeat(1000001),'a.md'));
 assert.throws(()=>importMindMap('\\section{Unclosed','a.tex'));
@@ -289,3 +289,19 @@ console.log('PASS reader touch gestures: anchored pinch, one-finger pan, two-to-
 import {wordLines} from "../../frontend/src/mind-map-geometry";
 assert.deepEqual(wordLines("Première ligne\nDeuxième ligne\n\nQuatrième"),["Première ligne","Deuxième ligne","","Quatrième"]);
 console.log("PASS explicit line breaks preserved in bubble titles and descriptions");
+
+import {readFileSync} from 'node:fs';
+import {texPlain,markdownPlain,readableImportedContent} from '../../frontend/src/mind-map-import';
+const evaluation=importMindMap(readFileSync('tests/fixtures/mind-map-evaluation.tex','utf8'),'evaluation.tex');
+assert.equal(evaluation.nodes[0].text,'Évaluation - La programmation');
+assert.equal(evaluation.nodes.length,9);
+const rendered=evaluation.nodes.map(n=>n.text+'\n'+n.content).join('\n');
+assert.ok(!/\\[A-Za-z]|\{[|p]|\[1\.4cm\]|\\\\/.test(rendered));
+for(const text of ['capteur de niveau','Rôle des composants','Chaîne d’information','SI niveau > seuil','Amélioration'])assert.ok(rendered.replace(/'/g,'’').includes(text),text);
+assert.ok(!rendered.includes('5cm'));assert.ok(!rendered.includes('linewidth'));assert.ok(!rendered.includes('0.5pt'));
+assert.equal(texPlain(String.raw`\textbf{Un \emph{titre}} et \frac{1}{2}`),'Un titre et 1 / 2');
+assert.equal(markdownPlain('**Important** et [Lien](https://example.com)\n- [x] Fait'),'Important et Lien (https://example.com)\n• Fait');
+assert.ok(!readableImportedContent(String.raw`\begin{center}\textbf{Ancien import}\vspace{1cm}\end{center}`).includes('\\'));
+console.log('PASS reference TeX evaluation: nested formatting, centered title, tables, layout removal, readable legacy content and clean Markdown');
+
+assert.doesNotThrow(()=>readableImportedContent(String.raw`\textbf{Ancien contenu incomplet`));
