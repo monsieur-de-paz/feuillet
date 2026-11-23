@@ -5,6 +5,9 @@ import { wheelLabel, wheelTarget, type WheelData } from "./destiny-wheel-model";
 import {
   animateWheel,
   wheelDuration,
+  wheelSeconds,
+  wheelSpinTarget,
+  wheelDurationKey,
   wheelMotion,
   wheelMotionKey,
   type WheelMotion,
@@ -89,6 +92,22 @@ export function DestinyWheel({
       return "auto";
     }
   });
+  const [customSeconds, setCustomSeconds] = useState<number | null>(() => {
+    try {
+      const value = localStorage.getItem(wheelDurationKey);
+      return value === null ? null : wheelSeconds(Number(value));
+    } catch {
+      return null;
+    }
+  });
+  const seconds = customSeconds ?? (motion === "light" ? 2 : 5);
+  useEffect(() => {
+    if (customSeconds !== null) {
+      try {
+        localStorage.setItem(wheelDurationKey, String(customSeconds));
+      } catch {}
+    }
+  }, [customSeconds]);
   const [reduced, setReduced] = useState(
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
@@ -106,9 +125,22 @@ export function DestinyWheel({
   const animation = useRef<ReturnType<typeof animateWheel> | null>(null);
   const rotor = useRef<SVGGElement>(null);
   const rotation = useRef(0);
+  const spinSound = useRef<{ step: number; sector: number; at: number } | null>(
+    null,
+  );
   function paintRotation(angle: number) {
     rotation.current = angle;
     rotor.current?.setAttribute("transform", `rotate(${angle})`);
+    const ticking = spinSound.current;
+    if (ticking) {
+      const sector = Math.floor(angle / ticking.step),
+        now = performance.now();
+      if (sector !== ticking.sector && now - ticking.at >= 45) {
+        sound("tick");
+        ticking.at = now;
+      }
+      ticking.sector = sector;
+    }
   }
   useEffect(() => {
     if (motion === "auto" && reduced && spinning) animation.current?.finish();
@@ -205,6 +237,7 @@ export function DestinyWheel({
       });
       document.body.style.overflow = overflow;
       animation.current?.cancel();
+      spinSound.current = null;
       void audio.current?.close();
       prior?.focus({ preventScroll: true });
     };
@@ -212,7 +245,7 @@ export function DestinyWheel({
   useEffect(() => {
     if (audioGain.current) audioGain.current.gain.value = muted ? 0 : 0.06;
   }, [muted]);
-  function sound(kind: "prepare" | "ticks" | "win", duration = 5200) {
+  function sound(kind: "prepare" | "tick" | "win") {
     if (muted) return;
     try {
       if (!audio.current) {
@@ -224,17 +257,9 @@ export function DestinyWheel({
       const ctx = audio.current;
       void ctx.resume().catch(() => {});
       if (kind === "prepare") return;
-      const count = duration < 3000 ? 12 : 30;
-      const notes =
-        kind === "win"
-          ? [523, 659, 784, 1047]
-          : Array.from({ length: count }, (_, i) => (i % 2 ? 640 : 510));
+      const notes = kind === "win" ? [523, 659, 784, 1047] : [640];
       notes.forEach((hz, i) => {
-        const t =
-          ctx.currentTime +
-          (kind === "win"
-            ? i * 0.15
-            : (duration / 1000 - 0.25) * (1 - Math.pow(1 - i / count, 1.9)));
+        const t = ctx.currentTime + (kind === "win" ? i * 0.15 : 0);
         const osc = ctx.createOscillator(),
           gain = ctx.createGain();
         osc.type = kind === "win" ? "sine" : "triangle";
@@ -277,20 +302,23 @@ export function DestinyWheel({
           (e) => e.id === next.state.pending!.id,
         );
         if (idx < 0) throw new Error("La liste a changé. Recharge la roue.");
-        const duration = wheelDuration(motion, reduced);
-        const target = wheelTarget(
+        const duration = wheelDuration(motion, reduced, seconds);
+        const destination = wheelSpinTarget(
           rotation.current,
           Math.floor(
             (idx * Math.min(60, next.entries.length)) / next.entries.length,
           ),
           Math.min(60, next.entries.length),
+          duration,
+          motion === "light",
         );
-        // Light mode makes fewer turns; the destination sector stays identical.
-        const destination = duration === 1800 ? target - 4 * 360 : target;
         setData(next);
         setSpinning(duration > 0);
-        if (duration) sound("ticks", duration);
         animation.current?.cancel();
+        const step = 360 / Math.min(60, next.entries.length);
+        spinSound.current = duration
+          ? { step, sector: Math.floor(rotation.current / step), at: 0 }
+          : null;
         animation.current = animateWheel(
           rotation.current,
           destination,
@@ -298,6 +326,7 @@ export function DestinyWheel({
           paintRotation,
           () => {
             if (attempt !== generation.current) return;
+            spinSound.current = null;
             setSpinning(false);
             sound("win");
             result.current?.focus({ preventScroll: true });
@@ -437,13 +466,39 @@ export function DestinyWheel({
               <option value="off">Sans rotation</option>
             </select>
           </label>
+          <div className="destiny-duration">
+            <label htmlFor={`${titleId}-duration`}>
+              Durée de rotation{" "}
+              <output htmlFor={`${titleId}-duration`}>{seconds} s</output>
+            </label>
+            <input
+              id={`${titleId}-duration`}
+              type="range"
+              min="2"
+              max="30"
+              step="1"
+              value={seconds}
+              aria-label="Durée de rotation"
+              aria-valuetext={`${seconds} secondes`}
+              aria-describedby={`${titleId}-duration-help`}
+              disabled={
+                busy || spinning || !wheelDuration(motion, reduced, seconds)
+              }
+              onChange={(e) =>
+                setCustomSeconds(wheelSeconds(Number(e.target.value)))
+              }
+            />
+            <small id={`${titleId}-duration-help`}>
+              De 2 à 30 secondes, ralentissement compris.
+            </small>
+          </div>
           <p id={`${titleId}-motion`}>
             {motion === "auto" && reduced
               ? "Ce poste demande de réduire les animations : le résultat apparaît sans rotation. Tu peux choisir une rotation légère ou complète ici."
               : motion === "full" && reduced
                 ? "Rotation activée à ta demande sur ce poste. Les autres effets restent réduits selon le système."
                 : motion === "light"
-                  ? "Une rotation plus courte, sans halo animé. Ce choix est mémorisé sur ce navigateur."
+                  ? "Moins de tours, sans halo animé. La durée reste réglable, avec le même ralentissement progressif."
                   : motion === "off"
                     ? "Résultat immédiat, sans rotation. Ce choix est mémorisé sur ce navigateur."
                     : "Rotation compatible, sans transition CSS ni accélération graphique requise. Choix mémorisé sur ce navigateur."}

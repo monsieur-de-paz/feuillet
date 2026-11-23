@@ -1,16 +1,46 @@
+import { wheelTarget } from "./destiny-wheel-model";
 export type WheelMotion = "auto" | "full" | "light" | "off";
 export const wheelMotionKey = "feuillet:wheel-motion";
+export const wheelDurationKey = "feuillet:wheel-duration";
+export function wheelSeconds(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value)
+    ? Math.max(2, Math.min(30, Math.round(value)))
+    : 5;
+}
 export function wheelMotion(value: unknown): WheelMotion {
   return value === "full" || value === "light" || value === "off"
     ? value
     : "auto";
 }
-export function wheelDuration(mode: WheelMotion, reduced: boolean): number {
+export function wheelDuration(
+  mode: WheelMotion,
+  reduced: boolean,
+  seconds = mode === "light" ? 2 : 5,
+): number {
   return mode === "off" || (mode === "auto" && reduced)
     ? 0
-    : mode === "light"
-      ? 1800
-      : 5200;
+    : wheelSeconds(seconds) * 1000;
+}
+
+export function wheelSpinTarget(
+  rotation: number,
+  index: number,
+  count: number,
+  duration: number,
+  light: boolean,
+) {
+  // Keep a convincing initial impulse at every duration instead of stretching a
+  // fixed five turns into an almost motionless long spin. Only whole turns vary;
+  // the server-selected destination is never changed.
+  const turns = Math.max(1, Math.round((duration / 1000) * (light ? 0.35 : 1)));
+  return wheelTarget(rotation, index, count) + (turns - 5) * 360;
+}
+
+export function wheelProgress(progress: number) {
+  const t = Math.max(0, Math.min(1, progress));
+  // Constant friction after the initial impulse: angular velocity decreases
+  // linearly to zero. No final snap, rebound, or invisible waiting at rest.
+  return t * (2 - t);
 }
 
 type Scheduler = {
@@ -58,7 +88,7 @@ export function animateWheel(
     if (stopped) return;
     const progress = Math.min(1, Math.max(0, (clock.now() - start) / duration));
     if (progress >= 1) return finish();
-    paint(from + (to - from) * (1 - Math.pow(1 - progress, 4)));
+    paint(from + (to - from) * wheelProgress(progress));
     lastPaint = clock.now();
   }
   function nextFrame() {

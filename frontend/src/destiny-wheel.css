@@ -338,3 +338,59 @@
     flex-basis: auto;
   }
 }
+
+.destiny-motion {
+  flex-wrap: wrap;
+}
+.destiny-motion > p {
+  flex: 1 1 260px;
+}
+.destiny-duration {
+  flex: 1 1 220px;
+  min-width: 0;
+  max-width: 360px;
+}
+.destiny-duration label {
+  display: flex;
+  flex: initial;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.destiny-duration output {
+  color: #fff;
+  font: 700 16px/1.4 system-ui;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.destiny-duration input {
+  display: block;
+  width: 100%;
+  margin: 0;
+  min-height: 44px;
+  accent-color: #c5b4ff;
+  cursor: pointer;
+}
+.destiny-duration input:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.destiny-duration input:focus-visible {
+  outline: 3px solid #ffe17a;
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+.destiny-duration small {
+  display: block;
+  color: #cbd4e8;
+  font: 11px/1.5 system-ui;
+}
+@media (max-width: 740px) {
+  .destiny-duration {
+    flex-basis: auto;
+    max-width: none;
+  }
+  .destiny-motion > p {
+    flex-basis: auto;
+  }
+}

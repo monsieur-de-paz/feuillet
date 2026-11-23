@@ -1,5 +1,11 @@
 # Historique des versions
 
+## 0.37.2 — 2026-11-23
+
+- Durée de rotation réglable de 2 à 30 secondes, ralentissement compris, mémorisée dans le navigateur et accessible au clavier.
+- Freinage par frottement constant : vitesse progressivement réduite jusqu’à zéro, sans arrêt brusque ni attente artificielle après l’arrêt visuel. Le nombre de tours s’adapte à la durée et au mode léger.
+- Clics sonores déclenchés par le passage réel des secteurs, qui s’espacent naturellement pendant le ralentissement. Les modes compatibles et le respect des mouvements réduits sont conservés.
+
 ## 0.37.1 — 2026-11-23
 
 - Animation de la roue : choix mémorisé par navigateur entre préférence système, rotation complète, légère ou résultat immédiat. La réduction des mouvements détectée est expliquée, avec activation volontaire possible de la rotation.

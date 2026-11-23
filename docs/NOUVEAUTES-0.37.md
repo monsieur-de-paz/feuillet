@@ -34,3 +34,14 @@ La rotation utilise directement le SVG, sans transition CSS, WebGL, CDN ni anima
 Diagnostic : le symptôme rapporté correspond au chemin de réduction des mouvements du code précédent, également utilisé dans le portfolio. Ce réglage a été reproduit par émulation Chrome ; la configuration réelle du poste de Montastruc reste à confirmer sur place. Référence : [préférence de mouvements réduits et paramètres Windows](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/%40media/prefers-reduced-motion).
 
 Validation du correctif : suite frontend complète ; politiques auto/manuelles, positions intermédiaires et destination exacte, minuterie sans images, reprise après pause, annulation et fin unique ; trois tests HTTP des états et permissions. Dans Chrome : mode système réduit, rotation complète et légère malgré ce réglage, retour automatique à un résultat sans mouvement quand le système change, absence volontaire de rotation, reprise du résultat et mémorisation après rechargement. Nouveau sélecteur vérifié à 390 px sans débordement horizontal.
+
+
+## 0.37.2 — durée et freinage de la roue
+
+Le curseur **Durée de rotation** permet de choisir de **2 à 30 secondes**, par pas d’une seconde. Cette durée comprend tout le ralentissement et commence lorsque le résultat serveur est reçu ; le temps de connexion ne fait pas partie de la rotation. Le choix est enregistré dans ce navigateur pour toutes ses roues. Sans choix personnalisé, la rotation complète dure 5 secondes et la légère 2 secondes. Une fois la durée choisie, les deux modes la respectent ; la rotation légère fait moins de tours et conserve ses effets réduits.
+
+Le mouvement suit un modèle simple de roue freinée par un frottement constant après son impulsion initiale : sa vitesse diminue continuellement jusqu’à zéro. Le nombre de tours est adapté à la durée pour éviter une rotation trop lente au départ sur les tirages longs. Le secteur final reste celui tiré par le serveur. Le résultat apparaît dès l’arrêt, sans attente supplémentaire, rebond ni changement de secteur. Les sons des secteurs suivent la rotation réelle et ralentissent avec elle ; ils restent désactivables.
+
+Le réglage est verrouillé pendant le tirage. Si les mouvements sont désactivés (manuellement, ou par le système en mode automatique), la durée reste mémorisée mais n’est pas appliquée : le résultat apparaît immédiatement. Les moteurs SVG et minuterie de secours de la version précédente sont conservés.
+
+Validation : suite frontend avec durées limites et intermédiaires, vitesse décroissante et nulle à l’arrivée, absence de résultat anticipé, destination identique dans les deux modes, minuterie et interruption ; navigateur pour durées courtes et longues, commande clavier, mémorisation, compatibilité avec mouvements réduits, alignement du secteur et absence de débordement sur petit écran. Aucune migration de données.
