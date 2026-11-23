@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/wheels.php';
 require_once __DIR__.'/formulas.php';
 require_once __DIR__.'/form-design.php';
 require_once __DIR__.'/form-delivery.php';
@@ -113,8 +114,8 @@ function database_form_get(string $value,bool $token=false): array {
 function form_upload_owner(): string { start_session();return hash_hmac('sha256',session_id(),cfg()['secret']); }
 function form_owned_file(string $id): bool { $owner=form_upload_owner();return (bool)query('SELECT file_id FROM form_uploads WHERE file_id=? AND owner=?',[$id,$owner])->fetch(); }
 function database_dispatch(string $action,string $method): void {
-    $actions=['projection_save','form_delivery_audit','db_projection','db_list','db_get','db_create','db_save','db_delete','property_save','property_delete','row_save','row_patch','row_delete','form_save','form_get','form_submit','form_upload','db_export','public_db_get','formula_preview'];if(!in_array($action,$actions,true))return;
-    $mutations=['projection_save','db_create','db_save','db_delete','property_save','property_delete','row_save','row_patch','row_delete','form_save','form_submit','form_upload','formula_preview'];$expected=in_array($action,$mutations,true)?'POST':'GET';if($method!==$expected)fail('Méthode non autorisée.',405);if($expected==='POST')csrf();
+    $actions=['wheel_state','wheel_spin','wheel_decide','wheel_reset','projection_save','form_delivery_audit','db_projection','db_list','db_get','db_create','db_save','db_delete','property_save','property_delete','row_save','row_patch','row_delete','form_save','form_get','form_submit','form_upload','db_export','public_db_get','formula_preview'];if(!in_array($action,$actions,true))return;
+    $mutations=['wheel_state','wheel_spin','wheel_decide','wheel_reset','projection_save','db_create','db_save','db_delete','property_save','property_delete','row_save','row_patch','row_delete','form_save','form_submit','form_upload','formula_preview'];$expected=in_array($action,$mutations,true)?'POST':'GET';if($method!==$expected)fail('Méthode non autorisée.',405);if($expected==='POST')csrf();
     if($action==='form_get')json_out(database_form_get(str_limit($_GET['token']??$_GET['id']??'',64),isset($_GET['token'])));
     if($action==='public_db_get')json_out(database_bundle(str_limit($_GET['id']??'',36),true));
     if(in_array($action,['form_submit','form_upload'],true)){
@@ -150,6 +151,7 @@ function database_dispatch(string $action,string $method): void {
         $pdo=db();$pdo->beginTransaction();try{$row=database_row_save(['db_id'=>$form['db_id'],'values'=>$values,'source_form_id'=>$form['id']],array_column($props,'id'),true,$props);foreach($fileIds as $fid)query('UPDATE form_uploads SET used_row_id=? WHERE file_id=? AND used_row_id IS NULL',[$row['id'],$fid]);$receipt=form_delivery_prepare($form,$row,$values,$fileIds,$owner,$requestId,$journalPath);$pdo->commit();}catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}}finally{flock($submissionLock,LOCK_UN);fclose($submissionLock);}json_out(['ok'=>true,'message'=>'Ta réponse a bien été envoyée.','receipt'=>$receipt]);
     }
     need_admin();
+    if(in_array($action,['wheel_state','wheel_spin','wheel_decide','wheel_reset'],true))wheel_handle($action,json_in());
     if($action==='form_delivery_audit')json_out(form_delivery_audit(str_limit($_GET['id']??'',36)));
     if($action==='db_list')json_out(['databases'=>array_map(fn($r)=>array_replace($r,['version'=>(int)$r['version']]),query('SELECT * FROM collections ORDER BY created_at,id')->fetchAll())]);
     if($action==='db_get')json_out(database_bundle(str_limit($_GET['id']??'',36)));

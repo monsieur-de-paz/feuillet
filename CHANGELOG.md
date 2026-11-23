@@ -1,5 +1,13 @@
 # Historique des versions
 
+## 0.37.0 — 2026-11-23
+
+- Copie de colonne limitée à un groupe déplié, ou à tous les groupes dépliés, depuis le menu à flèche. La copie complète reste disponible.
+- Roue du destin dans la projection : colonne au choix, roues indépendantes par groupe et formulaire, résultat aléatoire enregistré sur le serveur avant animation, conservation ou exclusion au prochain tour, historique et réinitialisation.
+- Secteurs aux couleurs intenses, libellés alignés dans le sens des secteurs, sons synthétisés désactivables, lumière douce et révélation du résultat.
+- Commandes clavier, annonce du résultat, arrière-plan inerte, contrastes contrôlés et prise en compte des mouvements réduits.
+- Persistance transactionnelle et contrôle des accès administrateur, CSRF et versions pour empêcher les écrasements entre fenêtres.
+
 ## 0.36.0 — 2026-11-23
 
 - Les actions de copie des colonnes sont regroupées dans de petits menus à flèche.

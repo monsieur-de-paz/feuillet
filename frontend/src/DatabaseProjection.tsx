@@ -1,3 +1,5 @@
+import { DestinyWheel } from "./DestinyWheel";
+import { columnText } from "./destiny-wheel-model";
 import { groupRecords } from "./database-grouping";
 import { Fragment, useEffect, useRef, useState } from "react";
 import {
@@ -66,6 +68,7 @@ export function DatabaseProjection({ id }: { id: string }) {
     () => projectionPreferences(id).group || "",
   );
   const [folded, setFolded] = useState<Set<string>>(new Set());
+  const [wheelOpen, setWheelOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false),
     [saving, setSaving] = useState(""),
     [editError, setEditError] = useState("");
@@ -323,6 +326,20 @@ export function DatabaseProjection({ id }: { id: string }) {
     document.addEventListener("pointerdown", outside);
     return () => document.removeEventListener("pointerdown", outside);
   }, []);
+  async function copyColumn(
+    rows: Projection["rows"],
+    property: string,
+    label: string,
+  ) {
+    try {
+      await navigator.clipboard.writeText(columnText(rows, property));
+      setCopyNotice(label + " : " + rows.length + " lignes.");
+    } catch {
+      setCopyNotice(
+        "Copie indisponible : autorise le presse-papiers du navigateur.",
+      );
+    }
+  }
   async function toggleFullscreen() {
     try {
       if (document.fullscreenElement) await document.exitFullscreen();
@@ -343,6 +360,15 @@ export function DatabaseProjection({ id }: { id: string }) {
     : [];
   return (
     <main className="projection-page" ref={panel}>
+      {wheelOpen && data && (
+        <DestinyWheel
+          id={id}
+          source={source}
+          properties={data.properties}
+          initialGroup={groupBy}
+          onClose={() => setWheelOpen(false)}
+        />
+      )}
       <header className="projection-heading">
         <div>
           <span className="form-eyebrow">
@@ -378,6 +404,14 @@ export function DatabaseProjection({ id }: { id: string }) {
               </small>
             </div>
             <div className="projection-controls">
+              <button
+                type="button"
+                className="small-button"
+                onClick={() => setWheelOpen(true)}
+                disabled={!data}
+              >
+                ✦ Roue du destin
+              </button>
               <Select
                 aria-label="Réponses à projeter"
                 value={source}
@@ -552,32 +586,62 @@ export function DatabaseProjection({ id }: { id: string }) {
                                   const menu =
                                     event.currentTarget.closest("details");
                                   if (menu) menu.open = false;
-                                  const text = data.rows
-                                    .map((row) => {
-                                      const v = row.values[p.id];
-                                      return Array.isArray(v)
-                                        ? v.join(", ")
-                                        : String(v ?? "");
-                                    })
-                                    .filter(Boolean)
-                                    .map((v) => v.replace(/[\r\n]+/g, " "))
-                                    .join("\n");
-                                  try {
-                                    await navigator.clipboard.writeText(text);
-                                    setCopyNotice(
-                                      "Colonne copiée : " +
-                                        data.rows.length +
-                                        " lignes affichées.",
-                                    );
-                                  } catch {
-                                    setCopyNotice(
-                                      "Copie indisponible : autorise le presse-papiers du navigateur.",
-                                    );
-                                  }
+                                  await copyColumn(
+                                    data.rows,
+                                    p.id,
+                                    "Colonne copiée",
+                                  );
                                 }}
                               >
-                                Copier la colonne
+                                Copier
                               </button>
+                              {groupBy &&
+                                groups
+                                  .filter((g) => !folded.has(g.key))
+                                  .map((g) => (
+                                    <button
+                                      type="button"
+                                      key={g.key}
+                                      aria-label={
+                                        "Copier " + p.name + " sur " + g.label
+                                      }
+                                      onClick={async (event) => {
+                                        const menu =
+                                          event.currentTarget.closest(
+                                            "details",
+                                          );
+                                        if (menu) menu.open = false;
+                                        await copyColumn(
+                                          g.rows,
+                                          p.id,
+                                          "Copié sur " + g.label,
+                                        );
+                                      }}
+                                    >
+                                      Copier sur {g.label}
+                                    </button>
+                                  ))}
+                              {groupBy &&
+                                groups.filter((g) => !folded.has(g.key))
+                                  .length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={async (event) => {
+                                      const menu =
+                                        event.currentTarget.closest("details");
+                                      if (menu) menu.open = false;
+                                      await copyColumn(
+                                        groups
+                                          .filter((g) => !folded.has(g.key))
+                                          .flatMap((g) => g.rows),
+                                        p.id,
+                                        "Groupes dépliés copiés",
+                                      );
+                                    }}
+                                  >
+                                    Copier les groupes dépliés
+                                  </button>
+                                )}
                             </div>
                           </details>
                         )}
