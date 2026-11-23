@@ -2,6 +2,13 @@ import { useEffect, useId, useRef, useState } from "react";
 import { api, setCsrf } from "./types";
 import type { ProjectionProperty } from "./ProjectionRules";
 import { wheelLabel, wheelTarget, type WheelData } from "./destiny-wheel-model";
+import {
+  animateWheel,
+  wheelDuration,
+  wheelMotion,
+  wheelMotionKey,
+  type WheelMotion,
+} from "./wheel-motion";
 import "./destiny-wheel.css";
 const palette = [
   "#D93852",
@@ -62,7 +69,6 @@ export function DestinyWheel({
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [spinning, setSpinning] = useState(false),
-    [rotation, setRotation] = useState(0),
     [muted, setMuted] = useState(() => preferences().muted === true),
     [confirmReset, setConfirmReset] = useState(false);
   useEffect(() => {
@@ -76,11 +82,41 @@ export function DestinyWheel({
   const [availableGroups, setAvailableGroups] = useState<WheelData["groups"]>(
     [],
   );
+  const [motion, setMotion] = useState<WheelMotion>(() => {
+    try {
+      return wheelMotion(localStorage.getItem(wheelMotionKey));
+    } catch {
+      return "auto";
+    }
+  });
+  const [reduced, setReduced] = useState(
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const change = () => setReduced(query.matches);
+    query.addEventListener?.("change", change);
+    return () => query.removeEventListener?.("change", change);
+  }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem(wheelMotionKey, motion);
+    } catch {}
+  }, [motion]);
+  const animation = useRef<ReturnType<typeof animateWheel> | null>(null);
+  const rotor = useRef<SVGGElement>(null);
+  const rotation = useRef(0);
+  function paintRotation(angle: number) {
+    rotation.current = angle;
+    rotor.current?.setAttribute("transform", `rotate(${angle})`);
+  }
+  useEffect(() => {
+    if (motion === "auto" && reduced && spinning) animation.current?.finish();
+  }, [motion, reduced, spinning]);
   const lastEntries = useRef<WheelData["entries"]>([]);
   const titleId = useId(),
     dialog = useRef<HTMLDivElement>(null),
     result = useRef<HTMLHeadingElement>(null),
-    timer = useRef<ReturnType<typeof setTimeout> | null>(null),
     audio = useRef<AudioContext | null>(null),
     audioGain = useRef<GainNode | null>(null),
     generation = useRef(0),
@@ -96,8 +132,6 @@ export function DestinyWheel({
   };
   const scopeRef = useRef(scope);
   scopeRef.current = scope;
-  const reduced = () =>
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   async function fetchState() {
     const attempt = ++generation.current;
     controller.current?.abort();
@@ -122,7 +156,7 @@ export function DestinyWheel({
         const idx = next.state.pending
           ? next.entries.findIndex((e) => e.id === next.state.pending!.id)
           : -1;
-        setRotation(
+        paintRotation(
           idx >= 0
             ? wheelTarget(
                 0,
@@ -170,7 +204,7 @@ export function DestinyWheel({
         node.inert = was;
       });
       document.body.style.overflow = overflow;
-      if (timer.current) clearTimeout(timer.current);
+      animation.current?.cancel();
       void audio.current?.close();
       prior?.focus({ preventScroll: true });
     };
@@ -178,7 +212,7 @@ export function DestinyWheel({
   useEffect(() => {
     if (audioGain.current) audioGain.current.gain.value = muted ? 0 : 0.06;
   }, [muted]);
-  function sound(kind: "ticks" | "win") {
+  function sound(kind: "prepare" | "ticks" | "win", duration = 5200) {
     if (muted) return;
     try {
       if (!audio.current) {
@@ -189,14 +223,18 @@ export function DestinyWheel({
       }
       const ctx = audio.current;
       void ctx.resume().catch(() => {});
+      if (kind === "prepare") return;
+      const count = duration < 3000 ? 12 : 30;
       const notes =
         kind === "win"
           ? [523, 659, 784, 1047]
-          : Array.from({ length: 30 }, (_, i) => (i % 2 ? 640 : 510));
+          : Array.from({ length: count }, (_, i) => (i % 2 ? 640 : 510));
       notes.forEach((hz, i) => {
         const t =
           ctx.currentTime +
-          (kind === "win" ? i * 0.15 : 4.8 * (1 - Math.pow(1 - i / 30, 1.9)));
+          (kind === "win"
+            ? i * 0.15
+            : (duration / 1000 - 0.25) * (1 - Math.pow(1 - i / count, 1.9)));
         const osc = ctx.createOscillator(),
           gain = ctx.createGain();
         osc.type = kind === "win" ? "sine" : "triangle";
@@ -221,7 +259,7 @@ export function DestinyWheel({
     setError("");
     const attempt = generation.current;
     if (action === "wheel_spin") {
-      sound("ticks");
+      sound("prepare");
     }
     try {
       const session = await api("session");
@@ -239,23 +277,32 @@ export function DestinyWheel({
           (e) => e.id === next.state.pending!.id,
         );
         if (idx < 0) throw new Error("La liste a changé. Recharge la roue.");
-        setSpinning(true);
-        setRotation((r) =>
-          wheelTarget(
-            r,
-            Math.floor(
-              (idx * Math.min(60, next.entries.length)) / next.entries.length,
-            ),
-            Math.min(60, next.entries.length),
+        const duration = wheelDuration(motion, reduced);
+        const target = wheelTarget(
+          rotation.current,
+          Math.floor(
+            (idx * Math.min(60, next.entries.length)) / next.entries.length,
           ),
+          Math.min(60, next.entries.length),
         );
+        // Light mode makes fewer turns; the destination sector stays identical.
+        const destination = duration === 1800 ? target - 4 * 360 : target;
         setData(next);
-        const duration = reduced() ? 0 : 5200;
-        timer.current = setTimeout(() => {
-          setSpinning(false);
-          sound("win");
-          result.current?.focus({ preventScroll: true });
-        }, duration);
+        setSpinning(duration > 0);
+        if (duration) sound("ticks", duration);
+        animation.current?.cancel();
+        animation.current = animateWheel(
+          rotation.current,
+          destination,
+          duration,
+          paintRotation,
+          () => {
+            if (attempt !== generation.current) return;
+            setSpinning(false);
+            sound("win");
+            result.current?.focus({ preventScroll: true });
+          },
+        );
       } else {
         setData(next);
         setConfirmReset(false);
@@ -281,7 +328,7 @@ export function DestinyWheel({
       }}
     >
       <div
-        className="destiny-dialog"
+        className={`destiny-dialog ${motion === "light" || motion === "off" ? "destiny-calm" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -374,6 +421,34 @@ export function DestinyWheel({
             </label>
           )}
         </div>
+        <div className="destiny-motion">
+          <label>
+            Animation de la roue
+            <select
+              aria-label="Animation de la roue"
+              value={motion}
+              disabled={busy || spinning}
+              aria-describedby={`${titleId}-motion`}
+              onChange={(e) => setMotion(wheelMotion(e.target.value))}
+            >
+              <option value="auto">Selon le système</option>
+              <option value="full">Rotation complète</option>
+              <option value="light">Rotation légère</option>
+              <option value="off">Sans rotation</option>
+            </select>
+          </label>
+          <p id={`${titleId}-motion`}>
+            {motion === "auto" && reduced
+              ? "Ce poste demande de réduire les animations : le résultat apparaît sans rotation. Tu peux choisir une rotation légère ou complète ici."
+              : motion === "full" && reduced
+                ? "Rotation activée à ta demande sur ce poste. Les autres effets restent réduits selon le système."
+                : motion === "light"
+                  ? "Une rotation plus courte, sans halo animé. Ce choix est mémorisé sur ce navigateur."
+                  : motion === "off"
+                    ? "Résultat immédiat, sans rotation. Ce choix est mémorisé sur ce navigateur."
+                    : "Rotation compatible, sans transition CSS ni accélération graphique requise. Choix mémorisé sur ce navigateur."}
+          </p>
+        </div>
         <div className="destiny-stage">
           <div className="destiny-wheel-area">
             <span className="destiny-pointer" aria-hidden="true">
@@ -384,88 +459,85 @@ export function DestinyWheel({
               viewBox="-210 -210 420 420"
               aria-hidden="true"
               style={{
-                transform: `rotate(${rotation}deg)`,
                 opacity: busy && !spinning ? 0.45 : 1,
-                transition:
-                  spinning && !reduced()
-                    ? "transform 5.2s cubic-bezier(.12,.72,.13,1), opacity 180ms"
-                    : "opacity 180ms",
               }}
             >
-              {segments ? (
-                Array.from({ length: segments }, (_, i) => {
-                  const angle = 360 / segments,
-                    a = ((-90 + i * angle) * Math.PI) / 180,
-                    b = ((-90 + (i + 1) * angle) * Math.PI) / 180,
-                    mid = ((-90 + (i + 0.5) * angle) * Math.PI) / 180;
-                  const entry =
-                    entries[Math.floor((i * entries.length) / segments)];
-                  const lines = wheelLabel(entry.label, segments),
-                    font = segments > 30 ? 8 : segments > 16 ? 10 : 12;
-                  const degree = -90 + (i + 0.5) * angle,
-                    readable =
-                      degree +
-                      ((degree + 360) % 360 > 90 && (degree + 360) % 360 < 270
-                        ? 180
-                        : 0);
-                  return (
-                    <g key={i}>
-                      {segments === 1 ? (
-                        <circle r="198" fill={palette[0]} />
-                      ) : (
-                        <path
-                          d={`M0 0 L${198 * Math.cos(a)} ${198 * Math.sin(a)} A198 198 0 ${angle > 180 ? 1 : 0} 1 ${198 * Math.cos(b)} ${198 * Math.sin(b)} Z`}
-                          fill={palette[i % palette.length]}
-                          stroke="#ffffff"
-                          strokeOpacity=".4"
-                          strokeWidth="1.5"
-                        />
-                      )}
-                      <text
-                        x={126 * Math.cos(mid)}
-                        y={
-                          126 * Math.sin(mid) -
-                          ((lines.length - 1) * (font + 2)) / 2
-                        }
-                        transform={`rotate(${readable},${126 * Math.cos(mid)},${126 * Math.sin(mid)})`}
-                        fill="white"
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        fontSize={font}
-                        fontWeight="650"
-                      >
-                        <title>{entry.label}</title>
-                        {lines.map((line, j) => (
-                          <tspan
-                            key={j}
-                            x={126 * Math.cos(mid)}
-                            dy={j ? font + 2 : 0}
-                            textLength={Math.min(
-                              segments > 30 ? 90 : 124,
-                              line.length * font * 0.58,
-                            )}
-                            lengthAdjust="spacingAndGlyphs"
-                          >
-                            {line}
-                          </tspan>
-                        ))}
-                      </text>
-                    </g>
-                  );
-                })
-              ) : (
-                <circle r="198" fill="#263149" />
-              )}
-              <circle r="39" fill="#f9fafb" />
-              <text
-                textAnchor="middle"
-                y="7"
-                fill="#1b2436"
-                fontSize="22"
-                fontWeight="800"
-              >
-                ✦
-              </text>
+              <g ref={rotor} transform="rotate(0)" data-wheel-rotor="">
+                {segments ? (
+                  Array.from({ length: segments }, (_, i) => {
+                    const angle = 360 / segments,
+                      a = ((-90 + i * angle) * Math.PI) / 180,
+                      b = ((-90 + (i + 1) * angle) * Math.PI) / 180,
+                      mid = ((-90 + (i + 0.5) * angle) * Math.PI) / 180;
+                    const entry =
+                      entries[Math.floor((i * entries.length) / segments)];
+                    const lines = wheelLabel(entry.label, segments),
+                      font = segments > 30 ? 8 : segments > 16 ? 10 : 12;
+                    const degree = -90 + (i + 0.5) * angle,
+                      readable =
+                        degree +
+                        ((degree + 360) % 360 > 90 && (degree + 360) % 360 < 270
+                          ? 180
+                          : 0);
+                    return (
+                      <g key={i}>
+                        {segments === 1 ? (
+                          <circle r="198" fill={palette[0]} />
+                        ) : (
+                          <path
+                            d={`M0 0 L${198 * Math.cos(a)} ${198 * Math.sin(a)} A198 198 0 ${angle > 180 ? 1 : 0} 1 ${198 * Math.cos(b)} ${198 * Math.sin(b)} Z`}
+                            fill={palette[i % palette.length]}
+                            stroke="#ffffff"
+                            strokeOpacity=".4"
+                            strokeWidth="1.5"
+                          />
+                        )}
+                        <text
+                          x={126 * Math.cos(mid)}
+                          y={
+                            126 * Math.sin(mid) -
+                            ((lines.length - 1) * (font + 2)) / 2
+                          }
+                          transform={`rotate(${readable},${126 * Math.cos(mid)},${126 * Math.sin(mid)})`}
+                          fill="white"
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          fontSize={font}
+                          fontWeight="650"
+                        >
+                          <title>{entry.label}</title>
+                          {lines.map((line, j) => (
+                            <tspan
+                              key={j}
+                              x={126 * Math.cos(mid)}
+                              dy={j ? font + 2 : 0}
+                              textLength={Math.min(
+                                segments > 30 ? 90 : 124,
+                                line.length * font * 0.58,
+                              )}
+                              lengthAdjust="spacingAndGlyphs"
+                            >
+                              {line}
+                            </tspan>
+                          ))}
+                        </text>
+                      </g>
+                    );
+                  })
+                ) : (
+                  <circle r="198" fill="#263149" />
+                )}
+                <circle r="39" fill="#f9fafb" />
+                <text
+                  textAnchor="middle"
+                  y="7"
+                  fill="#1b2436"
+                  fontSize="22"
+                  fontWeight="800"
+                >
+                  ✦
+                </text>
+              </g>
             </svg>
           </div>
           <section

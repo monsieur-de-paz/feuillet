@@ -1,5 +1,11 @@
 # Historique des versions
 
+## 0.37.1 — 2026-11-23
+
+- Animation de la roue : choix mémorisé par navigateur entre préférence système, rotation complète, légère ou résultat immédiat. La réduction des mouvements détectée est expliquée, avec activation volontaire possible de la rotation.
+- Rotation SVG pilotée sans transitions CSS ni bibliothèque externe, avec minuterie de secours si les images d’animation ne sont plus envoyées. Fin du tirage garantie à la reprise d’un onglet suspendu, destination inchangée et annulation à la fermeture.
+- Sons de rotation synchronisés après réception du résultat serveur ; rotation légère plus courte avec effets réduits.
+
 ## 0.37.0 — 2026-11-23
 
 - Copie de colonne limitée à un groupe déplié, ou à tous les groupes dépliés, depuis le menu à flèche. La copie complète reste disponible.
