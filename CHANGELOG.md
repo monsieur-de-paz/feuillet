@@ -1,5 +1,13 @@
 # Historique des versions
 
+## 0.36.0 — 2026-11-23
+
+- Les actions de copie des colonnes sont regroupées dans de petits menus à flèche.
+- Vue de projection interactive : groupes repliables, commandes pour tout replier ou déplier, mémorisation des colonnes et du regroupement dans le navigateur. Les groupes fermés le restent pendant les actualisations.
+- Modification directe des cases à cocher et des choix uniques/états, avec enregistrement, contrôle de version et protection contre les réponses d’actualisation périmées.
+- Règles conditionnelles de couleur des lignes enregistrées par base : colonne, condition, valeur et couleur. Première correspondance prioritaire, six couleurs adaptées aux thèmes et règles applicables aux colonnes masquées.
+- Contrôles administrateur et CSRF sur les réglages ; limite de vingt règles, validations de types et conflits de modification.
+
 ## 0.35.3 — 2026-11-23
 
 - Lecture des cartes mentales : navigation interactive entre les bulles, repère « Vous êtes ici », chemin des parents, zoom, déplacement et vue d’ensemble. Présentation adaptée aux petits écrans.

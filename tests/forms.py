@@ -52,4 +52,24 @@ class Forms(unittest.TestCase):
   for i in range(202):self.ok(self.admin.api('row_save',{'db_id':self.db['id'],'values':{self.title['id']:f'Line {i}'}}))
   result=self.ok(self.projection());self.assertEqual(result['total'],203);self.assertEqual(len(result['rows']),200);self.assertEqual(result['limit'],200)
   dates=[row['created_at'] for row in result['rows']];self.assertEqual(dates,sorted(dates,reverse=True))
+ def test_06_projection_editing_and_conditional_rules(self):
+  state=self.ok(self.admin.api('property_save',{'db_id':self.db['id'],'name':'État','type':'select','config':{'options':['À faire','Terminé']}}))['property']
+  check=self.ok(self.admin.api('property_save',{'db_id':self.db['id'],'name':'Passé','type':'checkbox'}))['property']
+  row=self.ok(self.admin.api('row_save',{'db_id':self.db['id'],'values':{self.title['id']:'Oral',state['id']:'À faire',check['id']:False}}))['row']
+  result=self.ok(self.projection('&columns='+','.join([self.title['id'],state['id'],check['id']])))
+  self.assertTrue(all(r['values'][check['id']] is False for r in result['rows']));self.assertIn('version',result['rows'][0]);self.assertEqual(next(p for p in result['properties'] if p['id']==state['id'])['config']['options'],['À faire','Terminé'])
+  changed=self.ok(self.admin.api('row_patch',{'id':row['id'],'version':row['version'],'property_id':check['id'],'value':True}))['row'];self.assertTrue(changed['values'][check['id']])
+  self.ok(self.admin.api('row_patch',{'id':row['id'],'version':row['version'],'property_id':check['id'],'value':False}),409)
+  changed=self.ok(self.admin.api('row_patch',{'id':row['id'],'version':changed['version'],'property_id':state['id'],'value':'Terminé'}))['row']
+  rules=[{'property':state['id'],'operator':'equals','value':'Terminé','color':'green'}]
+  payload={'id':self.db['id'],'version':result['database']['version'],'rules':rules}
+  self.ok(self.visitor.api('projection_save',payload),401)
+  self.ok(self.admin.api('projection_save',payload,authenticated=False),403)
+  saved=self.ok(self.admin.api('projection_save',payload));self.assertEqual(saved['rules'],rules)
+  self.ok(self.admin.api('projection_save',payload),409)
+  fresh=self.ok(self.projection('&columns='+self.title['id']));self.assertEqual(fresh['rules'],rules)
+  actual=next(r for r in fresh['rows'] if r['id']==row['id']);self.assertEqual(actual['conditionValues'][state['id']],'Terminé');self.assertNotIn(state['id'],actual['values'])
+  bad={**payload,'version':saved['version'],'rules':[{**rules[0],'color':'url(javascript:bad)'}]};self.ok(self.admin.api('projection_save',bad),400)
+  self.ok(self.admin.api('projection_save',{**bad,'rules':rules*21}),400)
+  self.ok(self.admin.api('projection_save',{**bad,'rules':[{**rules[0],'property':[] }]}),400)
 if __name__=='__main__':unittest.main(argv=[__file__]+h.REMAINING,verbosity=2)

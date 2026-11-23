@@ -57,7 +57,7 @@ L’installateur vérifie les extensions PHP, les sessions et les droits d’éc
 - **Rassembler ses médias** : images dont SVG, fichiers de toute extension, PDF, audio, vidéos, bibliothèque filtrable par extension et vidéos en ligne, aperçus de liens et intégrations web.
 - **Relier ses idées** : cartes mentales, modèles, sous-idées, recherche, import Markdown/TEX, contenus multimédias et export PDF.
 - **Créer des bases** : tableaux éditables et réglages directement dans les pages, champs typés, vues en tableau ou galerie, tri, filtres, regroupements, relations, formules et agrégations.
-- **Recueillir des réponses** : formulaires avec dépôt de fichiers, cinq modèles, textes personnalisables, aperçu en direct et animations. Réponses privées et projection administrateur actualisée toutes les dix secondes.
+- **Recueillir des réponses** : formulaires avec dépôt de fichiers, cinq modèles, textes personnalisables, aperçu en direct et animations. Réponses privées et projection administrateur avec groupes repliables, états modifiables et couleurs conditionnelles, actualisée toutes les dix secondes.
 - **Partager à son rythme** : pages privées ou publiques, liens personnalisés, partage des sous-pages et accueil public configurable.
 - **Personnaliser son espace** : interface Rivage et animations respectant la réduction des mouvements, thèmes clair, sombre et OLED, couleurs, polices, icônes et couvertures repositionnables.
 - **Utiliser Feuillet sur mobile** : interface adaptée, installation comme application web et cache facultatif des pages publiques pour la lecture hors connexion.
@@ -70,7 +70,7 @@ Les mises à jour s’installent depuis Feuillet, à partir des releases GitHub,
 - [Bases de données et formulaires](docs/BASES-ET-FORMULAIRES.md)
 - [Édition et présentation des blocs](docs/BLOCS-0.4.md)
 - [Maintenance et sauvegardes](docs/MAINTENANCE.md)
-- [Nouveautés de la version 0.35](docs/NOUVEAUTES-0.35.md)
+- [Nouveautés de la version 0.36](docs/NOUVEAUTES-0.36.md)
 - [Historique des versions](CHANGELOG.md)
 
 ## Contribuer

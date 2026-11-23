@@ -398,3 +398,8 @@ Transférer la distribution complète (backend, interface compilée et feuilles 
 ## Cartes mentales — 0.35
 
 Voir [les nouveautés](NOUVEAUTES-0.35.md) et [les essais et limites](CARTES-MENTALES-PREVERSION.md). La distribution doit inclure `mind-map.css`, `assets/mind-map-reader.js` et les chunks partagés Vite. L’ancien endpoint de projection conserve les valeurs de comptage et ajoute les métadonnées des fichiers dans `attachments` pour les colonnes choisies.
+
+
+## Projection interactive — 0.36
+
+Les règles privées sont stockées dans `app_settings` sous `projection:<id de base>`. Leur modification utilise la version de la collection, POST et CSRF. Les cellules utilisent `row_patch` et la version de ligne. `db_projection` expose les versions, les options des choix et seulement les valeurs nécessaires aux règles dans `conditionValues`, en plus des colonnes choisies. L’accès reste administrateur uniquement. Les préférences de regroupement et de colonnes sont locales au navigateur. Tests : `tests/forms.py`, `tests/frontend/projection-rules.ts`. Voir [la prise en main](NOUVEAUTES-0.36.md).

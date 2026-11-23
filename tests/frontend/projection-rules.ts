@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {ruleMatches,rowTint,ruleColors} from '../../frontend/src/projection-rules';
+const rule={property:'state',operator:'equals',value:'Terminé',color:'green'};
+assert.equal(rowTint([rule],{state:'Terminé'}),ruleColors.green.value);
+assert.equal(rowTint([rule],{state:'En cours'}),undefined);
+assert.ok(ruleMatches({...rule,value:false},false));assert.ok(!ruleMatches({...rule,value:false},true));
+assert.ok(ruleMatches({...rule,value:0},0));assert.ok(!ruleMatches({...rule,value:0},null));
+assert.ok(ruleMatches({...rule,operator:'empty'},null));assert.ok(!ruleMatches({...rule,operator:'empty'},false));
+assert.ok(ruleMatches({...rule,operator:'contains',value:'ora'},'Passage oral'));
+assert.ok(ruleMatches({...rule,operator:'gt',value:2},10));assert.ok(!ruleMatches({...rule,operator:'gt',value:2},'10'));
+assert.equal(rowTint([rule,{...rule,color:'blue'}],{state:'Terminé'}),ruleColors.green.value);
+console.log('PASS projection rules: ordered equality, null/false/zero, contains and numeric conditions');
