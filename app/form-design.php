@@ -17,6 +17,6 @@ function form_design(mixed $input,?array $ids=null,bool $validateCover=false): a
     return $out;
 }
 function form_properties(array $form): array {
-    $props=array_values(array_filter(database_properties($form['db_id']),fn($p)=>in_array($p['id'],$form['fields'],true)&&!in_array($p['type'],['relation','formula','rollup'],true)));
+    $props=array_values(array_filter(database_properties($form['db_id']),fn($p)=>in_array($p['id'],$form['fields'],true)&&!in_array($p['type'],['relation','formula','rollup','created_at'],true)));
     foreach($props as &$p){$q=$form['config']['questions'][$p['id']]??[];if(isset($q['label'])&&$q['label']!=='')$p['name']=$q['label'];if(isset($q['required']))$p['required']=$q['required'];}unset($p);return $props;
 }

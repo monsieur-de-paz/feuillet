@@ -1,6 +1,6 @@
 /* Feuillet: public reading copies only. No API, media or administrator document cache. */
 const base = new URL("./", self.location),
-  VERSION = "0.37.2",
+  VERSION = "0.38.0",
   PREFIX = "feuillet-" + encodeURIComponent(base.pathname) + "-",
   SHELL = PREFIX + "shell-" + VERSION,
   PAGES = PREFIX + "public-pages-v2",
@@ -407,6 +407,8 @@ self.addEventListener("fetch", (event) => {
     !url.searchParams.has("edit") &&
     !url.searchParams.has("form") &&
     !url.searchParams.has("project") &&
+    relative !== "rouedudestin" &&
+    !url.searchParams.has("wheels") &&
     !url.searchParams.has("dashboard")
   ) {
     event.respondWith(

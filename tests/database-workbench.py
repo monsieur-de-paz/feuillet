@@ -16,7 +16,7 @@ class Workbench(unittest.TestCase):
  def test_02_create_private_table_with_a_title_property(self):
   result=self.ok(self.admin.api('db_create',{'name':'  Ma première base  ','visibility':'public','properties':[{'name':'untrusted'}]}))['database']
   self.assertEqual(result['name'],'Ma première base');self.assertEqual(result['visibility'],'private')
-  bundle=self.ok(self.admin.api('db_get',query='&id='+result['id']));self.assertEqual(bundle['rows'],[]);self.assertEqual(len(bundle['properties']),1)
+  bundle=self.ok(self.admin.api('db_get',query='&id='+result['id']));self.assertEqual(bundle['rows'],[]);self.assertEqual(len(bundle['properties']),2)
   self.assertEqual(bundle['properties'][0]['type'],'title');self.assertEqual(bundle['properties'][0]['name'],'Nom');self.assertFalse(bundle['properties'][0]['required'])
   self.ok(self.visitor.api('public_db_get',query='&id='+result['id']),404)
  def test_03_invalid_names_do_not_create_orphans(self):

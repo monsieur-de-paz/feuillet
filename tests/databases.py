@@ -86,7 +86,12 @@ class Databases(unittest.TestCase):
         self.ok(self.visitor.api('form_submit',{'token':self.form['token'],'values':{self.title['id']:'Copie avec fichier',self.files['id']:[f['id']]}}))
         self.ok(self.visitor.request(f['url']),404);self.assertEqual(self.admin.request(f['url'])[0],200)
         self.invalid(self.visitor.api('form_submit',{'token':self.form['token'],'values':{self.title['id']:'Réutilisation',self.files['id']:[f['id']]}}))
-        self.invalid(self.visitor.upload('form_upload','script.html',b'<script>alert(1)</script>','text/html',fields={'token':self.form['token']}))
+        html=self.ok(self.visitor.upload('form_upload','script.html',b'<script>alert(1)</script>','text/html',fields={'token':self.form['token']}))['file']
+        self.assertEqual(html['mime'],'application/octet-stream')
+        self.ok(self.visitor.request(html['url']),404)
+        download=self.admin.request(html['url'])
+        self.assertEqual(download[0],200)
+        self.assertIn('attachment',download[2]['Content-Disposition'])
         type(self).form_file=f
     def test_07_csv_export_and_public_files(self):
         f=self.ok(self.admin.upload('upload','document.txt',b'Ressource publique','text/plain'))['file'];vals=self.values('=HYPERLINK("https://evil.example")',3);vals[self.files['id']]=[f['id']]

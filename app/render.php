@@ -126,6 +126,7 @@ function render_database_view(string $id,bool $public,array $config=[],?array $p
         if($property['type']==='files'){$text='';foreach(is_array($value)?$value:[] as $fileId){$file=$files[$fileId]??null;if(!$file)continue;$text.='<a class="database-file" href="media.php?id='.rawurlencode($fileId).'&download=1">'.h($file['name']).'</a>';}}
         elseif(in_array($property['type'],['select','multiselect'],true))$text=render_status_tags($property,$value);
         elseif($property['type']==='relation')$text=h(database_view_text(database_view_value($row,$property,$bundle)));
+        elseif($property['type']==='created_at'&&is_string($value))$text='<time datetime="'.h($value).'">'.h(database_created_display($value)).'</time>';
         elseif($property['type']==='checkbox')$text=!empty($value)?'<span aria-label="Oui">✓</span>':'<span aria-label="Non">—</span>';
         elseif(is_array($value))$text=h(implode(', ',array_map(fn($v)=>is_scalar($v)?(string)$v:encoded($v),$value)));
         elseif(is_bool($value))$text=$value?'Oui':'Non';
@@ -137,7 +138,7 @@ function render_database_view(string $id,bool $public,array $config=[],?array $p
     if(!$body)$body='<tr><td colspan="'.count($properties).'">Aucune ligne disponible.</td></tr>';
     $more=count($rows)>500?'<p class="muted">Les 500 premières lignes sont affichées dans cette vue de lecture.</p>':'';
     if(($config['layout']??'table')==='gallery'){
-        $cards='';foreach(array_slice($rows,0,500) as $row){$fields='';foreach($properties as $property){$value=database_view_value($row,$property,$bundle);$fields.='<div><strong>'.h($property['name']).'</strong><p>'.(in_array($property['type'],['select','multiselect'],true)?render_status_tags($property,$value):h($value===null||$value===''||$value===[]?'—':database_view_text($value))).'</p></div>';}$cards.='<article class="database-gallery-card">'.$fields.'</article>';}
+        $cards='';foreach(array_slice($rows,0,500) as $row){$fields='';foreach($properties as $property){$value=database_view_value($row,$property,$bundle);$fields.='<div><strong>'.h($property['name']).'</strong><p>'.(in_array($property['type'],['select','multiselect'],true)?render_status_tags($property,$value):h($value===null||$value===''||$value===[]?'—':($property['type']==='created_at'?database_created_display($value):database_view_text($value)))).'</p></div>';}$cards.='<article class="database-gallery-card">'.$fields.'</article>';}
         return '<section class="embedded-database">'.$title.'<div class="database-reader-gallery">'.($cards?:'<p>Aucune ligne disponible.</p>').'</div>'.$more.'</section>';
     }
     if(($config['layout']??'table')==='chart'){

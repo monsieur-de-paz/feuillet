@@ -8,6 +8,7 @@ export type PropertyType =
   | "select"
   | "multiselect"
   | "date"
+  | "created_at"
   | "checkbox"
   | "email"
   | "phone"
@@ -82,6 +83,7 @@ export const propertyTypes: {
   { type: "number", label: "Nombre", symbol: "#" },
   { type: "select", label: "Choix unique", symbol: "◉" },
   { type: "multiselect", label: "Choix multiples", symbol: "☷" },
+  { type: "created_at", label: "Date d’ajout automatique", symbol: "◷" },
   { type: "date", label: "Date", symbol: "◷" },
   { type: "checkbox", label: "Case à cocher", symbol: "☑" },
   { type: "email", label: "Adresse e-mail", symbol: "@" },
@@ -93,13 +95,37 @@ export const propertyTypes: {
   { type: "rollup", label: "Agrégation", symbol: "∑" },
 ];
 export const isComputed = (property: Property) =>
-  property.type === "formula" || property.type === "rollup";
+  property.type === "formula" ||
+  property.type === "rollup" ||
+  property.type === "created_at";
 export const canUseInForm = (property: Property) =>
   !isComputed(property) && property.type !== "relation";
 export function cellValue(row: DatabaseRow, property: Property): CellValue {
   return isComputed(property)
     ? (row.derived?.[property.id] ?? null)
     : (row.values?.[property.id] ?? null);
+}
+export function formatCreatedAt(value: string): string {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleString("fr-FR", {
+        dateStyle: "medium",
+        timeStyle: "medium",
+      });
+}
+export function toLocalDateTime(value: CellValue): string {
+  const date = new Date(String(value ?? ""));
+  if (Number.isNaN(date.getTime())) return "";
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 19);
+}
+export function fromLocalDateTime(value: string): string {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? ""
+    : date.toISOString().replace(".000Z", "Z");
 }
 export function rowTitle(row: DatabaseRow, properties: Property[]): string {
   const labels = [
@@ -356,7 +382,10 @@ export function databaseViewRows(
       return filter.operator === "equals" ? same : !same;
     }
     if (empty(value)) return false;
-    const numeric = property.type === "number" || isComputed(property);
+    const numeric =
+      property.type === "number" ||
+      property.type === "formula" ||
+      property.type === "rollup";
     const compare = numeric
       ? Number(value) - Number(filter.value)
       : readable(row, property).localeCompare(String(filter.value), "fr", {

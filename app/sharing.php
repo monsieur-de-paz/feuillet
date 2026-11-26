@@ -32,7 +32,7 @@ function save_share_path(array $input): array {
         fail('Utilise jusqu’à 64 lettres sans accent ou chiffres, séparés par des tirets.');
     }
     $publicPath=FEUILLET_ROOT.'/public/'.$path;
-    if ($path!=='' && (file_exists($publicPath) || glob($publicPath.'.*'))) {
+    if ($path!=='' && ($path==='rouedudestin' || file_exists($publicPath) || glob($publicPath.'.*'))) {
         fail('Cette adresse est réservée par Feuillet.',409,'share_path_reserved');
     }
     $pdo=db();

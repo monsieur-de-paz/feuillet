@@ -1,3 +1,4 @@
+import { toLocalDateTime, fromLocalDateTime } from "./database-types";
 import { useState } from "react";
 import { ColorRule, ruleColors } from "./projection-rules";
 export type ProjectionProperty = {
@@ -29,6 +30,7 @@ export function ProjectionRules({
       "multiselect",
       "checkbox",
       "date",
+      "created_at",
       "email",
       "phone",
       "url",
@@ -91,7 +93,7 @@ export function ProjectionRules({
             >
               <option value="equals">est égal à</option>
               <option value="not_equals">est différent de</option>
-              {p?.type === "number" && (
+              {(p?.type === "number" || p?.type === "created_at") && (
                 <>
                   <option value="gt">est supérieur à</option>
                   <option value="lt">est inférieur à</option>
@@ -136,15 +138,24 @@ export function ProjectionRules({
                       ? "number"
                       : p?.type === "date"
                         ? "date"
-                        : "text"
+                        : p?.type === "created_at"
+                          ? "datetime-local"
+                          : "text"
                   }
-                  value={String(r.value ?? "")}
+                  step={p?.type === "created_at" ? 1 : undefined}
+                  value={
+                    p?.type === "created_at"
+                      ? toLocalDateTime(r.value)
+                      : String(r.value ?? "")
+                  }
                   onChange={(e) =>
                     patch(i, {
                       value:
                         p?.type === "number"
                           ? Number(e.target.value)
-                          : e.target.value,
+                          : p?.type === "created_at"
+                            ? fromLocalDateTime(e.target.value)
+                            : e.target.value,
                     })
                   }
                 />

@@ -1,5 +1,13 @@
 # Historique des versions
 
+## 0.38.0 — 2026-11-26
+
+- Espace administrateur à `/rouedudestin` pour créer, rechercher et classer des roues dans des dossiers. Le résultat en attente, les exclusions et l’historique sont enregistrés sur le serveur.
+- Les roues acceptent une liste manuelle ou une colonne liée à une base. Les entrées liées peuvent être renommées ou masquées dans la roue. Deux modes de saisie permettent de coller une liste de texte ou de modifier les entrées sous forme de cartes.
+- La roue s’ouvre en plein écran lorsque le navigateur le permet. Sa mise en scène agrandit la roue, replie les réglages et met en valeur le résultat à l’arrêt.
+- Toutes les bases affichent une colonne automatique « Ajouté le » avec la date et l’heure d’origine. Cette colonne est disponible pour le tri, les filtres, les groupes, la projection et les exports.
+- Le gestionnaire de bases offre une fenêtre plus spacieuse, une recherche dans les bases et des commandes regroupées.
+
 ## 0.37.2 — 2026-11-23
 
 - Durée de rotation réglable de 2 à 30 secondes, ralentissement compris, mémorisée dans le navigateur et accessible au clavier.

@@ -58,6 +58,7 @@ L’installateur vérifie les extensions PHP, les sessions et les droits d’éc
 - **Relier ses idées** : cartes mentales, modèles, sous-idées, recherche, import Markdown/TEX, contenus multimédias et export PDF.
 - **Créer des bases** : tableaux éditables et réglages directement dans les pages, champs typés, vues en tableau ou galerie, tri, filtres, regroupements, relations, formules et agrégations.
 - **Recueillir des réponses** : formulaires avec dépôt de fichiers, cinq modèles, textes personnalisables, aperçu en direct et animations. Réponses privées et projection administrateur avec groupes repliables, états modifiables, couleurs conditionnelles et roue du destin par groupe, actualisée toutes les dix secondes.
+- **Tirer au sort** : roues privées à `/rouedudestin`, classement par dossiers, entrées manuelles ou liées à une base, saisie en cartes ou en texte et présentation plein écran. Les résultats et exclusions sont sauvegardés.
 - **Partager à son rythme** : pages privées ou publiques, liens personnalisés, partage des sous-pages et accueil public configurable.
 - **Personnaliser son espace** : interface Rivage et animations respectant la réduction des mouvements, thèmes clair, sombre et OLED, couleurs, polices, icônes et couvertures repositionnables.
 - **Utiliser Feuillet sur mobile** : interface adaptée, installation comme application web et cache facultatif des pages publiques pour la lecture hors connexion.

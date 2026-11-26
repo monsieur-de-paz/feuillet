@@ -66,6 +66,9 @@ import {
   type FileRecord,
 } from "./types";
 import {
+  formatCreatedAt,
+  toLocalDateTime,
+  fromLocalDateTime,
   type Database,
   type DatabaseBundle,
   type DatabaseRow,
@@ -243,7 +246,17 @@ function Field({
   const options = property.config?.options || [];
   let input: ReactNode;
   if (isComputed(property))
-    input = <input id={id} disabled value={displayText(value)} />;
+    input = (
+      <input
+        id={id}
+        disabled
+        value={
+          property.type === "created_at" && typeof value === "string"
+            ? formatCreatedAt(value)
+            : displayText(value)
+        }
+      />
+    );
   else if (property.type === "checkbox")
     input = (
       <label className="database-checkline">
@@ -430,7 +443,9 @@ function Field({
       )}
       {isComputed(property) && (
         <small className="database-field-help">
-          Calculé par le serveur à partir des champs de la fiche.
+          {property.type === "created_at"
+            ? "Date et heure enregistrées automatiquement à la création."
+            : "Calculé par le serveur à partir des champs de la fiche."}
         </small>
       )}
       {error && (
@@ -614,6 +629,12 @@ function Cell({
     );
   if (value === null || value === undefined || value === "")
     return <span className="muted">—</span>;
+  if (property.type === "created_at" && typeof value === "string")
+    return (
+      <time className="database-created-at" dateTime={value}>
+        {formatCreatedAt(value)}
+      </time>
+    );
   if (property.type === "checkbox")
     return value ? (
       <Check size={15} aria-label="Oui" />
@@ -1074,7 +1095,11 @@ function InlineCell({
     return (
       <span
         className="database-computed-cell"
-        title="Valeur calculée : modifie les champs utilisés par la formule ou l’agrégation."
+        title={
+          property.type === "created_at"
+            ? "Date enregistrée à la création de la fiche"
+            : "Valeur calculée : modifie les champs utilisés par la formule ou l’agrégation."
+        }
       >
         <Cell
           row={row}
@@ -1561,18 +1586,30 @@ function ViewControls({
                         type={
                           property?.type === "number"
                             ? "number"
-                            : property?.type === "date"
-                              ? "date"
-                              : "text"
+                            : property?.type === "created_at" &&
+                                filter.operator !== "contains"
+                              ? "datetime-local"
+                              : property?.type === "date"
+                                ? "date"
+                                : "text"
                         }
-                        value={String(filter.value)}
+                        step={property?.type === "created_at" ? 1 : undefined}
+                        value={
+                          property?.type === "created_at" &&
+                          filter.operator !== "contains"
+                            ? toLocalDateTime(filter.value)
+                            : String(filter.value)
+                        }
                         onChange={(event) =>
                           changeFilter(index, {
                             value:
                               property?.type === "number" &&
                               event.target.value !== ""
                                 ? Number(event.target.value)
-                                : event.target.value,
+                                : property?.type === "created_at" &&
+                                    filter.operator !== "contains"
+                                  ? fromLocalDateTime(event.target.value)
+                                  : event.target.value,
                           })
                         }
                       />
@@ -1734,7 +1771,7 @@ function ViewControls({
                   }{" "}
                   {property.name}
                 </label>
-                {onPropertyEdit && (
+                {onPropertyEdit && property.type !== "created_at" && (
                   <button
                     type="button"
                     aria-label={`Modifier la propriété ${property.name}`}
@@ -1982,14 +2019,14 @@ function Records({
   }
   const columnActions: MenuAction[] = [];
   if (columnProperty) {
-    if (onPropertyRename)
+    if (onPropertyRename && columnProperty.type !== "created_at")
       columnActions.push({
         label: "Renommer",
         icon: <Pencil />,
         run: () => onPropertyRename(columnProperty),
         group: "property",
       });
-    if (onPropertyEdit)
+    if (onPropertyEdit && columnProperty.type !== "created_at")
       columnActions.push({
         label: "Modifier la propriété",
         icon: <Settings />,
@@ -2057,7 +2094,7 @@ function Records({
         group: "view",
         run: () => onConfigChange({ ...effective, groupBy: columnProperty.id }),
       });
-    if (onPropertyDelete)
+    if (onPropertyDelete && columnProperty.type !== "created_at")
       columnActions.push({
         label: "Supprimer le champ",
         icon: <Trash2 />,
@@ -2081,7 +2118,10 @@ function Records({
       : menuContent;
   const [chartProperty, setChartProperty] = useState("");
   const numbers = bundle.properties.filter(
-    (property) => property.type === "number" || isComputed(property),
+    (property) =>
+      property.type === "number" ||
+      property.type === "formula" ||
+      property.type === "rollup",
   );
   const numeric =
     numbers.find((property) => property.id === chartProperty) || numbers[0];
@@ -2965,11 +3005,13 @@ function PropertyEditor({
               change(setType, event.target.value as PropertyType)
             }
           >
-            {propertyTypes.map((item) => (
-              <option value={item.type} key={item.type}>
-                {item.symbol} {item.label}
-              </option>
-            ))}
+            {propertyTypes
+              .filter((item) => item.type !== "created_at")
+              .map((item) => (
+                <option value={item.type} key={item.type}>
+                  {item.symbol} {item.label}
+                </option>
+              ))}
           </Select>
         </label>
         {["select", "multiselect"].includes(type) && (
@@ -3961,6 +4003,7 @@ export function DatabaseManager({
   });
   const managerSource = useId();
   const [search, setSearch] = useState("");
+  const [databaseSearch, setDatabaseSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -4406,8 +4449,19 @@ export function DatabaseManager({
     };
   }, [editorDirty]);
   const chooseFormMode = mode === "form";
+  const roomyManager = mode === "manage" && !!onClose && !initialDatabaseId;
+  const visibleDatabases = [...databases]
+    .sort((a, b) => a.name.localeCompare(b.name, "fr", { numeric: true }))
+    .filter((database) =>
+      normalizedSearch(database.name).includes(
+        normalizedSearch(databaseSearch),
+      ),
+    );
   return (
-    <div ref={managerRef} className="database-manager">
+    <div
+      ref={managerRef}
+      className={`database-manager ${roomyManager ? "database-manager-roomy" : ""}`}
+    >
       <header className="database-manager-header">
         <div>
           <DatabaseIcon size={23} />
@@ -4417,11 +4471,10 @@ export function DatabaseManager({
                 ? "Choisir une base"
                 : mode === "form"
                   ? "Choisir un formulaire"
-                  : "Bases & formulaires"}
+                  : "Bases de données"}
             </h2>
             <small>
-              Des fiches structurées, des liens entre elles et des réponses
-              privées.
+              Retrouve tes fiches, configure les champs et gère les formulaires.
             </small>
           </span>
         </div>
@@ -4437,29 +4490,48 @@ export function DatabaseManager({
       </header>
       <div className="database-manager-shell">
         <aside className="database-list">
-          <div className="database-list-label">Mes bases</div>
-          {databases.map((database) => (
-            <button
-              key={database.id}
-              className={database.id === selectedId ? "active" : ""}
-              onClick={() => {
-                if (
-                  editorDirty &&
-                  !confirm("Quitter l’éditeur en cours sans enregistrer ?")
-                )
-                  return;
-                setSelectedId(database.id);
-              }}
-            >
-              <DatabaseIcon size={15} />
-              <span>{database.name}</span>
-              {database.visibility === "private" ? (
-                <Lock size={11} />
-              ) : (
-                <Globe size={11} />
-              )}
-            </button>
-          ))}
+          <div className="database-list-label">
+            Mes bases <span>{databases.length}</span>
+          </div>
+          {roomyManager && (
+            <label className="database-list-search">
+              <Search size={15} />
+              <input
+                aria-label="Rechercher une base"
+                placeholder="Rechercher une base"
+                value={databaseSearch}
+                onChange={(event) => setDatabaseSearch(event.target.value)}
+              />
+            </label>
+          )}
+          <div className="database-list-items">
+            {visibleDatabases.map((database) => (
+              <button
+                key={database.id}
+                className={database.id === selectedId ? "active" : ""}
+                aria-current={database.id === selectedId ? "true" : undefined}
+                onClick={() => {
+                  if (
+                    editorDirty &&
+                    !confirm("Quitter l’éditeur en cours sans enregistrer ?")
+                  )
+                    return;
+                  setSelectedId(database.id);
+                }}
+              >
+                <DatabaseIcon size={15} />
+                <span>{database.name}</span>
+                {database.visibility === "private" ? (
+                  <Lock size={11} />
+                ) : (
+                  <Globe size={11} />
+                )}
+              </button>
+            ))}
+            {!visibleDatabases.length && databaseSearch && (
+              <p>Aucune base trouvée.</p>
+            )}
+          </div>
           <form
             className="database-create-box"
             onSubmit={(event) => {
@@ -4485,7 +4557,24 @@ export function DatabaseManager({
           ) : bundle ? (
             <>
               <div className="database-title-bar">
-                <h3>{bundle.database.name}</h3>
+                <div className="database-title-identity">
+                  <span className="database-manager-emblem">
+                    <Table size={22} />
+                  </span>
+                  <div>
+                    <h3>{bundle.database.name}</h3>
+                    <span className="database-visibility-label">
+                      {bundle.database.visibility === "public" ? (
+                        <Globe size={13} />
+                      ) : (
+                        <Lock size={13} />
+                      )}
+                      {bundle.database.visibility === "public"
+                        ? "Base publique"
+                        : "Base privée"}
+                    </span>
+                  </div>
+                </div>
                 <div className="database-title-actions">
                   <a
                     className="small-button"
@@ -4493,49 +4582,60 @@ export function DatabaseManager({
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Monitor size={15} /> Projeter les réponses
+                    <Monitor size={16} /> Projeter les réponses
                   </a>
-                  <button
-                    className="small-button"
-                    disabled={busy}
-                    onClick={() => void visibility()}
-                  >
-                    {bundle.database.visibility === "public" ? (
-                      <Globe size={13} />
-                    ) : (
-                      <Lock size={13} />
-                    )}{" "}
-                    {bundle.database.visibility === "public"
-                      ? "Publique"
-                      : "Privée"}
-                  </button>
-                  <button
-                    className="icon-button"
-                    title="Actualiser la base"
-                    aria-label="Actualiser la base"
-                    disabled={busy}
-                    onClick={() => void reloadDatabase()}
-                  >
-                    <RefreshCw
-                      size={15}
-                      className={busy ? "spin" : undefined}
-                    />
-                  </button>
-                  <button
-                    className="icon-button"
-                    title="Renommer la base"
-                    onClick={() => void renameDatabase()}
-                  >
-                    <Pencil size={15} />
-                  </button>
-                  <button
-                    className="icon-button danger"
-                    title="Supprimer la base"
-                    disabled={busy}
-                    onClick={() => void deleteDatabase()}
-                  >
-                    <Trash2 size={15} />
-                  </button>
+                  <details className="database-settings-menu">
+                    <summary className="small-button">
+                      <Settings size={15} /> Gérer la base{" "}
+                      <ChevronDown size={13} />
+                    </summary>
+                    <div
+                      className="database-settings-panel"
+                      onClick={(e) => {
+                        if ((e.target as HTMLElement).closest("button"))
+                          e.currentTarget
+                            .closest("details")
+                            ?.removeAttribute("open");
+                      }}
+                    >
+                      <button
+                        disabled={busy}
+                        onClick={() => void renameDatabase()}
+                      >
+                        <Pencil size={15} /> Renommer
+                      </button>
+                      <button disabled={busy} onClick={() => void visibility()}>
+                        {bundle.database.visibility === "public" ? (
+                          <Lock size={15} />
+                        ) : (
+                          <Globe size={15} />
+                        )}{" "}
+                        {bundle.database.visibility === "public"
+                          ? "Rendre privée"
+                          : "Rendre publique"}
+                      </button>
+                      <button
+                        disabled={busy}
+                        onClick={() => void reloadDatabase()}
+                      >
+                        <RefreshCw size={15} /> Actualiser
+                      </button>
+                      <a
+                        href={`rouedudestin?database=${encodeURIComponent(bundle.database.id)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ArrowUpRight size={15} /> Créer une roue liée
+                      </a>
+                      <button
+                        className="danger"
+                        disabled={busy}
+                        onClick={() => void deleteDatabase()}
+                      >
+                        <Trash2 size={15} /> Supprimer la base
+                      </button>
+                    </div>
+                  </details>
                   {mode === "database" && onChooseDatabase && (
                     <button
                       className="database-choice-button"
@@ -4587,6 +4687,23 @@ export function DatabaseManager({
                       onClose={() => setRowEditor(undefined)}
                     />
                   )}
+                  <div className="database-tools database-records-actions">
+                    <div>
+                      <h4>Fiches de la base</h4>
+                      <p className="database-field-help">
+                        Clique dans une cellule pour la modifier.
+                      </p>
+                    </div>
+                    <button
+                      className="small-button database-new-record"
+                      disabled={
+                        busy || !bundle.properties.some((p) => !isComputed(p))
+                      }
+                      onClick={() => editRow(null)}
+                    >
+                      <Plus size={16} /> Nouvelle fiche
+                    </button>
+                  </div>
                   <ViewControls
                     bundle={bundle}
                     config={normalizeDatabaseView(
@@ -4597,19 +4714,6 @@ export function DatabaseManager({
                     search={search}
                     onSearch={setSearch}
                   />
-                  <div className="database-tools database-records-actions">
-                    <span className="database-field-help">
-                      Clique une cellule pour modifier sa valeur. Les données
-                      sont partagées avec les vues de cette base.
-                    </span>
-                    <button
-                      className="small-button"
-                      disabled={busy || !bundle.properties.length}
-                      onClick={() => editRow(null)}
-                    >
-                      <Plus size={14} /> Nouvelle fiche
-                    </button>
-                  </div>
                   <Records
                     bundle={bundle}
                     view={managerView.layout}
@@ -4683,21 +4787,27 @@ export function DatabaseManager({
                           </strong>
                           <small>
                             {propertyLabel(property.type)}
-                            {isComputed(property)
-                              ? " · calculé sur le serveur"
-                              : ""}
+                            {property.type === "created_at"
+                              ? " · lecture seule"
+                              : isComputed(property)
+                                ? " · calculé sur le serveur"
+                                : ""}
                           </small>
                         </div>
-                        <button onClick={() => editProperty(property)}>
-                          Modifier
-                        </button>
-                        <button
-                          title="Supprimer le champ"
-                          disabled={busy}
-                          onClick={() => void deleteProperty(property)}
-                        >
-                          <Trash2 size={13} />
-                        </button>
+                        {property.type !== "created_at" && (
+                          <>
+                            <button onClick={() => editProperty(property)}>
+                              Modifier
+                            </button>
+                            <button
+                              title="Supprimer le champ"
+                              disabled={busy}
+                              onClick={() => void deleteProperty(property)}
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     ))}
                   </div>

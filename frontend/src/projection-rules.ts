@@ -36,6 +36,16 @@ export function ruleMatches(
     return String(value)
       .toLocaleLowerCase()
       .includes(String(rule.value ?? "").toLocaleLowerCase());
+  if (
+    typeof value === "string" &&
+    typeof rule.value === "string" &&
+    /^\d{4}-\d\d-\d\dT.*Z$/.test(value) &&
+    /^\d{4}-\d\d-\d\dT.*Z$/.test(rule.value)
+  ) {
+    return rule.operator === "gt"
+      ? Date.parse(value) > Date.parse(rule.value)
+      : rule.operator === "lt" && Date.parse(value) < Date.parse(rule.value);
+  }
   if (typeof value !== "number" || typeof rule.value !== "number") return false;
   return rule.operator === "gt"
     ? value > rule.value

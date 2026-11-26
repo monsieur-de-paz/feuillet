@@ -6,6 +6,7 @@ export type WheelDraw = WheelEntry & {
   decision?: string;
 };
 export type WheelData = {
+  warning?: string | null;
   state: {
     revision: number;
     excluded: string[];

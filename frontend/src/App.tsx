@@ -2513,6 +2513,9 @@ export default function App() {
                 >
                   <TableIcon size={16} /> Bases de données
                 </button>
+                <button onClick={() => { window.open("rouedudestin", "_blank", "noopener"); }}>
+                  <span aria-hidden="true">✦</span> Roues du destin
+                </button>
                 <button onClick={() => void showSettings()}>
                   <Settings size={16} /> Réglages & sauvegardes
                 </button>
@@ -3458,7 +3461,7 @@ export default function App() {
       {modal === "databases" && databaseMode === "database" && (<DatabasePicker onClose={() => setModal(null)} onChoose={(id) => { dbCallback.current?.(id); setModal(null); }} />)}
       {modal === "databases" && databaseMode !== "database" && (
         <div className="modal-backdrop">
-          <div className="database-modal">
+          <div className={`database-modal ${databaseMode === "manage" ? "database-modal-roomy" : ""}`} role="dialog" aria-modal="true" aria-label="Bases de données">
             <DatabaseManager
               mode={databaseMode}
               onClose={() => setModal(null)}

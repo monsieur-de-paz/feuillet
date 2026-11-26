@@ -1,4 +1,5 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type RefObject } from "react";
+import { ChevronDown, Maximize, Minimize, Settings2, X } from "lucide-react";
 import { api, setCsrf } from "./types";
 import type { ProjectionProperty } from "./ProjectionRules";
 import { wheelLabel, wheelTarget, type WheelData } from "./destiny-wheel-model";
@@ -23,19 +24,56 @@ const palette = [
   "#157F57",
   "#B72E76",
 ];
+export function enterWheelFullscreen(element: HTMLDivElement | null): void {
+  if (!element || document.fullscreenElement?.contains(element)) return;
+  // Keep the viewport presentation usable if the native request is refused.
+  try {
+    void element.requestFullscreen?.().catch(() => {});
+  } catch {}
+}
+
 export function DestinyWheel({
   id,
   source,
   properties,
   initialGroup,
   onClose,
+  savedId,
+  title,
+  screenRef,
 }: {
   id: string;
   source: string;
   properties: ProjectionProperty[];
   initialGroup: string;
   onClose: () => void;
+  savedId?: string;
+  title?: string;
+  screenRef: RefObject<HTMLDivElement | null>;
 }) {
+  const [fullscreenElement, setFullscreenElement] = useState<Element | null>(
+    document.fullscreenElement,
+  );
+  useEffect(() => {
+    const sync = () => setFullscreenElement(document.fullscreenElement);
+    document.addEventListener("fullscreenchange", sync);
+    sync();
+    return () => document.removeEventListener("fullscreenchange", sync);
+  }, []);
+  const nativeFullscreen =
+    !!fullscreenElement && fullscreenElement === screenRef.current;
+  const inheritedFullscreen =
+    !!fullscreenElement &&
+    !nativeFullscreen &&
+    fullscreenElement.contains(screenRef.current);
+  function closePresentation() {
+    if (
+      document.fullscreenElement &&
+      document.fullscreenElement === screenRef.current
+    )
+      void document.exitFullscreen?.().catch(() => {});
+    onClose();
+  }
   const usable = properties.filter(
     (p) => !["files", "formula", "rollup", "relation"].includes(p.type),
   );
@@ -154,14 +192,16 @@ export function DestinyWheel({
     generation = useRef(0),
     inFlight = useRef(false),
     controller = useRef<AbortController | null>(null);
-  const scope = {
-    id,
-    source,
-    property,
-    groupBy,
-    all: group === "*",
-    group: group === "*" ? null : JSON.parse(group),
-  };
+  const scope = savedId
+    ? { saved_id: savedId }
+    : {
+        id,
+        source,
+        property,
+        groupBy,
+        all: group === "*",
+        group: group === "*" ? null : JSON.parse(group),
+      };
   const scopeRef = useRef(scope);
   scopeRef.current = scope;
   async function fetchState() {
@@ -214,7 +254,7 @@ export function DestinyWheel({
       generation.current++;
       controller.current?.abort();
     };
-  }, [id, source, property, groupBy, group]);
+  }, [id, source, property, groupBy, group, savedId]);
   useEffect(() => {
     const prior = document.activeElement as HTMLElement | null;
     const restored = new Map<HTMLElement, boolean>();
@@ -352,9 +392,14 @@ export function DestinyWheel({
   return (
     <div
       className="destiny-shade"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+      ref={screenRef}
+      data-wheel-fullscreen={
+        nativeFullscreen
+          ? "native"
+          : inheritedFullscreen
+            ? "inherited"
+            : "viewport"
+      }
     >
       <div
         className={`destiny-dialog ${motion === "light" || motion === "off" ? "destiny-calm" : ""}`}
@@ -363,10 +408,10 @@ export function DestinyWheel({
         aria-labelledby={titleId}
         ref={dialog}
         onKeyDown={(e) => {
-          if (e.key === "Escape") {
+          if (e.key === "Escape" && !document.fullscreenElement) {
             e.preventDefault();
             e.stopPropagation();
-            onClose();
+            closePresentation();
           }
           if (e.key === "Tab") {
             const controls = [
@@ -389,123 +434,59 @@ export function DestinyWheel({
       >
         <header>
           <div>
-            <span className="destiny-eyebrow">À qui le tour ?</span>
-            <h2 id={titleId}>Roue du destin</h2>
+            {title && <span className="destiny-eyebrow">Roue du destin</span>}
+            <h2 id={titleId}>{title || "Roue du destin"}</h2>
           </div>
-          <button type="button" onClick={onClose} aria-label="Fermer la roue">
-            ✕
-          </button>
+          <div className="destiny-screen-actions">
+            <button
+              type="button"
+              onClick={closePresentation}
+              title="Fermer la roue"
+              aria-label="Fermer la roue"
+            >
+              <X size={21} />
+            </button>
+            {!inheritedFullscreen &&
+              typeof document.documentElement.requestFullscreen ===
+                "function" && (
+                <button
+                  type="button"
+                  title={
+                    nativeFullscreen
+                      ? "Quitter le plein écran"
+                      : "Activer le plein écran"
+                  }
+                  aria-label={
+                    nativeFullscreen
+                      ? "Quitter le plein écran"
+                      : "Activer le plein écran"
+                  }
+                  onClick={() =>
+                    nativeFullscreen
+                      ? void document.exitFullscreen?.().catch(() => {})
+                      : enterWheelFullscreen(screenRef.current)
+                  }
+                >
+                  {nativeFullscreen ? (
+                    <Minimize size={19} />
+                  ) : (
+                    <Maximize size={19} />
+                  )}
+                </button>
+              )}
+          </div>
         </header>
-        <div className="destiny-config">
-          <label>
-            Donnée à tirer
-            <select
-              aria-label="Colonne à tirer au sort"
-              disabled={busy || spinning}
-              value={property}
-              onChange={(e) => setProperty(e.target.value)}
-            >
-              {usable.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Une roue par
-            <select
-              aria-label="Regroupement des roues"
-              disabled={busy || spinning}
-              value={groupBy}
-              onChange={(e) => {
-                setGroupBy(e.target.value);
-                setGroup("*");
-              }}
-            >
-              <option value="">Sans regroupement</option>
-              {usable.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          {groupBy && (
-            <label>
-              Groupe
-              <select
-                aria-label="Groupe de la roue"
-                disabled={busy || spinning}
-                value={group}
-                onChange={(e) => setGroup(e.target.value)}
-              >
-                <option value="*">Tous les groupes</option>
-                {availableGroups.map((g) => (
-                  <option key={g.key} value={g.key}>
-                    {g.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-        </div>
-        <div className="destiny-motion">
-          <label>
-            Animation de la roue
-            <select
-              aria-label="Animation de la roue"
-              value={motion}
-              disabled={busy || spinning}
-              aria-describedby={`${titleId}-motion`}
-              onChange={(e) => setMotion(wheelMotion(e.target.value))}
-            >
-              <option value="auto">Selon le système</option>
-              <option value="full">Rotation complète</option>
-              <option value="light">Rotation légère</option>
-              <option value="off">Sans rotation</option>
-            </select>
-          </label>
-          <div className="destiny-duration">
-            <label htmlFor={`${titleId}-duration`}>
-              Durée de rotation{" "}
-              <output htmlFor={`${titleId}-duration`}>{seconds} s</output>
-            </label>
-            <input
-              id={`${titleId}-duration`}
-              type="range"
-              min="2"
-              max="30"
-              step="1"
-              value={seconds}
-              aria-label="Durée de rotation"
-              aria-valuetext={`${seconds} secondes`}
-              aria-describedby={`${titleId}-duration-help`}
-              disabled={
-                busy || spinning || !wheelDuration(motion, reduced, seconds)
-              }
-              onChange={(e) =>
-                setCustomSeconds(wheelSeconds(Number(e.target.value)))
-              }
-            />
-            <small id={`${titleId}-duration-help`}>
-              De 2 à 30 secondes, ralentissement compris.
-            </small>
-          </div>
-          <p id={`${titleId}-motion`}>
-            {motion === "auto" && reduced
-              ? "Ce poste demande de réduire les animations : le résultat apparaît sans rotation. Tu peux choisir une rotation légère ou complète ici."
-              : motion === "full" && reduced
-                ? "Rotation activée à ta demande sur ce poste. Les autres effets restent réduits selon le système."
-                : motion === "light"
-                  ? "Moins de tours, sans halo animé. La durée reste réglable, avec le même ralentissement progressif."
-                  : motion === "off"
-                    ? "Résultat immédiat, sans rotation. Ce choix est mémorisé sur ce navigateur."
-                    : "Rotation compatible, sans transition CSS ni accélération graphique requise. Choix mémorisé sur ce navigateur."}
+        {data?.warning && (
+          <p className="destiny-error" role="status">
+            {data.warning}
           </p>
-        </div>
+        )}
         <div className="destiny-stage">
-          <div className="destiny-wheel-area">
+          <div
+            className="destiny-wheel-area"
+            data-spinning={spinning}
+            data-revealed={!!winner}
+          >
             <span className="destiny-pointer" aria-hidden="true">
               ▼
             </span>
@@ -651,7 +632,9 @@ export function DestinyWheel({
               <button
                 type="button"
                 className="destiny-primary destiny-spin"
-                disabled={busy || spinning || !entries.length}
+                disabled={
+                  busy || spinning || !entries.length || !!data?.warning
+                }
                 onClick={() => void act("wheel_spin")}
               >
                 {spinning
@@ -673,6 +656,129 @@ export function DestinyWheel({
             >
               {muted ? "Activer les sons" : "Couper les sons"}
             </button>
+            <details className="destiny-options">
+              <summary>
+                <Settings2 size={16} />{" "}
+                {savedId ? "Réglages du tirage" : "Données et animation"}{" "}
+                <ChevronDown size={15} />
+              </summary>
+              <div className="destiny-options-content">
+                {!savedId && (
+                  <div className="destiny-config">
+                    <label>
+                      Donnée à tirer
+                      <select
+                        aria-label="Colonne à tirer au sort"
+                        disabled={busy || spinning}
+                        value={property}
+                        onChange={(e) => setProperty(e.target.value)}
+                      >
+                        {usable.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      Une roue par
+                      <select
+                        aria-label="Regroupement des roues"
+                        disabled={busy || spinning}
+                        value={groupBy}
+                        onChange={(e) => {
+                          setGroupBy(e.target.value);
+                          setGroup("*");
+                        }}
+                      >
+                        <option value="">Sans regroupement</option>
+                        {usable.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    {groupBy && (
+                      <label>
+                        Groupe
+                        <select
+                          aria-label="Groupe de la roue"
+                          disabled={busy || spinning}
+                          value={group}
+                          onChange={(e) => setGroup(e.target.value)}
+                        >
+                          <option value="*">Tous les groupes</option>
+                          {availableGroups.map((g) => (
+                            <option key={g.key} value={g.key}>
+                              {g.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    )}
+                  </div>
+                )}
+                <div className="destiny-motion">
+                  <label>
+                    Animation de la roue
+                    <select
+                      aria-label="Animation de la roue"
+                      value={motion}
+                      disabled={busy || spinning}
+                      aria-describedby={`${titleId}-motion`}
+                      onChange={(e) => setMotion(wheelMotion(e.target.value))}
+                    >
+                      <option value="auto">Selon le système</option>
+                      <option value="full">Rotation complète</option>
+                      <option value="light">Rotation légère</option>
+                      <option value="off">Sans rotation</option>
+                    </select>
+                  </label>
+                  <div className="destiny-duration">
+                    <label htmlFor={`${titleId}-duration`}>
+                      Durée de rotation{" "}
+                      <output htmlFor={`${titleId}-duration`}>
+                        {seconds} s
+                      </output>
+                    </label>
+                    <input
+                      id={`${titleId}-duration`}
+                      type="range"
+                      min="2"
+                      max="30"
+                      step="1"
+                      value={seconds}
+                      aria-label="Durée de rotation"
+                      aria-valuetext={`${seconds} secondes`}
+                      aria-describedby={`${titleId}-duration-help`}
+                      disabled={
+                        busy ||
+                        spinning ||
+                        !wheelDuration(motion, reduced, seconds)
+                      }
+                      onChange={(e) =>
+                        setCustomSeconds(wheelSeconds(Number(e.target.value)))
+                      }
+                    />
+                    <small id={`${titleId}-duration-help`}>
+                      De 2 à 30 secondes, ralentissement compris.
+                    </small>
+                  </div>
+                  <p id={`${titleId}-motion`}>
+                    {motion === "auto" && reduced
+                      ? "Ce poste demande de réduire les animations : le résultat apparaît sans rotation. Tu peux choisir une rotation légère ou complète ici."
+                      : motion === "full" && reduced
+                        ? "Rotation activée à ta demande sur ce poste. Les autres effets restent réduits selon le système."
+                        : motion === "light"
+                          ? "Moins de tours, sans halo animé. La durée reste réglable, avec le même ralentissement progressif."
+                          : motion === "off"
+                            ? "Résultat immédiat, sans rotation. Ce choix est mémorisé sur ce navigateur."
+                            : "Rotation compatible, sans transition CSS ni accélération graphique requise. Choix mémorisé sur ce navigateur."}
+                  </p>
+                </div>
+              </div>
+            </details>
           </section>
         </div>
         {error && (
@@ -772,7 +878,9 @@ export function DestinyWheel({
             </button>
           )}
           <small>
-            Une roue indépendante pour chaque colonne, groupe et formulaire.
+            {savedId
+              ? "Tirages et exclusions enregistrés pour cette roue."
+              : "Une roue indépendante pour chaque colonne, groupe et formulaire."}
           </small>
         </footer>
       </div>

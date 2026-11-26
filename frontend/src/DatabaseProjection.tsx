@@ -1,4 +1,5 @@
-import { DestinyWheel } from "./DestinyWheel";
+import { flushSync } from "react-dom";
+import { DestinyWheel, enterWheelFullscreen } from "./DestinyWheel";
 import { columnText } from "./destiny-wheel-model";
 import { groupRecords } from "./database-grouping";
 import { Fragment, useEffect, useRef, useState } from "react";
@@ -17,7 +18,7 @@ import {
 } from "lucide-react";
 import { Select } from "./Select";
 import { FormSkeleton } from "./FormSkeleton";
-import { type CellValue } from "./database-types";
+import { formatCreatedAt, type CellValue } from "./database-types";
 import { api, setCsrf } from "./types";
 import { ProjectionRules, type ProjectionProperty } from "./ProjectionRules";
 import { rowTint, type ColorRule } from "./projection-rules";
@@ -69,6 +70,7 @@ export function DatabaseProjection({ id }: { id: string }) {
   );
   const [folded, setFolded] = useState<Set<string>>(new Set());
   const [wheelOpen, setWheelOpen] = useState(false);
+  const wheelScreen = useRef<HTMLDivElement>(null);
   const [rulesOpen, setRulesOpen] = useState(false),
     [saving, setSaving] = useState(""),
     [editError, setEditError] = useState("");
@@ -366,6 +368,7 @@ export function DatabaseProjection({ id }: { id: string }) {
           source={source}
           properties={data.properties}
           initialGroup={groupBy}
+          screenRef={wheelScreen}
           onClose={() => setWheelOpen(false)}
         />
       )}
@@ -407,11 +410,20 @@ export function DatabaseProjection({ id }: { id: string }) {
               <button
                 type="button"
                 className="small-button"
-                onClick={() => setWheelOpen(true)}
+                onClick={() => {
+                  flushSync(() => setWheelOpen(true));
+                  enterWheelFullscreen(wheelScreen.current);
+                }}
                 disabled={!data}
               >
                 ✦ Roue du destin
               </button>
+              <a
+                className="small-button"
+                href={`rouedudestin?database=${encodeURIComponent(id)}&source=${encodeURIComponent(source)}`}
+              >
+                Créer une roue liée
+              </a>
               <Select
                 aria-label="Réponses à projeter"
                 value={source}
@@ -647,7 +659,6 @@ export function DatabaseProjection({ id }: { id: string }) {
                         )}
                       </th>
                     ))}
-                    <th>Reçu le</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -655,7 +666,7 @@ export function DatabaseProjection({ id }: { id: string }) {
                     <Fragment key={group.key}>
                       {groupBy && (
                         <tr className="projection-group-heading">
-                          <th colSpan={selected.length + 2}>
+                          <th colSpan={selected.length + 1}>
                             <button
                               type="button"
                               className="projection-group-toggle"
@@ -780,6 +791,13 @@ export function DatabaseProjection({ id }: { id: string }) {
                                         </option>
                                       ))}
                                     </select>
+                                  ) : p.type === "created_at" &&
+                                    typeof row.values[p.id] === "string" ? (
+                                    <time dateTime={String(row.values[p.id])}>
+                                      {formatCreatedAt(
+                                        String(row.values[p.id]),
+                                      )}
+                                    </time>
                                   ) : p.type === "files" ? (
                                     row.attachments?.[p.id]?.length ? (
                                       row.attachments[p.id].map((file) => (
@@ -805,20 +823,6 @@ export function DatabaseProjection({ id }: { id: string }) {
                                 </td>
                               );
                             })}
-                            <td>
-                              <time dateTime={row.created_at}>
-                                {new Date(row.created_at).toLocaleString(
-                                  "fr-FR",
-                                  {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                    second: "2-digit",
-                                  },
-                                )}
-                              </time>
-                            </td>
                           </tr>
                         ))}
                     </Fragment>

@@ -11,6 +11,7 @@ import "../../public/atelier.js";
 import { PoweredBy } from "./PoweredBy";
 import "../../public/forms.css";
 import { DatabaseProjection } from "./DatabaseProjection";
+import { WheelWorkspace } from "./WheelWorkspace";
 import { PublicForm } from "./Database";
 import { FeuilletIcon } from "./IconPicker";
 import {
@@ -61,6 +62,8 @@ function PublicFormScreen({ children }: { children: React.ReactNode }) {
     document.body.style.setProperty("--page-background", appearance.background);
     document.body.style.setProperty("--page-text", appearance.text);
     document.body.style.background = appearance.background;
+    if (document.body.dataset.wheelWorkspace)
+      document.documentElement.style.background = appearance.background;
     document.body.style.color = appearance.text;
   }, [base, preference, systemDark]);
   useEffect(() => {
@@ -103,7 +106,11 @@ const target =
 if (target)
   createRoot(target).render(
     <React.StrictMode>
-      {new URLSearchParams(location.search).get("form") ? (
+      {document.body.dataset.wheelWorkspace ? (
+        <PublicFormScreen>
+          <WheelWorkspace />
+        </PublicFormScreen>
+      ) : new URLSearchParams(location.search).get("form") ? (
         <PublicFormScreen>
           <PublicForm
             token={new URLSearchParams(location.search).get("form")!}
