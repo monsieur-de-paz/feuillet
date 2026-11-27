@@ -699,6 +699,9 @@ function PageLinkView({ node, updateAttributes }: NodeViewProps) {
   const page = app.pages.find(
     (p) => String(p.id) === String(node.attrs.pageId),
   );
+  const external = /^https?:\/\//i.test(node.attrs.href || "")
+    ? safeLink(node.attrs.href)
+    : "";
   const { presentation, iconSize, showIcon, showDescription, showCover } =
     node.attrs;
   return (
@@ -706,8 +709,13 @@ function PageLinkView({ node, updateAttributes }: NodeViewProps) {
       <a
         className={`page-link subpage-link presentation-${presentation} icon-${iconSize}`}
         data-page-target={String(node.attrs.pageId)}
-        href={pageUrl(node.attrs.pageId)}
+        href={
+          node.attrs.pageId ? pageUrl(node.attrs.pageId) : external || undefined
+        }
+        target={external && !node.attrs.pageId ? "_blank" : undefined}
+        rel={external && !node.attrs.pageId ? "noopener noreferrer" : undefined}
         onClick={(e) => {
+          if (!node.attrs.pageId) return;
           e.preventDefault();
           app.openPage(String(node.attrs.pageId));
         }}
@@ -742,7 +750,9 @@ function PageLinkView({ node, updateAttributes }: NodeViewProps) {
               <small>{page.description}</small>
             )}
           </span>
-          <ArrowUpRight className="subpage-arrow" size={18} />
+          {(node.attrs.pageId || external) && (
+            <ArrowUpRight className="subpage-arrow" size={18} />
+          )}
         </span>
       </a>
       {app.admin && (
@@ -826,6 +836,7 @@ export const PageLink = Node.create({
   addAttributes() {
     return {
       pageId: { default: "" },
+      href: { default: "" },
       presentation: { default: "row" },
       iconSize: { default: "medium" },
       showIcon: { default: true },
@@ -1357,6 +1368,7 @@ function FileView({ node, updateAttributes, getPos, selected }: NodeViewProps) {
   const app = useApp();
   const [editing, setEditing] = useState(false);
   const { fileId, name, mime, size, mode } = node.attrs;
+  const [attaching, setAttaching] = useState(false);
   const supportedMode =
     mime === "application/pdf"
       ? "pdf"
@@ -1374,6 +1386,60 @@ function FileView({ node, updateAttributes, getPos, selected }: NodeViewProps) {
     document.addEventListener("feuillet-edit-resource", open);
     return () => document.removeEventListener("feuillet-edit-resource", open);
   }, [getPos]);
+  if (!fileId)
+    return (
+      <NodeViewWrapper
+        contentEditable={false}
+        className="file-block mode-download"
+      >
+        <div className="file-caption">
+          <FileText size={19} aria-hidden="true" />
+          <div>
+            <strong>{name || "Pièce jointe"}</strong>
+            <small>Fichier à joindre</small>
+          </div>
+          {app.admin && (
+            <label className="small-button import-button">
+              {attaching ? "Envoi…" : "Joindre le fichier"}
+              <input
+                type="file"
+                aria-label="Joindre le fichier"
+                disabled={attaching}
+                onChange={async (event) => {
+                  const file = event.target.files?.[0];
+                  event.target.value = "";
+                  if (!file) return;
+                  setAttaching(true);
+                  try {
+                    const body = new FormData();
+                    body.append("file", file);
+                    const result = await api<{ file: FileRecord }>(
+                      "upload",
+                      body,
+                    );
+                    updateAttributes({
+                      fileId: result.file.id,
+                      name: result.file.name,
+                      mime: result.file.mime,
+                      size: result.file.size,
+                      mode: "download",
+                    });
+                  } catch (error) {
+                    app.notify(
+                      error instanceof Error
+                        ? error.message
+                        : "Envoi impossible.",
+                    );
+                  } finally {
+                    setAttaching(false);
+                  }
+                }}
+              />
+            </label>
+          )}
+        </div>
+      </NodeViewWrapper>
+    );
   const url = fileUrl(fileId);
   return (
     <NodeViewWrapper

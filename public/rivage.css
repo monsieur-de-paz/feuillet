@@ -447,11 +447,11 @@ body[style] { background-color:var(--r-canvas)!important; }
  .toast { animation:rivage-menu 440ms var(--r-ease) both; }
  .feuillet-file-preview { animation:rivage-open 600ms var(--r-ease) both; }
  .feuillet-file-preview::backdrop { animation:rivage-dim 280ms ease-out both; }
- .toggle-heading[open]>.toggle-heading-body,.toggle-heading-editor.is-open .toggle-heading-content>[data-node-view-content-react]>:not(:first-child) { animation:rivage-disclose 480ms var(--r-ease); }
+ .toggle-heading[open]>.toggle-heading-body,.toggle-heading-editor.is-open > .toggle-heading-content>[data-node-view-content-react]>:not(:first-child) { animation:rivage-disclose 480ms var(--r-ease); }
 }
 @media(prefers-reduced-motion:reduce) {
  .rivage-morph::before { transition:none; }
- .modal,.modal-backdrop,.toast,.command-menu,.selection-toolbar,.feuillet-floating:popover-open,.feuillet-file-preview,.feuillet-file-preview::backdrop,.spin,.toggle-heading-editor.is-open .toggle-heading-content>[data-node-view-content-react]>:not(:first-child) { animation:none; }
+ .modal,.modal-backdrop,.toast,.command-menu,.selection-toolbar,.feuillet-floating:popover-open,.feuillet-file-preview,.feuillet-file-preview::backdrop,.spin,.toggle-heading-editor.is-open > .toggle-heading-content>[data-node-view-content-react]>:not(:first-child) { animation:none; }
  .home-page-card,.gallery-v2 .gallery-card,.home-card-cover,.gallery-cover-frame img,.home-card-arrow,.home-activity>a>svg:last-child,.primary-button,.small-button,.icon-button,.resource-button.feuillet-action,.sidebar { transition-property:color,background-color,border-color; }
  .home-page-card:hover,.gallery-v2 .gallery-card:hover,.resource-button.feuillet-action:hover,.home-card-arrow,.home-activity>a>svg:last-child { translate:none; }
  :where(button,a):active { scale:1; }

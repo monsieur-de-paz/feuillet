@@ -31,6 +31,12 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
     if($t==='column')return '<div class="column">'.$children.'</div>';
     if($t==='details')return '<details><summary>'.h($a['summary']??'En savoir plus').'</summary>'.$children.'</details>';
     if($t==='pageLink'){
+        if(empty($a['pageId'])){
+            $url=safe_url($a['href']??'');$label=h($a['label']??'Page');$icon=($a['showIcon']??true)?'<span class="subpage-icon">'.render_page_icon(['icon'=>$a['icon']??'📄']).'</span>':'';
+            $visual='<span class="subpage-main">'.$icon.'<span class="subpage-copy"><strong>'.$label.'</strong></span>'.($url?'<span class="subpage-arrow" aria-hidden="true">↗</span>':'').'</span>';
+            $class='page-link subpage-link presentation-'.h($a['presentation']??'row').' icon-'.h($a['iconSize']??'medium');
+            return $url?'<a class="'.$class.'" href="'.h($url).'" rel="noopener noreferrer" target="_blank">'.$visual.'</a>':'<div class="'.$class.'">'.$visual.'</div>';
+        }
         try{$p=get_page(str_limit($a['pageId']??'',36),$public);}catch(Throwable){return '';}
         $presentation=in_array($a['presentation']??'', ['row','card','compact'],true)?$a['presentation']:'row';$size=in_array($a['iconSize']??'', ['small','medium','large'],true)?$a['iconSize']:'medium';
         $icon=($a['showIcon']??true)?'<span class="subpage-icon">'.render_page_icon($p).'</span>':'';
@@ -55,7 +61,9 @@ function render_document(array $node,string $pageId='',bool $public=true): strin
          $width=max(10,min(100,(int)($a['width']??100)));$align=in_array($a['align']??'',['left','center','right'],true)?$a['align']:'center';$margin=match($align){'left'=>'0 auto 0 0','right'=>'0 0 0 auto',default=>'0 auto'};$caption='';if(!empty($a['fileId'])){$file=query('SELECT attribution FROM files WHERE id=?',[$a['fileId']])->fetch();$attr=json_decode($file['attribution']??'null',true);if($attr)$caption='<figcaption class="image-attribution">'.h($attr['author']??'').' · '.h($attr['license']??'').(safe_url($attr['source_url']??'')?' · <a href="'.h(safe_url($attr['source_url'])).'" rel="noopener noreferrer" target="_blank">'.h($attr['source_name']??'Wikimedia Commons').'</a>':'').'</figcaption>';}return '<figure class="image-align-'.$align.'" style="width:'.$width.'%;margin:'.$margin.'"><img decoding="async" fetchpriority="low" loading="lazy" src="'.h($src).'" alt="'.h($a['alt']??'').'">'.$caption.'</figure>';
     }
     if($t==='fileBlock'){
-        $id=str_limit($a['fileId']??'',36);$f=query('SELECT name,mime,size FROM files WHERE id=?',[$id])->fetch();if(!$f||($public&&!file_public($id)))return '';
+        $id=str_limit($a['fileId']??'',36);
+        if($id==='')return '<div class="attachment-caption"><span class="attachment-icon" aria-hidden="true">📎</span><div class="attachment-info"><strong>'.h($a['name']??'Pièce jointe').'</strong><small>Fichier à joindre</small></div></div>';
+        $f=query('SELECT name,mime,size FROM files WHERE id=?',[$id])->fetch();if(!$f||($public&&!file_public($id)))return '';
         $url='media.php?id='.rawurlencode($id);$mode=in_array($a['mode']??'', ['pdf','audio','video'],true)?$a['mode']:'download';
         $extension=strtoupper(pathinfo($f['name'],PATHINFO_EXTENSION)?:'FICHIER');$size=(int)$f['size'];$sizeLabel=$size>=1048576?round($size/1048576,1).' Mo':max(1,(int)ceil($size/1024)).' Ko';
         $eye='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';

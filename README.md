@@ -62,7 +62,7 @@ L’installateur vérifie les extensions PHP, les sessions et les droits d’éc
 - **Partager à son rythme** : pages privées ou publiques, liens personnalisés, partage des sous-pages et accueil public configurable.
 - **Personnaliser son espace** : interface Rivage et animations respectant la réduction des mouvements, thèmes clair, sombre et OLED, couleurs, polices, icônes et couvertures repositionnables.
 - **Utiliser Feuillet sur mobile** : interface adaptée, installation comme application web et cache facultatif des pages publiques pour la lecture hors connexion.
-- **Conserver ses données** : import TXT, Markdown et RTF ; export Markdown et PDF ; sauvegarde et restauration ZIP.
+- **Conserver ses données** : import TXT, Markdown, RTF et exports HTML/ZIP de Notion ; export Markdown et PDF ; sauvegarde et restauration ZIP.
 
 ## Mises à jour et documentation
 

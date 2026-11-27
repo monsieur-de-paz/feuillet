@@ -53,10 +53,16 @@ function plain_document(string $text): array {
 }
 function import_document(): array {
     $file=$_FILES['file']??null;if(!$file||($file['error']??1)!==UPLOAD_ERR_OK)fail('Document manquant ou trop volumineux.',413);
-    if(filesize($file['tmp_name'])>2097152)fail('Choisis un document de moins de 2 Mo.',413);
     $extension=strtolower(pathinfo($file['name'],PATHINFO_EXTENSION));
+    if(in_array($extension,['html','zip'],true)){
+        if(!class_exists(DOMDocument::class)||($extension==='zip'&&!class_exists(ZipArchive::class)))fail('Vérifie les extensions PHP DOM et ZIP pour importer depuis Notion.',503);
+        if(filesize($file['tmp_name'])>min(48*1024*1024,upload_limit()))fail('L’export dépasse la taille d’envoi autorisée.',413);
+        require_once __DIR__.'/notion-import.php';
+        return (new NotionExport())->import($file['tmp_name'],basename($file['name']),str_limit($_POST['space_id']??'',36)?:null);
+    }
+    if(filesize($file['tmp_name'])>2097152)fail('Choisis un document de moins de 2 Mo.',413);
     if(in_array($extension,['md','markdown'],true)){$_FILES['file']['name']=pathinfo($file['name'],PATHINFO_FILENAME).'.md';return import_markdown();}
     $text=file_get_contents($file['tmp_name']);
-    $doc=match($extension){'txt'=>plain_document($text),'rtf'=>rtf_document($text),default=>fail('Formats disponibles : .txt, .md, .markdown et .rtf.')};
+    $doc=match($extension){'txt'=>plain_document($text),'rtf'=>rtf_document($text),default=>fail('Formats disponibles : TXT, Markdown, RTF et exports Notion HTML ou ZIP.')};
     return save_page(['title'=>pathinfo($file['name'],PATHINFO_FILENAME),'content'=>$doc,'space_id'=>$_POST['space_id']??null]);
 }

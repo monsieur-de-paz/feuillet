@@ -273,11 +273,10 @@ body[style] .reader-header { position:sticky;top:12px;margin:12px 16px 0;min-hei
 .reader-page .attachment-block .attachment-caption { padding:18px;gap:16px; }
 .attachment-actions :is(button,a),.file-caption :is(button,a) { border-radius:9px; }
 .feuillet-file-preview.feuillet-file-preview { box-shadow:0 24px 90px #00000030;border-radius:18px; }
-.toggle-heading-arrow svg { transition:rotate 180ms var(--atelier-ease),transform 180ms var(--atelier-ease); }
 .toggle-heading[open]>.toggle-heading-body { animation:atelier-disclosure-in 180ms ease-out; }
-.toggle-heading-editor.is-open .toggle-heading-content>[data-node-view-content-react]>:not(:first-child) { animation:atelier-disclosure-in 160ms ease-out; }
+.toggle-heading-editor.is-open > .toggle-heading-content>[data-node-view-content-react]>:not(:first-child) { animation:atelier-disclosure-in 160ms ease-out; }
 @media(prefers-reduced-motion:reduce) {
- .toggle-heading[open]>.toggle-heading-body,.toggle-heading-editor.is-open .toggle-heading-content>[data-node-view-content-react]>:not(:first-child) { animation:none; }
+ .toggle-heading[open]>.toggle-heading-body,.toggle-heading-editor.is-open > .toggle-heading-content>[data-node-view-content-react]>:not(:first-child) { animation:none; }
 }
 /* Resolve the edge token within each customised page/theme, not only at :root. */
 body,.app-shell,.main-panel,.sidebar,.reader-page,.reader-header,.modal,.feuillet-floating {

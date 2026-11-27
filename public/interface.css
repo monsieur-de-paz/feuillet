@@ -1450,7 +1450,7 @@ button.feuillet-select-trigger {
   margin-left: 0;
 }
 .toggle-heading-editor:not(.is-open)
-  .toggle-heading-content
+  > .toggle-heading-content
   > [data-node-view-content-react]
   > :not(:first-child) {
   display: none;
@@ -1474,7 +1474,7 @@ button.feuillet-select-trigger {
   transform: rotate(-90deg);
   transition: transform 150ms var(--ease-interface);
 }
-.toggle-heading-editor.is-open .toggle-heading-arrow svg {
+.toggle-heading-editor.is-open > .toggle-heading-arrow svg {
   transform: rotate(0);
 }
 .toggle-heading {

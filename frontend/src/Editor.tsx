@@ -1,5 +1,10 @@
 import { BlockMotion } from "./block-motion";
-import { BlockClipboard, applyIndependentPaste } from "./BlockClipboard";
+import {
+  BlockClipboard,
+  applyIndependentPaste,
+  pasteBlockTransaction,
+} from "./BlockClipboard";
+import { normalizeNotionClipboard } from "./notion-clipboard";
 import { EditorFileDrop } from "./EditorFileDrop";
 import { ColoredTableCell, ColoredTableHeader } from "./table-formatting";
 import { TableControls } from "./TableControls";
@@ -260,6 +265,26 @@ export default function CourseEditor({
     editable: admin,
     immediatelyRender: true,
     editorProps: {
+      handlePaste: (view, event) => {
+        if (!admin || !event.clipboardData) return false;
+        const copied = normalizeNotionClipboard(
+          event.clipboardData,
+          view.state.schema,
+        );
+        if (!copied) return false;
+        const tr = pasteBlockTransaction(view.state, copied.nodes);
+        if (!tr) {
+          if (copied.flattened)
+            app.notify("Le presse-papiers ne contient pas le contenu de ces blocs. Importe un export HTML de Notion avec ses sous-pages.");
+          return false;
+        }
+        view.dispatch(tr);
+        if (copied.flattened)
+          app.notify(
+            "Collage Notion effectué. Pour les blocs aplatis ou absents, importe un export HTML de Notion.",
+          );
+        return true;
+      },
       attributes: {
         class: "course-content",
         spellcheck: "true",

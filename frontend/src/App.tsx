@@ -4360,7 +4360,7 @@ export default function App() {
         <Modal title="Importer une page" onClose={() => setModal(null)}>
           <div className="modal-form">
             <p>
-              Un document .txt, .md ou .rtf devient une nouvelle page privée
+              Un document TXT, Markdown, RTF ou un export HTML de Notion devient une page privée
               dans le carnet{" "}
               <strong>
                 {spaces.find((space) => String(space.id) === activeSpace)
@@ -4373,7 +4373,7 @@ export default function App() {
               Choisir un document
               <input
                 type="file"
-                accept=".txt,.md,.markdown,.rtf"
+                accept=".txt,.md,.markdown,.rtf,.html,.zip"
                 disabled={busy}
                 onChange={(event) => {
                   if (event.target.files?.[0])
@@ -4383,8 +4383,9 @@ export default function App() {
               />
             </label>
             <p className="muted">
-              2 Mo maximum. Les images et objets incorporés au RTF ne sont pas
-              importés.
+              Pour Notion, exporte une page au format HTML avec ses sous-pages,
+              puis sélectionne le ZIP obtenu. Le ZIP peut inclure les fichiers et
+              les images. Les autres documents sont limités à 2 Mo.
             </p>
             {modalError && <p className="form-error">{modalError}</p>}
           </div>
@@ -4428,14 +4429,14 @@ export default function App() {
               <div>
                 <h3>Importer un document</h3>
                 <p>
-                  Un fichier .txt, .md ou .rtf devient une page dans le carnet
-                  actif.
+                  Un document TXT, Markdown, RTF ou un export HTML de Notion
+                  devient une page privée dans le carnet actif.
                 </p>
                 <label className="small-button import-button">
                   Choisir un document
                   <input
                     type="file"
-                    accept=".txt,.md,.markdown,.rtf,text/plain,text/markdown,application/rtf,text/rtf"
+                    accept=".txt,.md,.markdown,.rtf,.html,.zip,text/plain,text/markdown,application/rtf,text/rtf"
                     disabled={busy}
                     onChange={(e) => {
                       if (e.target.files?.[0])

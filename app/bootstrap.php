@@ -3,7 +3,7 @@ declare(strict_types=1);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-const FEUILLET_VERSION = '0.38.0';
+const FEUILLET_VERSION = '0.39.0';
 const FEUILLET_ROOT = __DIR__ . '/..';
 
 function cfg(): array {
@@ -149,6 +149,9 @@ function normalize_doc(mixed $doc): array {
             if($node['type']==='databaseView'){$id=str_limit($out['attrs']['dbId']??'',36);database_record($id);$out['attrs']=['dbId'=>$id,'viewConfig'=>database_view_config($id,$out['attrs']['viewConfig']??[])];}
             if($node['type']==='formView'){$id=str_limit($out['attrs']['formId']??'',36);if(!query('SELECT id FROM collection_forms WHERE id=?',[$id])->fetch())fail('Formulaire introuvable.');$out['attrs']=button_appearance($out['attrs'])+['formId'=>$id];}
             if($node['type']==='pageLink'){
+                if(empty($out['attrs']['pageId'])||isset($out['attrs']['label']))$out['attrs']['label']=str_limit($out['attrs']['label']??'',255)?:'Page';
+                if(empty($out['attrs']['pageId'])||isset($out['attrs']['icon']))$out['attrs']['icon']=validate_icon($out['attrs']['icon']??'📄');
+                if(isset($out['attrs']['href'])&&!preg_match('/^https?:\/\//i',$out['attrs']['href']))$out['attrs']['href']='';
                 foreach(['presentation'=>['row','card','compact'],'iconSize'=>['small','medium','large']] as $key=>$choices)$out['attrs'][$key]=in_array($out['attrs'][$key]??'', $choices,true)?$out['attrs'][$key]:($key==='presentation'?'row':'medium');
                 foreach(['showIcon'=>true,'showDescription'=>false,'showCover'=>false] as $key=>$default)$out['attrs'][$key]=is_bool($out['attrs'][$key]??null)?$out['attrs'][$key]:$default;
             }
@@ -164,7 +167,11 @@ function normalize_doc(mixed $doc): array {
             if($node['type']==='image'){ $out['attrs']['width']=max(10,min(100,(int)($out['attrs']['width']??100)));$out['attrs']['align']=in_array($out['attrs']['align']??'',['left','center','right'],true)?$out['attrs']['align']:'center'; }
             if($node['type']==='fileBlock' || ($node['type']==='image' && !empty($out['attrs']['fileId']))) {
                 $id=$out['attrs']['fileId']??'';
-                if(!is_string($id)||!query('SELECT id FROM files WHERE id=?',[$id])->fetch()) fail('Pièce jointe introuvable.');
+                if($node['type']==='fileBlock'&&$id===''){
+                    $name=str_limit($out['attrs']['name']??'',240);
+                    if($name==='')fail('Pièce jointe introuvable.');
+                    $out['attrs']=['fileId'=>'','name'=>$name,'mime'=>'','size'=>0,'mode'=>'download','posterId'=>''];
+                }elseif(!is_string($id)||!query('SELECT id FROM files WHERE id=?',[$id])->fetch()) fail('Pièce jointe introuvable.');
             }
         }
         if(isset($node['marks'])) {
@@ -219,7 +226,7 @@ function public_doc(array $doc): array {
     if(($doc['type']??'')==='databaseView'&&!database_public(str_limit($doc['attrs']['dbId']??'',36)))return ['type'=>'paragraph'];
     if(($doc['type']??'')==='formView'){$id=str_limit($doc['attrs']['formId']??'',36);$f=query('SELECT is_public FROM collection_forms WHERE id=?',[$id])->fetch();if(!$f||!$f['is_public'])return ['type'=>'paragraph'];}
 
-    if(($doc['type']??'')==='pageLink') {
+    if(($doc['type']??'')==='pageLink'&&!empty($doc['attrs']['pageId'])) {
         $id=$doc['attrs']['pageId']??'';
         $r=is_string($id)?query('SELECT * FROM pages WHERE id=?',[$id])->fetch():false;
         if(!$r||$r['deleted_at']||$r['visibility']!=='public'||!$r['published']||!ancestors_active($r,page_rows())||!reader_page_allowed($r['id'])) return ['type'=>'paragraph'];
@@ -291,17 +298,17 @@ function save_page(array $input): array {
     $position=cover_position($input['cover_position']??($existing['cover_position']??null));
     $tags=array_values(array_unique(array_filter(array_map(fn($t)=>str_limit($t,50),is_array($input['tags']??null)?array_slice($input['tags'],0,30):[]))));
     $args=[$parent,$title,validate_icon($input['icon']??'📄'),$cover,$kind,str_limit($input['description']??'',2000),encoded($tags),safe_url($input['source_url']??''),str_limit($input['source_name']??''),encoded($content),now(),$spaceId,$iconId,encoded($appearance),$categoryId,encoded($position)];
-    $pdo=db();$pdo->beginTransaction();
+    $pdo=db();$ownsTransaction=!$pdo->inTransaction();if($ownsTransaction)$pdo->beginTransaction();
     try{
         if($existing){$q=query('UPDATE pages SET parent_id=?,title=?,icon=?,cover_id=?,kind=?,description=?,tags=?,source_url=?,source_name=?,content=?,updated_at=?,space_id=?,icon_id=?,appearance=?,category_id=?,cover_position=?,version=version+1 WHERE id=? AND version=?',array_merge($args,[$id,$existing['version']]));if($q->rowCount()!==1)fail('Conflit de modification.',409,'conflict');}
         else { $slug=substr(trim(preg_replace('/[^a-z0-9]+/','-',mb_strtolower(iconv('UTF-8','ASCII//TRANSLIT//IGNORE',$title)?:$title)),'-'),0,120)?:'page';$slug.='-'.substr($id,0,8);query('INSERT INTO pages (parent_id,title,icon,cover_id,kind,description,tags,source_url,source_name,content,updated_at,space_id,icon_id,appearance,category_id,cover_position,id,slug,visibility,sort_order,version,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',array_merge($args,[$id,$slug,'private',(int)($input['sort_order']??0),1,now()]));}
         if($parent)publish_inherited_children($parent);
         if($existing)auto_publish_page($id);
-        $p=row_page(query('SELECT * FROM pages WHERE id=?',[$id])->fetch());revision_save($p);$pdo->commit();return $p;
-    } catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();throw $e;}
+        $p=row_page(query('SELECT * FROM pages WHERE id=?',[$id])->fetch());revision_save($p);if($ownsTransaction)$pdo->commit();return $p;
+    } catch(Throwable $e){if($ownsTransaction&&$pdo->inTransaction())$pdo->rollBack();throw $e;}
 }
 function files_in(array $doc): array {
-    $ids=[];if(($doc['type']??'')==='mindMap')foreach(($doc['attrs']['map']['nodes']??[]) as $idea)foreach(($idea['media']??[]) as $media)if(($media['kind']??'')==='file'&&is_string($media['fileId']??null))$ids[]=$media['fileId'];if(!empty($doc['attrs']['iconId'])&&is_string($doc['attrs']['iconId']))$ids[]=$doc['attrs']['iconId'];if(!empty($doc['attrs']['posterId'])&&is_string($doc['attrs']['posterId']))$ids[]=$doc['attrs']['posterId'];if(is_string($doc['attrs']['fileId']??null))$ids[]=$doc['attrs']['fileId'];
+    $ids=[];if(($doc['type']??'')==='mindMap')foreach(($doc['attrs']['map']['nodes']??[]) as $idea)foreach(($idea['media']??[]) as $media)if(($media['kind']??'')==='file'&&is_string($media['fileId']??null))$ids[]=$media['fileId'];if(!empty($doc['attrs']['iconId'])&&is_string($doc['attrs']['iconId']))$ids[]=$doc['attrs']['iconId'];if(!empty($doc['attrs']['posterId'])&&is_string($doc['attrs']['posterId']))$ids[]=$doc['attrs']['posterId'];if(!empty($doc['attrs']['fileId'])&&is_string($doc['attrs']['fileId']))$ids[]=$doc['attrs']['fileId'];
     foreach($doc['content']??[] as $child)$ids=array_merge($ids,files_in($child));
     return array_values(array_unique($ids));
 }

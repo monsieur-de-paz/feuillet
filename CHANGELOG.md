@@ -1,5 +1,12 @@
 # Historique des versions
 
+## 0.39.0 — 2026-11-27
+
+- Collage depuis Notion avec conversion des encadrés, titres déroulants, liens de sous-pages et pièces jointes que le presse-papiers permet d’identifier. Une pièce jointe sans fichier conserve son nom et peut être complétée dans l’éditeur.
+- Import des exports HTML et ZIP de Notion. Les pages de l’archive sont recréées dans un carnet privé avec leur arborescence et les fichiers inclus. Le HTML sert de source pour recréer des blocs Feuillet.
+- Lorsque Notion fournit seulement des identifiants ou un contenu aplati au collage, l’export HTML avec sous-pages permet de récupérer la structure de la page.
+- La flèche de chaque titre déroulant s’anime en fonction de son propre état, y compris quand le titre est imbriqué.
+
 ## 0.38.0 — 2026-11-26
 
 - Espace administrateur à `/rouedudestin` pour créer, rechercher et classer des roues dans des dossiers. Le résultat en attente, les exclusions et l’historique sont enregistrés sur le serveur.
